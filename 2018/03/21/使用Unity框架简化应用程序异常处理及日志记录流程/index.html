@@ -371,6 +371,17 @@
       
 
       
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
         <p>最近公司安排学习项目代码，前后花了一周左右的时间，基本熟悉了项目中的各个模块，感觉项目难度上整体偏中等。这是一个具备完整前端和后端流程的项目，在学习这个项目的过程中，我逐渐发现某些非常有趣的东西，比如在 Web API 的设计中采用严谨而完善的错误码、使用 OAuth 和 JWT 对 API 资源进行访问控制，在 JavaScript 中使用修饰器特性来实现日志记录等等，这些东西我会在后续的博客逐步去整理，今天想说的是如何通过 Unity 框架来简化应用程序异常处理和日志记录流程，而之所以关注这个问题，是因为我发现项目中接近滥用的异常处理，以及我不能忍受的大量重复代码。</p>
 <h1 id="背景描述"><a href="#背景描述" class="headerlink" title="背景描述"></a>背景描述</h1><p>由于业务场景上的需要，我们在产品中集成了大量第三方硬件厂商的 SDK，这些 SDK 主要都是由 C&#x2F;C++编写的动态链接库，因此在使用这些 SDK 的过程中，通常频繁地使用返回值来判断一个方法是否成功被调用，虽然项目上制定了严格的错误码规范，可当我看到大量的 Log()方法和业务逻辑混合在一起时，我内心依然是表示拒绝的，甚至我看到在捕获异常以后记录日志然后继续 throw 异常，这都是些什么鬼操作啊，考虑到我的语言描述得可能不太准确，大家可以从下面两段代码来感受下整体画风：</p>
 <figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="built_in">short</span> <span class="title">LoginTerminal</span>(<span class="params"><span class="built_in">string</span> uid,<span class="built_in">string</span> pwd</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">try</span></span><br><span class="line">    &#123;</span><br><span class="line">	    Log.BeginLog()</span><br><span class="line">	    <span class="keyword">return</span> SDK.Login(uid,pwd)</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="keyword">catch</span>(Exception ex)</span><br><span class="line">	&#123;</span><br><span class="line">	    log.LogError(ErrorCode.E2301,ex)</span><br><span class="line">	    <span class="keyword">throw</span> <span class="keyword">new</span> TerminalException(ex.Message);</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="keyword">finally</span></span><br><span class="line">	&#123;</span><br><span class="line">	    Log.EndLog()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>

@@ -369,6 +369,17 @@
       
 
       
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
         <p>&emsp;&emsp;各位朋友，大家好，欢迎大家关注我的博客，我是 Psyne，我的博客地址是<a target="_blank" rel="noopener" href="https://blog.yuanpei.me/">https://blog.yuanpei.me</a>。在上一篇博客中，我们提到了通过 DbCommandInterceptor 来实现 EF 中 SQL 针对 SQL 的“日志”功能。我们注意到，在这个拦截器中，我们可以获得当前数据库的上下文，可以获得 SQL 语句中的参数，更一般地，它具备“AOP”特性的扩展能力，可以在执行 SQL 的前后插入相应的动作，这就有点类似数据库中触发器的概念了。今天，我们主要来说一说，基于 EF 实现数据库主从复制和读写分离，希望这个内容对大家有所帮助。</p>
 <h1 id="主从复制-＆-读写分离"><a href="#主从复制-＆-读写分离" class="headerlink" title="主从复制 ＆ 读写分离"></a>主从复制 ＆ 读写分离</h1><p>&emsp;&emsp;首先，我们先来了解一个概念：主从复制。那么，什么是主从复制呢？通常，在只有一个数据库的情况下，这个数据库会被称为<strong>主数据库</strong>。所以，当有多个数据库存在的时候，数据库之间就会有主从之分，而那些和主数据库完全一样的数据库就被称为<strong>从数据库</strong>，所以，<strong>主从复制其实就是指建立一个和主库完全一样的数据库环境</strong>。</p>
 <p>&emsp;&emsp;那么，我们为什么需要主从复制这种设计呢？我们知道，主数据库一般用来存储实时的业务数据，因此如果主数据库服务器发生故障，从数据库可以继续提供数据服务，这就是主从复制的优势之一，<strong>即作为数据提供灾备能力</strong>。其次，从业务扩展性上来讲，互联网应用的业务增长速度普遍较高，随着业务量越来越大，I&#x2F;O 的访问频率越来越高，在单机磁盘无法满足性能要求的情况下，<strong>通过设置多个从数据库服务器，可以降低磁盘的 I&#x2F;O 访问频率，进而提高单机磁盘的读写性能</strong>。从业务场景上来讲，数据库的性能瓶颈主要在读即查询上，<strong>因此将读和写分离，能够让数据库支持更大的并发，这对优化前端用户体验很有意义</strong>。</p>

@@ -372,6 +372,17 @@
       
 
       
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
         <p>&emsp;&emsp;去年国庆的时候，七牛官方开始回收测试域名，这直接导致博客中大量图片出现无法访问的情况，虽然博主第一时间启用了新的域名：<a target="_blank" rel="noopener" href="https://blog.yuanpei.me/">https://blog.yuanpei.me</a>，可是因为七牛官方要求域名必须备案，所以，这件事情一直耽搁着没有往下进行。至于为什么会一直拖到 2019 年，我想大家都能猜到一二，没错，我就是懒得去弄域名备案这些事情:joy:。最近花了点时间，把博客里的图片从七牛和 CSDN 迁移了出来，所以，今天这篇博客，主要想和大家分享下这个折腾的过程，如果能帮助到和我一样，因为七牛官方回收了域名而无法导出图片的朋友，在下开心之至。虽然今天没有回望过去，没有给新的一年立 flag，就如此平淡地过渡到了 2019 年，可或许这才是生活本来的样子吧！</p>
 <p>&emsp;&emsp;七牛的测试域名被官方回收了以后，我们有两种思路去导出这些图片，其一，是临时像官方提工单申请一个测试域名，这样在测试域名被回收前，我们可以直接使用官方提供的<a target="_blank" rel="noopener" href="https://developer.qiniu.com/kodo/tools/qrsctl">qrsctl</a>或者<a target="_blank" rel="noopener" href="https://developer.qiniu.com/kodo/tools/qshell">qshell</a>工具进行批量导出，因为此时我们可以直接在配置文件里配置测试域名，具体可以参考这篇文章：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/309709f7bfe4">跑路之后七牛图片如何导出备份至本地</a>，甚至你可以直接到七牛的管理控制台手动下载，可这样就一点都不极客了对吗？我们是一生追求做极客的人好伐。其二，同样是借助官方提供的<a target="_blank" rel="noopener" href="https://developer.qiniu.com/kodo/tools/qshell">qshell</a>工具，因为没有域名，我们没有办法批量导出，可是工具中提供了两个非常有用的命令，它们分别是：<strong>qshell listbucket</strong>、<strong>qshell get</strong>。通过这两个命令，我们就可以列举出指定 bucket 中的文件以及下载指定文件，所以，这就是我们的第一步，首先把图片从七牛那里导出到本地。以博主的<strong>blogspace</strong>为例：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">qshell account &lt;ak&gt; &lt;sk&gt; &#x27;qinyuanpei@163.com&#x27; /* 请使用你的ak/sk，谢谢 */</span><br><span class="line">qshell listbucket blogspace</span><br></pre></td></tr></table></figure>

@@ -376,6 +376,17 @@
       
 
       
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
         <p>&emsp;&emsp;Hi，大家好，我是Payne，欢迎大家关注我的博客，我的博客地址是：<a target="_blank" rel="noopener" href="https://qinyuanpei.github.io/">https://qinyuanpei.github.io</a>。今天这篇博客，我们来说说WebSocket。各位可能会疑惑，为什么我会突然间对WebSocket感兴趣，这是因为最近接触到了部分“实时”的业务场景，譬如：用户希望在远程视频通话过程中，实时地监控接入方的通话状态，实时地将接入方的响应时间、通话时长以及接通率等信息推送到后台。与此同时，用户可以通过监控平台看到实时变化着的图表。坦白地讲，这种业务场景陌生吗？不，每一年的双11，都能见到小伙伴们实时地“剁手”。所以，在今天这篇文章中，我们会以WebSocket聊天室为例，来讲解如何基于WebSocket构建实时应用。</p>
 <h1 id="WebSocket概述"><a href="#WebSocket概述" class="headerlink" title="WebSocket概述"></a>WebSocket概述</h1><p>&emsp;&emsp;WebSocket是HTML5标准中的一部分，从Socket这个字眼我们就可以知道，这是一种网络通信协议。WebSocket是为了弥补HTTP协议的不足而产生的，我们知道，HTTP协议有一个重要的缺陷，即：请求只能由客户端发起。这是因为HTTP协议采用了经典的请求-响应模型，这就限制了服务端主动向客户端推送消息的可能。与此同时，HTTP协议是无状态的，这意味着连接在请求得到响应以后就关闭了，所以，每次请求都是独立的、上下文无关的请求。这种单向请求的特点，注定了客户端无法实时地获取服务端的状态变化，如果服务端的状态发生连续地变化，客户端就不得不通过“轮询”的方式来获知这种变化。毫无疑问，轮询的方式不仅效率低下，而且浪费网络资源，在这种背景下，WebSocket应运而生。</p>
 <p>&emsp;&emsp;WebSocket协议最早于2008年被提出，并于2011年成为国际标准。目前，主流的浏览器都已经提供了对WebSocket的支持。在WebSocket协议中，客户端和服务器之间只需要做一次握手操作，就可以在客户端和服务器之间实现双向通信，所以，WebSocket可以作为**<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Push_technology">服务器推送</a>**的实现技术之一。因为它本身以HTTP协议为基础，所以对HTTP协议有着更好的兼容性，无论是通信效率还是传输的安全性都能得到保证。WebSocket没有同源限制，客户端可以和任意服务器端进行通信，因此具备通过一个单一连接来支持上下游通信的能力。从本质上来讲，WebSocket是一个在握手阶段使用HTTP协议的TCP&#x2F;IP协议，换句话说，一旦握手成功，WebSocket就和HTTP协议再无瓜葛，下图展示了它与HTTP协议的区别：</p>

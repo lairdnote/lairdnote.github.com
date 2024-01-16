@@ -371,6 +371,17 @@
       
 
       
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
         <p>在平时的开发工作中，接口对接是一件无可避免的事情。虽然在“前后端分离”的大趋势下，后端的角色逐渐转换为数据接口的提供者，然而在实际的应用场景中，我们面对的往往是各种不同的“数据”，譬如企业应用中普遍使用的企业服务总线(ESB)，这类服务要求服务接入者必须使用 WebService 来作为数据交换格式；再譬如电子数据交换(EDI)这种特定行业中使用的数据交换格式，从可读性上甚至还不如基于 XML 的 WebService……而更为普遍的则可能是需要使用 Word、Excel、CSV 来作为数据交换的媒介。顺着这个思路继续发散下去，进入我们失业的或许还有各种数据库，譬如 MySQL 和 MongoDB；各种大数据平台，譬如 Hadoop 和 Spark；各种消息队列，譬如 RabbitMQ 和 Kafka 等等。</p>
 <p>注意到，这里反复提到的一个概念是数据交换(Data Switching)，它是指在多个数据终端设备间，为任意两个终端设备建立数据通信临时互联通路的过程。自从阿里提出“中台”的概念以来，越来越多的公司开始跟风“中台”概念，并随之衍生出譬如组织中台、数据中台、业务中台、内容中台等等的概念。今天这篇博客，我并不打算故弄玄虚地扯这些概念，我的落脚点是接口级别的数据交换，主要通过 Liquid 这款模板引擎来实现。它对应我在这篇博客开头提到的场景：一个对外提供 RESful 风格 API 的系统，如何快速地和一个 WebService 实现对接。总而言之，希望能对这篇博客对大家有所启发吧！</p>
 <h2 id="关于-Liquid"><a href="#关于-Liquid" class="headerlink" title="关于 Liquid"></a>关于 Liquid</h2><p>首先，我们来介绍<a target="_blank" rel="noopener" href="https://shopify.github.io/liquid">Liquid</a>，通过它的官方网站，我们应该它是一门模板语言。对于模板语言，我们应该是非常熟悉啦，JavaScript 里的<a target="_blank" rel="noopener" href="https://handlebarjs.com/">Handlebars</a>和<a target="_blank" rel="noopener" href="https://ejs.bootcss.com/">Ejs</a>就是非常著名的模板语言。如大家所见，这个博客就是用<code>Ejs</code>模板渲染出来的。而到了三大前端框架并驾齐驱的时代，模版语法依然被保留了下来，比如<code>Vue</code>中<code>{{model.userName}}</code>标记常常用来做文本插值。所以，如果要认真追溯起来的话，也许这些框架都或多或少的收到了<code>Liquid</code>的影响，因为它的基本语法如下：</p>

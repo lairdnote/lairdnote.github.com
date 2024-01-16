@@ -369,6 +369,17 @@
       
 
       
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
         <p>插件化应用是个老话题啦，在我们的日常生活中更是屡见不鲜。无论是多年来臃肿不堪的 Eclipse，亦或者是扩展丰富著称的 Chrome，乃至近年来最优秀的编辑器 VSCode，插件都是这其中重要的组成部分。插件的意义在于扩展应用程序的功能，这其实有点像 iPhone 手机和 AppStore 的关系，没有应用程序的手机无非就是一部手机，而拥有了应用程序的手机则可以是 Everything。显然，安装或卸载应用程序并不会影响手机的基本功能，而应用程序离开了手机同样无法单独运行。所以，所谓“插件”，实际上是<strong>一种按照一定规范开发的应用程序，它只能运行在特定的软件平台&#x2F;应用程序且无法运行</strong>。这里，最重要的一点是应用程序可以不依赖插件单独运行，这是这类“插件式”应用的基本要求。</p>
 <p>好了，在了解了插件的概念以后，我们来切入今天的正文。博主曾经在<a target="_blank" rel="noopener" href="https://blog.yuanpei.me/posts/2822230423/">《基于 Python 实现 Windows 下壁纸切换功能》</a>这篇文章中编写了一个小程序，它可以配合 Windows 注册表实现从 <a target="_blank" rel="noopener" href="https://unsplash.com/">Unsplash</a> 上抓取壁纸的功能。最近，博主想为这个小程序增加 <a target="_blank" rel="noopener" href="https://cn.bing.com/?mkt=zh-CN">必应壁纸</a> 和 <a target="_blank" rel="noopener" href="https://wallhaven.cc/">WallHaven</a> 两个壁纸来源，考虑到大多数的壁纸抓取流程是一样的，博主决定以“插件”的方式完成这次迭代，换句话说，主程序不需要再做任何调整，当我们希望增加新的数据源的时候，只需要写一个.py 脚本即可，这就是今天这篇文章的写作缘由。同样的功能，如果使用 Java 或者 C#这类编译型语言来做，我们可能会想到为插件定义一个 IPlugin 接口，这样每一个插件实际上都是 IPlugin 接口的实现类，自然而然地，我们会想到通过反射来调用接口里的方法，这是编译型语言的做法。而面对 Python 这样的解释型语言，我们同样有解释型语言的做法。</p>
 <p>首先，我们从一个最简单的例子入手。我们知道，Python 中的 import 语法可以用来引入一个模块，这个模块可以是 Python 标准库、第三方库和自定义模块。现在，假设我们有两个模块：<code>foo.py</code> 和 <code>bar.py</code>。</p>

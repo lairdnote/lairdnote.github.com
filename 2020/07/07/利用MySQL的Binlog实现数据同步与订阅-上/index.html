@@ -371,6 +371,17 @@
       
 
       
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
         <p>终于等到了周末，在经历了一周的忙碌后，终于可以利用空闲写篇博客。其实，博主有一点困惑，困惑于这个世界早已“堆积”起人类难以想象的“大”数据，而我们又好像执着于去“造”一个又一个“差不多”的“内容管理系统”，从前我们说互联网的精神是开放和分享，可不知从什么时候起，我们亲手打造了一个又一个的“信息孤岛”。而为了打通这些“关节”，就不得不去造一张巨大无比的蜘蛛网，你说这就是互联网的本质，对此我表示无法反驳。我更关心的是这其中最脆弱的部分，即：一条数据怎么从 A 系统流转到 B 系统。可能你会想到<code>API</code>或者<code>ETL</code>这样的关键词，而我今天想说的关键词则是<code>Binlog</code>。假如你经常需要让数据近乎实时地在两个系统间流转，那么你应该停下来听我——一个不甘心整天写<code>CRUD</code>换取<code>996</code>福报的程序员，讲讲如何通过<code>Binlog</code>实现数据同步和订阅的故事。</p>
 <h1 id="什么是-Binlog"><a href="#什么是-Binlog" class="headerlink" title="什么是 Binlog"></a>什么是 Binlog</h1><p>首先，来回答第一个问题，什么是 Binlog？Binlog 即 <code>Binary Log</code>，是 MySQL 中的一种二进制日志文件。它可以记录<code>MySQL</code>内部对数据库的所有修改，故，设计 Binlog 最主要的目的是满足数据库主从复制和增量恢复的需要。对于主从复制，想必大家都耳熟能详呢，因为但凡提及数据库性能优化，大家首先想到的所谓的“读写分离”，而无论是物理层面的一主多从，还是架构层面的<code>CQRS</code>，这背后最大的功臣当属<code>主从复制</code>，而实现主从复制的更底层原因，则要从 Binlog 说起。而对于数据库恢复，身为互联网从业者，对于像<code>“rm -f”</code>和<code>“删库”</code>、<code>“跑路”</code>这些梗，更是喜闻乐见，比如像今年的绿盟删库事件，在数据被删除以后，工程师花了好几天时间去抢救数据，这其中就用到了 Binlog。</p>
 <p>可能大家会好奇，为什么 Binlog 可以做到这些事情。其实，从 Binlog 的三种模式上，我们就可以窥其一二，它们分别是：<code>Statement</code>、<code>Row</code>、<code>Mixed</code>，其中<code>Statement</code>模式记录的是所有数据库操作对应的 SQL 语句，如 INSERT、UPDATE 、DELETE 等 DML 语句，CREATE 、DROP 、ALTER 等 DDL，所以，从理论上讲，只要按顺序执行这些 SQL 语句，就可以实现不同数据库间的数据复制。而<code>Row</code>模式更关心每一行的变更，这种在实际应用中会更普遍一点，因为有时候更关心数据的变化情况，例如一个订单被创建出来，司机通过 App 接收了某个运输任务等。而<code>Mixed</code>模式可以认为是<code>Statement</code>模式和<code>Row</code>模式的混合体，因为<code>Statement</code>模式和<code>Row</code>模式都有各自的不足，前者可能会导致数据不一致，而后者则会占用大量的存储空间。在实际使用中，我们往往会借助各种各样的工具，譬如官方自带的<code>mysqlbinlog</code>、支持 Binlog 解析的<code>StreamSets</code>等等。</p>

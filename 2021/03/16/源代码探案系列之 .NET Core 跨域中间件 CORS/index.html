@@ -370,6 +370,17 @@
       
 
       
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
         <p>本文是 #<strong>源代码探案系列</strong># 第三篇，今天这篇博客，我们来一起解读下 <a target="_blank" rel="noopener" href="https://github.com/dotnet/aspnetcore">ASP.NET Core</a> 中的 <a target="_blank" rel="noopener" href="https://hub.fastgit.org/dotnet/aspnetcore/tree/main/src/Middleware/CORS/src">CORS</a> 中间件，熟悉这个中间件的的小伙伴们，想必都已经猜出本文的主题：跨域。这确实是一个老生常谈的话题，可我并不认为，大家愿意去深入探究这个问题，因为博主曾经发现，每当工作中遇到跨域问题的时候，更多的是直接重写跨域相关的 HTTP 头。博主曾经写过一篇关于跨域的博客：<a target="_blank" rel="noopener" href="https://blog.yuanpei.me/posts/3846545990/">《聊聊前端跨域的爱恨情仇》</a>，当时是完全以前端的视角来看待跨域。所以，在今天这篇博客里，博主想带领大家从一种新的视角来看待跨域，也许，可以从中发现不一样的东西。</p>
 <h1 id="核心流程"><a href="#核心流程" class="headerlink" title="核心流程"></a>核心流程</h1><p>关于 <a target="_blank" rel="noopener" href="https://github.com/dotnet/aspnetcore">ASP.NET Core</a> 中的 <a target="_blank" rel="noopener" href="https://hub.fastgit.org/dotnet/aspnetcore/tree/main/src/Middleware/CORS/src">CORS</a>，大家都知道的是，可以通过<code>UseCors()</code>方法在整个 HTTP 请求管道中启用跨域中间件，或者是通过<code>AddCors()</code>方法来定义跨域策略，亦或者通过<code>[EnableCors]</code>来显式地指定跨域策略，更多的细节大家可以参考微软的<a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/aspnet/core/security/cors?view=aspnetcore-5.0">官方文档</a>，而在这里，我想聊一点大家可能不知道的东西，譬如：服务器端如何处理来自浏览器端的跨域请求？而这一切在 <a target="_blank" rel="noopener" href="https://github.com/dotnet/aspnetcore">ASP.NET Core</a> 中又如何实现？带着这些问题来解读 <a target="_blank" rel="noopener" href="https://hub.fastgit.org/dotnet/aspnetcore/tree/main/src/Middleware/CORS/src">CORS</a> 中间件的源代码，我们能更快的找到我们想得到的答案。一图胜千言，请允许博主使用这张流程图来“开宗明义”，我们这就开始今天的“<strong>探案</strong>”：</p>
 <p><img src="https://i.loli.net/2021/03/16/m1geMX8PfJwN3Bb.png" alt="一张图览尽 CORS 中间件"></p>

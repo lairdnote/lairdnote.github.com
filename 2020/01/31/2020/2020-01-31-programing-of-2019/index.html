@@ -345,6 +345,17 @@
       
 
       
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
         <h3 id="Redis-的工程价值"><a href="#Redis-的工程价值" class="headerlink" title="Redis 的工程价值"></a>Redis 的工程价值</h3><p>今年一开始先是完善了去年的 <a target="_blank" rel="noopener" href="https://leancloud.cn/docs/leanengine_cloudqueue.html">任务队列</a>，为了让它真正地被用起来，我将之前由另外一个服务实现的定时任务系统也合并进了这个任务队列，让它有了一些固定的流量，以便我来发现性能上的问题，进一步完善它。</p>
 <p>这项工作最后取得了还不错的效果，开始有了用户使用任务队列的功能。我也写了一篇文章来介绍 <a target="_blank" rel="noopener" href="https://jysperm.me/2019/08/redis-cronjob-system/">用 Redis 来实现定时任务</a>，当然这篇文章中介绍的是一种经过极度简化的范式，实际上实际的代码要复杂的多，例如序列化、错误处理、结果查询、限流、统计等额外的特性。</p>
 <p>这个项目让我再度增加了对 Redis 的好感，这次我用到了比较大量的 Lua Script 来保证分布式架构下的一致性（Redis 的Lua Script 会被独占地执行）。在将一致性需求限制到单个 Redis 实例可以容纳的范围（Redis 只使用一个线程）并且 Redis 运行相对稳定的情况（故障切换会丢失数据），Redis 为业务层提供了一个非常「够用」的高性能的、有一致性保证的数据同步方案。这并不是说 Redis 提供的方案有多么完美，而是在性能、功能、一致性、可靠性上提供了一个非常好的这种，更具有工程价值。</p>

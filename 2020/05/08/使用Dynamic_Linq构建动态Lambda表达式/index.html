@@ -369,6 +369,17 @@
       
 
       
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
         <p>相信大家都有这样一种感觉，<code>Linq</code>和<code>Lambda</code>是.NET 中一以贯之的存在，从最早的 Linq to Object 到 Linq to SQL，再到 EF&#x2F;EF Core 甚至如今的.NET Core，我们可以看到<code>Lambda</code>表达式的身影出现地越来越频繁。虽然 Linq to Object 和 Linq to SQL，分别是以<code>IEnumerable&lt;T&gt;</code>和<code>IQueryable &lt;T&gt;</code>为基础来实现的。我个人以为，<code>Lambda</code>呢，其实就是匿名委托的“变种”，而<code>Linq</code>则是对<code>Lambda</code>的进一步封装。在<code>System.Linq.Expressions</code>命名空间下，提供大量关于表达式树的 API，而我们都知道，这些表达式树最终都会被编译为委托。所以，动态创建 Lambda 表达式，实际上就是指从一个字符串生成对应委托的过程，而一旦这个委托被生成，可以直接传递给 Where()方法作为参数，显然，它可以对源数据进行过滤，这正是我们想要的结果。</p>
 <h1 id="事出有因"><a href="#事出有因" class="headerlink" title="事出有因"></a>事出有因</h1><p>在今天这篇博客中，我们主要介绍<code>System.Linq.Dynamic.Core</code>这个库，即我所说的 Dynamic Linq。本着“艺术源于生活的态度”，在介绍它的用法之前，不妨随博主一起看看，一个“简单“的查询是如何随着业务演进而变得越来越复杂。从某种意义上来说，正是它让博主想起了 Dynamic Linq。我们为客户编写了一个生成订单的接口，它从一张数据表中“消费”订单数据。最开始，它只需要过滤状态为“未处理”的记录，对应的 CRUD 可以表示为这样：</p>
 <figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> orderInfos = repository.GetByQuery&lt;tt_wg_order&gt;(x =&gt; x.STATUS == <span class="number">10</span>);</span><br></pre></td></tr></table></figure>

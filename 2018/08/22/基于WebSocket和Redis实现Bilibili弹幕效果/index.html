@@ -373,6 +373,17 @@
       
 
       
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
         <p>嗨，大家好，欢迎大家关注我的博客，我是 Payne，我的博客地址是<a target="_blank" rel="noopener" href="https://qinyuanpei.github.io/">https://qinyuanpei.github.io</a>。在上一篇博客中，我们使用了.NET Core 和 Vue 搭建了一个基于 WebSocket 的聊天室。在今天这篇文章中，我们会继续深入这个话题。博主研究 WebSocket 的初衷是，我们的项目上有需要实时去推送数据来完成图表展示的业务，而博主本人对这个内容比较感兴趣，因为博主有对爬虫抓取的内容进行数据可视化(<strong>ECharts</strong>)的想法。可遗憾的是，这些数据量都不算太大，因为难以支持实时推送这个想法，当然更遗憾的是，我无法在项目中验证以上脑洞，所以，最终退而求其次，博主打算用 Redis 和 WebSocket 做一个弹幕的 Demo，之所以用 Redis，是因为博主懒到不想折腾 RabbitMQ。的确，这世界上有很多事情都是没有道理的啊……</p>
 <p>其实，作为一个业余的数据分析爱好者，我是非常乐意看到炫酷的 ECharts 图表呈现在我的面前的，可当你无法从一个项目中收获到什么的时候，你唯一的选择就是项目以外的地方啦，所以，在今天这样一个精细化分工的时代，即使你没有机会独立地完成一个项目，我依然鼓励大家去了解项目的“上下文”，因为单单了解一个点并不足以了解事物的全貌。好了，下面我们来简单说明下这个 Demo 整体的设计思路，即我们通过 Redis 来“模拟”一个简单的消息队列，客户端发送的弹幕会被推送到消息队列中。当 WebSocket 完成握手以后，我们定时从消息队列中取出弹幕，并推送到所有客户端。当客户端接收到服务端推送的消息后，我们通过 Canvas API 完成对弹幕的绘制，这样就可以实现一个基本的弹幕系统啦！</p>
 <h1 id="编写消息推送中间件"><a href="#编写消息推送中间件" class="headerlink" title="编写消息推送中间件"></a>编写消息推送中间件</h1><p>首先，我们来实现服务端的消息推送，其基本原理是：在客户端和服务端完成“握手”后，我们循环地从消息队列中取出消息，并将消息群发至每一个客户端，这样就完成了消息的推送。同上一篇文章一样，我们继续基于“中间件”的形式，来编写消息推送相关的服务。这样，两个 WebSocket 服务可以独立运行而不受到相互的干扰，因为我们将采用两个不同的路由。在上一篇文章中，我们给“聊天”中间件 WebSocketChat 配置的路由为**&#x2F;ws<strong>ws。这里，我们将“消息推送”中间件 WebSocketPush 配置的路由为</strong>&#x2F;push**。这块儿我们做了简化，不再对所有 WebSocket 的连接状态进行维护，因为对一个弹幕系统而言，它不需要让别人了解某个用户的状态是否发生了变化。所以，这里我们给出关键的代码。</p>
