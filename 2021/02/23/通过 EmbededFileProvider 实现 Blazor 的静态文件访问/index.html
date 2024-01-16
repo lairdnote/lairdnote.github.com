@@ -340,6 +340,7 @@
 
                 
                 
+
               
             </span>
           
@@ -365,12 +366,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
      crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
@@ -381,6 +377,11 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+      
+      
+
+      
+
         <p>重构我的 <a target="_blank" rel="noopener" href="https://blog.yuanpei.me/">独立博客</a> ，是博主今年的计划之一，这个基于 <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> 的静态博客，最早搭建于2014年，可以说是比女朋友更亲密的存在，陪伴着博主走过了毕业、求职以及此刻的而立之年。其间虽然尝试过像 <a target="_blank" rel="noopener" href="https://jekyllrb.com/">Jekyll</a> 和 <a target="_blank" rel="noopener" href="https://www.gohugo.org/">Hugo</a> 这样的静态博客生成器，可是考虑到模板、插件等周边生态，这个想法一直被搁置下来。直到最近，突然涌现出通过 <a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/aspnet/core/blazor/?view=aspnetcore-3.1">Blazor</a> 重写博客的想法，尤其是它对于 <a target="_blank" rel="noopener" href="https://webassembly.org/">WebAssembly</a> 的支持，而类似 <a target="_blank" rel="noopener" href="https://cn.vuejs.org/">Vue</a> 和 <a target="_blank" rel="noopener" href="https://reactjs.org/">React</a>的组件化开发模式，在开发体验上有着同样不错的表现。所以，今天这篇博客就来聊聊在重写博客过程中的一点收获，即如何让 Blazor 访问本地的静态文件。</p>
 <h1 id="从内嵌资源说起"><a href="#从内嵌资源说起" class="headerlink" title="从内嵌资源说起"></a>从内嵌资源说起</h1><p>首先，我们要引入一个概念，即：内嵌资源。我们平时接触的更多的是本地文件系统，或者是 FTP 、对象存储这类运行在远程服务器上的文件系统，这些都是非内嵌资源，所以，内嵌资源主要是指那些没有目录层级的文件资源，因为它会在编译的时候“<strong>嵌入</strong>”到动态链接库(DLL)中。一个典型的例子是<code>Swagger</code>，它在<code>.NET Core</code>平台下的实现是<a target="_blank" rel="noopener" href="https://github.com/domaindrivendev/Swashbuckle.AspNetCore">Swashbuckle.AspNetCore</a>，它允许使用自定义的HTML页面。这里可以注意到，它使用到了<code>GetManifestResourceStream()</code>方法：</p>
 <figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">app.UseSwaggerUI(c =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// requires file to be added as an embedded resource</span></span><br><span class="line">    c.IndexStream = () =&gt; GetType().Assembly</span><br><span class="line">        .GetManifestResourceStream(<span class="string">&quot;CustomUIIndex.Swagger.index.html&quot;</span>); </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>

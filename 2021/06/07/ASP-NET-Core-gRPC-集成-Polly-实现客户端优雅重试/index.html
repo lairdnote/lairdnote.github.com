@@ -342,6 +342,7 @@
 
                 
                 
+
               
             </span>
           
@@ -367,12 +368,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
      crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
@@ -383,6 +379,11 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+      
+      
+
+      
+
         <p>在上一篇 <a target="_blank" rel="noopener" href="https://blog.yuanpei.me/posts/1657075397/">博客</a> 中，我们一起探索和实现了<code>gRPC</code>的健康检查。从服务治理的角度来看，健康检查保证的是被调用的服务“健康”或者“可用”。可即使如此，我们依然会遇到，因为网络不稳定等原因而造成的服务调用失败的情形，就如同我们赖以生存的这个真实世界，本身就充满了各种不确定的因素一样，“<strong>世间唯一不变的只有变化本身</strong>”。不管是面对不稳定的服务，还是面对不确定的人生，任何时候我们都需要有一个 B 计划，甚至我们人生中的一切努力，本质上都是为了多一份自由，一份选择的自由。在微服务的世界里，我们将这种选择称之为“<strong>降级(Fallback)<strong>”，如果大家有接触过 <a target="_blank" rel="noopener" href="https://github.com/Netflix/Hystrix">Hystrix</a> 或者 <a target="_blank" rel="noopener" href="https://github.com/App-vNext/Polly">Polly</a> 这类框架，就会明白我这里的所说的“</strong>降级</strong>”具体是什么。在众多的“<strong>降级</strong>”策略中，<strong>重试</strong>是一种非常朴素的策略，尤其是当你调用一个不稳定的服务的时候。</p>
 <p><img src="https://i.loli.net/2021/06/09/GIBVj3sKb5zMeE1.jpg" alt="重试"></p>
 <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>在此之前，博主曾经介绍过 <a target="_blank" rel="noopener" href="https://blog.yuanpei.me/posts/2070070822/">HttpClient</a> 的重试。所以，今天这篇博客我们来聊聊<code>gRPC</code>的客户端重试，因为要构建一个高可用的微服务架构，除了需要高可用的服务提供者，同样还需要高可用的服务消费者。下面，博主将由浅入深地为大家分享 4 种重试方案的实现，除了 <a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/aspnet/core/grpc/retries?view=aspnetcore-3.1">官方</a> 内置的方案，基本上都需要搭配 Polly 来使用，所以，到这里你可以理解这篇博客的标题，为什么博主会 <a target="_blank" rel="noopener" href="https://music.163.com/#/song?id=167720">毁人不倦</a> 地尝试不同的重试方案，因为每一种方案都有它自身的局限性，博主想要的是一种更优雅的方案。具体来讲，主要有：<strong>基于 gRPC RetryPolicy</strong>、<strong>基于 HttpClientFactory</strong>、<strong>基于 gRPC 拦截器</strong> 以及 <strong>基于 CallInvoker</strong>  4 种方案。如果大家还有更好的思路，欢迎大家在博客评论区积极留言、参与讨论。</p>

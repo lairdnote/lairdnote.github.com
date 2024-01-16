@@ -343,6 +343,7 @@
 
                 
                 
+
               
             </span>
           
@@ -368,12 +369,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
      crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
@@ -384,6 +380,11 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+      
+      
+
+      
+
         <p>最近博主在优化一个爬虫程序，它是博主在 2017 年左右刚接触 Python 时写下的一个程序。时过境迁，当 Python 2.X 终于寿终正寝成为过去，当博主终于一只脚迈进 30 岁的大门，一切都来得猝不及防，像一阵龙卷风裹挟着回忆呼啸而去。和大多数学习 Python 的人一样，博主学习 Python 是从写爬虫开始的，而这个爬虫程序刚好是那种抓取“宅男女神”的程序，下载图片无疑是整个流程里最关键的环节，所以，整个优化的核心，无外乎提升程序的稳定性、提高抓取速度。所以，接下来，我会带大家走近 Python 中的多线程编程，涉及到的概念主要有<code>线程(池)</code>、<code>进程(池)</code>、<code>异步I/O</code>、<code>协程</code>、<code>GIL</code>等，而理解这些概念，对我们而言是非常重要的，因为它将会告诉你选择什么方案更好一点。想让你的爬虫更高效、更快吗？在这里就能找到你的答案。</p>
 <h1 id="楔子"><a href="#楔子" class="headerlink" title="楔子"></a>楔子</h1><p>现在，假设我们有一组图片的地址(URL)，我们希望通过<code>requests</code>来实现图片的下载，为此我们定义了<code>Spider</code>类。在这个类中，我们提供了<code>getImage()</code>方法来完成下载这个动作。我们可以非常容易地写出一个“单线程”的版本，但这显然这不是我们今天这篇博客的目的。此时，我们来考虑一个问题，怎么样实现一个“多线程”的版本？</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Spider</span>:</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, urls</span>):</span><br><span class="line">        self.session = requests.session()</span><br><span class="line">        self.session.headers[<span class="string">&#x27;User-Agent&#x27;</span>] = fake_useragent.UserAgent().random</span><br><span class="line">        self.session.headers[<span class="string">&quot;Referer&quot;</span>] = <span class="string">&quot;https://www.nvshens.org&quot;</span></span><br><span class="line">        self.urls = urls</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 下载图片</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">getImage</span>(<span class="params">self, url, fileName, retries=<span class="number">5</span></span>):</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&#x27;<span class="subst">&#123;threading.currentThread().name&#125;</span> -&gt; <span class="subst">&#123;url&#125;</span>&#x27;</span>)</span><br><span class="line">            response = self.session.get(url, </span><br><span class="line">              allow_redirects=<span class="literal">False</span>, </span><br><span class="line">              timeout=<span class="number">10</span>, </span><br><span class="line">              proxies=<span class="literal">None</span></span><br><span class="line">            )</span><br><span class="line">            response.raise_for_status()</span><br><span class="line">            data = response.content</span><br><span class="line">            imgFile = <span class="built_in">open</span>(fileName, <span class="string">&#x27;wb&#x27;</span>)</span><br><span class="line">            imgFile.write(data)</span><br><span class="line">            imgFile.close()</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">except</span> :</span><br><span class="line">            <span class="keyword">while</span> retries &gt; <span class="number">0</span>:</span><br><span class="line">                retries -= <span class="number">1</span></span><br><span class="line">                <span class="keyword">if</span> self.getImage(url, fileName, retries):</span><br><span class="line">                    <span class="keyword">break</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">continue</span></span><br></pre></td></tr></table></figure>

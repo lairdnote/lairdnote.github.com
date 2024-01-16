@@ -336,6 +336,7 @@
 
                 
                 
+
               
             </span>
           
@@ -361,12 +362,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
      crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
@@ -377,6 +373,11 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+      
+      
+
+      
+
         <p>话说最近这两周里，被迫官宣<strong>996</strong>的生活实在是无趣，在两周时间里安排三周的工作量，倘若用丞相的口吻来说，那便是: <strong>我从未见过有如此厚颜无耻之人</strong>。无法为工作的紧急程度排出优先级，这便是身为肉食者们的<strong>鄙</strong>。古人云：<strong>肉食者鄙，未能远谋</strong>，诚不欺我也。一味地追求快速迭代，“屎”山越滚越高没有人在乎；一味地追求功能叠加，技术债务越来越多没有人在乎。所以，本着“多一事不如少一事”的原则，直接通过 Dapper 写 SQL 语句一样没有问题，因为被压榨完以后的时间只能写这个。在今天的这篇博客里，我想和大家分享的是，<code>Dapper.Contrib</code>在操作 Oracle 数据库时引发 <strong>ORA-00928: 缺失 SELECT 关键字</strong> 这一错误背后的根本原因，以及 Dapper 作为一个轻量级 ORM 在设计上做出的取舍。</p>
 <h1 id="问题回顾"><a href="#问题回顾" class="headerlink" title="问题回顾"></a>问题回顾</h1><p>在使用 <code>Dapper.Contrib</code> 操作 Oracle 数据库的时候，通过 Insert() 方法来插入一个实体对象，此时，会引发 <strong>ORA-00928: 缺失 SELECT 关键字</strong> 这种典型的 Oracle 数据库错误，对于经常使用 Dapper 的博主而言，对于 <code>@</code> 还是 <code>:</code> 这种无聊的语法还是有一点经验的，在尝试手写 SQL 语句后，发现使用 Dapper 提供的 <code>Execute()</code> 扩展方法一点问题都没有，初步判定应该是 <code>Dapper.Contrib</code> 这个扩展库的问题，在翻阅 <code>Dapper</code> 的源代码以后，终于找到了问题的根源所在，所以，下面请跟随博主的目光，来一起解读解读 <code>Dapper.Contrib</code> 这个扩展库，相信你看完以后就会明白，为什么这里会被 Oracle 数据库摆上一道，以及为什么它至今都不考虑合并 Oracle 数据库相关的 PR。</p>
 <h1 id="原因分析"><a href="#原因分析" class="headerlink" title="原因分析"></a>原因分析</h1><p>众所周知，<code>Dapper</code> 的核心其实就是一个 SqlMapper ，它提供的 Query() 和 Execute() 接口本身都是附加在 <code>IDbConnection</code> 接口上的扩展方法，所以，最基础的 <code>Dapper</code> 用法其实是伴随着 SQL 语句和以匿名对象为主的参数化查询，这可以说是 Dapper 的核心，而 <code>Dapper.Contrib</code> 在这个基础上提供了 Get()、Insert()、Delete() 和 Update() 等等常见的 CRUD 方法，这些方法都针对的是单主键的表，让 <code>Dapper</code>有了一点 ORM 的感觉，可惜的是 <code>Dapper.Contrib</code> 的实现是不完整的，主要是指下面两个方面，即：第一，官方未能提供 Oracle 版本的 <code>ISqlAdapter</code>。第二，兼容不同数据库自增 ID 的实现，让官方在处理 Id 的参数化查询时束手束脚，对 <code>ISqlAdapter</code> 的设计并不全面。</p>

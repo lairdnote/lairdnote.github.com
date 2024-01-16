@@ -338,6 +338,7 @@
 
                 
                 
+
               
             </span>
           
@@ -363,12 +364,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
      crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
@@ -379,6 +375,11 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+      
+      
+
+      
+
         <p> 这段时间在维护一个“遗产项目”，体验可以说是相当地难受，因为它的数据持久化层完全由 ADO.NET 纯手工打造，所以，你可以在项目中看到无所不在的 DataTable，不论是读操作还是写操作。这个 DataTable 让我这个习惯了 Entity Framework 的人感到非常别扭，我并不排斥写手写 SQL 语句，我只是拥有某种自觉并且清醒地知道，自己写的 SQL 语句未必就比 ORM 生成的 SQL 语句要好。可至少应该是像 Dapper 这种程度的封装啊，因为关系型数据库天生就和面向对象编程存在隔离，所以，频繁地使用 DataTable 无疑意味着你要写很多的转换的代码，当我看到<code>DbConnection</code>、<code>DbCommand</code>、<code>DbDataReader</code>、<code>DbDataAdapter</code>这些熟悉的“底层”的时候，我意识到我可以结合着 Dapper 的实现，从中梳理出一点改善的思路，所以，这篇博客想聊一聊<strong>ADO.NET</strong>、<strong>Dapper</strong>和<strong>Dynamic</strong>这三者间交叉的部分，希望能给大家带来新的启发。</p>
 <h1 id="重温-ADO-NET"><a href="#重温-ADO-NET" class="headerlink" title="重温 ADO.NET"></a>重温 ADO.NET</h1><p>相信大家都知道，我这里提到的<code>DbConnection</code>、<code>DbCommand</code>、<code>DbDataReader</code>、<code>DbDataAdapte</code>以及<code>DataTable</code>、<code>DataSet</code>，实际上就是 ADO.NET 中核心的组成部分，譬如<code>DbConnection</code>负责管理数据库连接，<code>DbCommand</code>负责 SQL 语句的执行，<code>DbDataReader</code>和<code>DbDataAdapter</code>负责数据库结果集的读取。需要注意的是，这些类型都是抽象类，而各个数据库的具体实现，则是由对应的厂商来完成，即我们称之为“驱动”的部分，它们都遵循同一套接口规范，而<code>DataTable</code>和<code>DataSet</code>则是“装”数据库结果集的容器。关于 ADO.NET 的设计理念，可以从下图中得到更清晰的答案：</p>
 <p><img src="https://i.loli.net/2020/12/31/dEN2tajehboDiTl.png" alt="ADO.NET架构"></p>

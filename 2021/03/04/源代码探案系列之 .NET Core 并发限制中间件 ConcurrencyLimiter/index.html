@@ -336,6 +336,7 @@
 
                 
                 
+
               
             </span>
           
@@ -361,12 +362,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
      crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
@@ -377,6 +373,11 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+      
+      
+
+      
+
         <p>打算开一个新的专栏——<strong>源代码探案系列</strong>，目的是通过源代码来探索更广阔的技术世界。因为我越来越意识到，我可能缺乏一个结构化的知识体系，虽然处在一个碎片化的时代，从外界接收了大量的信息，可这些碎片化的信息，到底能不能转化为自身可用的知识，其实是需要去认真思考一番。尤其是当我注意到，许多人工作多年，在经历过从“<strong>生手</strong>”到“<strong>熟练工</strong>”这种蜕变以后，居然还是会害怕原理性内容的考察。我承认，程序员这个职业更像是一个“<strong>手艺人</strong>”，可我更想说一句古人的话——<strong>君子不器</strong>。什么是器呢？“<strong>形而上者谓之道，形而下者谓之器</strong>”，用一句更直白的话来说，就是“<strong>不能知其然而不知其所以然</strong>”，这是我一个非CS科班出身的程序员，想去写这样一个专栏的初衷，因为在我看来，“<strong>器</strong>”是永远学不完的，而“<strong>道</strong>”虽然听起来虚无缥缈，实则“<strong>朝闻道，夕死可矣</strong>”。</p>
 <p>作为这个专栏的第一篇博客，我打算从 <a target="_blank" rel="noopener" href="https://github.com/dotnet/aspnetcore">ASP.NET Core</a> 中的 <a target="_blank" rel="noopener" href="https://github.com/dotnet/aspnetcore/tree/main/src/Middleware/ConcurrencyLimiter">ConcurrencyLimiter</a> 这个中间件开始。并发是一个爱恨交织的话题，我们喜欢高并发，因为这是程序员跻身高手行列的好机会；我们厌恶并发，因为它引入了多线程、锁、信号量这些复杂的东西。相信大家都曾被并发困扰过，古人云：<strong>他山之石，可以攻玉</strong>，还有什么比阅读源代码更朴实无华的“学习”呢？你找大牛，大牛可能忙着开会、做PPT；你找同事，同事里可能十个有八个都不知道啊。这个中间件的核心是 <code>IQueuePolicy</code> ，其位于以下<a target="_blank" rel="noopener" href="https://github.com/dotnet/aspnetcore/tree/main/src/Middleware/ConcurrencyLimiter/src/QueuePolicies">位置</a>，它定义了两个核心的方法：<code>TryEnterAsync()</code> 和 <code>OnExit()</code>：</p>
 <figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IQueuePolicy</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function">ValueTask&lt;<span class="built_in">bool</span>&gt; <span class="title">TryEnterAsync</span>()</span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">OnExit</span>()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>

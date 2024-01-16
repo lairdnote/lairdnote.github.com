@@ -339,6 +339,7 @@
 
                 
                 
+
               
             </span>
           
@@ -364,12 +365,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
      crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
@@ -380,6 +376,11 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+      
+      
+
+      
+
         <p>最近一直在研究 gRPC 的 <a target="_blank" rel="noopener" href="https://github.com/grpc/grpc/blob/master/doc/server-reflection.md">ServerReflection</a>，顾名思义，这是 gRPC 里提供的反射接口，当你需要获取某个接口的描述信息，或者是希望动态调用 gRPC 的时候，这一切就会变得非常有用，如果你经常使用 <a target="_blank" rel="noopener" href="https://github.com/fullstorydev/grpcui/">gRPC UI</a> 这款工具来调试 gRPC 接口，那么，你一定会注意到一件事情，即它要求服务端必须支持 ServerReflection API，而这一点在 ASP.NET Core 中已经得到支持，对此感兴趣的朋友可以参考<a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/aspnet/core/grpc/test-tools?view=aspnetcore-6.0#set-up-grpc-reflection">官方文档</a>。当然，这并不是我想表达的重点(我就知道)。重点是什么呢？在使用 ServerReflection API 的过程中，我发现它采用了 gRPC 双向流的方式来进行交互，在过去的日子里，我研究过诸如 <a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/WebSocket">WebSocket</a>、<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/API/Server-sent_events">Server-Sent Events</a> 等等服务器推送的技术，我意识到这是一个非常接近的技术，所以，今天这篇文章，我们来一起聊聊 gRPC 中的流式传输。</p>
 <h1 id="从-HTTP-2-说起"><a href="#从-HTTP-2-说起" class="headerlink" title="从 HTTP&#x2F;2 说起"></a>从 HTTP&#x2F;2 说起</h1><p>首先，我想说，流式传输并不是一个新的概念，这一切就好像，即使你从来没有听过流媒体的概念，可这并不妨碍你追剧、刷短视频，隐隐然有种“不识庐山真面目，只缘身在此山中”的感觉。随着网络带宽和硬件水平的不断提升，越来越多的云服务变得像水、电、天然气一样寻常，以此作喻，流式传输，就像你打开水龙头，此时，水就会源源不断地流出来，并且可以做到随用随取。因此，流式传输实际上就是指通过网络传输媒体，例如音频、视频等的技术统称，服务器可以连续地、实时地向客户端发送数据，而客户端不必等所有数据发送完就可以访问这些数据。按照实现方式的不同，流式传输可以分为 <code>实时流式传输</code> 和 <code>顺序流式传输</code> 两种，前者通常指<code>RTP/RTCP</code>，典型的场景是直播；后者通常是指由 Nginx、Apache 等提供支持的顺序下载。</p>
 <p><img src="/gRPC-%E6%B5%81%E5%BC%8F%E4%BC%A0%E8%BE%93%E6%9E%81%E7%AE%80%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/HTTP_1.1_vs_HTTP_2.0.png" alt="HTTP/1.1 vs HTTP/2"></p>

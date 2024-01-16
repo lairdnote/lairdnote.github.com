@@ -341,6 +341,7 @@
 
                 
                 
+
               
             </span>
           
@@ -366,12 +367,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
      crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
@@ -382,6 +378,11 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+      
+      
+
+      
+
         <p>有人说，程序员最讨厌两件事情，一件是写文档，一件是别人不写文档，这充分展现了人类双标的本质，所谓的“严于律人”、“宽于律己”就是在说这件事情。虽然这种听来有点自私的想法，是生物自然选择的结果，可一旦人类的大脑皮层在进化过程中产生了“理性”，就会试图去纠正这种来自动物世界的阴暗面。所以，人类双标的本质，大概还是因为这个行为本身就有种超越规则、凌驾于众人之上的感觉，毕竟每个人生来就习惯这种使用特权的感觉。回到写文档这个话题，时下流行的微服务架构，最为显著的一个特点是：仓库多、服务多、接口多，此时，接口文档的重要性就凸显出来，因为接口本质上是一种契约，特别在前后端分离的场景中，只要前、后端约定好接口的参数、返回值，就可以独立进行开发，提供一份清晰的接口文档就显得很有必要。在 RESTful 风格的 API 设计中，<a target="_blank" rel="noopener" href="https://swagger.io/">Swagger</a> 是最为常见的接口文档方案，那么，当我们开始构建以 gRPC 为核心的微服务的时候，我们又该如何考虑接口文档这件事情呢？今天我们就来一起探讨下这个话题。</p>
 <h1 id="protoc-gen-doc-方案"><a href="#protoc-gen-doc-方案" class="headerlink" title="protoc-gen-doc 方案"></a>protoc-gen-doc 方案</h1><p>当视角从 RESTful 转向 gRPC 的时候，本质上是接口的描述语言发生了变化，前者是 JSON 而后者则是 Protobuf，因此，gRPC 服务的文档化自然而然地就落在 Protobuf 上。事实上，官方提供了 <a target="_blank" rel="noopener" href="https://github.com/pseudomuto/protoc-gen-doc">protoc-gen-doc</a> 这个方案，如果大家阅读过我以前的博客，就会意识到这是 Protobuf 编译器，即 <a target="_blank" rel="noopener" href="https://github.com/protocolbuffers/protobuf/releases">protoc</a> 的插件，因为我们曾经通过这个编译器来生成代码、服务描述文件等等。protoc-gen-doc 这个插件的基本用法如下：</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">protoc \</span><br><span class="line">  --plugin=protoc-gen-doc=./protoc-gen-doc \</span><br><span class="line">  --doc_out=./doc \</span><br><span class="line">  --doc_opt=html,index.html \</span><br><span class="line">  proto/*.proto</span><br></pre></td></tr></table></figure>

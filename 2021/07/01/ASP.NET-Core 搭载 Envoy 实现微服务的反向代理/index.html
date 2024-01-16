@@ -343,6 +343,7 @@
 
                 
                 
+
               
             </span>
           
@@ -368,12 +369,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
      crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
@@ -384,6 +380,11 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+      
+      
+
+      
+
         <p>回想起来，博主第一次接触到<code>Envoy</code>，其实是在微软的示例项目 <a target="_blank" rel="noopener" href="https://github.com/dotnet-architecture/eShopOnContainers">eShopOnContainers</a>，在这个示例项目中，微软通过它来为<code>Ordering API</code>、<code>Catalog API</code>、<code>Basket API</code> 等多个服务提供网关的功能。当时，博主并没有对它做深入的探索。此刻再度回想起来，大概是因为那个时候更迷恋领域驱动设计(DDD)的理念。直到最近这段时间，博主需要在一个项目中用到<code>Envoy</code>，终于决定花点时间来学习一下相关内容。所以，接下来这几篇博客，大体上会以记录我学习<code>Envoy</code>的历程为主。考虑到<code>Envoy</code>的配置项特别多，在写作过程中难免会出现纰漏，希望大家谅解。如对具体的配置项存在疑问，请以官方最新的 <a target="_blank" rel="noopener" href="https://www.envoyproxy.io/docs/envoy/latest/">文档</a> 为准，本文所用的示例代码已经上传至 <a target="_blank" rel="noopener" href="https://hub.fastgit.org/Regularly-Archive/2021/tree/master/src/EnvoyGateway">Github</a>，大家作为参考即可。对于今天这篇博客，我们来聊聊 ASP.NET Core 搭载 Envoy 实现微服务的反向代理 这个话题，或许你曾经接触过 <a target="_blank" rel="noopener" href="https://www.nginx.com/">Nginx</a> 或者 <a target="_blank" rel="noopener" href="https://github.com/ThreeMammals/Ocelot">Ocelot</a>，这次我们不妨来尝试一点新的东西，譬如，通过<code>Docker-Compose</code>来实现服务编排，如果对我说的这些东西感兴趣的话，请跟随我的脚步，一起来探索这广阔无垠的技术世界吧！</p>
 <h1 id="走近-Envoy"><a href="#走近-Envoy" class="headerlink" title="走近 Envoy"></a>走近 Envoy</h1><p><a target="_blank" rel="noopener" href="https://www.envoyproxy.io/">Envoy</a> 官网对<code>Envoy</code>的定义是：</p>
 <blockquote>

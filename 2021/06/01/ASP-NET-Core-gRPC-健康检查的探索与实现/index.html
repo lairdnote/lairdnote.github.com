@@ -343,6 +343,7 @@
 
                 
                 
+
               
             </span>
           
@@ -368,12 +369,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
      crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
@@ -384,6 +380,11 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+      
+      
+
+      
+
         <p>各位朋友，大家好，欢迎大家关注我的博客。在上一篇 <a target="_blank" rel="noopener" href="https://blog.yuanpei.me/posts/1679688265/">博客</a> 中，博主和大家分享了<code>gRPC</code>的拦截器在日志记录方面的简单应用，今天我们继续来探索<code>gRPC</code>在构建微服务架构方面的可能性。其实，从博主个人的理解而言，不管我们的微服务架构是采用<code>RPC</code>方式还是采用<code>RESTful</code>方式，我们最终要面对的问题本质上都是一样的，博主这里将其归纳为：服务划分、服务编写 和 服务治理。首先，服务划分决定了每一个服务的上下文边界以及服务颗粒度大小，如果按照领域驱动设计(<strong>DDD</strong>)的思想来描述微服务，我认为它更接近于限界上下文(<strong>BoundedContext</strong>)的概念。其次，服务编写决定了每一个服务的具体实现方式，譬如是采用无状态的<code>RESTful</code>风格的<code>API</code>，还是采用强类型的、基于代理的<code>RPC</code>风格的<code>API</code>。最后，服务治理是微服务架构中永远避不开的话题，服务注册、服务发现、健康检查、日志监控等等一切的话题，其实都是在围绕着<strong>服务治理</strong>而展开，尤其是当我们编写了一个又一个的服务以后，此时该如何管理这些浩如“<strong>星</strong>”海的服务呢？所以，在今天这篇博客中，博主想和大家一起探索下<code>gRPC</code>的健康检查，希望能给大家带来一点启发。</p>
 <p><img src="https://i.loli.net/2021/06/02/oVS3YkPIncr2xM9.jpg" alt="健康检查-服务注册-服务发现示意图"></p>
 <p>关于“健康检查”，大家都知道的一点是，它起到一种“防微杜渐”的作用。不知道大家还记不记得，语文课本里的经典故事《扁鹊见蔡桓公》，扁鹊一直在告知蔡桓公其病情如何，而蔡桓公讳疾忌医，直至病入骨髓、不治而亡。其实，对应到我们的领域知识，后端依赖的各种服务譬如数据库、消息队列、Redis、API 等等，都需要这样一个“<strong>扁鹊</strong>”来实时地“<strong>望闻问切</strong>”，当发现问题的时候及时地采取相应措施，不要像“<strong>蔡桓公</strong>”一样病入骨髓，等到整个系统都瘫痪了，这时候火急火燎地去“救火”，难免会和蔡桓公一样，发出“悔之晚矣”的喟叹。当我们决定使用<code>gRPC</code>来构建微服务架构的时候，我们如何确保这些服务一直是可用的呢？所以，提供一种针对<code>gRPC</code>服务的健康检查方案就会显得非常迫切。这里，博主主要为大家介绍两种实现方式，它们分别是：基于<code>IHostedService</code>的实现方式 以及 基于<code>Consul</code>的实现方式。</p>

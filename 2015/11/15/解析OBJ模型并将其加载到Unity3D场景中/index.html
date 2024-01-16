@@ -337,6 +337,7 @@
 
                 
                 
+
               
             </span>
           
@@ -366,12 +367,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
      crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
@@ -382,6 +378,11 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+      
+      
+
+      
+
         <p>各位朋友，大家好，欢迎大家关注我的博客，我是<strong>秦元培</strong>，我的博客地址是<a target="_blank" rel="noopener" href="http://qinyuanpei.com/">http://qinyuanpei.com</a>。今天想和大家交流的是解析 obj 模型并将其加载到 Unity3D 场景中，虽然我们知道 Unity3D 是可以直接导入 OBJ 模型的，可是有时候我们并不能保证我们目标客户知道如何使用 Unity3D 的这套制作流程，可能对方最终提供给我们的就是一个模型文件而已，所以这个在这里做这个尝试想想还是蛮有趣的呢，既然如此，我们就选择在所有 3D 模型格式中最为简单的 OBJ 模型来一起探讨这个问题吧！<span id="more"></span></p>
 <h1 id="关于-OBJ-模型"><a href="#关于-OBJ-模型" class="headerlink" title="关于 OBJ 模型"></a>关于 OBJ 模型</h1><p>OBJ 格式是一种 3D 模型文件格式，是由 Alias|Wavefront 公司为 3D 建模和动画软件 “Advanced Visualizer”开发的一种标准，适合用于 3D 软件模型之间的互相转换。和 FBX、Max 这种内部私有格式不同，OBJ 模型文件是一种文本文件，我们可以直接使用记事本等软件打开进行编辑和查看，因此我们这里选择 OBJ 模型主要是基于它开放和标准这两个特点。需要说明的是，OBJ 文件是一种 3D 模型文件，它主要支持多边形模型（三个点以上的面）。OBJ 模型支持法线和贴图坐标，可是因为它本身并不记录动画、材质特性、贴图路径、动力学及粒子等信息，所以我们在游戏开发中基本看不到这种模型格式的，所以我们这里做下简单研究就好。</p>
 <h1 id="OBJ-模型解读"><a href="#OBJ-模型解读" class="headerlink" title="OBJ 模型解读"></a>OBJ 模型解读</h1><p>因为 OBJ 模型文件是一个文本文件，所以我们可以使用记事本等软件打开它来对它的文件结构进行下了解。首先 OBJ 文件没有头文件，如果你曾经尝试解析过 mp3 文件的 ID3v1&#x2F;ID3v2 标签就应该知道它是根据 mp3 文件的开头或者末尾的若干字节来判断这些标签信息的，而在 OBJ 文件中是没有类似这样的头文件的。OBJ 文件是由一行行由关键字、空格和文本字符组成的文本文件，通过关键字我们就可以知道这一行的文本表示的是什么数据。例如：</p>

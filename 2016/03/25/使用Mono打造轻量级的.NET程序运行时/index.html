@@ -340,6 +340,7 @@
 
                 
                 
+
               
             </span>
           
@@ -369,12 +370,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
      crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
@@ -385,6 +381,11 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+      
+      
+
+      
+
         <p>在<a href=".">使用 Mono 让.NET 程序跨平台运行</a>这篇文章中，我们已经对 Mono 以及.NET 程序的运行机制有了初步的理解。今天我想来谈谈”使用 Mono 打造轻量级的.NET 运行时”这样一个话题。为什么我会有这样一种想法呢？因为 Mono 和.NET 都可以执行 IL 代码，所以我用 Mono 来作为.NET 程序的运行时是一个顺理成章的想法。由于.NET 程序需要.NET Framework 提供运行支持，所以当目标设备没有安装.NET Framework 或者.NET Framework 版本不对的时候，我们的程序都无法顺利运行。强迫用户安装.NET 框架无疑会影响用户体验，在 Windows XP 尚未停止服务前，国内软件厂商为了兼容这些用户，通常会选择 C++这类语言来编写原生应用，这就造成了国内.NET 技术长期不被重视的现状。</p>
 <span id="more"></span>
 <h1 id="考虑-NET-版本的兼容"><a href="#考虑-NET-版本的兼容" class="headerlink" title="考虑.NET 版本的兼容"></a>考虑.NET 版本的兼容</h1><p>在考虑使用 Mono 来作为.NET 应用程序的运行时前，首先我们来考虑.NET 版本的兼容问题。假设我们使用.NET Framework 3.5 版本生成了一个应用程序，那么这个应用程序将在安装了.NET Framework v3.5 的计算机上运行，如果目标计算机上没有安装.NET Framework v3.5，这个应用程序将无法正常运行。这个时候，我们可以有两种解决方案：第一种，强迫用户安装.NET Framework v3.5，无论是将该框架集成到安装包中，还是在安装软件的时候自动从网上下载安装，显然这种方式都会影响用户的使用体验让用户对应用程序的印象大打折扣；第二种，尝试让应用程序和.NET 版本兼容。我们知道 Android 程序有一个最低 API 版本的设置，这样能够保证应用程序在不低于该 API 版本的设备上运行。这里我们选择这种思路，在.NET 程序中，我们可以通过应用程序配置文件中的 supportedRuntime 节点来指定应用程序运行的.NET Framework 版本。例如下面的配置文件能够保证应用程序在.NET Framework v2.0 到 v3.5 间的版本上运行。</p>

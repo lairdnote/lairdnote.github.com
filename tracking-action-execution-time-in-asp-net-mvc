@@ -340,12 +340,7 @@
     
     
     <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
      crossorigin="anonymous"></script>
 <ins class="adsbygoogle"
      style="display:block; text-align:center;"
@@ -356,6 +351,11 @@
 <script>
      (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
+      
+      
+
+      
+
         <p>Using filter attributes we can add features to our actions or controllers easily. In this case, I have implemented an action filter attribute that stores how much time has taken to execute an action.</p>
 <span id="more"></span>
 <figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">TrackTimeFilter</span> : <span class="title">ActionFilterAttribute</span></span><br><span class="line">&#123;</span><br><span class="line">  Stopwatch stopWatch;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnActionExecuting</span>(<span class="params">ActionExecutingContext filterContext</span>)</span></span><br><span class="line">  &#123;</span><br><span class="line">    stopWatch = <span class="keyword">new</span> Stopwatch();</span><br><span class="line">    stopWatch.Start();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">OnResultExecuted</span>(<span class="params">ResultExecutedContext filterContext</span>)</span></span><br><span class="line">  &#123;</span><br><span class="line">    stopWatch.Stop();</span><br><span class="line">    Log(filterContext.RouteData, stopWatch.ElapsedMilliseconds);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">Log</span>(<span class="params">RouteData routeData, <span class="built_in">long</span> time</span>)</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">var</span> controllerName = routeData.Values[<span class="string">&quot;controller&quot;</span>];</span><br><span class="line">    <span class="keyword">var</span> actionName = routeData.Values[<span class="string">&quot;action&quot;</span>];</span><br><span class="line">    ElapsedTime.InsertEntity(time, controllerName + <span class="string">&quot;.&quot;</span> + actionName);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
