@@ -845,6 +845,173 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/git-tips.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/post/git-tips.html" itemprop="url">Git tips</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-03-02T00:00:00+08:00">
+                2022-03-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="批量删除-git-分支"><a href="#批量删除-git-分支" class="headerlink" title="批量删除 git 分支"></a>批量删除 git 分支</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch -a | grep -e <span class="string">&quot;fix/&quot;</span> | xargs git branch -D</span><br></pre></td></tr></table></figure>
+
+<h2 id="批量添加匹配文件到暂存区"><a href="#批量添加匹配文件到暂存区" class="headerlink" title="批量添加匹配文件到暂存区"></a>批量添加匹配文件到暂存区</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git status -s -uall | grep .vue | awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span> | xargs git add</span><br></pre></td></tr></table></figure>
+
+<h2 id="按最后提交日期排序所有远程分支"><a href="#按最后提交日期排序所有远程分支" class="headerlink" title="按最后提交日期排序所有远程分支"></a>按最后提交日期排序所有远程分支</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch -rv --<span class="built_in">sort</span>=-committerdate</span><br></pre></td></tr></table></figure>
+
+<p>更多：<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/5188320/how-can-i-get-a-list-of-git-branches-ordered-by-most-recent-commit">How can I get a list of Git branches, ordered by most recent commit?</a></p>
+<h2 id="更好的-git-log"><a href="#更好的-git-log" class="headerlink" title="更好的 git log"></a>更好的 git log</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global alias.lg <span class="string">&quot;log --color --graph --pretty=format:&#x27;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&#x27; --abbrev-commit&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="列出另外一个分支没有的提交"><a href="#列出另外一个分支没有的提交" class="headerlink" title="列出另外一个分支没有的提交"></a>列出另外一个分支没有的提交</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git cherry -v branch-A branch-B</span><br></pre></td></tr></table></figure>
+
+<h2 id="clone-特定分支"><a href="#clone-特定分支" class="headerlink" title="clone 特定分支"></a>clone 特定分支</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> -b develop git@github.com:user/myproject.git</span><br></pre></td></tr></table></figure>
+
+<h2 id="递归移动文件夹"><a href="#递归移动文件夹" class="headerlink" title="递归移动文件夹"></a>递归移动文件夹</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mv</span> bar/&#123;,.&#125;* .</span><br></pre></td></tr></table></figure>
+
+<h2 id="列出特定分支的记录"><a href="#列出特定分支的记录" class="headerlink" title="列出特定分支的记录"></a>列出特定分支的记录</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">log</span> -p branch-name</span><br></pre></td></tr></table></figure>
+
+<h2 id="查看特定文件的-git-记录"><a href="#查看特定文件的-git-记录" class="headerlink" title="查看特定文件的 git 记录"></a>查看特定文件的 git 记录</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">log</span> -p -- filename</span><br></pre></td></tr></table></figure>
+
+<h2 id="修改-git-提交为任何人"><a href="#修改-git-提交为任何人" class="headerlink" title="修改 git 提交为任何人"></a>修改 git 提交为任何人</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git -c user.name=<span class="string">&quot;NEW NAME&quot;</span> -c user.email=<span class="string">&quot;new_email@gmail.com&quot;</span> commit --amend --<span class="built_in">date</span>=<span class="string">&quot;Tue Nov 20 03:00 2018 +0100&quot;</span> --author=<span class="string">&quot;NEW NAME &lt;new_email@gmail.com&gt;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="查看当前所有子目录的-git-状态"><a href="#查看当前所有子目录的-git-状态" class="headerlink" title="查看当前所有子目录的 git 状态"></a>查看当前所有子目录的 git 状态</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find . -maxdepth 1 -mindepth 1 -<span class="built_in">type</span> d -<span class="built_in">exec</span> sh -c <span class="string">&#x27;(echo &#123;&#125; &amp;&amp; cd &#123;&#125; &amp;&amp; git status -s &amp;&amp; echo)&#x27;</span> \\;</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建-git-归档时忽略某些目录"><a href="#创建-git-归档时忽略某些目录" class="headerlink" title="创建 git 归档时忽略某些目录"></a>创建 git 归档时忽略某些目录</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar cvfz app.tar.gz --exclude <span class="string">&quot;.git/*&quot;</span> --exclude <span class="string">&quot;.git&quot;</span> app/</span><br></pre></td></tr></table></figure>
+
+<h2 id="列出未发布的-commit"><a href="#列出未发布的-commit" class="headerlink" title="列出未发布的 commit"></a>列出未发布的 commit</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">log</span> @&#123;u&#125;..</span><br></pre></td></tr></table></figure>
+
+<h2 id="在所有-commit-中寻找代码"><a href="#在所有-commit-中寻找代码" class="headerlink" title="在所有 commit 中寻找代码"></a>在所有 commit 中寻找代码</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rev-list --all | xargs git grep</span><br></pre></td></tr></table></figure>
+
+<h2 id="找到一个文件是何时被删掉的"><a href="#找到一个文件是何时被删掉的" class="headerlink" title="找到一个文件是何时被删掉的"></a>找到一个文件是何时被删掉的</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">log</span> --diff-filter=D -- path/to/file</span><br></pre></td></tr></table></figure>
+
+<h2 id="删除远程分支"><a href="#删除远程分支" class="headerlink" title="删除远程分支"></a>删除远程分支</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin :branch</span><br></pre></td></tr></table></figure>
+
+<h2 id="让-git-可以递归调用"><a href="#让-git-可以递归调用" class="headerlink" title="让 git 可以递归调用"></a>让 git 可以递归调用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global alias.git <span class="string">&#x27;!git&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="revert-cherry-pick"><a href="#revert-cherry-pick" class="headerlink" title="revert cherry-pick"></a>revert cherry-pick</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rebase -p --onto SHA^ SHA</span><br></pre></td></tr></table></figure>
+
+<h2 id="永久删除文件"><a href="#永久删除文件" class="headerlink" title="永久删除文件"></a>永久删除文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git filter-branch --tree-filter <span class="string">&#x27;rm -rf my_folder/my_file&#x27;</span> HEAD</span><br></pre></td></tr></table></figure>
+
+<h2 id="永久链接"><a href="#永久链接" class="headerlink" title="永久链接"></a>永久链接</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">permalink = <span class="string">&quot;!f() &#123; echo &quot;</span>https://$(git config --get remote.origin.url | grep --color=never -o -E <span class="string">&#x27;github.com[:/][^\\.]+&#x27;</span> | sed s/\\:/\\\\//)/commit/$(git rev-parse @&#123;u&#125;)<span class="string">&quot;; &#125;; open <span class="subst">$(f)</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="仅忽略本地副本的文件更改"><a href="#仅忽略本地副本的文件更改" class="headerlink" title="仅忽略本地副本的文件更改"></a>仅忽略本地副本的文件更改</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git update-index --assume-unchanged &lt;file&gt;</span><br><span class="line"></span><br><span class="line">git update-index --no-assume-unchanged &lt;file&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="忽略已跟踪的文件"><a href="#忽略已跟踪的文件" class="headerlink" title="忽略已跟踪的文件"></a>忽略已跟踪的文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">rm</span> --cached &lt;file&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="获取当前分支名称"><a href="#获取当前分支名称" class="headerlink" title="获取当前分支名称"></a>获取当前分支名称</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch --no-color 2&gt; /dev/null | sed -e <span class="string">&#x27;/^[^*]/d&#x27;</span> -e <span class="string">&#x27;s/* \(.*\)/\1/&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="查看某个版本的目录树"><a href="#查看某个版本的目录树" class="headerlink" title="查看某个版本的目录树"></a>查看某个版本的目录树</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git show HEAD~5:hello.txt</span><br><span class="line"></span><br><span class="line">git show awesome-feature:app/models</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/hg-tips.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1042,173 +1209,6 @@
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;hg.path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/opt/homebrew/bin/hg&quot;</span> <span class="comment">// 可通过 which hg 查看 hg 的可执行脚本路径</span></span><br></pre></td></tr></table></figure>
 
 <p>另外推荐开启  <code>hg.lineAnnotationEnabled</code> ，即可轻松查看当前文件每一行最后改动，类似于 GitLens 扩展。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/git-tips.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/post/git-tips.html" itemprop="url">Git tips</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-03-02T00:00:00+08:00">
-                2022-03-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="批量删除-git-分支"><a href="#批量删除-git-分支" class="headerlink" title="批量删除 git 分支"></a>批量删除 git 分支</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch -a | grep -e <span class="string">&quot;fix/&quot;</span> | xargs git branch -D</span><br></pre></td></tr></table></figure>
-
-<h2 id="批量添加匹配文件到暂存区"><a href="#批量添加匹配文件到暂存区" class="headerlink" title="批量添加匹配文件到暂存区"></a>批量添加匹配文件到暂存区</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git status -s -uall | grep .vue | awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span> | xargs git add</span><br></pre></td></tr></table></figure>
-
-<h2 id="按最后提交日期排序所有远程分支"><a href="#按最后提交日期排序所有远程分支" class="headerlink" title="按最后提交日期排序所有远程分支"></a>按最后提交日期排序所有远程分支</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch -rv --<span class="built_in">sort</span>=-committerdate</span><br></pre></td></tr></table></figure>
-
-<p>更多：<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/5188320/how-can-i-get-a-list-of-git-branches-ordered-by-most-recent-commit">How can I get a list of Git branches, ordered by most recent commit?</a></p>
-<h2 id="更好的-git-log"><a href="#更好的-git-log" class="headerlink" title="更好的 git log"></a>更好的 git log</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global alias.lg <span class="string">&quot;log --color --graph --pretty=format:&#x27;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&#x27; --abbrev-commit&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="列出另外一个分支没有的提交"><a href="#列出另外一个分支没有的提交" class="headerlink" title="列出另外一个分支没有的提交"></a>列出另外一个分支没有的提交</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git cherry -v branch-A branch-B</span><br></pre></td></tr></table></figure>
-
-<h2 id="clone-特定分支"><a href="#clone-特定分支" class="headerlink" title="clone 特定分支"></a>clone 特定分支</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> -b develop git@github.com:user/myproject.git</span><br></pre></td></tr></table></figure>
-
-<h2 id="递归移动文件夹"><a href="#递归移动文件夹" class="headerlink" title="递归移动文件夹"></a>递归移动文件夹</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mv</span> bar/&#123;,.&#125;* .</span><br></pre></td></tr></table></figure>
-
-<h2 id="列出特定分支的记录"><a href="#列出特定分支的记录" class="headerlink" title="列出特定分支的记录"></a>列出特定分支的记录</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">log</span> -p branch-name</span><br></pre></td></tr></table></figure>
-
-<h2 id="查看特定文件的-git-记录"><a href="#查看特定文件的-git-记录" class="headerlink" title="查看特定文件的 git 记录"></a>查看特定文件的 git 记录</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">log</span> -p -- filename</span><br></pre></td></tr></table></figure>
-
-<h2 id="修改-git-提交为任何人"><a href="#修改-git-提交为任何人" class="headerlink" title="修改 git 提交为任何人"></a>修改 git 提交为任何人</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git -c user.name=<span class="string">&quot;NEW NAME&quot;</span> -c user.email=<span class="string">&quot;new_email@gmail.com&quot;</span> commit --amend --<span class="built_in">date</span>=<span class="string">&quot;Tue Nov 20 03:00 2018 +0100&quot;</span> --author=<span class="string">&quot;NEW NAME &lt;new_email@gmail.com&gt;&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="查看当前所有子目录的-git-状态"><a href="#查看当前所有子目录的-git-状态" class="headerlink" title="查看当前所有子目录的 git 状态"></a>查看当前所有子目录的 git 状态</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find . -maxdepth 1 -mindepth 1 -<span class="built_in">type</span> d -<span class="built_in">exec</span> sh -c <span class="string">&#x27;(echo &#123;&#125; &amp;&amp; cd &#123;&#125; &amp;&amp; git status -s &amp;&amp; echo)&#x27;</span> \\;</span><br></pre></td></tr></table></figure>
-
-<h2 id="创建-git-归档时忽略某些目录"><a href="#创建-git-归档时忽略某些目录" class="headerlink" title="创建 git 归档时忽略某些目录"></a>创建 git 归档时忽略某些目录</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar cvfz app.tar.gz --exclude <span class="string">&quot;.git/*&quot;</span> --exclude <span class="string">&quot;.git&quot;</span> app/</span><br></pre></td></tr></table></figure>
-
-<h2 id="列出未发布的-commit"><a href="#列出未发布的-commit" class="headerlink" title="列出未发布的 commit"></a>列出未发布的 commit</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">log</span> @&#123;u&#125;..</span><br></pre></td></tr></table></figure>
-
-<h2 id="在所有-commit-中寻找代码"><a href="#在所有-commit-中寻找代码" class="headerlink" title="在所有 commit 中寻找代码"></a>在所有 commit 中寻找代码</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rev-list --all | xargs git grep</span><br></pre></td></tr></table></figure>
-
-<h2 id="找到一个文件是何时被删掉的"><a href="#找到一个文件是何时被删掉的" class="headerlink" title="找到一个文件是何时被删掉的"></a>找到一个文件是何时被删掉的</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">log</span> --diff-filter=D -- path/to/file</span><br></pre></td></tr></table></figure>
-
-<h2 id="删除远程分支"><a href="#删除远程分支" class="headerlink" title="删除远程分支"></a>删除远程分支</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin :branch</span><br></pre></td></tr></table></figure>
-
-<h2 id="让-git-可以递归调用"><a href="#让-git-可以递归调用" class="headerlink" title="让 git 可以递归调用"></a>让 git 可以递归调用</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git config --global alias.git <span class="string">&#x27;!git&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="revert-cherry-pick"><a href="#revert-cherry-pick" class="headerlink" title="revert cherry-pick"></a>revert cherry-pick</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rebase -p --onto SHA^ SHA</span><br></pre></td></tr></table></figure>
-
-<h2 id="永久删除文件"><a href="#永久删除文件" class="headerlink" title="永久删除文件"></a>永久删除文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git filter-branch --tree-filter <span class="string">&#x27;rm -rf my_folder/my_file&#x27;</span> HEAD</span><br></pre></td></tr></table></figure>
-
-<h2 id="永久链接"><a href="#永久链接" class="headerlink" title="永久链接"></a>永久链接</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">permalink = <span class="string">&quot;!f() &#123; echo &quot;</span>https://$(git config --get remote.origin.url | grep --color=never -o -E <span class="string">&#x27;github.com[:/][^\\.]+&#x27;</span> | sed s/\\:/\\\\//)/commit/$(git rev-parse @&#123;u&#125;)<span class="string">&quot;; &#125;; open <span class="subst">$(f)</span>&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="仅忽略本地副本的文件更改"><a href="#仅忽略本地副本的文件更改" class="headerlink" title="仅忽略本地副本的文件更改"></a>仅忽略本地副本的文件更改</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git update-index --assume-unchanged &lt;file&gt;</span><br><span class="line"></span><br><span class="line">git update-index --no-assume-unchanged &lt;file&gt;</span><br></pre></td></tr></table></figure>
-
-<h2 id="忽略已跟踪的文件"><a href="#忽略已跟踪的文件" class="headerlink" title="忽略已跟踪的文件"></a>忽略已跟踪的文件</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">rm</span> --cached &lt;file&gt;</span><br></pre></td></tr></table></figure>
-
-<h2 id="获取当前分支名称"><a href="#获取当前分支名称" class="headerlink" title="获取当前分支名称"></a>获取当前分支名称</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch --no-color 2&gt; /dev/null | sed -e <span class="string">&#x27;/^[^*]/d&#x27;</span> -e <span class="string">&#x27;s/* \(.*\)/\1/&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="查看某个版本的目录树"><a href="#查看某个版本的目录树" class="headerlink" title="查看某个版本的目录树"></a>查看某个版本的目录树</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git show HEAD~5:hello.txt</span><br><span class="line"></span><br><span class="line">git show awesome-feature:app/models</span><br></pre></td></tr></table></figure>
 
           
         
