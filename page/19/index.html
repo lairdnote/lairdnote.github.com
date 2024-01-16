@@ -365,17 +365,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <h2 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h2><p>今年股票美股的收益整体大概是 40% 左右，无图无真相，以下是老虎的统计数据：</p>
 <img src="/images/stock-2020.jpg" class="">
@@ -469,6 +459,7 @@
     
 
     
+
 
     
 
@@ -616,6 +607,7 @@
 
     
 
+
     
 
     
@@ -762,6 +754,7 @@
 
     
 
+
     
 
     
@@ -891,17 +884,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <img src="/images/good-strategy-bad-strategy-book.jpg" width="300px" />
 
@@ -952,6 +935,7 @@
     
 
     
+
 
     
 
@@ -1082,17 +1066,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <p>此时此刻，2020 年的最后一个月，不管过去这一年给我们留下了怎样的记忆，时间终究自顾自地往前走，留给我们的怀念已时日无多。如果要说 2020 年的年度日剧，我想《半泽直树》实至名归，这部在时隔七年后上映的续集，豆瓣评分高达 9.4 分，一度超越 2013 年第一部的 9.3 分，是当之无愧的现象级电视剧，期间甚至因为疫情原因而推迟播出，这不能不感谢为此付出辛勤努力的演职人员们。身为一个“打工人”，主角半泽直树那种百折不挠、恩怨分明的性格，难免会引起你我这种“社畜”们的共鸣，即使做不到“以牙还牙，加倍奉还”，至少可以活得像一个活生生的人。电视剧或许大家都看过了，那么，电视剧相对于原著小说有哪些改动呢？今天，就让我们使用 Python 来抽取半泽直树原著小说中的人物关系吧！</p>
 <h1 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h1><p>在开始今天的博客内容前，我们有一点准备工作要完成。考虑到小说人物关系抽取，属于自然语言处理(<strong>NLP</strong>)领域的内容，所以，除了准备好 Python 环境以外，我们需要提前准备相关的中文语料，在这里主要有：<a target="_blank" rel="noopener" href="https://github.com/qinyuanpei/graph-relation/blob/master/input/%E5%8D%8A%E6%B3%BD%E7%9B%B4%E6%A0%91.txt">半泽直树原著小说</a>、 <a target="_blank" rel="noopener" href="https://github.com/qinyuanpei/graph-relation/blob/master/input/%E4%BA%BA%E5%90%8D%E8%AF%8D%E5%85%B8.txt">半泽直树人名词典</a>、<a target="_blank" rel="noopener" href="https://github.com/qinyuanpei/graph-relation/blob/master/input/%E5%88%AB%E5%90%8D%E8%AF%8D%E5%85%B8.txt">半泽直树别名词典</a>、<a target="_blank" rel="noopener" href="https://github.com/qinyuanpei/graph-relation/blob/master/input/%E5%81%9C%E7%94%A8%E8%AF%8D%E8%AF%8D%E5%85%B8.txt">中文分词停用词表</a>。除此之外，我们需要安装<code>结巴分词</code>、<code>PyECharts</code>两个第三方库(<strong>注，可以通过 pip 直接安装</strong>)，以及用于展示人物关系的软件<code>Gephi</code>(<strong>注，这个软件依赖 Java 环境</strong>)。所以，你基本可以想到，我们会使用结巴分词对小说文本进行分词处理，而半泽直树人名列表则作为用户词典供结巴分词使用，经过一系列处理后，我们最终通过<code>Gephi</code>和<code>PyECharts</code>对结果进行可视化，通过分析人物间的关系，结合我们对电视剧剧情的掌握情况，我们就可以对本文所采用方法的效果进行评估，也许你认为两个人毫无联系，可最终他们以某种特殊的形式建立了联系，这就是我们要做这件事情的意义所在。本项目已托管在 <a target="_blank" rel="noopener" href="https://github.com/qinyuanpei/graph-relation">Github</a>上，供大家自由查阅。</p>
@@ -1126,6 +1100,7 @@
     
 
     
+
 
     
 
@@ -1256,17 +1231,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <p>在上一篇博客中，我和大家分享了整个 11 月份找工作的心路历程，而在找工作的过程中，博主发现西安大小周、单休这种变相“996”的公司越来越多，感慨整个行业越来越“内卷”的同时，不免会对未来的人生有一点迷茫，因为深圳已经开始试运行“996”了，如果有一天“996”被合法化并成为一种常态，那么，我们又该如何去面对“人会一天天衰老，总有一天肝不动”的客观规律呢？我注意到 Boss 直聘移动端会展示某个公司的作息时间，所以，我有了抓取西安市职位和公司信息并对其进行数据分析的想法，我想知道，这到底是我一个人的感受呢？还是整个世界的确是这样子的呢？带着这样的想法，博主有了今天这篇博客。所以，在今天这篇博客里，博主会从<a target="_blank" rel="noopener" href="https://www.zhipin.com/">Boss 直聘</a>、<a target="_blank" rel="noopener" href="https://www.zhaopin.com/">智联招聘</a>以及<a target="_blank" rel="noopener" href="https://www.51job.com/">前程无忧</a>上抓取职位和公司信息，并使用 MongoDB 对数据进行持久化，最终通过<a target="_blank" rel="noopener" href="https://pyecharts.org/#/">pyecharts</a>对结果进行可视化展示。虽然不大确定 2021 年会不会变得更好，可生活最迷人的地方就在于它的不确定性，正如数据分析唯一可以做的，就是帮助我们从变化的事物中挖掘出不变的规律一样。</p>
 <h1 id="爬虫编写"><a href="#爬虫编写" class="headerlink" title="爬虫编写"></a>爬虫编写</h1><p>其实，这种类似的数据分析，博主此前做过挺多的啦，譬如 <a target="_blank" rel="noopener" href="https://qinyuanpei.blog.csdn.net/article/details/79360703">基于 Python 实现的微信好友数据分析</a> 以及 <a target="_blank" rel="noopener" href="https://qinyuanpei.blog.csdn.net/article/details/79683025">基于新浪微博的男女性择偶观数据分析(下)</a> 这两篇博客。总体上来说，大部分学习 Python 的朋友都是从编写爬虫开始的，而在博主看来，数据分析是最终的目的，编写爬虫则是达到这一目的的手段。而从始至终，“爬”与“反爬”的较量从未停止过，Requests、BeautifulSoup、Selenium、Phantom 等等的技术层出不穷。考虑到现在编写爬虫存在风险，所以，我不会在博客里透露过多的“爬虫”细节，换言之，我不想成为一个教别人写爬虫的人，因为这篇博客的标签是数据分析，关于爬虫的部分，我点到为止，不再过多地去探讨它的实现，希望大家理解。而之所以要从这三个招聘网站上抓取，主要还是为了增加样本的多样性，因为 Boss 直聘上西安市的职位居然只有 3 页，这实在是太让人费解了！</p>
@@ -1335,6 +1300,7 @@
     
 
     
+
 
     
 
@@ -1443,17 +1409,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <p>前两天看到一位网友分享的选择「效率工具」的三原则：</p>
 <blockquote>
@@ -1493,6 +1449,7 @@
     
 
     
+
 
     
 
@@ -1601,17 +1558,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <p>music：Life is wonderful - Jason Mraz<br><audio src="https://win-web-rh01-sycdn.kuwo.cn/36adf0875f39fbcc63c6de199354e5d7/5fc63ec2/resource/n1/62/30/4205227431.mp3" type="audion"></audio></p>
 <p>在老家，我们那边的传统都倾向于算虚岁，从妈妈的肚子里出来，就默认是 1 岁了，所以我妈总会把我算「大」了，似乎总想让我快一点长大，在每一年新年伊始的时候，喜欢对我说一些这样的话：</p>
@@ -1688,6 +1635,7 @@
     
 
     
+
 
     
 
@@ -1796,17 +1744,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天打算实践一下 Wordpress 主题开发，但由于电脑上没有 PHP 和 MySQL 的环境，于是折腾了一下，结果发现安装配置过程一堆的坑，虽然最终选择了 Docker 环境开发，但毕竟已经踩坑了，就记录一下。</p>
 <p>本文记录如何在 Mac OS 上配置 Ngnix + PHP + MySQL，以及最后如何成功安装 Wordpress。</p>
@@ -1960,6 +1898,7 @@
 
     
 
+
     
 
     
@@ -2089,17 +2028,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <img src="/images/women-kind-book.jpg" width="300px" />
 
@@ -2136,6 +2065,7 @@
     
 
     
+
 
     
 
@@ -2244,17 +2174,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <p>之所以想写这个题目，是因为昨天换了一个新的路由器，有感而发，想写一下流水账。</p>
 <p>租的房子提前交了未来 6 个月的网费，作为福利，可以免费将家里的网速由之前的 20 Mbps 免费提升到 50 Mbps。</p>
@@ -2336,6 +2256,7 @@
     
 
     
+
 
     
 
@@ -2444,17 +2365,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <p>本文首发地址：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/8RjUszGnObqTKLfrLi-FXw">Mac自带输入法如何输入「犇」和「焱」？Mac使用技巧</a>   </p>
 <h2 id="更改屏幕分辨率"><a href="#更改屏幕分辨率" class="headerlink" title="更改屏幕分辨率"></a>更改屏幕分辨率</h2><p>打开「系统偏好设置 &gt;&gt; 显示器」，可以更改显示器的分辨率。对于大屏幕的 Mac 电脑，由于文字比较小，一般需要适当地调低分辨率来放大文字。</p>
@@ -2514,6 +2425,7 @@
     
 
     
+
 
     
 
@@ -2644,17 +2556,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <img src="/images/house-market-book.jpg" width="300px" />
 
@@ -2717,6 +2619,7 @@
     
 
     
+
 
     
 
@@ -2847,17 +2750,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <p>其实，这段故事说出来，多少有一点难为情，因为我实在没有想到，这一切会变得这样艰难。</p>
 <p>10 月份从上一家公司离职的时候，当时，我手上有两个 Offer，一家是做旅游类产品的创业公司，一家则是声名狼藉的中软国际。因为刚来西安时，面对人生地不熟的新环境，曾经在这里有过一段时间的工作经历，所以，我从本能上排斥再回到那种地方。而创业公司本身的不稳定性，一度让我感到纠结，而最终的结果是，我放弃了这两份 Offer。此时，对于一个工作刚满 5 年的人来说，一个月 13K 或 14K 的薪水，我感到相当的知足，可惜人生常常没有最优解，选择与妥协才是常态。</p>
@@ -2881,6 +2774,7 @@
     
 
     
+
 
     
 
@@ -2989,17 +2883,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <p>本文首发地址：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/sZ6bWEy_7v-bBRJeSbvYtA">更新完Big Sur之后，我觉得电脑越来越像大号的手机了</a>   </p>
 <p>盼星星盼月亮，macOS Big Sur 终于在昨天凌晨推送了正式版，之前看了一些文章，我也迫不及待想体验苹果为搭载自研芯片 M1 的 Mac 推出的新系统。</p>
@@ -3064,6 +2948,7 @@
     
 
     
+
 
     
 
@@ -3172,17 +3057,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <p>在 2016 年我拥有了第一台 NAS —— 群晖的 DS215J，其实在之后的很长一段时间其实并没有派上多大用场，因为我的数据并不多，大都存储在云端，更多的是体验一下 NAS 的功能和工作流。</p>
 <p>直到最近我才开始真正地将 NAS 利用上，于是准备升级一下，但考虑到群晖的性价比实在太低，再加上去年配置 Linux 软路由让我对基于「原生 Linux」的开源解决方案信心和兴趣大增，于是准备自己 DIY 一台 NAS，计划解决未来十年的存储需求。</p>
@@ -3282,6 +3157,7 @@
     
 
     
+
 
     
 
@@ -3390,17 +3266,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <h2 id="几篇新文章"><a href="#几篇新文章" class="headerlink" title="几篇新文章"></a>几篇新文章</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://4ark.me/posts/hsts-problem-solving-experience.html">记一次因 HSTS 导致跨域问题的经历</a></li>
@@ -3435,6 +3301,7 @@
     
 
     
+
 
     
 
@@ -3543,17 +3410,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <p>这是临时想到的一个题目，就想简单写一下苹果电脑的 Mac 版微信与 Windows 版本有何不同。    </p>
 <h2 id="锁定微信"><a href="#锁定微信" class="headerlink" title="锁定微信"></a>锁定微信</h2><p>当你在电脑上登录微信后，移动端的微信首页顶部会显示「Windows&#x2F;Mac 微信已登录」。</p>
@@ -3593,6 +3450,7 @@
     
 
     
+
 
     
 
@@ -3723,17 +3581,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>埃森哲作为一家咨询公司，对外输出了很多人才和工作法。这次我读到的，是前埃森哲的员工邵文瀚的作品《掌控工作》。他将一个问题的解决过程进行了层层梳理和拆解，帮助我们用一个固定的流程来思考复杂的问题，以下是我的一些笔记。</p>
 <h2 id="掌控工作四步法"><a href="#掌控工作四步法" class="headerlink" title="掌控工作四步法"></a>掌控工作四步法</h2><p>作者首先抛出了咨询师的问题梳理流程：</p>
@@ -3808,6 +3656,7 @@
     
 
     
+
 
     
 
@@ -3938,17 +3787,7 @@
 
       
         
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
+        
           
             <p>前几天，有位朋友问我，你平时都是怎么去排查一个程序的性能问题的啊。不要误会，这位朋友不是我啦，因为我真的有这样一位叫做 Toby 的朋友。说到性能问题，可能大家立马会想到类似<strong>并发数</strong>、<strong>吞吐量</strong>、<strong>响应时间</strong>、<strong>QPS</strong>、<strong>TPS</strong>等等这些指标，这些指标的确可以反映出一个系统性能的好坏。可随着我们的系统结构变得越来越复杂，要找到这样一个性能的“损耗点”，同样会变得越来越困难。在不同的人的眼中，对于性能好坏的评判标准是不一样的，譬如在前端眼中，页面打开速度的快慢代表着性能的好坏；而在后端眼中，并发数、吞吐量和响应时间代表着性能的好坏；而在 DBA 眼中，一条 SQL 语句的执行效率代表着性能的好坏。更不用说，现实世界中的程序要在硬件、网络的世界里来回穿梭了，所以，从 80%的功能堆积到 100%，是件非常容易的事情；而从 80%的性能优化到 85%，则不是件非常轻松的事情。想清楚这一点非常简单，因为我们的系统从来都不是简单的<code>1 + 1 = 2</code>。此时，我们需要一个性能分析工具，而今天给大家分享的是 <code>JetBrains</code> 出品的 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 。</p>
 <h1 id="快速开始-Quick-Start"><a href="#快速开始-Quick-Start" class="headerlink" title="快速开始(Quick Start)"></a>快速开始(Quick Start)</h1><p>安装软件的过程此处不表，这里建议大家同时安装 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 和  <a target="_blank" rel="noopener" href="https://www.jetbrains.com/dotmemory/">dotMemery</a>。因为这都是 <code>JetBrains</code> 全家桶中的软件，安装的时候选一下就可以了，可谓是举手之劳。安装好以后的界面是这样的，可以注意到，它可以对进程中的 .NET 应用、本机的 .NET 应用以及远程的 .NET 应用进行检测，因为这里写一个 .NET Core 应用来作为演示，所以，我们选择 <code>Profile Local App</code>：</p>
@@ -3992,6 +3831,7 @@
 
     
 
+
     
 
     
@@ -4020,7 +3860,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/18/">&lt;i class&#x3D;&quot;fa fa-angle-left&quot;&gt;&lt;&#x2F;i&gt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><span class="page-number current">19</span><a class="page-number" href="/page/20/">20</a><span class="space">&hellip;</span><a class="page-number" href="/page/79/">79</a><a class="extend next" rel="next" href="/page/20/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/18/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><span class="page-number current">19</span><a class="page-number" href="/page/20/">20</a><span class="space">&hellip;</span><a class="page-number" href="/page/79/">79</a><a class="extend next" rel="next" href="/page/20/">&gt;</a>
   </nav>
 
 
