@@ -273,7 +273,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/10/23/2015/be-in-awe-of-everything/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/01/03/2015/blessing-skin-server-0-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -292,7 +292,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2015/10/23/2015/be-in-awe-of-everything/" itemprop="url">Be in awe of everything</a></h2>
+                <a class="post-title-link" href="/2016/01/03/2015/blessing-skin-server-0-1/" itemprop="url">Blessing Skin Server 0.1 —— 开源 PHP Minecraft 皮肤站</a></h2>
         
 
         <div class="post-meta">
@@ -304,8 +304,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-10-23T06:25:24+08:00">
-                2015-10-23
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-01-03T22:24:46+08:00">
+                2016-01-03
               </time>
             
 
@@ -327,8 +327,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%9A%8F%E7%AC%94/" itemprop="url" rel="index">
-                    <span itemprop="name">随笔</span>
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
                   </a>
                 </span>
 
@@ -378,9 +378,22 @@
         
         
           
-            <p>你可以笑别人搞不清 PPT 与 WPS，但是你要是因此而认为其智商不高，那么你也不会高到哪里去。</p>
-<p>闻道有先后，术业有专攻。</p>
-<p>请对凡事持有敬畏之心。</p>
+            <p><img src="https://img.prin.studio/images/2016/01/2016-01-03_05-22-44.png" alt="bss upload"></p>
+<p>很久以前就有想写一个皮肤站的想法了，但是苦于没有时间且 PHP、前端的 coding 都不熟练，所以一直搁置着，当作一个目标。</p>
+<p>恰逢前几周稍微有点时间（其实是克服了懒癌），就写了一个皮肤站的原型。PHP + MySQL，表单 POST 数据，基本的登录&#x2F;注册&#x2F;上传 功能还是实现了的。但是前端完全没有写，全是 webkit 的默认样式。</p>
+<p>不过盼星星盼月亮终于等到了元旦假期（连上周末三天），于是把整个项目重构了一下，并且用鞋拔子写了个稍微能看的页面。</p>
+<p>前端页面引用的资源&#x2F;库均位于根目录下的 <code>/assets</code> 和 <code>/libs</code>，这是不知道从哪里学来的，总之觉得这样挺好的就这样放了（笑）</p>
+<p>然后是实现了全站 Ajax，登录&#x2F;注册 均 POST 请求 <code>check.php</code> 返回 json，加入了 SQL 注入防护（虽然还没有 sqlmap 测试过），加入了基于 IP 的注册数量限制，支持保存 cookie，token 验证自动登录。token 就是使用普通的用于验证的不可逆算法得到（用户名 + MD5 密码 + 盐，MD5 二次加密）。</p>
+<p>Ajax 文件上传带 token POST 请求 <code>upload.php</code>，同样返回 json，上次后的文件位于 <code>/uploads</code>。（其实窝觉着这俩可以放一个文件里的）</p>
+<p><code>user.php</code> 为用户页面，本来是想用 php 路由到 <code>/user</code> 和 <code>/admin</code> 等子目录的，但是想想还是算了。因为窝对路由之类的理解并不多，边查边写的话窝也没有那么多时间了。准备放在下一个版本里。</p>
+<p><code>user.php</code> 中使用了 djazz 的 <a target="_blank" rel="noopener" href="http://djazz.se/apps/MinecraftSkin/">Minecraft Skin Previewer</a> 实现 3D 皮肤预览（就是 skinme 使用的那个），窝将其封装了一下放入了 three.msp.js 中，可以使用类似 <code>MSP.getStatus()</code>、<code>MSP.changeSkin()</code> 的接口来访问。</p>
+<p>后端就没啥出彩的地方了（话说前端也没有吧），所有使用了数据库连接的操作均封装为函数放在 <code>connect.php</code> 里面。不过感觉这个放根目录不合适就是了。</p>
+<p><code>config.php</code> 中定义了数据库连接信息，站点名称等常量以供调用。这是从 WordPress 那学来的（笑</p>
+<p>遗憾的是由于没有时间，后台管理页面还没写，目前只能通过自己管理数据库和文件的方式来管理用户。而且现在的数据表结构也不支持后台管理 qwq</p>
+<p>而且前端的 JS 和 CSS 都写得乱糟糟的，CSS 选择器一半是 id 一般是 class，文件关系也没处理好，没有响应式设计，有些地方还用了绝对定位 <img src="https://img.prin.studio/images/2015/10/2015-10-24_09-56-11.jpg" alt="emotion1"> </p>
+<p>不过由于时间所限，这些都放到下一个版本吧~</p>
+<hr>
+<p>项目开源在 <a target="_blank" rel="noopener" href="https://github.com/prinsss/blessing-skin-server">GitHub</a> 上，欢迎 Pull Request~ 在线演示：<a target="_blank" rel="noopener" href="https://skin.prinzeugen.net/">https://skin.prinzeugen.net/</a></p>
 
           
         
@@ -430,7 +443,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/10/22/2015-10-15-talk-with-zm-about-ios-security/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/01/03/2016-01-03-reactive-cocoa-discussion/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -449,7 +462,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2015/10/22/2015-10-15-talk-with-zm-about-ios-security/" itemprop="url">iOS 比 Android 还不安全? - 记一次和阿里资深安全工程师蒸米的交流</a></h2>
+                <a class="post-title-link" href="/2016/01/03/2016-01-03-reactive-cocoa-discussion/" itemprop="url">ReactiveCocoa 讨论会</a></h2>
         
 
         <div class="post-meta">
@@ -461,8 +474,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-10-22T22:12:16+08:00">
-                2015-10-22
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-01-03T15:22:13+08:00">
+                2016-01-03
               </time>
             
 
@@ -535,828 +548,193 @@
         
         
           
-            <h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>10 月 15 日晚上，我参加了 MDCC（ <a target="_blank" rel="noopener" href="http://mdcc.csdn.net/">http://mdcc.csdn.net/</a> ）大会晚上的英雄宴，宴会上见到了 XcodeGhost 的研究者，阿里巴巴资深安全工程师蒸米。</p>
-<p>蒸米是最早在乌云上公开 XcodeGhost 的工作原理的人。在后续 XcodeGhost 的服务器关闭后，蒸米也介绍了通过 DNS 污染来接管 XcodeGhost 木马的技术。让大家对于 iOS 平台的安全有了新的认识。</p>
-<p>之前我和蒸米在微博上多次私信交流，这次当面见到真人非常开心。蒸米是一个性格开朗阳光的人，看起来非常年轻，一问之下才知道他 26 岁就提前博士毕业了，毕业之后一直在阿里从事安全方面的工作。</p>
-<p>以下是我们讨论的一些总结。</p>
-<h2 id="Xcode-的安全"><a href="#Xcode-的安全" class="headerlink" title="Xcode 的安全"></a>Xcode 的安全</h2><p>这次 XcodeGhost 事件之后，让大家把安全的焦点集中在了编译器上。估计大家不会还从迅雷或网盘下载 Xcode 了吧？但是这样就安全了吗？</p>
-<p>蒸米在交流中提到，其实仅仅这样 Xcode 也是不安全的。为什么呢？因为我们在 Mac 上总要安装软件吧？有很多 Mac 下的软件并不通过 Mac AppStore 销售，而是以安装包的形式来独立发布。而安装这类 APP 时，常常需要用户输入登陆密码来获得更改系统内容的权限。这个时候，如果是一个恶意软件，偷偷修改了你本地的 Xcode，比如安装一个恶意的插件，你如何防？有些人习惯从一些非法网站去下载盗版的 Mac 软件，这个时候，你的 Xcode 安全也暴露在风险之中。</p>
-<h2 id="第三方库的安全"><a href="#第三方库的安全" class="headerlink" title="第三方库的安全"></a>第三方库的安全</h2><p>这个是我自己的一个脑洞大开的想法，由于某些原因，国外的 Cocoapods 源很慢，所以常常有一些人宣称自己基于国内的服务，建立了镜像源。如果想做一点恶意行为的话，这些人完全是可以修改一些常用的第三方库（例如 AFNetworking），把 XcodeGhost 的代码植入进去。如果真的有人做了，你还能信任这些国内的镜像源吗？</p>
-<h2 id="Safari-保存密码的问题"><a href="#Safari-保存密码的问题" class="headerlink" title="Safari 保存密码的问题"></a>Safari 保存密码的问题</h2><p>蒸米在和我交流中，也提到了对于 Safari 保存密码的安全性问题。就蒸米当场给我的演示可以看出，在设置里面的 Safari -&gt; 密码一栏，经过 Touch ID 验证，就可以将你的所有登录过的帐号密码查询到。而在 iPhone 5 一类没有 Touch ID 的 iOS 设备中，这些密码是被 4 位的锁屏密码保护，这个保护是极其弱的。如果你网上 google 一下，就可以找到专门暴力破解 4 位锁屏密码的工具。</p>
-<p>看着蒸米当场的演示，真是把我吓了一大跳。同学们，你们有没有 Touch ID 的 iOS 设备吗？哪一天它要是丢了，你知道意味着你 Safari 所有登录密码可能被盗吗？</p>
-<h2 id="为什么-iOS-系统比-Android-还不安全"><a href="#为什么-iOS-系统比-Android-还不安全" class="headerlink" title="为什么 iOS 系统比 Android 还不安全 ?"></a>为什么 iOS 系统比 Android 还不安全 ?</h2><p>蒸米在交流中一直强调他的观点，他认为 iOS 系统比 Android 还不安全。这一点让我非常不解，我当即指出：iOS 程序有 sandbox 限制，无法随意做高危险的事情，比如 Android 深受其害的扣费短信一条，iOS 程序很难做到自动发送。因为首先 iOS 程序很难在后台自动启动，另外，自动发送短信也是被系统禁止的。</p>
-<p>但是蒸米解释让我觉得也很有道理，他的理由主要有以下几点：</p>
-<h3 id="iOS-的系统漏洞更多"><a href="#iOS-的系统漏洞更多" class="headerlink" title="iOS 的系统漏洞更多"></a>iOS 的系统漏洞更多</h3><p>iOS 的系统漏洞其实比 Android 更多，Android 因为是开源的系统，所以相关的漏洞更容易被发现和修复，而 iOS 是封闭的系统，它的漏洞只能指望苹果自己的工程师来修复。</p>
-<p>就在我和蒸米交流的当天（10 月 15 日），国内的<a target="_blank" rel="noopener" href="http://www.pangu.io/">盘古团队</a>宣布完成了 iOS 9 的越狱。而这距离 iOS 9 正式发布（9 月 17 日）才刚刚满一个月。蒸米说，其实越狱团队早就完成越狱的技术工作了，只不过需要完成越狱相关的产品以及等一个比较合适的时间点发布。所以，很有可能在 iOS 9 还在 Beta 版的时候，相关的漏洞就已经收集到了。</p>
-<p>相对来说，Android 的最新版其实相当安全。不过 Android 的问题是 ROM 更新太慢，由于大多数 ROM 都经过了厂商的定制，使得大多数人无法及时更新到最新的操作系统，这个问题极大地降低了 Android 的安全性。</p>
-<h3 id="iOS-的系统版本和机型非常集中"><a href="#iOS-的系统版本和机型非常集中" class="headerlink" title="iOS 的系统版本和机型非常集中"></a>iOS 的系统版本和机型非常集中</h3><p>iOS 的系统版本非常集中，一般都是最新发布的 2 个大版本。另外 iPhone 机型也非常少，每年固定出一款。这使得黑客可以针对单一系统或机型挖掘出来的漏洞，得到极其方便地扩散和影响。</p>
-<p>还记得早年 iOS 系统上面发面的 PDF 漏洞吗？用户只需要访问一个指定网址，就可以完成越狱过程。如果在未来有一个黑客找到一个类似这样的高级漏洞，那么受影响的很可能是所有的 iOS 用户。</p>
-<p>相对来说，Android 的机型分散反但成了它的优势，我们自己开发小猿搜题 App 时，就那么几个界面都适配得要吐血，黑客的恶意程序难保不在一些机型上出现适配问题。除了硬件，Android 的 ROM 也是被修改得千差万别，所以黑客很难有精力把它的恶意程序做到完美适配。</p>
-<h3 id="iOS-系统更容易让人放松警惕"><a href="#iOS-系统更容易让人放松警惕" class="headerlink" title="iOS 系统更容易让人放松警惕"></a>iOS 系统更容易让人放松警惕</h3><p>我们尝试过用 IDA 逆向国内的 iOS App，发现国内的包括腾讯，阿里，百度，网易等，都没有对自己的 iOS App 源码进行混淆。而在 Andorid 端的，不但 50% 的 App 都经过了加壳和代码混淆，而且还有不少这方面的创业公司出现。这次在 MDCC 大会展台中就出现了多家做 Android 安全的公司。</p>
-<p>我在交流中问蒸米，我们逆向了支付宝和淘宝的 iOS 客户端，发现代码都没有混淆，为什么呢？蒸米说，我们混淆了支付宝核心支付相关的代码，另外的代码混淆的推进，不是我一个人能做到的，需要等时机成熟。</p>
-<p>我想这就是现状，大家对于 iOS 系统更多的时候是放心的，所以反倒容易翻船。就像我上面提到的 Safari 密码保护的问题，有多少人注意到它可能带来的安全问题呢？</p>
-<p>XcodeGhost 是不是也是大家对 Mac OS 系统的一种放松警惕的行为？一些朋友在网上下载盗版的 Mac App 是不是一种放松警惕的行为？这些最终都可能成为黑客攻击的关键点。</p>
-<p>提一个开放性的问题：如果你逆向了微信 iOS 客户端，你可以做哪些攻击？</p>
-<h3 id="Sandbox-真的就是绝对安全吗"><a href="#Sandbox-真的就是绝对安全吗" class="headerlink" title="Sandbox 真的就是绝对安全吗"></a>Sandbox 真的就是绝对安全吗</h3><p>我在反驳蒸米时，提到了系统的 Sandbox 对于 App 的各种限制。蒸米指出，其实有好多方法来突破 Sandbox，比如调用系统的私有 Api（不要问我如何绕过苹果审核），又比如借助一些 iOS 的漏洞。</p>
-<p>完美的越狱对漏洞的要求比较高，因为它需要保证即使系统重启，越狱状态也同样能保持。而如果你的目的如果不是完美越狱，而是干一些坏事的话，对漏洞的要求就不是那么高了。</p>
-<p>你知道吗？中国的越狱团队还会向苹果上报漏洞，蒸米说这是为了 Reputation，一般是把手里多得觉得不太好用的漏洞报出去，你就可以想像这个封闭系统的质量了。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>我最后问蒸米，是不是可以这样说：「iOS 和 Android 就是俩落难兄弟，都觉得对方弱，其实都差不多，全身都是洞，都不安全？」。蒸米说是的，毕竟开发者不是安全工程师，安全工程师们也不会开发，所以漏洞是在所难免的。</p>
-<p>那这个事情就无解了吗？我想很可能是的，我们能做的，就是尽量提高安全意识，尽量小心，毕竟黑客也是会考虑性价比，挑软柿子欺负。最后蒸米向我推荐了 fireeye 的攻击检测网址，上面可以看到全球正在发生的黑客攻击行为 <a target="_blank" rel="noopener" href="https://www.fireeye.com/cyber-map/threat-map.html">https://www.fireeye.com/cyber-map/threat-map.html</a> ，我想这可能就是现实吧。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/10/21/2015/lets-encrypt-now-we-are-trusted/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/10/21/2015/lets-encrypt-now-we-are-trusted/" itemprop="url">Let's Encrypt: Now we are Trusted</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-10-21T02:35:08+08:00">
-                2015-10-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%9A%8F%E7%AC%94/" itemprop="url" rel="index">
-                    <span itemprop="name">随笔</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>从今天 Google Now 的推送得知 Let’s Encrypt 项目的根证书已经被信任，遂整理下时间轴，以示纪念。</p>
-<h3 id="11-28-2014"><a href="#11-28-2014" class="headerlink" title="11.28, 2014"></a>11.28, 2014</h3><p>Electronic Frontier Foundation, University of Michigan, Mozilla 启动了 Let’s Encrypt 项目，旨在为安全网站提供免费的 SSL&#x2F;TLS 证书。</p>
-<h3 id="3-x-2015"><a href="#3-x-2015" class="headerlink" title="3.x, 2015"></a>3.x, 2015</h3><p>窝得知了这个伟大的项目，并开始关注</p>
-<h3 id="9-14-2015"><a href="#9-14-2015" class="headerlink" title="9.14, 2015"></a>9.14, 2015</h3><p>Let’s Encrypt 项目发行了第一个证书，并向 Mozilla、Google、Microsoft 和Apple 递交了root CA 申请。</p>
-<p>via(<a target="_blank" rel="noopener" href="https://prinzeugen.net/lets-encrypt-project-published-the-first-ca/">.&#x2F;lets-encrypt-project-published-the-first-ca&#x2F;</a>)</p>
-<h3 id="10-19-2015"><a href="#10-19-2015" class="headerlink" title="10.19, 2015"></a>10.19, 2015</h3><p>Let’s Encrypt 项目已获得 IdenTrust 的 cross-signatures，其根证书已经可以被主流浏览器所信任，现在访问 <a target="_blank" rel="noopener" href="https://helloworld.letsencrypt.org/">https://helloworld.letsencrypt.org/</a> 已经不会再被提示该站点证书不受信任。( <a target="_blank" rel="noopener" href="https://letsencrypt.org/2015/10/19/lets-encrypt-is-trusted.html">via</a> )</p>
-<hr>
-<p>或许有一天，Let’s Encrypt 项目真的可以实现</p>
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><a target="_blank" rel="noopener" href="https://github.com/ReactiveCocoa/ReactiveCocoa">ReactiveCocoa</a>（其简称为 RAC）是由 <a target="_blank" rel="noopener" href="https://github.com/blog/1107-reactivecocoa-for-a-better-world">Github</a> 开源的一个应用于 iOS 和 OS X 开发的新框架。RAC 具有函数式编程和响应式编程的特性。它主要吸取了 .Net 的 <a target="_blank" rel="noopener" href="http://msdn.microsoft.com/en-us/data/gg577609">Reactive Extensions</a> 的设计和实现。</p>
+<p>但是，相对于传统的 MVC 架构，ReactiveCocoa 的函数式编程方式的学习曲线陡峭，业界也没有丰富的图书资料，这使得大家对这种技术望而却步。这次，我邀请了一些行业内关注和使用 ReactiveCocoa 的内行，进行了一次关于 RAC 的讨论会，会上大家主要聊了 RAC 在使用中的各种问题，我们希望这次讨论会能够让重新全面审视这个开发框架。</p>
+<h2 id="讨论成员"><a href="#讨论成员" class="headerlink" title="讨论成员"></a>讨论成员</h2><p>本次讨论会邀请到的讨论者来自美团，百度，蘑菇街等公司。讨论前为了先相互认识，我让大家自我介绍了一下，并且顺便简单介绍各自所在的团队人数以及使用 RAC 的时长，以下是大家的自我介绍：</p>
+<ul>
+<li><p>臧成威，来自美团，团队基本都在使用 RAC，从 14 年初开始使用 RAC。在美团搞过 RAC 的几期培训，有丰富的经验。</p>
+</li>
+<li><p>李忠 (limboy)，来自蘑菇街。李忠的博客（<a target="_blank" rel="noopener" href="http://limboy.me/">http://limboy.me/</a>）上有很多介绍 RAC 的高质量文章。（这次讨论会李忠当时有事没有参加，事后对相关问题留言表达了自己的看法）</p>
+</li>
+<li><p>唐晓轩 (txx)，来自礼物说，团队四个人，目前 “只有” 礼物说这一款产品。从年初开始使用 RAC，到现在正在安利 Android  团队使用 RXJava。</p>
+</li>
+<li><p>孙源 (sunnyxx)，来自百度，从 13 年年底开始接触 RAC，当时边学边用 RAC 写了一个完整的项目，那时候还没现在这么火（当时 Limboy 的文章看了好几遍），后来在项目中在一个完整模块中尝试使用过，因为大家对函数响应式编程了解程度差别很大，导致代码几乎无法维护，随后重构。现在也有时用到，但都用于某个特定的功能的便捷实现上，无 MVVM，基本不会跨类使用。</p>
+</li>
+<li><p>雷纯锋，来自广州支点网络科技股份有限公司，团队三个人使用 RAC ，从 12 年 6 月份开始使用 RAC ，公司项目一直使用的是 RAC。项目中一直也是用的 MVVM + RAC 的结构，另外我也有在维护一个 MVVM + RAC 的开源项目，叫 MVVMReactiveCocoa。</p>
+</li>
+<li><p>汤圣罡 (lexurs)，来自新味，2 个 iOS。RAC 经验两年。目前在用 Overcoat+Mantle+ReactiveCocoa 实现的网络层，某些逻辑多的页面也喜欢用 RAC 实现。因为想全部改成 Swift，正在投靠 RxSwift 和 PromiseKit 的过程中。</p>
+</li>
+<li><p>李雄略 (听榆大叔)，来自网家缘科技，分 2 个产品，每个产品 2 个 iOS 开发，从 14 年 3 月份开始使用 RAC，已在 3 个项目中使用 RAC。</p>
+</li>
+<li><p>蓝晨钰 (lancy)，来自猿题库，没有在公司项目使用过 RAC。个人喜欢 RAC，私底下写过 RAC 的小项目，读过 RAC 源码，但对 RAC 在大型项目中和团队合作中持谨慎态度，猿题库的架构是类 MVVM 架构，但没有引入 RAC。</p>
+</li>
+<li><p>唐巧（就是本文作者），来自猿题库，团队分 3 个产品，每个产品约 4 个 iOS 开发，没有在公司正式使用过 RAC，自己私下写过几百行 RAC 的代码，对于 RAC 是比较保守的一个人。</p>
+</li>
+</ul>
+<p>好了，以下就是我们具体讨论的一些问题。</p>
+<h3 id="讨论：如何在团队内推广并用「正确的姿势」使用-RAC？"><a href="#讨论：如何在团队内推广并用「正确的姿势」使用-RAC？" class="headerlink" title="讨论：如何在团队内推广并用「正确的姿势」使用 RAC？"></a>讨论：如何在团队内推广并用「正确的姿势」使用 RAC？</h3><p>大家提到在使用 RAC 的时候，出现的一些问题，例如：</p>
+<ul>
+<li>不是太精通 RAC 的同学往往写出来的非常难以维护</li>
+<li>不知道新队友的 RAC 培养路径，Functional Programming -&gt; MVVM -&gt; ….</li>
+</ul>
+<p>对于难以维护的问题，臧成威的意见是：</p>
 <blockquote>
-<p><em>Bringing secure connections to every corner of the Web.</em></p>
+<p>这个美团这边的解决方案主要是 review，review 可以保证项目中所有人的范式是相同的，大家对于不同的写法都会有充分的讨论，而我们的新手主要是参考旧代码的风格写出新代码，所以并没有发生难以维护这一现象。</p>
+<p>但是前提是需要有很熟悉的人来带领，团队中熟悉 RAC 的人员基数得以保证。而且美团的 RAC 使用还是逐步放量的，从一开始的 UI 层使用，到底层逻辑层的使用，最后才到了 MVVM 的粘合层使用，这样避免了泛滥。</p>
+<p>总结来说，对于 RAC 这样厚重的库，引入的时候的 review 是必要的，否则可控性太差，最后就难以收场了。</p>
 </blockquote>
-<p>我盼望着那一天的到来。</p>
-<p>参考资料：</p>
-<p><a target="_blank" rel="noopener" href="https://en.m.wikipedia.org/wiki/Let%27s_Encrypt">https://en.m.wikipedia.org/wiki/Let%27s_Encrypt</a></p>
-<p><a target="_blank" rel="noopener" href="https://letsencrypt.org/2015/09/14/our-first-cert.html">https://letsencrypt.org/2015/09/14/our-first-cert.html</a></p>
-<p><a target="_blank" rel="noopener" href="https://letsencrypt.org/2015/10/19/lets-encrypt-is-trusted.html">https://letsencrypt.org/2015/10/19/lets-encrypt-is-trusted.html</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/10/18/2015/some-bullshit/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/10/18/2015/some-bullshit/" itemprop="url">除除草与将来的计划</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-10-18T17:45:49+08:00">
-                2015-10-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%9A%8F%E7%AC%94/" itemprop="url" rel="index">
-                    <span itemprop="name">随笔</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p>好久没有更新了，虽然没人看，还是发一篇为了证明窝还活着吧。</p>
-<p>来讲讲窝的近况吧</p>
+<p>总结起来就是：1、review + 有熟练的人带；2、逐步放开使用。</p>
+<p>对于人才的培养，臧成威的意见是：</p>
 <blockquote>
-<p>以下大量废话预警| ﾟ∀ﾟ)σ</p>
-<p>最近窝学业繁重<del>（并不）</del>，数学苦手，而且十月底就是学业水平考试了。。还是先把折腾放一放比较好。</p>
+<p>RAC 的培养，从我这边三期的培训来看，课程的安排是这样的六节： 1. FRP 的思想概要 2. RAC 的 operations 介绍 3. 冷信号与热信号解惑 4. 生命周期指南 5. disposable 和多线程 6. 实战分享</p>
+<p>其中先建立 FRP 的思想，虽然看起来是最远的，但是确实是后续使用和教学的基础。</p>
+<p>一起培训大概有 30-50 人来听，课程一种持续三周，每周 2 节课、课程过后的 2 周，就可以发现代码中的 rac 使用明显提升</p>
+<p>另外补充一点，关于新手学习，最不建议的就是在不了解 FRP 原理和一些基础概念的情况下，盲目的看源代码。我见过太多的同学，花费了很多的时间通览源码，但是根本没有用途。因为从思想到源代码是经历了很多雕琢的。里面有太多的 bugfix，太多的折中。</p>
+<p>所以你看的时候，抛开了本质，一味的查看边界的处理，最后大都觉得痛苦，难用，难以掌握收场。</p>
+<p>唐巧：RAC 确实和其它的开源库性质上差别比较大，思想方面需要学习的比较多。</p>
+<p>是的，关键是思想。所以，一定要先从 “道” 上建立思想，然后从 “术” 上掌握使用，最后才是通览源码，掌握其原理。</p>
+<p>第一节是道的课程，第二节是术的课程。这两节下来就知道能干什么了。</p>
 </blockquote>
-<p>哲学这一本听的窝云里雾里的（笑</p>
-<p>最近折腾的也没有很多（主要是学校里并没有环境 qwq），而且博客的配置优化之类的，基础的应该已经做完了。</p>
-<p>接下来想做的是把 SSLlab 测试搞到 A+，把 Google PageSpeed Insights 测试搞成全优。</p>
-<p>话说近月 Nginx HTTP&#x2F;2 和 PHP7 都发布了啊，上次就有抛弃 Web 面板手动编译了，然而在新开的 VPS 上编译把 LNMP 环境搭建起来后，深感累觉不爱，配置太 tm 麻烦了 qwq</p>
-<p>几天前得知 lnmp.org 发布了 lnmp 一键包 1.3 加入了 PHP7 支持（Google Now 大法好），这下终于可以在生产环境下摆脱 web 面板辣。</p>
-<p>啊，顺带玩个梗。</p>
+<p>雷纯锋意见也与臧成威一致。</p>
+<p>唐晓轩介绍了一下他自己的学习过程：</p>
 <blockquote>
-<p>窝不是针对你们某一个面板，窝是说在座的各位，都是辣鸡。</p>
+<p>我是反着做的，先把 rac 当作 blocks kit 用 之后 看 racstream 的各种 operations，知道 rac 有哪些运算 其次 看 rac 的 uikit 扩展都是怎么实现的 最后才是函数式思维。</p>
 </blockquote>
-<p>无恶意，只是吐槽下受不了各种面板对 nginx 的 conf 管理了（尤其是 AMH），对于小白来说很不错，而且还可以支持多环境，但是对（增长了运维技能而渴望装逼的）窝来说，还是有点不适合，比较希望能够更深层次的掌控配置。</p>
-<p>说到这里，突然想到窝似乎一直都是这样，总希望把东西控制在自己手里。或许这也是窝希望成为一名全栈的原因吧，窝好歹也算是个完美主义者。嘛，当然合作也是很重要的哟。</p>
-<p>讲到这里，突然词穷了，待窝看看 todo list 再继续讲 qwq</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2015/10/18/2015/some-bullshit/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/10/13/Unity3D%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B9%8BUnity3D%E5%9C%BA%E6%99%AF%E7%BC%96%E8%BE%91%E5%99%A8%E6%89%A9%E5%B1%95%E5%BC%80%E5%8F%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/10/13/Unity3D%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B9%8BUnity3D%E5%9C%BA%E6%99%AF%E7%BC%96%E8%BE%91%E5%99%A8%E6%89%A9%E5%B1%95%E5%BC%80%E5%8F%91/" itemprop="url">Unity3D 游戏开发之 Unity3D 场景编辑器扩展开发</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-10-13T12:59:01+08:00">
-                2015-10-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
-                    <span itemprop="name">游戏开发</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          注意到 DrawRotate()方法与 DrawPositin()及 DrawScale()方法在实现方式上略有不同，这是因为 Transform 组件的 Rotation 属性是一个 Quaternion 即四元数的结构，四元数是利用 x、y、z、w 四个数值来表示物体的三维旋转，这不仅和我们平时习惯的欧拉角相违背而且更为关键的是貌似目前我还没有发现可以直接绘制四元数的 API 接口，如果有的话希望大家可以告诉我，所以这里我们用了变通的一种方法，即通过 Transform 的 eulerAngles 来实现，但是这种方式绘制的属性框大小和 EditorGUILayout.PropertyField()方法绘制的属性框大小并不一致，同时我们需要自己去完成属性值的更新;此时如果我们给场景中的某个物体附加上该脚本，则我们在 Inspector 窗口可以看到 Example 类的实例 Example 将被序列化到编辑器面板中，同时我们可以注意到私有的 editable 字段并没有被序列化出来，这是因为**在 Unity3D 中，公有的字段默认支持序列化，私有的字段除非显式的增加[SerializeField]标记，否则都不会被序列化**，这一点希望大家注意;在第一个示例中，可以注意到我们使用了 FindProperty()方法来获取一个可序列化物体的属性(字段)，然后我们在 EditorGUILayout.PropertyField()方法来绘制了各种属性框，这种方式可以实现属性的自动更新
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2015/10/13/Unity3D%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B9%8BUnity3D%E5%9C%BA%E6%99%AF%E7%BC%96%E8%BE%91%E5%99%A8%E6%89%A9%E5%B1%95%E5%BC%80%E5%8F%91/">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/fronteers-2015">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/fronteers-2015" itemprop="url">Fronteers 2015 - A wrap up</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-10-11T18:35:00+08:00">
-                2015-10-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          Fronteers 2015 - Some notes about the conference in Amsterdam.
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/fronteers-2015">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/10/10/2015/kyoukai-no-kanata-i-will-be-here/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/10/10/2015/kyoukai-no-kanata-i-will-be-here/" itemprop="url">境界的彼方未来篇棒棒棒 XDD</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-10-10T04:59:01+08:00">
-                2015-10-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%97%A5%E5%B8%B8/" itemprop="url" rel="index">
-                    <span itemprop="name">日常</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p><img src="https://img.prin.studio/legacy/image.php?di=UVKI" alt="title"></p>
-<p>京阿尼作画还是那么棒，角色细微表情的刻画，背景的景深模糊、色散看起来都是那么的赏心悦目，加上音响监督精心挑选的 BGM，画面气氛渲染得恰到好处，虽然不至于泪腺崩坏，但绝对会感动（反正窝是泪目了 qwq</p>
-<p>嘛，原谅窝词穷，总之 未来篇 是绝对值得一看的哦~</p>
+<p>我顺着臧成威的回答，问了一下通常使用 RAC 的规范是什么，臧成威回答道：</p>
+<blockquote>
+<p>大家可以参考这样的一条规范来做，首先通过 RACSignal#return RACSignal#createSignal 这类的创建一个 OOP 世界到 FRP 世界的一个转换，从而得到一个 Signal。</p>
+<p>之后 signal 在不接触 OOP 的情况下进行数据的各类变换，注意 FP 的引用透明和变量不可变特性。</p>
+<p>最后用 RAC 宏、RACSignal#subscribe、NSObject+liftSelect 这些操作把 FRP 的世界带回到 OOP 的世界里。</p>
+</blockquote>
+<p>臧成威还很体贴地画了一个示意图，非常给力：</p>
+<img src="/images/fpr_oop_pattern.jpg" class="">
+
+
+<h3 id="讨论：大公司的大型-臃肿-App-是否适合使用-RAC？"><a href="#讨论：大公司的大型-臃肿-App-是否适合使用-RAC？" class="headerlink" title="讨论：大公司的大型 (臃肿) App 是否适合使用 RAC？"></a>讨论：大公司的大型 (臃肿) App 是否适合使用 RAC？</h3><p>由于第一个话题臧成威贡献最多内容，加上美团是大家所知道的使用 RAC 最多的大型 App，所以这个话题还是由臧成威首先回答，以下是他的发言。</p>
+<blockquote>
+<p>越大型的 app，说明内部的逻辑越复杂。而 RAC 从某几方面可以简化逻辑，使得代码从书写到执行都可以较为简化的完成功能</p>
+<p>我大概总结了几个适用的场景。RAC 总结来说就是：数据随着时间而产生，所以能想到的三点比较适合用 RAC：</p>
+<p>一、UI 操作，连续的动作与动画部分，例如某些控件跟随滚动。</p>
+<p>二、网络库，因为数据是在一定时间后才返回回来，不是立刻就返回的。</p>
+<p>三、刷新的业务逻辑，当触发点是多种的时候，业务往往会变得很复杂，用 delegate、notification、observe 混用，难以统一。这时用 RAC 可以保证上层的高度一致性，从而简化逻辑上分层。</p>
+<p>只要有通知的业务逻辑，RAC 都方便有效化解。</p>
+<p>雷纯锋：概括的说，应该就是统一所有异步事件吧。</p>
+<p>不适用的场景，与时间无关的，需要积极求解的计算，例如视图的单次渲染。</p>
+</blockquote>
+<p>接着发言的是百度的孙源：</p>
+<blockquote>
+<p>我这是百度知道，体量比较小，可以随便玩。</p>
+<p>我们现在就用它做点小功能，举个例子吧，聊天页面那个键盘弹出时 input bar 跟随滚动的功能，原来写需要接通知、写回调，现在在一个函数里面用 RAC 就比较方便。</p>
+<p>像这种小功能，主要是方便开发，让 “干一个事儿的代码写在一个地方”。</p>
+</blockquote>
+<p>雷纯锋说他们的使用还是比较多：</p>
+<blockquote>
+<p>基本上异步的事件能用 RAC 的都用的 RAC。</p>
+<p>不过代理方法用 RAC 的比较少，比如 UITableView 的代理方法一般都是直接写了。</p>
+<p>用 RACSubject + RACComand 来简化和统一应用的错误处理逻辑，这个算比较经典的吧。</p>
+<p>臧成威说：UI 交互上的点确实好多，比如下拉刷新、上拉导航条变透明。</p>
+<p>实时响应用户的输入，控制按钮的可用性，这点用 RAC 来实现非常简单。</p>
+</blockquote>
+<p>李雄略说：</p>
+<blockquote>
+<p>我们主要用来处理界面上的数据显示，以及 UI 的交互操作上，不会用来写代理。</p>
+</blockquote>
+<p>对于这个话题，似乎大家的答案还是比较一致，即：大型 App 是适合使用 RAC 的。</p>
+<h3 id="讨论：都说调试-RAC-很痛苦，是否有一些调试技巧和经验分享？"><a href="#讨论：都说调试-RAC-很痛苦，是否有一些调试技巧和经验分享？" class="headerlink" title="讨论：都说调试 RAC 很痛苦，是否有一些调试技巧和经验分享？"></a>讨论：都说调试 RAC 很痛苦，是否有一些调试技巧和经验分享？</h3><p>臧成威说：</p>
+<blockquote>
+<p>的确很痛苦，跟断点有的时候计算堆栈都要等几分钟。</p>
+<p>关于调试，RAC 源码下有 instruments 的两个插件，方便大家使用。</p>
+<p>signalEvents 这个可以看到流动的信号的发出情况，对于时序的问题可以比较好的解决。</p>
+<p>diposable 可以检查信号的 disposable 是否正常</p>
+</blockquote>
+<img src="/images/rac-instrument.jpg" class="">
+
+<p>小伙伴们看了纷纷惊叹，表示以前没有用过这个神器。</p>
+<p>雷纯锋接着分享：</p>
+<blockquote>
+<p>我的理解是一般给信号一个名字，然后通过下面的打印方法来进行调试。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">/// Logs all events that the receiver sends.</span><br><span class="line">- (RACSignal *)logAll;</span><br><span class="line"></span><br><span class="line">/// Logs each `next` that the receiver sends.</span><br><span class="line">- (RACSignal *)logNext;</span><br><span class="line"></span><br><span class="line">/// Logs any error that the receiver sends.</span><br><span class="line">- (RACSignal *)logError;</span><br><span class="line"></span><br><span class="line">/// Logs any `completed` event that the receiver sends.</span><br><span class="line">- (RACSignal *)logCompleted;</span><br></pre></td></tr></table></figure>
+
+<p>李雄略说：</p>
+<blockquote>
+<p>我是用 log 方法来做的：</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">DExecute((&#123;</span><br><span class="line">    setenv(&quot;RAC_DEBUG_SIGNAL_NAMES&quot;, &quot;RAC_DEBUG_SIGNAL_NAMES&quot;, 0);</span><br><span class="line">    [signalUserGeo setNameWithFormat:@&quot;signalUserGeo&quot;];</span><br><span class="line">    signalUserGeo = [signalUserGeo logAll];</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+
+<p>李忠的补充：</p>
+<blockquote>
+<p>调试的话，如果是性能调试，主要是经验 +Instruments，经验类似于：少用 RACCommand、RACSequence 这样的，Instruments 可以用它的 Time Profile 来看。</p>
+<p>如果是 Bug 调试，主要还是靠 Log，配合一些 Xcode 插件，比如 MCLog(可以很方便地过滤日志)，如果要还原堆栈的话，就加一个断点。</p>
+</blockquote>
+<p>接下来大家讨论起来：</p>
+<blockquote>
+<p>臧成威：其实 instruments 也差不多，只是第一，不需要提前调用 logAll 这些；第二，可以利用 instruments 的筛选功能，不会看 log 看到眼花。</p>
+<p>雷纯锋：实际调试起来好用吗？</p>
+<p>臧成威：好用的，还可以看到发出 value 的堆栈。</p>
+<p>雷纯锋：使用 instruments 来调试的频率大吗？或者说在什么情况下会去用 instruments 调试呢？</p>
+<p>臧成威：一般调查问题的时候就它来查。比如某个信号接不到输出。</p>
+<p>臧成威：或者输出的值里面有错误的，但是是经过 merge、zip 等好多操作混合出来的，不知道源头是神马。</p>
+<p>雷纯锋：也就是说一般是在有问题，然后分析不出来的时候，才使用吗？</p>
+<p>臧成威：是的，一般是调查问题的时候用的，不是开发的时候用的，因为打开是比较慢的。</p>
+<p>李雄略：为了方便，我们保证一个 RACSignal 只会给订阅者 send 一种类型的 value，所以就手动给 signal 加了部分泛型支持：</p>
+<p>@interface RACSignal&lt;__covariant ObjectType&gt; : RACStream</p>
+<p>RACSignal&lt;NSString *&gt; *signal &#x3D; …</p>
+<p>孙源：用泛型，然后 map 之后呢</p>
+<p>李雄略：map 无法支持</p>
+<p>臧成威：RAC3 里面就有不错的泛型推导，但是是基于 swift 的。</p>
+<p>臧成威：这个我也想过，但是语言不支持，基本上是搞不定的</p>
+<p>孙源：调试这块也就是 log name 了。作者 guide 里面也是这么弄，用 Instrument 已经是高级技巧。</p>
+<p>臧成威：加 log 比较不好的就是容易眼花，还有不好还原当时的堆栈。</p>
+<p>孙源：我一般遇到问题，都是看代码脑补一遍过程，函数式就好在这里，基本上看着对了结果就没错。脑回路逻辑推导。</p>
+<p>臧成威：是的，推导很有道理。我觉得 sunnyxx 说的是王道，所以培训，给大家建立思维很重要。</p>
+<p>雷纯锋：恩，分析清楚整个运算过程是很重要的</p>
+</blockquote>
+<h3 id="讨论：RAC-相比-RxSwift-和-PromiseKit-有哪些优缺点"><a href="#讨论：RAC-相比-RxSwift-和-PromiseKit-有哪些优缺点" class="headerlink" title="讨论：RAC 相比 RxSwift 和 PromiseKit 有哪些优缺点 ?"></a>讨论：RAC 相比 RxSwift 和 PromiseKit 有哪些优缺点 ?</h3><p>臧成威继续分享：</p>
+<blockquote>
+<p>RAC vs RxSwift 的情况是这样：</p>
+<p>从支持度来说，RAC 对 Cocoa 的支持更好。但是从标准性、性能来讲 RxSwift 更胜一筹。</p>
+<p>因为毕竟是 Rx 团队的亲生项目。还有，OC 只有 RAC 支持，RxSwift 搞不定。</p>
+<p>雷纯锋：需要在 Obj-C 下和 Swift 下，分别来比较吧？那 Obj-C 下，用 RAC 应该是没有疑问的了吧，那在 Swift 下呢？</p>
+<p>Swift 场景下，由于 OC 做好的 bridge，所以 RAC3swift，仍然有不错的整合性。例如 notification、observer 这些。但是 RxSwift 与框架无关，所以这些功能需要自己补了。</p>
+<p>但是 RxSwift 比较标准，和 RxJS、RxJava 所有定义统一，所以迁移过来很容易。但 RxJS 和 RxJava 的原始用户比较少，这点不大明显。</p>
+<p>这是 Rx 和 RAC 的对比。</p>
+<p>RAC3 swift 版有个特性，就是热信号传导，这点 RxSwift 没有。对于特定的场景来说，热信号传导更好。</p>
+<p>PromiseKit 是一种异步库，思想和 FRP 不一样。</p>
+<p>PromiseKit 应该和 js 的 promise 库差不多的意思吧，这个我是靠猜的。</p>
+</blockquote>
+<h3 id="讨论：RAC-在工程中使用范围的界限，往往一处-RAC-就会引起和他相关模块的-RAC-化，如何确定界限呢？"><a href="#讨论：RAC-在工程中使用范围的界限，往往一处-RAC-就会引起和他相关模块的-RAC-化，如何确定界限呢？" class="headerlink" title="讨论：RAC 在工程中使用范围的界限，往往一处 RAC 就会引起和他相关模块的 RAC 化，如何确定界限呢？"></a>讨论：RAC 在工程中使用范围的界限，往往一处 RAC 就会引起和他相关模块的 RAC 化，如何确定界限呢？</h3><p>臧成威：这个我觉得有点危言耸听了吧，对上对下是可以有效包装，逐步放量的。</p>
+<p>臧成威：默认作为一种上下模块的通信协议，也不是很危险的事，所以我觉得没有太大的风险。上层拿到一个 RACSignal 就当做一个 BlockKit 的回调方式就可以。这样可以有效控制代码。</p>
+<p>雷纯锋：这个我觉得要看模块之间用什么来通信吧。</p>
+<p>李忠：这个我觉得还是跟使用场景有关。如果只是简单的对外暴露一个 property，外部直接 KVO 即可，甚至不用关心 RAC。但如果在一些比较复杂的场景使用 RAC 的话，很难做到对上层透明，除非内部的封装做得足够彻底。</p>
+<p>李忠：比如网络请求，返回一个 <code>RACSignal</code>，然后外部 <code>subscribeNext</code> 之后，想要取消怎么办？这时只能保存一个 <code>RACDisposable</code> 变量，然后在适当的时机调用 <code>dispose</code> 方法；或者要等待 2 个请求一起完成，再做一些事情（当然可以通过 semaphore &#x2F; dispatch_group 来做，但这样就丢了 RAC 的特性）等等。</p>
+<p>李忠：所以还是要在项目初期就想清楚，如果团队成员对 RAC 都比较熟悉，那自然最好。如果其他人不太了解，甚至抵触，这时就要避免在复杂的场景下使用。</p>
+<h3 id="讨论：有什么学习-RAC-好的资料吗？"><a href="#讨论：有什么学习-RAC-好的资料吗？" class="headerlink" title="讨论：有什么学习 RAC 好的资料吗？"></a>讨论：有什么学习 RAC 好的资料吗？</h3><p>臧成威：李忠的博客不错：<a target="_blank" rel="noopener" href="http://limboy.me/">http://limboy.me/</a></p>
+<p>唐巧：之前雷纯峰特别推荐美团的几篇博客：<a target="_blank" rel="noopener" href="http://tech.meituan.com/tag/ReactiveCocoa">http://tech.meituan.com/tag/ReactiveCocoa</a></p>
+<p>李忠：coursera 上有一门课是讲 Reactive Programming 的 ( <a target="_blank" rel="noopener" href="https://www.coursera.org/course/reactive">https://www.coursera.org/course/reactive</a> ) ，也会讲到 Functional Programming。</p>
+<p>雷纯锋：我写的这篇是范围比较广一点。<a target="_blank" rel="noopener" href="http://blog.leichunfeng.com/blog/2015/12/25/reactivecocoa-v2-dot-5-yuan-ma-jie-xi-zhi-jia-gou-zong-lan/">http://blog.leichunfeng.com/blog/2015/12/25/reactivecocoa-v2-dot-5-yuan-ma-jie-xi-zhi-jia-gou-zong-lan/</a> 《ReactiveCocoa v2.5 源码解析之架构总览》</p>
+<p>另外要关于 Monad 的也有一篇，<a target="_blank" rel="noopener" href="http://blog.leichunfeng.com/blog/2015/11/08/functor-applicative-and-monad/">http://blog.leichunfeng.com/blog/2015/11/08/functor-applicative-and-monad/</a> 《Functor、Applicative 和 Monad》</p>
+<p>雷纯锋：raywenderlich 上的文章：<br><a target="_blank" rel="noopener" href="http://www.raywenderlich.com/62699/reactivecocoa-tutorial-pt1">http://www.raywenderlich.com/62699/reactivecocoa-tutorial-pt1</a>、<br><a target="_blank" rel="noopener" href="http://www.raywenderlich.com/62796/reactivecocoa-tutorial-pt2">http://www.raywenderlich.com/62796/reactivecocoa-tutorial-pt2</a>、<br><a target="_blank" rel="noopener" href="http://www.raywenderlich.com/74106/mvvm-tutorial-with-reactivecocoa-part-1">http://www.raywenderlich.com/74106/mvvm-tutorial-with-reactivecocoa-part-1</a>、<br><a target="_blank" rel="noopener" href="http://www.raywenderlich.com/74131/mvvm-tutorial-with-reactivecocoa-part-2">http://www.raywenderlich.com/74131/mvvm-tutorial-with-reactivecocoa-part-2</a>。</p>
+<p>唐巧：我之前看过一本 《Functional Reactive Programming on iOS》，不过还是不够深入。</p>
+<p>臧成威：话说，看懂 Haskell，理解 RAC 就不是难事了。</p>
+<p>雷纯锋：是的，所以如果要理解 RAC 的思想的话，Haskell 可以学一下。<a target="_blank" rel="noopener" href="http://learnyouahaskell.com/">http://learnyouahaskell.com/</a></p>
+<h3 id="RACSequence-的性能问题"><a href="#RACSequence-的性能问题" class="headerlink" title="RACSequence 的性能问题"></a>RACSequence 的性能问题</h3><p>讨论到最后大家还涉及到了 RACSequence 的性能问题。记录如下：</p>
+<blockquote>
+<p>臧成威：了解了概念后，看源码就很爽了，是 OC 语言的典范。</p>
+<p>臧成威：不过看了 RACSequence 的实现，性能是无法使用的。</p>
+<p>雷纯锋：无法使用？你们不用 RACSequence 吗？</p>
+<p>臧成威：是的，Sequence 的性能很差。</p>
+<p>臧成威：由于 OC 没有引用透明和尾递归优化。</p>
+<p>雷纯锋：你们没有过吗？</p>
+<p>臧成威：你试试 100 个长度的数组进行遍历排序，然后再变回来就明白了。</p>
+<p>臧成威：现在都去掉了。</p>
+<p>雷纯锋：它主要是用来实现懒计算吧。</p>
+<p>雷纯锋：方便集合的转换吧，常规的遍历也不会使用它吧？</p>
+<p>臧成威：就是说集合转换的性能太差了。</p>
+<p>雷纯锋：恩，以后留意一下</p>
+</blockquote>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本次分享内容的主要贡献来自美团的臧成威同学，从美团的实践中我们也能看到，在有充足经验的人指导下，RAC 不但可以应用于大型项目，也可以工作得很舒服。</p>
+<p>最后感谢参加这次讨论会的臧成威、李忠、唐晓轩、孙源、雷纯锋、汤圣罡、李雄略、蓝晨钰，希望他们的分享对大家有所帮助。</p>
 
           
         
@@ -1406,7 +784,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/github-pages-ssl-custom-domain">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/01/02/2016-01-02-2015-summary/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -1425,7 +803,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/github-pages-ssl-custom-domain" itemprop="url">SSL all the things</a></h2>
+                <a class="post-title-link" href="/2016/01/02/2016-01-02-2015-summary/" itemprop="url">2015 年个人总结</a></h2>
         
 
         <div class="post-meta">
@@ -1437,301 +815,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-10-09T09:35:00+08:00">
-                2015-10-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          Adding SSL to your site can be super easy. If you are using GitHub Pages with a custom domain, read this.
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/github-pages-ssl-custom-domain">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/10/08/%E5%9C%A8Unity3D%E4%B8%AD%E5%8A%A0%E8%BD%BD%E5%A4%96%E9%83%A8%E5%9B%BE%E7%89%87%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E6%B3%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/10/08/%E5%9C%A8Unity3D%E4%B8%AD%E5%8A%A0%E8%BD%BD%E5%A4%96%E9%83%A8%E5%9B%BE%E7%89%87%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E6%B3%95/" itemprop="url">在 Unity3D 中加载外部图片的两种方法</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-10-08T15:03:01+08:00">
-                2015-10-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Unity3D/" itemprop="url" rel="index">
-                    <span itemprop="name">Unity3D</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          现在我们运行程序可以发现两种方式均可以让图片加载进来，为了对比两种方式在执行效率上的高低，我们在脚本中加入了相关代码，通过对比可以发现使用 IO 方式加载一张 227k 的图片需要的时间为 0s，而使用 WWW 方式加载需要 0.0185s，因此传统的 IO 方式具有更高的效率，建议大家在遇到这类问题时尽可能地使用这种方式;经过博主的研究发现，这种方式加载外部图片相对于使用 WWW 加载外部图片效率更高，所以如果大家遇到类似的需求，博主个人推荐大家使用这种方式进行加载;/// 以 WWW 方式进行加载
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2015/10/08/%E5%9C%A8Unity3D%E4%B8%AD%E5%8A%A0%E8%BD%BD%E5%A4%96%E9%83%A8%E5%9B%BE%E7%89%87%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E6%B3%95/">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/10/07/2015-10-07-why-fresh-wants-to-do-server-dev/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/10/07/2015-10-07-why-fresh-wants-to-do-server-dev/" itemprop="url">写给那些傻傻的，想做服务器开发的应届生</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-10-07T12:05:50+08:00">
-                2015-10-07
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-01-02T19:08:13+08:00">
+                2016-01-02
               </time>
             
 
@@ -1804,52 +889,2392 @@
         
         
           
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>猿题库刚刚结束了北京地区的大规模校园招聘，国庆之后打算转战外地进行校招。我本人深度参与了此次的校招工作，包括笔试题命题、面试题命题以及具体的面试工作。</p>
-<p>我在面试中发现了一个非常有意思的现象，就是大多数应届生都想做服务器端开发，但是他们却又不清楚服务器端开发具体要做些什么。</p>
-<p>我和同事聊天的时候说起此事，我们认为可能应届生觉得：做服务器端开发可以让自己写的程序运行在很多台机器上，并且处理海量的数据，这很「牛逼」。而做客户端或前端开发太简单，成长会比较小。</p>
-<p>于是我就写了本文，想给这些单纯的应届生泼泼冷水。先说说我的背景吧，我同时做过服务器端和客户端的开发。我在网易有道做过 1 年半的服务器端开发，产品涉及网易邮箱和微博产品，之后做了 3 年的 iOS 开发，产品涉及有道云笔记，猿题库和小猿搜题，所以我能够给大家分享服务器端和客户端开发的差别。</p>
-<h2 id="对服务器开发的误解"><a href="#对服务器开发的误解" class="headerlink" title="对服务器开发的误解"></a>对服务器开发的误解</h2><p>很多应届生认为做服务器端开发可以处理海量数据，管理上百台服务器。</p>
-<p>但是 —-</p>
-<p>处理海量数据就牛逼了？NO！</p>
-<p>服务器端开发经过多年的发展，对于海量数据的处理早有了很多固定的解决方案。不管是用云服务，还是用 Hbase ，你都可以很轻松地依赖开源库，解决海量数据的存储问题。</p>
-<p>还有一些同学想做大数据分析，如果你写过 MapReduce 程序就不会这么想了。现在的 MapReduce 程序写起来太 easy 了，很多时候简单到你就只需要写一条类似 SQL 的查询就行了。</p>
-<p>运行在上百台服务器上就牛逼了？NO！</p>
-<p>现在虚拟化技术发展迅猛，像小猿搜题所有服务都通过 Docker 来部署。很多时候，部署上线就是在 Web 管理界面上点击一个「Deploy」按钮即可。即使在过去，实际操作这些上百台服务器的也是运维同学，轮不到你来操作。</p>
-<p>所以，除了 YY 一下这些程序跑在多个机器上，这并没有什么可以带来成就感的地方。</p>
-<p>还有一些应届生觉得自己在学校做过网站，觉得在服务器开发方面有基础，做这方面更顺手。NO！企业里面的服务器开发完全不是你想的那样，基本上大家在学校做网站的经验等于零。</p>
-<h2 id="服务器开发的苦"><a href="#服务器开发的苦" class="headerlink" title="服务器开发的苦"></a>服务器开发的苦</h2><p>我给大家分享一下做服务器开发有什么苦的地方吧。</p>
-<h3 id="永远只能半夜上线"><a href="#永远只能半夜上线" class="headerlink" title="永远只能半夜上线"></a>永远只能半夜上线</h3><p>做为互联网公司，我们希望给用户提供 7 x 24 的不间断服务，那么服务万一需要中断怎么办？半夜上线呗。</p>
-<p>根据我多年的观察，晚上 12 点一般都是上网高峰，所以上线一般都是凌晨 3 点-4 点的时候进行。但是，你以为上线就是凌晨 3 点点一下「Deploy」按钮就完了吗？NO! 一般上线都会涉及功能升级，难免会有考虑不周到的情况，于是就会发生，上线出问题的情况。</p>
-<p>上线出问题怎么办？在网易，我们一般是两种做法：</p>
+            <h2 id="关于创业"><a href="#关于创业" class="headerlink" title="关于创业"></a>关于创业</h2><p>今年猿题库顺利拿到了 D 轮 6000 万美元的 <a target="_blank" rel="noopener" href="http://36kr.com/p/531286.html">融资</a>，估值 3.6 亿美元。而我负责的 <a target="_blank" rel="noopener" href="http://www.yuansouti.com/">小猿搜题</a>，也从年初的几十万用户，增长到了 5000 多万用户。</p>
+<p>今年是小猿搜题的风光年，我们上了「天天向上」，在各种黄金档节目中打电视广告，整体用户数据增长惊人。研究组、市场运营、内容部门各种给力，使得产品技术工作进展得非常顺利。</p>
+<p>下图是小猿搜题登上 AppStore 教育榜榜首的截图。</p>
+<img src="/images/xyst_appstore_1.jpg" class="">
+
+<h2 id="我的工作"><a href="#我的工作" class="headerlink" title="我的工作"></a>我的工作</h2><p>对于我自己来说，2015 年的工作主要分成上半年和下半年两个阶段。</p>
+<p>上半年，我一边负责小猿搜题的 iOS 开发工作，一边负责小猿搜题技术团队的组建和协调工作。小猿搜题当前大部分同事都是在上半年入职到这个团队的。</p>
+<p>下半年，团队成员磨合得差不多了，团队里面 iOS 同事也成长起来了，我自己能够从 iOS 具体的开发工作中脱身，使得我更多地关注产品和团队了。</p>
+<p>下半年自己的工作主要聚焦到了管理业务和管理团队上，每天组织协调和沟通的事情很多，除了 Scrum 的定期会议外，我还得参加产品的 Scrum 会议和产品过稿，还有美术的过稿。另外，我时不时也需要和运营的同事沟通协调。</p>
+<p>有时候忙完一整天不知道时间是如何过去的，然后又看着自己 iOS 开发技能慢慢变弱，有一种焦虑感。于是我首先开始多读书，接着就是总结，试图调整自己。</p>
+<p>数据分析的工作让我知道任何的改进都是应该基于数据的，这样更加理性。所以，我拿了一个小本子，记录自己每天的详细时间花费情况。于是就有了下图这样的一页一页的记录。</p>
+<img src="/images/evernotes.jpg" class="">
+
+<p>这样大概记录了一周多，我基本上知道了自己的时间是如何花掉的了。然后，我开始归类自己的时间花费，看看主要花在了哪些地方。对于一些优先级不高的事情，我会注意调整它，不要让它把重要的事情给耽误了。</p>
+<p>我也开始总结一个产品技术负责人的工作。在想得差不多了之后，我利用每周一早上和 CTO 的沟通机会进行讨论，最终，我完成了文章：<a href="/2015/12/18/from-dev-to-manager/">《涅槃重生:我的技术转管理之路》</a>，并且在北京架构师峰会上做了相应的技术转管理分享。</p>
+<p>现在我不那么焦虑了，不过觉得自己还是需要多学习和提高。</p>
+<h2 id="图书出版"><a href="#图书出版" class="headerlink" title="图书出版"></a>图书出版</h2><p><a target="_blank" rel="noopener" href="http://item.jd.com/11598468.html">《iOS 开发进阶》</a> 在 2015 年 1 月份顺利出版，然后首印 3000 册迅速卖掉了，出版社加印了 2000 册，然后过一周又卖光了，然后他们加印了 5000 册。之后又陆续有加印，最终到年底的时候，《iOS 开发进阶》销售了 17000 册，我听出版社老师说，这个成绩在技术图书里面是算相当好的。</p>
+<img src="/images/ios_pro_17000.jpg" class="">
+
+<p>虽然称不上完美无缺，我个人对这本书的自评是问心无愧的。我用 Scrum 的管理方式来管理这本书的写作过程，我想在互联网时代，按时发布产品比什么都重要，所以，虽然有很多想继续完善的地方，我还是把它付印了。我也把写这本书的过程总结下来，完成了 <a href="/2015/01/11/how-to-finish-ios-pro-book/">《我是如何完成《iOS 开发进阶》的编写的》</a>，希望能给想出书的同行一些帮助。</p>
+<p>由于我从一线 iOS 开发工作中脱离，《iOS 开发进阶》很可能不会再更新出第二版了，17000 册这个成绩，对于当时 30 岁的我来说，还算是一个不错的里程碑。这次写作让我感受到了出版的乐趣，其实我自己还在蕴量一些写作素材，或许以后会给大家一些新的分享。</p>
+<h2 id="写作"><a href="#写作" class="headerlink" title="写作"></a>写作</h2><p>今年在博客上完成了 45 篇原创博客文章，差不多一周一篇的节奏。因为 iOS 开发做得少了，所以我的文章中涉及 iOS 开发技术细节的内容少了很多。</p>
+<p>我仔细分析了一下今年的博客文章，内容涉及面很广。包括一些 iOS 开发方面的文章，如：</p>
+<ul>
+<li><a href="/2015/01/31/write-sdk-tips/">写 iOS SDK 注意事项</a></li>
+<li><a href="/2015/03/15/ios-dev-controversy-1/">iOS 开发中的争议（一）</a></li>
+<li><a href="/2015/03/22/ios-dev-controversy-2/">iOS 开发中的争议（二）</a></li>
+<li><a href="/2015/11/02/mvc-and-mvvm/">被误解的 MVC 和被神化的 MVVM</a></li>
+</ul>
+<p>另外，我也向「娱乐记者」转变，采访了一些国内新出现的 iOS 大牛，以及报道一些行业新闻，比如</p>
+<ul>
+<li><a href="/2015/06/16/talk-about-swift-open-source/">谈谈苹果开源 Swift</a></li>
+<li><a href="/2015/11/26/yykit-auther-interview/">专访 YYKit 作者 ibireme: 开源大牛是怎样炼成的</a></li>
+</ul>
+<p>我更不务正业地写起了硬件的评测：</p>
+<ul>
+<li><a href="/2015/06/28/apple-watch-usage-exp/">Apple Watch 使用体验</a></li>
+</ul>
+<p>当然，最离谱的就是我开始卖软件了，我和荔枝数码合作先后卖了 Reveal 和 Charles 两款 iOS 开发中需要的效率工具软件，也为此写了一些文章：</p>
+<ul>
+<li><a href="/2015/05/25/can-we-buy-time/">Reveal 中国特惠活动</a></li>
+<li><a href="/2015/11/14/charles-introduction/">Charles 从入门到精通 (中国 5 折特惠)</a></li>
+</ul>
+<p>因为工作关系，我也开始总结自己的技术转管理收获，完成了：</p>
+<ul>
+<li><a href="/2015/10/25/one-on-one-summary/">浅析一对一沟通</a></li>
+<li><a href="/2015/12/18/from-dev-to-manager/">涅槃重生:我的技术转管理之路</a></li>
+</ul>
+<p>在产品工作上面，总结了：</p>
+<ul>
+<li><a href="/2015/09/02/why-we-need-monitor-data/">数据的秘密（上）- 为什么要关注数据</a></li>
+<li><a href="/2015/09/03/how-to-monitor-data/">数据的秘密（下）- 如何分析数据</a></li>
+</ul>
+<h2 id="读书"><a href="#读书" class="headerlink" title="读书"></a>读书</h2><p>另外，今年开始认真写读书笔记，完成了：</p>
+<ul>
+<li><a href="/2015/03/01/tipping-point/">《引爆点》读书心得</a></li>
+<li><a href="/2015/04/04/from-0-to-1-book-summary/">《从 0 到 1 》读书笔记</a></li>
+<li><a href="/2015/08/01/become-a-tech-leader-summary/">《成为技术领导者》读书心得</a></li>
+<li><a href="/2015/08/02/the-story-of-success-book-summary/">《异类》读书心得</a></li>
+<li><a href="/2015/08/22/reverse-book-summary/">《逆转》读书心得</a></li>
+</ul>
+<p>其实还看了一些别的书，包括《格鲁夫给经理人的第一课》、《增长黑客》、《领导梯队》等，但是都没有完成笔记，之后打算补上。</p>
+<p>iOS 技术图书也看了不少，要说推荐，还是王巍的 <a target="_blank" rel="noopener" href="https://selfstore.io/products/171">《Swifter》</a> 和 Kevin 的 <a target="_blank" rel="noopener" href="https://selfstore.io/products/367">《Producter》</a> 。《Swifter》适合给新手入门用，《Producter》是一本跨界的书，适合 iOS 开发者用来开拓自己的眼界。</p>
+<h2 id="好奇心"><a href="#好奇心" class="headerlink" title="好奇心"></a>好奇心</h2><p>2015 年我特别提醒自己要有好奇心，于是就做了很多有趣的事情。</p>
+<p>比如，因为搬家和装修，我自己学习了换门锁、换马桶盖子、换马桶的上水管、组装板材家俱、在墙上钻孔这些技能，感觉还挺有意思的，有些时候就感觉在摆弄大号的积木玩具一样。</p>
+<p>比如，因为对社群经济感兴趣，交了 1024 元加入了池建强和李笑来老师建的付费群。</p>
+<p>比如，因为对 <a target="_blank" rel="noopener" href="http://www.zaih.com/mentor/84802679/topic/29864843/">「在行」</a> 这个 App 感兴趣，在上面接单，约见了五位朋友。</p>
+<p>好奇心给我带来了极大的收获，比如池老师的那个付费群，我最终不但收获了不少有意思的分享，而且学习了当前社群的运作模式。在「在行」上接单不但收到了一些咨询费，更多的是认识了很多有趣的人，比如说罗飞。</p>
+<p>如果要说好奇心给我带来的最大收获，那可能就是「iOS 开发」微信公众号的运营了。</p>
+<p>从时间上看，我的「iOS 开发」微信公众号已经运营 3 年多了：</p>
+<ul>
+<li>2013 年 2 月 21 日，我开始在微信公众号里发表 iOS 开发相关内容。</li>
+<li>2013 年 12 月累积发表了 140 条信息，累积了 5600 名粉丝。</li>
+<li>2014 年 12 月累积了 1 万名粉丝。</li>
+<li>2015 年 12 月累积了 3 万名粉丝。</li>
+</ul>
+<p>最主要的是，我原本没指望做这个事情有什么收获，但是从 2015 年起，开始有各种互联网企业找我投放广告。在这里感谢我的主要广告主：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.upyun.com/zh/index.html">UPYUN</a>：UPYUN 是国内领先的云服务提供商，专注于为开发者提供静态文件的云存储、云处理和 CDN 加速服务。</li>
+<li><a target="_blank" rel="noopener" href="http://100offer.com/">100Offer</a>：用「拍卖」的方式来提供高端互联网人才招聘的网站。</li>
+<li><a target="_blank" rel="noopener" href="http://www.lagou.com/">拉勾网</a>：最专业的互联网招聘平台，我自己就从上面招到了不少同事。</li>
+<li><a target="_blank" rel="noopener" href="http://www.infoq.com/cn">InfoQ</a>：InfoQ 了提供中国最高质量的技术会议和技术文章，我自己也是 InfoQ 的社区编辑。现在 InfoQ 创始人 Kevin 把业务做得更广，成立了 <a target="_blank" rel="noopener" href="http://www.geekbang.org/">极客邦科技</a>，在极客邦科技之下，除了 InfoQ 之外，另外组建了高端技术人员社交网络 EGO、IT 职业学习平台 StuQ 和 企业培训服务 GIT。</li>
+</ul>
+<p>再次感谢你们，是你们让我这个自媒体有肉吃。</p>
+<p>同时，我也要感谢我的读者，谢谢你们忍受偶尔出现的广告。我仔细算了一下，现在广告的频率是每月 2-3 次。你们放心，我会努力控制广告频率，如果控制不住，我就会涨价的！</p>
+<h2 id="未来的计划"><a href="#未来的计划" class="headerlink" title="未来的计划"></a>未来的计划</h2><p>2016年，希望自己：</p>
+<ul>
+<li>每月至少完成一篇读书笔记。</li>
+<li>每周坚持发至少一篇微信公众号文章。</li>
+</ul>
+<h2 id="个人-Milestone"><a href="#个人-Milestone" class="headerlink" title="个人 Milestone"></a>个人 Milestone</h2><ul>
+<li>小猿搜题团队组建成功，并且获得 5000 万用户量。</li>
+<li>「iOS 开发」微信公众号获得了 3 万粉丝，并开始有广告收入。</li>
+</ul>
+<!--
+
+22 次
+
+100 offer
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=444425913&idx=1&sn=edae69f061b7e963b626ff0564e0d55c#rd
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=210036524&idx=1&sn=6ac23a8a4a518dac51bbf875da788df2#rd
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=209774617&idx=1&sn=f36182036013a89567bb150be29440d2#rd
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=209555090&idx=1&sn=64986a94516329f65be25166f7f05f39#rd
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=204693407&idx=1&sn=53f7e05318aaad91e09ab8ff7043459b#rd
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=204526037&idx=1&sn=f86643463659011430cd6bbf3538ca13#rd
+
+lagou:
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=443546076&idx=1&sn=2fee1e70380a8c04e0b346a3fb36b3d9#rd
+
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=440158123&idx=1&sn=9b0452fba8ab687b902cb3110846dbe4#rd
+
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=400074920&idx=1&sn=cbfcdca750798cc16e92ff7997ed61fb#rd
+
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=209664745&idx=1&sn=eedfa5d8c5f7183997a22d06a4c3904e#rd
+
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=208301774&idx=1&sn=adffaef537aff67f01db3992be796c89#rd
+
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=206695843&idx=1&sn=2617a5966f347a98d6b9ef490f0292b4#rd
+
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=205584984&idx=1&sn=584e2913718833020cfd990465e3afe5#rd
+
+
+
+infoQ:
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=421410076&idx=1&sn=8a6671aa72abfadb03cfb8f224523838#rd
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=405922788&idx=1&sn=e1f2a1e5b4ccddd2f0b31eefdafd56ae#wechat_redirect
+
+pgyer:
+
+http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=420641198&idx=1&sn=f43c61cb451db72d4145fbaad089b8ba#rd 
+
+BugTags:
+
+http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=209938150&idx=1&sn=4ff4715b21d88a384c747e098fa9c1aa#rd
+
+UPYUN:
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=209728624&idx=1&sn=1ab063924d3d8863c7c66a9f820e34c7#rd
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=208075893&idx=1&sn=09164a9954092d12ba2a5eb341cb857b#rd
+
+丰厚资本:
+
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=209397391&idx=1&sn=8e9ff6100379bd289a901c4aec400e8e#rd
+
+借贷宝:
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=209067756&idx=1&sn=396d17ec6f2aefc6547ae488719ff669#rd
+
+理财工场:
+ * http://mp.weixin.qq.com/s?__biz=MjM5NTIyNTUyMQ==&mid=208847424&idx=2&sn=d26831cf3d4f41639c8fbf37ba662c55#rd
+
+-->
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/01/01/2016/happy-newyear/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/01/01/2016/happy-newyear/" itemprop="url">新年快乐～</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-01-01T08:00:20+08:00">
+                2016-01-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%97%A5%E5%B8%B8/" itemprop="url" rel="index">
+                    <span itemprop="name">日常</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p><a target="_blank" rel="noopener" href="http://www.pixiv.net/member_illust.php?mode=medium&illust_id=24052290"><img src="https://img.prin.studio/images/2016/01/2016-01-01_04-16-14.jpg" alt="id=24052290"></a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/01/01/2015/minecraft-1-9-features/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/01/01/2015/minecraft-1-9-features/" itemprop="url">Minecraft 1.9 快照试玩感想</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-01-01T06:40:16+08:00">
+                2016-01-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%9A%8F%E7%AC%94/" itemprop="url" rel="index">
+                    <span itemprop="name">随笔</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>早就听闻 1.9 战斗更新很坑爹，于是找了个时间体验了一把，版本是 15w50a。（多图注意）</p>
+<p><img src="https://img.prin.studio/images/2015/12/2015-12-13_03-13-36.png" alt="1"></p>
+<p>首先是存档拥有了一个自己的图标，可以自定义存档文件夹下的 icon.png，默认为第一次进入世界的截图。 进入了世界，首先迫不及待的试了一下传说中的双持（默认按 F 交换主副手的物品）：</p>
+<p><img src="https://img.prin.studio/images/2015/12/2015-12-13_03-18-46.png" alt="2"></p>
+<blockquote>
+<p>哇塞，帅爆了耶，二刀流有木有！</p>
+</blockquote>
+<p>然而武器（除了弓）都只能在主手用 qwq，副手放放火把之类的还好。副手有东西时，鼠标右键就是使用副手的物品。</p>
+<p><img src="https://img.prin.studio/images/2015/12/2015-12-31_09-58-26.png" alt="20151231175748"></p>
+<p>但是，有个坑爹的地方。场景模拟：</p>
+<blockquote>
+<p>你兴高采烈的双持稿子和火把下矿了，想着 “终于可以在原版体验采矿钻头插火把的快感辣~”，于是在地下碰到了姜丝围攻。你想着，哎呀，还是先垫垫高比较好打，于是对着地面一跳一右键。。然后插上了火把（摔</p>
+<p>当然，你也可能会想吃东西，吃完发现满地火把。。（笑</p>
+</blockquote>
+<p>所以说还是要适应，感觉并不是特有用的更新。 然后就是试验传说中的 <strong>战斗更新</strong> 了： 然后。。。</p>
+<p><img src="https://img.prin.studio/images/2015/12/2015-12-13_03-33-52.png" alt="4"></p>
+<p>OH, WHAT THE FUUUUUCK !!!</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/01/01/2015/minecraft-1-9-features/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/12/31/2015/2015-12-31-summary-of-2015/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/12/31/2015/2015-12-31-summary-of-2015/" itemprop="url">2015 年度小结</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-31T00:00:00+08:00">
+                2015-12-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>转眼间又一年过去了，2015 年初是我在南方过的第一个冬天，没有暖气实在是不好过，从十一月份开始室内的温度就好像定格在了沈阳暖气供应前的那几天，一直持续到来年三月。</p>
+<p>这个冬天我继续热衷于 <a target="_blank" rel="noopener" href="https://jysperm.me/2015/02/result-of-time-tracking/">数据统计</a>，使用番茄土豆、Toggl、RescueTime 等工具来统计我在各种活动上的时间开销，这件事坚持了差不多两个月，后来我发现其实这样做意义并不大，而且很累，于是放弃了。</p>
+<p>今年年初我决定将我的博客 从 <a target="_blank" rel="noopener" href="https://jysperm.me/2015/02/move-to-hexo/">WordPress 迁移到 Hexo</a>, 在我花了一个月 <a target="_blank" rel="noopener" href="https://jysperm.me/2015/07/hexo-theme-simpleblock">自己编写了主题</a> 并导入数据之后成功上线。然后我又花了七个月的时间对之前所有的博客文章的内容和排版进行了一次修订，并删除了极少一部分信息量较低的日志。</p>
+<p>在五月份，因为更新了 Yosemite 之后感觉性能变差了，于是将我的 MacBook Air 卖给了粉丝团里的一位朋友，卖出的钱刚好自己组装一台 Windows 台式机。说起来我当时已有很久不用 Windows 了，不过我并没有觉得 Windows 难用，我还是很快地找到了合适的工具，适应了 Windows 下的日常使用和开发工作。</p>
+<p>在今年六月，我们在昆山的房子租期到了，于是搬到了上海市郊的一栋独栋别墅，紧邻虹桥机场，飞机起飞时几乎占满了整个窗子。我们也讨论过要继续留在昆山还是搬到上海，搬到上海的好处是可以享受一些仅限上海的互联网服务、更方便地参加一些在上海举行的活动。然而搬到上海之后我发现情况和设想有一些出入，因为距离市区实在太远了，附近也没有商业区也没有地铁，出行很不方便，几乎三餐都是靠外卖解决。</p>
+<p>刚好是搬家的时候，cry 姐姐从武汉过来找我玩，在昆山这边住了几天。之后 cry 姐姐在杭州找到了工作，所以后来又和 cry 姐姐见了很多次面，一起去了上海的博物馆、植物园以及宜家。如果有人是靠运气生活在这个社会中的话，大概就是 cry 姐姐了。cry 姐姐有很多坏习惯，但更重要的是她不相信自己可以做出改变，可以成为受大家喜欢的人，大概我并不能改变她，也许 cry 姐姐是一个不需要朋友的人吧。</p>
+<p>七月初，晚上路过一家饭店门口时，看到两只大概一个月的小猫咪，店家说他们并不想养，如果想要可以拿走。我一直很喜欢萌萌的猫咪，也很严肃地计划养一只猫很久了，不过一下子养两只还是让我有点没心理准备，但在考虑了十分钟之后我还是决定带它们走。</p>
+<p>在路上我就给它们起好了名字，身上黑色多一些的叫「皮蛋」，而身上白色多一些的叫「豆腐」。一开始我还纠结它们是否能区分出自己是皮蛋还是豆腐，因为它们总是一起出现，不过后来我发现我想多了。在上海和大家一起住的时候皮蛋豆腐受了大家很多照顾，其实直到后来搬出来自己住的时候我才真正地尽到主人的责任，每天亲自照顾它们，陪它们玩，它们也对我非常信任。</p>
+<p>七月末的时候我出了一趟远门，路线是从上海回沈阳，然后从沈阳到北京玩几天，再回上海。因为卖掉了 MacBook, 缺少一个随身携带的笔记本电脑，于是受 cry 姐姐的蛊惑买了一台 Surface 3, 这差不多是我 2015 年买的最后悔的一样东西，因为刚买过就降了价，而且感觉使用场景并不多，大部分时间都是放在那里吃灰，于是在十一月的时候折价卖给了 IntPtr.</p>
+<p>去北京期间在昱东家住了三天，他先后工作于中国两大互联网公司，一个劲地劝我不要在所谓创业公司浪费时间，要选择可以提供更好的条件、流程和制度更加完善的「大公司」，也和我分享了一些他的「职业规划」。虽然我觉得他和我并不是一路人，但是这些谈话对我还是很有帮助的，也让我严肃地考虑了一下今后的工作。</p>
+<p>从北京回来之后，经过一个月的慎重考虑，我 <a target="_blank" rel="noopener" href="https://jysperm.me/2015/09/leaving-hackplan">决定离开 HackPlan</a>, 其实在决定离开的时候其实我还不知道我会去哪一家公司，不过最后我 <a target="_blank" rel="noopener" href="https://jysperm.me/2015/11/join-leancloud">选择了 LeanCloud</a>. 加入 LeanCloud 之后我就回到了昆山，因为有了固定的工作时间，下半年我的作息时间规律了不少。但因为第一次一个人租房子住，生活经验不足，几乎每天我都要花很多时间在收拾和清洁房间上 —— 当然这里也少不了皮蛋豆腐的「功劳」。</p>
+<p>在十月末，我决定 <a target="_blank" rel="noopener" href="https://jysperm.me/2015/10/rpvhost-shutdown-plan">彻底关闭 RP 主机和 GreenShadow</a>, RP 主机对于我有着非常特殊的意义，它是我坚持最久、用户最多的项目，我也从这个项目赚到了我的第一桶金，甚至能够加入 LeanCloud 也有一部分原因是我维护 RP 主机所积累的经验。但随着我离开学校开始工作，离「每个月只有十元钱却希望建一个网站」的这群人越来越远了；而且现在我在 LeanCloud 的工作是维护一个和 RP 主机类似的 PaaS 服务，所以最后决定关闭 RP 主机。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/12/28/2015/yuruyuri-3-end-omedetou/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/12/28/2015/yuruyuri-3-end-omedetou/" itemprop="url">摇曳百合3 完结撒花～(*´ω｀*)ﾉﾞ✧*。</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-28T00:42:09+08:00">
+                2015-12-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%97%A5%E5%B8%B8/" itemprop="url" rel="index">
+                    <span itemprop="name">日常</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>虽然晚了好几天就是了 qwq</p>
+<p>最后「きみがくれたシャイニーストーリー」这首歌响起的时候，窝可是差点就哭出来了呢</p>
+<p>不过能不靠字幕听懂这首歌，看来词汇的堆积确实是有作用的呢，以前只是听出来一堆假名而已（笑</p>
+<p>不知道会不会有第四季呢，是像 GJ部 那样完结，还是像 K-ON 那样的高中篇呢。不管怎么样，感谢这部动画陪伴窝的这么长时间，窝也很幸福哦~</p>
+<p>Music box here</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/12/28/2015/ascii-art-for-characters/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/12/28/2015/ascii-art-for-characters/" itemprop="url">使用制表符生成字母的字符画</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-28T00:00:57+08:00">
+                2015-12-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>今天看到了 <a target="_blank" rel="noopener" href="https://www.anotherhome.net/about">AnotherHome</a> 的首页源码，发现了注释里的这玩意：</p>
+<p><img src="https://img.prin.studio/images/2015/12/2015-12-27_07-49-21.png" alt="antherhome html comment"></p>
+<p>觉得挺有意思的，正好闲着，就写了个用制表符生成字母画的脚本：</p>
+<p><img src="https://img.prin.studio/images/2015/12/2015-12-27_07-51-34.png" alt="exec result"></p>
+<p>还是 Python 实现，源码托管于 <a target="_blank" rel="noopener" href="https://gist.github.com/prinsss/689a1da4b515aa682d4b">Gist</a>。</p>
+<p>明明不是很复杂的东西，想保存字符画的数据结构时却想了窝好长时间 qwq</p>
+<p>本来是想定义个类，然后生成 A-Z 的实例，可以取出各行内容的，后来想想一个用一个 dict 就好了，key 是大写字母，value 是保存有各字母字符画的各行字符串的 list。</p>
+<p><img src="https://img.prin.studio/images/2015/12/2015-12-31_14-46-13.png" alt="blessing studio result"></p>
+<p>各位 dalao 见笑了 <a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/10/2015-10-03_12-39-25.jpg"><img src="https://img.prin.studio/images/2015/10/2015-10-03_12-39-25.jpg" alt="pa"></a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/12/27/2015/a-hitokoto-crawler/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/12/27/2015/a-hitokoto-crawler/" itemprop="url">写了个一言爬虫</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-27T20:39:48+08:00">
+                2015-12-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>Python 实现，格式化后文本存储于 <code>hitokoto.txt</code>（使用 <code>\n</code> 做换行符，用记事本打开发现没有换行可不是窝的锅），已保存的一言 ID 保存在 <code>hid.txt</code> 中，带 Save&amp;Load，如果请求到已保存的一言则自动重新请求。本来是想要用数据库的，想想还是算了，反正也没几行（笑）。以后想存数据库的时候，正则一下保存后的格式化文本就好了。</p>
+<p>不过用 Python 写这种小脚本真心方便呢w ~</p>
+<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/12/2015-12-27_04-25-30.png"><img src="https://img.prin.studio/images/2015/12/2015-12-27_04-25-30-1024x414.png" alt="hitokoto.py screenshot"></a></p>
+<p>命令行参数（也可以用 <code>--help</code> 查看）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-c    请求的一言数量，整数</span><br><span class="line">-d    请求之间的延迟（秒），浮点数</span><br><span class="line">-a    是否自动重新请求，布尔值</span><br></pre></td></tr></table></figure>
+
+<p>源码托管于 <a target="_blank" rel="noopener" href="https://gist.github.com/prinsss/8efc424f8033f7f008ed">Gist</a>（打不开请自行解决）。</p>
+<p>唔。。最近手生了，写这么点花了将近半天 qwq</p>
+<p>单线程（并不想多线程），服务端又是随机返回，所以保存的数量多了以后，效率会很慢。1000 个请求中，999 个是重复的也很常见 qwq 所以还是挂 vps 上慢慢爬吧</p>
+<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/12/2015-12-27_04-47-26.png"><img src="https://img.prin.studio/images/2015/12/2015-12-27_04-47-26.png" alt="2"></a></p>
+<p>爬太快的话怪不好意思的 <a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/09/2015-09-19_15-53-31.jpg"><img src="https://img.prin.studio/images/2015/09/2015-09-19_15-53-31.jpg" alt="QQ图片20150919235138"></a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/12/25/%E3%80%8ACg%20Programming%20in%20Unity%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/12/25/%E3%80%8ACg%20Programming%20in%20Unity%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url">《Cg Programming in Unity》读书笔记</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-25T12:29:20+08:00">
+                2015-12-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index">
+                    <span itemprop="name">读书笔记</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          在这里子着色器使用Tags标签来告诉渲染引擎期望何时和如何渲染对象，其语法是：;在通道中可以定义其名称和任意数目的标签，通过使用tags来告诉渲染引擎在什么时候该如何渲染他们所期望的效果，其语法和Tags标签完全相同，即采用键值对来定义标签的名称和其对应的值;Properties是由多条标签组成的Shader属性定义，这些属性能够在Unity3D中的编辑器中显示出来，以此来确定这段Shader代码由哪些输入
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2015/12/25/%E3%80%8ACg%20Programming%20in%20Unity%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/12/25/2015/merry-xmas/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/12/25/2015/merry-xmas/" itemprop="url">Merry Xmas!</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-25T02:26:51+08:00">
+                2015-12-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%97%A5%E5%B8%B8/" itemprop="url" rel="index">
+                    <span itemprop="name">日常</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p><a target="_blank" rel="noopener" href="http://www.pixiv.net/member_illust.php?mode=medium&illust_id=15447116"><img src="https://img.prin.studio/legacy/image.php?di=9C6I" alt="id=15447116"></a></p>
+<p>哎呀到了圣诞节了呢，时间过得真快。再过几个月就是窝的站点一周年了。老实说窝也不记得是什么时候开始的了，当初心血来潮建博客的时候也没想到能写到现在。</p>
+<p>算了，这些等一周年再感慨吧。</p>
+<p>为了稍微营造点气氛，在首页下了点雪。怕移动设备 CPU 不行，所以其他页面没有下。</p>
+<p>不过圣诞节吗。。谁都好快来送窝个礼物吧，讲真（死目）</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/12/24/2015-12-24-resume-cheat-story/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/12/24/2015-12-24-resume-cheat-story/" itemprop="url">培训机构出来的 iOS 学员怎么了？</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-24T22:23:45+08:00">
+                2015-12-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="事件回放"><a href="#事件回放" class="headerlink" title="事件回放"></a>事件回放</h2><p>前几天在 iOS 开发群里看到有人贴了一个 v2ex 上的帖子（地址： <a target="_blank" rel="noopener" href="https://www.v2ex.com/t/244437">https://www.v2ex.com/t/244437</a> ） ，大概说收到了 1000 多份某培训机构出来的学员简历。这些简历让他发现了一些问题：</p>
+<ul>
+<li>面试表现比较差</li>
+<li>大多有伪造工作经历的行为</li>
+</ul>
+<p>以下是他的文章原文：</p>
+<blockquote>
+<p>公司坐标：杭州。 </p>
+<p>由于公司业务发展，需要新招一位 iOS 开发工程师，这周 HR 平均每天给我安排了三场面试。 </p>
+<p>一周过去了，这些面试者给我的印象都很糟糕，并且……很蹊跷，今天找 HR 了解了一下。 </p>
+<p>结果出现了令我震惊的事情， HR 在「智联」「 51job 」「拉勾」三个渠道发布了招聘，半个月收到了超过一千份 iOS &gt; 简历，而同时招聘的其他技术岗位却很少有人投递简历。 </p>
+<p>分析了一下这些简历的特征： </p>
+<p>1.户籍绝大多数是某地（非地图炮，仅是数据统计） </p>
+<p>2.几乎全部刚从外地来杭州 </p>
+<p>3.几乎全部上家公司是外包公司 </p>
+<p>4.很多人上家公司不一样，但简历中写的项目却是一样的 </p>
+<p>5.简历上宣称的工作年限都是 1 年左右 </p>
+<p>其实上面这几条，我都可以「理解」 </p>
+<p>但是，这个数量着实让人震惊。 </p>
+<p>我有一些推测，怕被喷，先不说了。 </p>
+<p>你们怎么看?</p>
+</blockquote>
+<p>有人把这个问题贴到知乎上，引来了一些知情者的回复，见 <a target="_blank" rel="noopener" href="https://www.zhihu.com/question/38703692">https://www.zhihu.com/question/38703692</a> 。</p>
+<p>原来这些都是培训机构出来的学员，然后为了获得一次面试，就编造了工作公司和经历，并且隐藏了自己的培训经历。</p>
+<p>今天就想和大家聊聊这个沉重的话题。</p>
+<h2 id="诚信的恶性循环"><a href="#诚信的恶性循环" class="headerlink" title="诚信的恶性循环"></a>诚信的恶性循环</h2><p>首先我们说说简历造假吧。在我看来，简历造假还是时常遇到的。我认识礼物说的 CTO，我们 iOS 群里常常有朋友面试时遇到说自己在礼物说工作过的候选人，为什么呢？还不是网上有一堆高仿礼物说的 APP，自己下载下来看看，然后就可以假装是自己做的了。</p>
+<p>为什么很多候选人选择造假呢？除了简历不够好之外，造假很多时候确实有用。对于很多小公司来说，面试官自己也不懂如何面试 iOS 开发，那么就特别容易被忽悠。</p>
+<p>但是，一个公司里面有 iOS 开发者，然后再稍微懂一些面试技巧的话，简历造假是很容易发现的。关于怎么在面试中鉴别造假，我们在下一节聊。</p>
+<p>我们先聊聊看造假会造成什么危机呢？对于面试公司来说，如果他发现面试的效率特别低，或者招进来的人干活不行时，他会怎么办呢？</p>
+<p>我觉得他会很直接地开地图炮，把一类人直接刷掉，不再给面试机会。这类人是哪些人？简历雷同的、培训机构培训出来的人。</p>
+<p>这样公平吗？对候选人肯定不公平，但是公司招人也需要讲效率的，面试候选人其实成本特别高。</p>
+<p>所以造假这个行为，最终伤害的是候选人本人，以及培训机构的信誉。</p>
+<h2 id="如何在面试中鉴别造假"><a href="#如何在面试中鉴别造假" class="headerlink" title="如何在面试中鉴别造假"></a>如何在面试中鉴别造假</h2><p>其实挺简单的，首先面试的时候不要设置固定问题，然后根据候选人的回答情况来深入问细节。</p>
+<p>就比如说一个候选人说他做过礼物说，那就有很多可以深入问的，比如问他：</p>
+<ul>
+<li>礼物说有几个 iOS 开发</li>
+<li>大家是如何分工的</li>
+<li>你负责的那块最主要的难点在哪里</li>
+<li>团队整个协作的过程</li>
+<li>在开发的时候有没有遇到需求变更</li>
+<li>功能上线后大概的数据是什么样的</li>
+<li>你觉得哪些地方还需要改进</li>
+<li>你们主要的竞争对手是谁，他们在哪些技术方面比你们做得好</li>
+</ul>
+<p>一个谎话要编容易，难的是每一个细节都编得面面俱到，所以深入细节问，很容易就会露馅。</p>
+<h2 id="我是培训机构学员怎么办"><a href="#我是培训机构学员怎么办" class="headerlink" title="我是培训机构学员怎么办"></a>我是培训机构学员怎么办</h2><p>简单地说，公司招一个人最终级的目的还是把活干好。如果一个培训机构的学员，没有实际的工作能力，单凭几个月的培训就想一劳永逸地找一份好工作，这是不现实的。</p>
+<p>互联网技术日新月异，iOS 开发每年技术都在更新，如果指望所有知识都是从培训机构那儿获得，那么早晚都会被淘汰。</p>
+<p>所以，即使你当前是培训机构出来的学员，也必须培养自己实际解决问题的能力和自学能力。这样才能一点点地增强自己的实力。</p>
+<p>另外说一个残酷的现实，公司一般不会给你大块的上班时间用来学习新知识的。所以大多数学习充电过程只能是在下班后或周末。</p>
+<h2 id="我们应该怎么看待培训机构学员"><a href="#我们应该怎么看待培训机构学员" class="headerlink" title="我们应该怎么看待培训机构学员"></a>我们应该怎么看待培训机构学员</h2><p>我自己就招过一个培训机构出来的学员，她还是一个女生，现在工作得挺棒的。她是非计算机专业毕业的，参加培训机构学了 3 个月就来我们公司面试。她能通过面试，很大程度上是因为她不止参加了培训班的课，而且自己在网上学习了计算机数据结构和算法的基础知识，而且是看的国外的课程。</p>
+<p>当时面试时我完全没有考查她 iOS 知识，因为她承认只参加了 3 个月的培训。所以我考查了一下她自学数据结构和算法的情况。结果让我觉得她是一个自学能力还不错的女生，所以我就把她招了进来。</p>
+<p>刚进来带她做 iOS 费了一些精力，但是很快她就可以上手自己做事情了。现在，我已经完全把小猿搜题的 iOS 端交给她来负责。我想她就是一个培训机构出来学员的成功案例。</p>
+<p>我们并不鄙视培训机构的学生，但是我们不认同那些没有自学能力，认为参加 3 个月培训就可以拿高薪的「投机者」。这个行业虽然高薪，但是也很辛苦，如果没有兴趣和毅力，是没办法做好的。</p>
+<h2 id="搞-iOS-开发到底需要什么核心能力"><a href="#搞-iOS-开发到底需要什么核心能力" class="headerlink" title="搞 iOS 开发到底需要什么核心能力"></a>搞 iOS 开发到底需要什么核心能力</h2><p>大家看了我上次<a href="/2015/11/26/yykit-auther-interview/">采访的 YYKit 作者的文章</a> 后，或许就能明白，其实一个人核心的能力就是学习能力。有强大的学习能力，那么就可以像 YYKit 作者那样，才接触 iOS 开发一年多就可以开源出大量优秀的作品。</p>
+<p>基本上，一个人在一个领域坚持投入大量的时间，很难做得不好。所以你是一个培训机构的学员，苦于找不到工作。与其简历造假拿到面试机会，倒不如再多花花精力，自己多专研一些代码，写一些 App，不要那么急功近利，我想结果都会好很多。</p>
+<p>愿培训机构出来的 iOS 学员都能找一份好工作。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/12/23/2015/rip-lightnovel-cn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/12/23/2015/rip-lightnovel-cn/" itemprop="url">再见，轻之国度</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-23T21:13:16+08:00">
+                2015-12-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%9A%8F%E7%AC%94/" itemprop="url" rel="index">
+                    <span itemprop="name">随笔</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p><a target="_blank" rel="noopener" href="http://m.hupu.com/bbs/15030309.html">【双流警方破获全国首例网络轻小说侵犯著作权案】</a></p>
+<p>历时俩月，双流警方在省市公安及文化部门支持下，辗转杭州、漳州、合肥、武汉，查实网站“轻之国度”“轻之文库”刊载了未经日本版权方授权的近万部网络轻小说，侵犯了国内已获授权公司的合法权益。团伙成员林某等已被依法逮捕，该案正在进一步侦查中。</p>
+<p>虽然知道大版权时代迟早会波及轻小说，但是没有想到这么快。</p>
+<p>嗯，这下应该是活不了了，默哀。</p>
+<p>应该说，没有轻国，说不定就没有今天的窝。窝的性格也有很大一部分是小时候看的小说所影响的。嘛，窝对现在的窝可是挺满意的哦。</p>
+<p>所以，轻国，总之还是谢谢你。</p>
+<p>再说些有的没的吧。</p>
+<p>没有轻国，不会有今天的天角。</p>
+<p>鱼养肥了，可以宰了。可喜可贺。</p>
+<p>不知道轻国站长盈利多少，还是祝安好吧。</p>
+<p>天角，临死还要拉一个垫背的吗</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/12/20/2015/use-ssh-tunel-to-map-a-lan-minecraft-server-to-wan/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/12/20/2015/use-ssh-tunel-to-map-a-lan-minecraft-server-to-wan/" itemprop="url">使用 SSH 隧道将内网 Minecraft 服务器映射至公网（NAT 穿透）</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-20T07:36:05+08:00">
+                2015-12-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>唔，似乎刷新了窝博客中最长标题记录呢 <img src="https://img.prin.studio/images/2015/09/2015-09-19_15-53-31.jpg" alt="表情"></p>
+<p>不过想不到其他又短又可以明确表述意思的标题了，话说这个应该叫映射吗，感觉有点不妥呢。。嘛，先这样吧。</p>
+<p>标题会不会把你绕晕了呢？少安毋躁，窝等会慢慢说。</p>
+<p>为什么要写这个呢？主要是为了记录一下配置 SSH 端口转发时的坑，也好让后来人少踩点坑。当时真的是走了不少弯路，折腾了好长时间（虽然一大部分时间都是因为叫别人操作的延迟 qwq）</p>
+<blockquote>
+<p>注意，这篇文章可能会有一些你看不懂得词汇，窝会尽量都说明一下，但主要还是要靠你的学习能力（其实窝觉着能靠搜索引擎找到这篇文章的人学习能力都不会差吧~）</p>
+</blockquote>
+<p>那么，文章正式开始吧~</p>
+<hr>
+<p>那么这个标题到底是什么意思呢？首先来了解一下如下概念吧：</p>
+<h3 id="内网-Minecraft-服务器"><a href="#内网-Minecraft-服务器" class="headerlink" title="内网 Minecraft 服务器"></a>内网 Minecraft 服务器</h3><p>所谓 内网 Minecraft 服务器，就是架设在内网机器上的 MC 服务器，这些机器的最大特点，那就是 <strong>不能从外网直接访问</strong>。</p>
+<p>不能直接访问的原因有很多，最大的原因就是 <strong>没有公网 IP，经过多级 NAT，没有修改 NAT 设备（例如路由器）配置的权限</strong> 之类。举个栗子，就像校园网，公司网络这样的。不同于普通家庭 PC 开服，校园网完全访问不到上级 NAT 设备，更不要提什么配置端口转发之类的了，所以很多人就这样放弃了开服，或者使用 花生壳，NAT123 之类的 “端口映射” 软件。</p>
+<p>那么这类软件的原理是什么呢？</p>
+<h3 id="花生壳端口映射的原理"><a href="#花生壳端口映射的原理" class="headerlink" title="花生壳端口映射的原理"></a>花生壳端口映射的原理</h3><p>用过所谓 花生壳 内网版 的都知道，开启了端口映射后，你就可以从花生壳那里拿到一个类似于 <code>diaoxiancheng.6655.la:24000</code> 这样的地址，访问这个地址就相当于直接访问内网机器上的端口了。</p>
+<p>噫，不是说不能端口映射吗？花生壳这啥黑科技？</p>
+<p>首先你要知道，所谓的路由器上设置端口映射，其实就是<strong>将外网访问 NAT 设备某个端口的请求，直接转发给规则中配置的 NAT 网络下的内网设备端口上</strong>。不知道说的是不是够严谨，总之差不多就是这个意思。实现方式有很多，譬如 OpenWRT 上使用的 iptables。</p>
+<p>而花生壳，就是把 <strong>NAT 设备将请求转发到内网机器上 <strong>这一过程及其反向，</strong>用花生壳的服务器</strong>来完成了。</p>
+<p>这样说说可能有些人还是一头雾水，窝画张图来解释下吧：（提到画图歪一下文，安利下 <a target="_blank" rel="noopener" href="https://www.gliffy.com/">Gliffy</a>，贼好用）</p>
+<p><img src="https://img.prin.studio/images/2015/12/2015-12-19_12-23-33.png" alt="NAT port forwarding"></p>
+<p>这是普通的路由器端口映射原理，下面是花生壳 “端口映射” 原理：</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2015/12/20/2015/use-ssh-tunel-to-map-a-lan-minecraft-server-to-wan/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/12/19/2015/2015-12-19-maintain-a-fans-group/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/12/19/2015/2015-12-19-maintain-a-fans-group/" itemprop="url">建立一个自己的粉丝团是怎样的体验</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-19T00:00:00+08:00">
+                2015-12-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>我从小就是一个比较喜欢表现自己的人，从小学开始在学校造出一些类似「货币」的概念，拉拢了一群小朋友，当时就有一些粉丝团的感觉了。然而等到小学快毕业的时候，大家都长大了，不信我这一套了，于是我又成了一个孤僻甚至有时会受到排挤的人。</p>
+<p>初中的时候对编程很感兴趣，也在网上发布过一些小作品，慢慢就有人找我提建议或者反馈问题，后来我尝试着制作一个（简陋）的游戏，于是将这些在网络上认识的朋友拉到了一起，建了一个 QQ 群，这就是后来粉丝团的雏形。</p>
+<p>后来做游戏的事情被放在了一边，我继续在计算机领域自学其他的技术，每天会花不少时间泡在各种技术社区中，也就认识了不少朋友 —— 大部分是同龄人。认识他们的时候往往我们的技术水平差不多，但他们因为还要准备中考或者高考，大多把编程的爱好都放下了。随着我的知识的积累，每上一个台阶，都会认识一些新的朋友，他们中很多人都加入了我的 QQ 群。</p>
+<p>这时我还不觉得 QQ 群就是我的粉丝团，当时我也在很多其他人的 QQ 群中，但后来我发现一个 QQ 群里那么多人，难免有我不喜欢的人或行为，而我又没什么办法。于是眼不见心不烦，我不再去看其他的群，只在我的 QQ 群中出现，并且维护一个我认为更有利于交流的环境。这时我的 QQ 群已经带有很鲜明的个人风格了，于是干脆就叫「精子粉丝团」好了。</p>
+<p>后来我的粉丝团还有了 <a target="_blank" rel="noopener" href="https://jybox.net/">自己的网站</a>，甚至后来我还看到一些人也建了一个和我差不多的粉丝团主页，我还是感觉有点小高兴的。</p>
+<p>我在高中的时候决定退学进入互联网行业，于是有了更多时间去学习新知识并在工作中实践，也有了很多的时间去混技术社区。因为我在大部分社区直接使用真名，也因为我这个具有 <a target="_blank" rel="noopener" href="https://jysperm.me/avatars/v5.png">标志性的头像</a>，很多人记住了我。</p>
+<p>我不会讲故事，写出的文章大多是我的观点或者我的感受，这些年也一直在坚持写日志（最早的日志写于小学一年级），如果有人接受了我的观点，或者理解了我的感受，我会感到很开心 —— 越多越好，即使是我不认识的人我也会觉得开心，如果有人能从我的观点中受益（然而这通常是很难衡量的），我会更开心。</p>
+<p>为了能让更多人看到我的观点，我也是乐于去发展粉丝数量的，当然维护粉丝团（并不算写文章的时间）肯定是一个非常耗时的事情，我的业余时间很大一部分花在这上面，比如最新一版的粉丝团网站花了差不多一个月的时间，然后今年花了整个上半年来修订一遍博客里所有的日志。</p>
+<p>有人很不理解，跟我说「明明只是朋友而已，你为什么要称他们为粉丝？粉丝不是一种不平等的关系么」。对于我来讲「粉丝」大概就是我喜欢讲一些观点，而你又觉得我讲得很有趣。你当然也可以理解为这就是朋友，或者你也可以认为这是一种行为艺术 —— 讽刺一下社会上的一些偶像团体以及他们的粉丝。</p>
+<p>如果你非要问我究竟有没有影响到我的粉丝团呢，这还真不好说，能加入粉丝团的往往和我有很多的共同点，所以最后如果他们和我有一样的观点，或做出了一样的决定，也不显得奇怪。</p>
+<p>关于我的观点、兴趣爱好、价值观，可以在 <a target="_blank" rel="noopener" href="https://jysperm.me/about">这个页面</a> 看到，如果我们有很多共同点的话，欢迎加入我的粉丝团（末尾「联系方式」一节有 QQ 群号）。</p>
+<p>整理自我在知乎的回答：<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/38284308/answer/75721868">建立或加入一个自己的粉丝群是怎样的体验？</a>。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/12/18/2015-12-18-from-dev-to-manager/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/12/18/2015-12-18-from-dev-to-manager/" itemprop="url">涅槃重生:我的技术转管理之路</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-18T21:32:00+08:00">
+                2015-12-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/summary/" itemprop="url" rel="index">
+                    <span itemprop="name">summary</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <img src="/images/from-dev-to-manager-1.jpg" class="">
+
+<h2 id="一个程序员的理想"><a href="#一个程序员的理想" class="headerlink" title="一个程序员的理想"></a>一个程序员的理想</h2><p>我从高中就开始接触计算机并开始编程，我非常喜欢编程，我一直以为我会写一辈子代码。</p>
+<p>我从毕业就一直做技术，开始一年是做 Java 语言的服务器开发，开发过网易邮箱和微博的后台，后来转而做 iOS 开发。</p>
+<p>因为喜欢，我几乎把我所有的非工作时间也投入到技术中去。当然，并非是把工作带回家，而是专研技术或者从事技术写作。</p>
+<p>于是这几年，我积累了超过 150 篇原创技术文章，在 iOS 技术圈子里面也小有名气，也出版了一本《iOS 开发进阶》的书，微博和微信公众号的粉丝数也都超过了 3 万。</p>
+<p>我做得很开心。</p>
+<p>我一直以为，我会是一个好码农，我会一直在技术上深入下去。</p>
+<p>但是，改变有些时候就是来得那么突然。</p>
+<h2 id="涅槃重生"><a href="#涅槃重生" class="headerlink" title="涅槃重生"></a>涅槃重生</h2><p>我还记得那一天，2014 年 7 月 17 日，我当时受到邀请，在广州的微信分享 iOS 开发技术。当天晚上，我接到郭常圳（我们的 CTO）的电话，知道要做小猿搜题这个项目，并且这个项目「由我负责」。</p>
+<p>于是，我开始了技术转管理之路。</p>
+<p>通过从以前的项目组中抽调人手，小猿搜题这个产品技术团队很快组建出来了。我在开发 iOS 版的小猿搜题客户端的同时，也开始了我的管理工作。</p>
+<p>现在经过了一年半，我们不但组建成了一支充满战斗力的团队，成收获了不小的成绩：</p>
+<ul>
+<li>小猿搜题产品一年时间获得了 5000 万的用户。</li>
+<li>我们团队在开发上做到了每周一次迭代，两周一次版本发布。</li>
+</ul>
+<h2 id="技术管理的总结"><a href="#技术管理的总结" class="headerlink" title="技术管理的总结"></a>技术管理的总结</h2><p>在我的工作中，我慢慢总结出在创业公司中做技术管理工作的「方法论」。我把我的技术管理工作分成以下几个部分：管理业务，管理团队，管理技术。</p>
+<h3 id="管理业务"><a href="#管理业务" class="headerlink" title="管理业务"></a>管理业务</h3><p>做为互联网公司，我们奉行简单直接的沟通，所以我很多时候并不需要涉及人员的管理工作，更多的时候是业务的管理工作。业务的管理工作主要是围绕着一个具体要做的技术开发功能点展开。具体包括：</p>
+<ul>
+<li>任务分解和分配</li>
+<li>制定大概的开发排期</li>
+<li>每天了解开发进度</li>
+<li>讨论和跟进各种具体的技术问题</li>
+<li>协调一些产品需求变更</li>
+<li>响应一些市场同事的需求</li>
+<li>跟进相关功能上线</li>
+</ul>
+<p>在这方面，我们主要是采用 <a target="_blank" rel="noopener" href="https://www.scrum.org/">Scrum</a> 的开发方式，见<a href="/2014/09/13/scrum-introduction/">《适合码农工作时玩的游戏：Scrum》</a>。</p>
+<p>我们在整个迭代（Sprint）过程中引入四个会议：计划会议，每日站会，评审会议和回顾会议。通过事先简单的计划，再加上这四个会议中的详细讨论，我基本能够做到：</p>
+<ul>
+<li>通过计划会议：比较合理的安排开发排期、分配任务。</li>
+<li>通过每日站会：每天了解开发进度，会后讨论和跟进各种具体的技术问题</li>
+</ul>
+<p>对于产品需求变更和市场同事需求的响应，我主要利用自己在 Sprint 执行过程中的时间来展开。我会根据当前需求的大小和紧迫程度，来决定是否插入到当前的 Sprint 中。如果插入到当前的 Sprint 工作量太大，我会适当做一些 Sprint 内容的调整。</p>
+<p>跟进相关功能的上线主要是开发快要结束的时期，我会和产品同事一起试用最新的功能，了解 Bug 修复的进度，上线的风险情况。在大部分出现风险的情况下，我们都希望用适度加班的方式解决，所以我们上线当晚有时候会工作得比较晚。在无论如何都搞不定的情况下，我们可能会调整上线时间。</p>
+<p>在业务涉及跨部门合作的时候，相关的进度管理会更麻烦一些。因为各部门自己的进度安排不一致，所以就会存在「等着联调」的情况。另外联调时出现问题也容易出现没人主动出来解决的情况。这些都需要负责人更频繁地沟通和推进，以保证按时上线。</p>
+<p>在每周的工作中，我的管理业务的工作大概花费是 2 天左右。</p>
+<h3 id="管理团队"><a href="#管理团队" class="headerlink" title="管理团队"></a>管理团队</h3><p>刚刚也说到，互联网公司不怎么需要管人，那么管理团队主要是做什么事情呢？我认为主要是两件事情：招人和带人，所谓的搭班子和带队伍。</p>
+<h4 id="招人"><a href="#招人" class="headerlink" title="招人"></a>招人</h4><p>招聘这事情实在太重要了，所以必须要团队负责人参与。人才的招聘除了从公开的渠道收取简历、从猎头或同事那里得到推荐以外，还包括定向的找一些自己熟悉的前同事或某个领域的知名大牛，这些工作都是非常花费时间的。</p>
+<p>在招人上，我们主要用到了找前同事，内部推荐发伯乐奖，以及进行技术分享和开源代码来获得社区影响力的方式。</p>
+<p>值得一提的是，我们对于开源社区的贡献也得到了肯定，我们的基础架构组负责人陈恒因为多次为 Hbase 贡献代码，所以成为了 Hbase 的 Committer，而全中国拥有 Hbase 的 Committer 的公司在此之前只有三家，而且中国的 Hbase 的 Committer 不到 10 人。</p>
+<p>在每周的工作中，招聘大概会占用我半天到一天的时间。</p>
+<h4 id="带人"><a href="#带人" class="headerlink" title="带人"></a>带人</h4><p>人才招进来了，能否顺利融入团队，团队负责人以及这个人的导师（mentor）非常重要。需要做的事情包括：</p>
+<ul>
+<li>平时多交流沟通。</li>
+<li>在新人遇到问题时，热心地解答。</li>
+<li>引导新人熟悉公司的工作方式。</li>
+</ul>
+<p>一对一沟通来源于 Intel 公司，在最近很火的一本书 <a target="_blank" rel="noopener" href="http://item.jd.com/11645500.html">《创业维艰》</a> 中里面也提到过。《创业维艰》的作者本·霍洛维茨是被誉为「硅谷最牛的 50 个天使投资人」之一，先后在初期投资了 Facebook、Twitter、Groupon、Skype。</p>
+<p>他在书中对一对一沟通介绍到，一对一沟通最主要的意义是：可以使得信息从下而上地传递。从而获得在其它渠道不易获得的信息，保证透明。</p>
+<p>适合一对一沟通的内容有很多，包括：</p>
 <ol>
-<li>在线调试和修改 Bug，通常顺利的话，到早上 7，8 点的时候一般就能搞定了。</li>
-<li>在线调试和修改 Bug，如果不顺利的话，到早上 7，8 点的时候回滚数据。然后，我们需要回家休息半天之后，继续在下一个凌晨 3 点上线。</li>
+<li>不成熟的看法</li>
+<li>迫在眉睫的问题</li>
+<li>精彩的想法</li>
+<li>倾诉焦虑</li>
+<li>抱怨</li>
 </ol>
-<p>当然，不会每次上线都是这种大升级，但是基本上，1、2 个月搞一次这种大上线还是挺常见的。</p>
-<p>相对来说，客户端同学在这方面要轻松得多。iOS 和 Android 都是提交应用市场审核，所以客户端的同学可以选一个白天上班的时候提交审核，而不用等到半夜。</p>
-<h3 id="永远需要立即响应"><a href="#永远需要立即响应" class="headerlink" title="永远需要立即响应"></a>永远需要立即响应</h3><p>服务器端的问题，只要出现，影响都是巨大的，所以服务器端的同学需要随时待命，一旦有服务器异常报警，就立即处理，以免影响到用户。所以做服务器开发的同学手机都是开着的，在服务不稳定时，一不小心，几十条报警短信就过来了。服务器开发出去旅游什么的，一般都带着笔记本，以便出问题时能够及时响应。</p>
-<p>相对来说，客户端同学在这方面要轻松得多，因为即使出现了 Bug，iOS 和 Android 客户端也是无法马上修复的，因为用户手机中的版本不会立即更新。所以客户端同学最多也是加班发布一个紧急版本提交审核，在时间上不会像服务器端那么着急。</p>
-<p>另一方面，很多客户端的 Bug，可以通过服务器端通过一些「兼容」来处理，这其实就是替客户端「擦屁股」。例如，假设某应用的 iOS 1.2.0 版本当获得服务器端返回的用户头象是 png 格式的时候会闪退，那么服务器端可以特殊处理，对于这个版本的应用把 png 图片转成 jpg 返回。你看，最终还是服务器端同事成了要立即响应的人。</p>
-<h3 id="服务器端轮子太多"><a href="#服务器端轮子太多" class="headerlink" title="服务器端轮子太多"></a>服务器端轮子太多</h3><p>服务器端的开发经过了 10 多年的发展，而客户端的开发才刚刚兴起。2009 年 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/IPhone">iPhone 3GS</a> 推出之后，国内才有人做 iOS App 的开发，Android 开发的兴起也基本在<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Android_version_history">同一时期</a>。算下来，客户端的开发才经历了 6 年而已。而服务器端的开发呢？光 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Spring_Framework">Spring</a> 就出现了 10 多年了。</p>
-<p>服务器端的技术长久发展的结果就是，基本上每个业务需求都已经有现成的轮子了。所以做服务器端开发很多时候就是学习各种开源组件的用法，并且熟悉这些组件的一些性能特点和坑。</p>
-<p>你以为这很容易吗？其实不是的！这些轮子发展那么多年，已经非常复杂了，光 Spring 就包括非常多的特性，写一本 1000 页的书来介绍它也不为过。如果不是多年的使用，你能搞明白它的各种功能的优缺点吗？如果你搞不明白，遇到问题的时候除了抓瞎还能干嘛？</p>
-<p>所以做服务器端的同学，要经过非常长时间学习（至少半年左右），才能上手进行实际的开发工作。上手之后，又需要经过非常长时间的学习，才能够熟悉自己使用的各种开源组件的特点和使用细节。</p>
-<p>相对来说，客户端同学在这方面要轻松得多，基本上不管是 iOS 还是 Android，新手只需要一个月左右就能入门，三个月左右就能够比较熟练了。</p>
-<h3 id="分工与细化"><a href="#分工与细化" class="headerlink" title="分工与细化"></a>分工与细化</h3><p>刚刚说到服务器端复杂，这带来的结果就是分工与细化。每个做服务器开发的同学，可能只会涉及服务器开发的某一部分的业务逻辑和功能，甚至是某一部分业务逻辑的某一层。比如我在网易邮箱做服务器端开发时，就只是负责 Restful Api 这一层的开发工作。</p>
-<p>从业务上来说，将复杂的系统拆分，然后每个人做独立的某一块当然是好的。但是对个人来说，服务器端开发却使终是一块迷雾环绕的大山，在这座大山上，你对你走过的路线很熟悉，而那些你没有接触过的服务器端技术，你使终是不清楚的。</p>
-<p>对于一个服务器端开发同学，特别是进入大公司的应届生来说，在他头几年的工作中，肯定只会围绕着非常小一块功能业务来学习，那么一两年之后，他顶多是熟悉了他工作涉及的那些东西，对于别的东西仍然是不清楚的。</p>
-<p>从这一点来说，去创业型的公司做服务器端开发又要比去大公司要好得多。</p>
-<p>相对来说，客户端同学在这方面要爽得多。因为移动开发技术刚刚兴起，很多技术方案和框架还没有复杂到无法全面掌握的程度。移动开发技术就像一棵快速成长的小树，客户端同学将有幸伴随着它一起成长，等 5 年之后，移动开发技术成变成一棵参天大树，这一代的程序员，将会是唯一亲身经历它演进的人，每一处演进带来的改变，都将使得我们更加深刻理解移动开发系统的设计原则。</p>
-<h3 id="眼界和非技术成长"><a href="#眼界和非技术成长" class="headerlink" title="眼界和非技术成长"></a>眼界和非技术成长</h3><p>某种程度上说，服务器端开发在业务方面是轻松的，因为他们只需要设计好 API 接口，返回 JSON 数据，不用考虑 UI 的设计，交互细节的处理。服务器端开发经过了多年的发展，单元测试和性能测试框架也非常成熟，所以开发起来非常有章法。</p>
-<p>所以服务器端的同学大多数时候只需要关注纯技术的知识，例如如何保证高可用，高扩展性，高并发，数据一致性，数据安全等。</p>
-<p>客户端就苦了，UI 需要和美术设计得完全一样，交互细节还需要做到流畅，很多时候产品用一用觉得一些 UI 和交互有问题，我们还需要被迫接受调整。另外在测试上，因为和界面耦合太紧，虽然业界有一些解决方案，但基本上不管是 iOS 和 Android 都还没有非常成熟好用的单元测试框架。大部分的测试工作都是由黑盒的手工测试完成的。</p>
-<p>但是，正因为客户端需要密切和产品经理，UI 设计师打交道，所以他们会频繁接触到产品设计思想和设计思想。这使得客户端的同学更加容易学习和积累编程之外的技能，包括产品和设计的思想以及沟通能力。另外，因为用户的 bug 都是通过客户端反馈，客户端同学还更容易接触到真实的用户。</p>
-<p>所以相对于服务器端同学来说，客户端的同学的眼界更宽，由于非技术方面的沟通更多，所以他们的非技术方案的成长也越多。</p>
-<h3 id="技术挑战和工资待遇"><a href="#技术挑战和工资待遇" class="headerlink" title="技术挑战和工资待遇"></a>技术挑战和工资待遇</h3><p>从纯技术上的挑战来说，服务器端明显更大。服务器端开发动辄超过 10 人的团队，代码量稍微复杂一些就是接近百万行。而客户端一个平台的研发大多数也就在 5 人左右，代码量多在 10 万行以内。</p>
-<p>但是，技术挑战大就表示工资待遇高吗？NO！市场价格是由供求关系来平衡的。虽然客户端的技术挑战小，但是基本上所有应届毕业生都想做服务器端开发，所以没有人做客户端开发呀！于是很多公司被迫从培训机构招人，很多人刚刚培训了 3 个月，就可以拿非常高的工资。这一点和 Web 前端类似，牛逼的 Web 前端人才非常少，但是不影响这个领域稍微牛逼一点的人拿非常高的薪水。</p>
-<p>另一方面，由于服务器端人才的饱和，也使得竞争变得非常激烈，除非你成为这个领域的顶级人才，否则从平均薪资来说，做客户端开发的同学应该和服务器端的同学类似。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实我这篇文章故意写得很片面，目的就是想让各位应届生同学们能够更加辩证地看待互联网行业中的工作。与其什么都不懂傻傻地选择服务器端开发，倒不如做客户端开发更有前途。</p>
-<p>我以上所说的，都是错的。</p>
+<p>这些内容都不适合在别的场景中出现，比如：不成熟的看法，如果在部门的正常会议或邮件中提出，会让人觉得未经过深思熟虑。又比如一些焦虑或抱怨，如果通过一些渠道宣泄给其他同事，其实也是不好的。一对一沟通让这些内容有了一个不错的出口。</p>
+<p>5 年前我刚毕业加入网易有道的时候，我的老大，也是我现在创业公司的 CTO 郭常圳就开始和我做一对一沟通。我非常享受每次沟通的过程。现在我也开始和别人做一对一沟通，我也开始关注一对一沟通的技巧。我们认为最大的技巧是：作为管理者，要多听少说，让员工成为沟通的中心。郭常圳有一个特别「老土」的办法，就是：不主动说话。通过这种方式，强迫让员工选择他们想聊的话题。</p>
+<p>在《创业维艰》一书中，也介绍了一些适合用来引导的问题：</p>
+<ul>
+<li>当前产品还有哪些可以提高的地方？</li>
+<li>我们部门的最大问题是什么，为什么？</li>
+<li>如果有，你觉得工作中有哪一点令你感觉不舒服？</li>
+<li>你觉得谁的工作最优秀，为什么？</li>
+<li>我们的产品哪方面不尽如人意？</li>
+<li>我们错失的最大机遇是什么？</li>
+<li>哪些是我们应该做而没有做的？</li>
+<li>你自己希望未来在哪些方面能有提高？</li>
+<li>有什么我能为你做的事情？</li>
+</ul>
+<p>我大概保持每个月和每个组内同事都有一次一对一沟通，有很多时候，我是通过「请他们吃饭」来完成的。一对一沟通需要一个舒适的环境，所以在咖啡厅或饭桌上，可能都比在办公室的效果要好一些。</p>
+<p>一对一沟通的另一个核心要素是要坦诚，这就像 Scrum 指南中用「游戏规则」来描述内容一样，如果管理者做不到坦诚，那么同事就不会把这当作是一次有效的沟通机会。坦诚的沟通方式是：所有问题都真诚的回答，不掩饰问题，也不回避问题。如果沟通双方能够做到坦诚，即使是一个棘手的问题，那么双方也会从「解决问题」的角度，尽量寻找可能的办法。</p>
+<p>除此之外，定期组织一些团队活动，让团队每个人之间建立友谊，也是我努力在做的。这在很多大公司是 HR 部门做的事情，在我们创业公司里面，也变成团队负责人的工作之一了。</p>
+<h3 id="什么是领导力"><a href="#什么是领导力" class="headerlink" title="什么是领导力"></a>什么是领导力</h3><img src="/images/become-a-tech-leader-book.jpg" class="">
+
+<p>关于管理团队，我也特别喜欢《成为技术领导者》一书中的观点，关于本书，更多的请见<a href="/2015/08/01/become-a-tech-leader-summary/">《成为技术领导者》读书心得》</a>。书中是这么说的：</p>
+<blockquote>
+<p>所谓领导力，就是创造这样一个环境，每个人都能在其中发挥出更多的能力。</p>
+</blockquote>
+<p>我想：在强调平等、创新、自由的互联网公司里面，这可能就是领导力最好的定义吧。</p>
+<h2 id="管理技术"><a href="#管理技术" class="headerlink" title="管理技术"></a>管理技术</h2><p>作为一个技术负责人，产品在技术上的架构是否合理？随着用户量的增长，现有架构能否胜任？当运营活动发生时，突发的流量会有多少，服务器是否能够承受住压力？未来技术上的架构应该如何演进？除了服务器端，客户端应该在哪些技术方案上投入研究力量？这些都是技术负责人需要考虑和决策的。</p>
+<p>我同时做过服务器端和移动端的开发工作，不过由于最近几年都是做移动端的开发，所以服务器端的架构技术细节我其实并不是专家。所以我在这方面做得算不上很好。可能是运气好吧，有几次服务器的压力问题，我们都及时发现并且解决了，但是时间都挺紧迫的。现在，我会花时间把服务器端的架构图画出来，然后一块一块考虑，看看有没有更优的方案，并且和服务器端的同学讨论。</p>
+<p>在客户端上，我只是对 iOS 开发比较熟悉，对 Android 了解得并不深入。所以我会让技术同学自己提一些技术改进方案，我参与 Review，我想他如果能说得有理有据，还是可以授权他在技术上深入的。</p>
+<p>其实每个平台的技术管理可能都需要更多的「授权」，因为具体做事情的人，会比技术管理者更清楚地了解细节。而对细节的深入了解，才是改进技术架构的方案来源。所以，尽量招靠谱的人，那么在管理技术上的工作就只需要遵守「尽量授权」的原则来就可以了。</p>
+<p>管理技术还包括公司技术氛围的建立，我主要在以下这些方面下了一些工夫：</p>
+<ul>
+<li>推进技术 wiki 的使用</li>
+<li>推进 iOS 端每周一次的技术分享</li>
+<li>推进 Code Review 以及代码质量</li>
+</ul>
+<p>Wiki 是一个非常好用的知识管理工具，前提是每个同事都参与贡献内容。所以作为一个管理者需要用言行来指导新同事学会用 Wiki。我会主动将重要内容记录在 wiki 上，对于一些同事发的邮件内容，我也会要求他整理到 wiki 上。</p>
+<p>iOS 端的技术分享也是需要管理者推进的。我之前在网易有道的时候，这方面的活动基本上是大家自愿的方式来进行。这其实对分享者要求很高，一般的人很难达到这种意识，所以当时有道 iOS 端的技术分享很少。因此，我还是认为「半强制」的分享方式更适合当前团队。</p>
+<p>「半强制」的分享规则需要大家认同，在一个相对轻松的环境下达成一致，为此我专门组织了一次交流会，大家相互认识一下，一顿吃喝之后，再约定分享规则。现在看起来，大家其实有很多想分享的内容，在 Wiki 上，很多一两个月才轮到他的人，都已经把分享的主题确定了。</p>
+<p>Code Review 也是一个需要推动的事情，我们使用 Git 和 Gerrit，做到了所有的提交必须 review 通过之后，才能 merge 进代码仓库。另外我们也在 wiki 上规定了详细的代码风格要求。Code Review 如果做得好，不但可以在代码风格上达成一致，还能让新同事从中学习到一些良好的编程习惯，一些潜在的 Bug 也可能在 Code Review 中被发现，实在是值得坚持的事情。</p>
+<h2 id="产品负责人"><a href="#产品负责人" class="headerlink" title="产品负责人"></a>产品负责人</h2><p>除了技术负责人的管理业务，管理团队，管理技术工作外，我另外还是小猿搜题的产品负责人，所以我还承担着技术负责人之外的一些工作。这些工作最主要的就是对产品的管理工作。</p>
+<p>产品工作看似简单，实则复杂，而我作为一个工作多年的程序员，在这方面的经验非常少。所以我在参与产品讨论时，一开始都比较惶恐。后来我慢慢发现，产品经理的思维还是有章可循，便开始总结和学习，我看了不少产品经理的书，而郭常圳的多次指导也对我的帮忙意义巨大。其实做产品的原则就那么多，重要的还是多思考和体会，把那些原则融入自己的理解。</p>
+<p>「场景化思维」是我学到的第一点，我还记得郭常圳带着我们学习乔布斯推出第一代 iPhone 时的演讲，乔布斯非常会讲故事，在用户具体的场景中介绍自己的产品。好的产品经理会将自己「代入」目标用户的使用场景中，解决用户的主要痛点和问题。做为技术人员，我常常陷入产品逻辑完备的泥潭中，但是「场景化思维」使得我能够重新跳出细节，关注主要功能设计是否合理。</p>
+<p>「关注数据」是我学到的第二点，产品经理在打磨细节方面，如果能够关注产品数据，那么就很容易找到改进的方向，并且在后期验证自己的想法。关于这个，详细的请看：<a href="/2015/09/02/why-we-need-monitor-data/">数据的秘密（上）- 为什么要关注数据</a> 和 <a href="/2015/09/03/how-to-monitor-data/">数据的秘密（下）- 如何分析数据</a>。</p>
+<p>我曾经犹豫自己是否应该学习写产品稿，郭常圳说不用，他说你只需要多看产品经理的产品稿，多思考和比较，慢慢就会有产品的感觉。我发现这一点还是管用的。以前用一个新的 App，作为开发者，我会关注它的功能在技术上如何实现，而我现在，不光会关注技术实现，还会想它的产品设计思路。打开了这扇窗户后，我就能在日常生活的每一天里，通过思考来提升自己的产品能力。</p>
+<p>作为产品负责人，我主要的工作是参与产品稿的评审和美术稿的评审，同时会参与决定未来要做的功能，将其安排到产品工作中。另外，我也会关注产品的各项指标数据，保证重要的产品数据都是看过的。</p>
+<p>我每周花在产品评审和美术评审大概是半天到一天，每周花在关注产品各项指标数据上的时间大概是半天到一天。</p>
+<h2 id="我做得不好的地方"><a href="#我做得不好的地方" class="headerlink" title="我做得不好的地方"></a>我做得不好的地方</h2><p>做为一个技术转管理的新人，我觉得我的工作还是有挺多问题。</p>
+<p>首先，我刚开始还是太迷恋技术了，有一些开发工作我仍然主动参与。但是实践之后发现，因为我的事情太多太杂，使得我很难保证自己承担的开发工作的进度。所以我现在学会主动把任务交给别人做，如果一件事情不是必须我才能做的，我就交给别人。所以现在技术上，我只参与 iOS 端的 Code Review 工作了。我将更多的精力，放在一些不得不由我做的沟通和项目推进方面的工作上。</p>
+<p>接着，我有很长一段时间没能很好地安排好产品计划和研发的进度。好的产品计划应该要领先开发一个以上的迭代周期，这样在技术开发当前版本时，下一个版本功能就在设计和评审当中，使得大家的工作都不受影响。而小猿搜题的产品计划有一阵一直没能很舒服地领先技术，这让很多时候开发同事并不舒服。</p>
+<p>解决的办法是我们让产品文档的完成时间点也尽量精准，对于一个大的产品功能设计，我们会定好初版（我们内部叫做 1 版本）、详细版（我们内部叫 5 版本）、完善版（我们内部叫 9 版本）的时间点。产品经理需要努力在时间点内保证产出，这样其实反倒使得大家会关注产品设计的主要问题，在细节上不过分纠结。</p>
+<p>最后，我在招聘上的成绩也比较一般，没有能够为团队招来很多有经验的人，所以小猿搜题现有团队还是新人居多。新人的好处是容易和团队文化保持一致，但是在经验上，还是需要更多的锻炼。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>小猿搜题从 2014 年 7 月 17 日立项，到 10 月上线，再到元旦正式对外推广，到现在在不到一年的推广时间内，已经积累了超过 5000 万的用户。而我，也随着小猿搜题，从一个纯技术的 iOS 程序员，成长成为它的产品技术负责人，虽然也犯了一些错误，我感觉自己的进步还是很快的。</p>
+<p>我也希望我的故事能够激励其他的技术同行，能够勇敢地接受新的挑战。在快速变化的移动互联网时代，快速迭代演进的不止有 App，也包括我们自己，愿大家都能活得精彩！</p>
 
           
         
@@ -1899,7 +3324,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/10/04/2015/site-logo-changed/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/farewell-rdio">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -1918,7 +3343,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2015/10/04/2015/site-logo-changed/" itemprop="url">换了站点 LOGO 辣</a></h2>
+                <a class="post-title-link" href="/farewell-rdio" itemprop="url">Farewell Rdio</a></h2>
         
 
         <div class="post-meta">
@@ -1930,8 +3355,459 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-10-04T04:41:50+08:00">
-                2015-10-04
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-16T18:26:00+08:00">
+                2015-12-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          Some thoughts about Rdio closing down.
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/farewell-rdio">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/12/09/EasyAR%E5%B0%9D%E9%B2%9C%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E4%B9%8B%E8%A7%86%E9%A2%91%E6%92%AD%E6%94%BE%E5%8A%9F%E8%83%BD%E7%9A%84%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/12/09/EasyAR%E5%B0%9D%E9%B2%9C%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E4%B9%8B%E8%A7%86%E9%A2%91%E6%92%AD%E6%94%BE%E5%8A%9F%E8%83%BD%E7%9A%84%E5%AE%9E%E7%8E%B0/" itemprop="url">EasyAR 尝鲜系列教程之视频播放功能的实现</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-09T08:40:22+08:00">
+                2015-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Unity3D/" itemprop="url" rel="index">
+                    <span itemprop="name">Unity3D</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          这个增强 ImageTarget 是指在 ImageTarget 的基础上融入 VideoPlayerBehaviour 的功能，因为按照官方的示例来考虑，这两部分功能是独立的，博主希望让大家在制作识别图的时候完全忘记区别 ImageTarget 和 VideoTarget，这样我们可以更为专注地制作识别图，因为视频组件就只是设置参数这一件事情，完全可以一次性搞定，所以我们首先来定义一个 VideoTargetBaseBehaviour 类，一起来看代码：;博主这里不太理解 EasyAR 为什么不采用 MovieTexture 或者 Unity3D 中针对视频播放提供的相关插件，因为 VideoTarget 本质上就是把三维模型换成了可以播放的视频而已，所以大家在前面文章的基础上创建一个 ImageTarget 然后再其下面放置一个附加了 VideoPlayerBehaviour 的的子物体就可以了;public void ShowObjects(Transform trans)
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2015/12/09/EasyAR%E5%B0%9D%E9%B2%9C%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E4%B9%8B%E8%A7%86%E9%A2%91%E6%92%AD%E6%94%BE%E5%8A%9F%E8%83%BD%E7%9A%84%E5%AE%9E%E7%8E%B0/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/12/09/EasyAR%E5%B0%9D%E9%B2%9C%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E4%B9%8BImageTarget%E5%8D%83%E5%91%BC%E4%B8%87%E5%94%A4%E5%A7%8B%E5%87%BA%E6%9D%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/12/09/EasyAR%E5%B0%9D%E9%B2%9C%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E4%B9%8BImageTarget%E5%8D%83%E5%91%BC%E4%B8%87%E5%94%A4%E5%A7%8B%E5%87%BA%E6%9D%A5/" itemprop="url">EasyAR 尝鲜系列教程之 ImageTarget 千呼万唤始出来</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-09T08:39:54+08:00">
+                2015-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Unity3D/" itemprop="url" rel="index">
+                    <span itemprop="name">Unity3D</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          好了，在了解了 EasyAR 中常用的标准接口以后，我们下面来着手构建第一个 ImageTarget 项目，和我们第一次接触 EasyAR 不同，这次我们会编写些简单地代码，打开场景填入应用程序密钥(Key)然后运行它，这种方式在这里会显得略 LOW;EasyAR 中的识别图相对来说比较简单，因为我们只需要选择一张图片然后为其创建一个材质，再将这个材质附加到 ImageTarget 物体上就可以了;我确信这个类简单到彻底，它需要开发者在编辑器中填入 KEY 然后再 Awake 方法中完成对 EasyAR 的初始化，就是这样简单，我们这里将这个脚本附加到 EasyAR 这个物体上去，这样我们就完成了引擎的初始化工作，下面我们就可以专注于 AR 内容的产生了
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2015/12/09/EasyAR%E5%B0%9D%E9%B2%9C%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E4%B9%8BImageTarget%E5%8D%83%E5%91%BC%E4%B8%87%E5%94%A4%E5%A7%8B%E5%87%BA%E6%9D%A5/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/12/06/2015/do-you-like-me/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/12/06/2015/do-you-like-me/" itemprop="url">跟风也搞了个 Do you like me</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-06T07:16:01+08:00">
+                2015-12-06
               </time>
             
 
@@ -2004,1531 +3880,9 @@
         
         
           
-            <p><img src="https://img.prin.studio/images/2015/10/2015-10-03_14-22-59.png" alt="new_logo_colorful"></p>
-<p>依然是从路人女主得到的灵感<del datetime="2015-10-03T12:43:08+00:00">抄袭</del>。感谢颜老师给窝指了条笔刷的明路 <a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/10/2015-10-03_12-39-25.jpg"><img src="https://img.prin.studio/images/2015/10/2015-10-03_12-39-25.jpg" alt="pa"></a></p>
-<p>彩色这张边缘有点锯齿是因为懒得再格栅化了，直接魔棒涂的后果。嘛，反正又不用这张（笑</p>
-<p><img src="https://img.prinzeugen.net/logo_scp_thin_large.png"></p>
-<p><img src="https://img.prinzeugen.net/new_logo.png"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/09/30/%E5%81%9A%E6%9C%80%E5%88%9D%E7%9A%84%E8%87%AA%E5%B7%B1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/09/30/%E5%81%9A%E6%9C%80%E5%88%9D%E7%9A%84%E8%87%AA%E5%B7%B1/" itemprop="url">做最初的自己</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-09-30T10:19:26+08:00">
-                2015-09-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%94%9F%E6%B4%BB%E6%84%9F%E6%82%9F/" itemprop="url" rel="index">
-                    <span itemprop="name">生活感悟</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          我是一名程序员，可是我从来没有觉得我的工作低人一等，我每天的付出和老师给学生授课、销售员给顾客售货、银行柜员给消费者办理业务、公务员为人民服务......并没有什么不同，我靠自己掌握的技能去解决工作中的问题，我靠自己掌握的知识去帮助更多的人，我并没有觉得我选择了一条错误的道路，难道在安逸中渐渐迷失了自我会让你从此与众不同;曾经和老师一起做艾依河的毕业设计，当时觉得对整个艾依河了如指掌，然而每天上下班从宝湖经过的时候却突然发现自己的渺小，我是一个普通人，我想做的事情就是努力让自己变得强大去拥有一个温暖的家，能够让因衰老而疲惫的心有个归宿，不至于在满是迷雾的现实中丢失本心，我就想一直这样简单地生活下去，做正直、正确的事情，做一个温暖、善良的人，做最初的自己;我一直认为互联网行业是政治干预较为稀疏的一个行业，所以在这个行业当中我不会遭遇那些让我厌恶的政治因素，虽然有人聚集的地方就会有政治产生，但是作为互联网基础要素之一的技术是一个相对纯粹的领域，它依靠最为简单的 0 和 1 构成了今天丰富多彩的世界，它讲道理、守规矩让我觉得这个领域简单而纯粹
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2015/09/30/%E5%81%9A%E6%9C%80%E5%88%9D%E7%9A%84%E8%87%AA%E5%B7%B1/">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/09/28/2015/use-multiple-threads-to-download-pixiv-anime/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/09/28/2015/use-multiple-threads-to-download-pixiv-anime/" itemprop="url">Python 多线程下载 Pixiv 动图</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-09-28T00:15:25+08:00">
-                2015-09-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
-                    <span itemprop="name">技术</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>Pixiv 的动图机制很奇怪，并不是 GIF 或者其他动画格式，而是要求画师将动图的每一帧一帧都上传。</p>
-<p>这点从 P 站的 network 里可以看出来，206 分批次下载了一个 zip 包。</p>
-<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/09/2015-09-27_08-10-44.png"><img src="https://img.prin.studio/images/2015/09/2015-09-27_08-10-44-1024x366.png" alt="network"></a></p>
-<p>然而直接访问这个压缩包却返回 403 Forbidden，看来是服务器加了判断 Referer 的防盗链。然而并没啥卵用，看一下 network 里的 Referer，只要是 pixiv.net 都没关系。遂 wget 之：</p>
-<p>$ wget –referer&#x3D;’<a target="_blank" rel="noopener" href="http://www.pixiv.net/">http://www.pixiv.net/</a>‘ <a target="_blank" rel="noopener" href="http://i4.pixiv.net/img-zip-ugoira/img/2015/01/01/04/51/40/47905591_ugoira600x600.zip">http://i4.pixiv.net/img-zip-ugoira/img/2015/01/01/04/51/40/47905591_ugoira600x600.zip</a></p>
-<p>顺利下载完毕～压缩包里就是一帧一帧的图片啦，之后用工具处理下就好了。</p>
-<p>本来是应该这样就完事了的，但是由于窝突(nao)发奇(chou)想，想用 Python 来实现，顺带用下 <code>urllib</code>，为以后写爬虫做准备。</p>
-<p>想得轻松，实现的时候却遇到了不少坑。首先是对 Python 语法的不熟悉，有时候写几句就要去看看文档，简直酸爽。不过 Python 语法并不难，基础的多写一点就记牢了。</p>
-<p>还有一个坑是 Python2 和 Python3 的兼容性问题。最开始写的 <code>import urllib2</code> 报错窝还莫名其妙呢，原来是 Python3 后将其并入 urllib 中的一个 module，<code>urllib.request</code> 中了。</p>
-<p>其他还有写文件，多线程的各种坑，具体就不说了吧 (´°̥̥̥̥̥̥̥̥ω°̥̥̥̥̥̥̥̥｀)</p>
-<p>不过确实不难，多查查文档，查查 StackOverflow 一般都可以得到答案。于是跌跌撞撞写出了如下脚本：</p>
-<p>import urllib.request import shutil from multiprocessing import Pool from multiprocessing.dummy import Pool as ThreadPool # url as string, header as string, threads as integer def download(url, header, threads): req_list &#x3D; [] # Get Total File Size fsize_req &#x3D; urllib.request.Request(url) fsize_req.add_header(‘Referer’, header) total_size &#x3D; int(urllib.request.urlopen(fsize_req).getheader(‘Content-Length’)) block_size &#x3D; total_size &#x2F; threads downloaded &#x3D; 0 for i in range(threads): request &#x3D; urllib.request.Request(url) request.add_header(‘Referer’, header) header_range &#x3D; (downloaded,downloaded + block_size ) downloaded &#x3D; downloaded + block_size request.add_header(‘Range’,’bytes&#x3D;%d-%d’ % header_range) req_list.append(request) path &#x3D; r’pixiv.zip’ pool &#x3D; ThreadPool(2) # Here Start Multiple Threads download response_list &#x3D; pool.map(urllib.request.urlopen, req_list) pool.close() pool.join() print(‘Start Multiple Threads downloading … Total File Size:’, total_size, ‘(‘, total_size&#x2F;1024&#x2F;1024.0,’M)\n’) f &#x3D; open(path, ‘wb’) out_file &#x3D; open(path, ‘wb’) for i in range(threads): print(‘Thread’,i,’:’,response_list[i].status, response_list[i].reason,’, Length:’,response_list[i].getheader(‘Content-Length’)) # Concatenate these file blocks ino one under <code>path</code> shutil.copyfileobj(response_list[i], out_file) print(‘Done. Downloaded file has been saved to’,path,’.’)</p>
-<p>只是封装了个函数而已（因为还不会类 qwq），参数如下：</p>
-<p>download(url, referer, threads)</p>
-<p>其中 <code>URL</code> 是需要下载的文件 URL，<code>Referer</code> 是 header 中的 Referer，<code>threads</code> 是线程数。理论上通用其他情况。</p>
-<p>然而这个破脚本还有很多不足之处，比如说 proxy 配置还没写好（没时间了），还有可能因为网络中断而下载不完之类的，似乎多线程也不是很完美，总之先这样吧～下星期再完善。</p>
-<p>欢迎大触提建议&#x2F;吊打 qwq</p>
-<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/09/2015-09-27_08-12-38.png"><img src="https://img.prin.studio/images/2015/09/2015-09-27_08-12-38.png" alt="result"></a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/09/24/2015/2015-09-24-leaving-hackplan/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/09/24/2015/2015-09-24-leaving-hackplan/" itemprop="url">离开 HackPlan</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-09-24T00:00:00+08:00">
-                2015-09-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p><a href="/2013/08/1204/">整整两年过去了</a>，我和团队中其他人走到了一起，<a href="/2015/01/1976/">参与了数十个项目</a>，时薪翻了两番，然而两年前对未来的美好憧憬已经不在。</p>
-<p>在 HackPlan 的工作让我学到了很多，软件开发并不是一个人的战斗，需要和同事一起分工合作来完成一个复杂的软件，相比于技术上的具体问题，协作则是更大的挑战。我们定期进行进行语音会议来保持沟通；使用 Trello 来管理任务进度；设计规范的 HTTP API 来隔离服务器与客户端的工作；添加自动化的测试来减少新代码引入的缺陷；引入 Code Review 来保证代码质量；通过自动化的方式规范部署流程等等。这些规则是随着团队的成长一点点建立起来的，我清楚地记得每一项规则出现的契机，以及执行过程中遇到的困难，因为这其中很多规则都是我参与建立起来的。</p>
-<p>加入 HackPlan 也是我第一次离开家，到一个新的环境，因为我的年纪最小，在生活上得到了其他人非常多的帮助，使我逐步掌握了如何照顾好自己、如何与他人相处。和在学校时不同，在这里是一个大家互相信任的、平等相处的环境，我们都认为对方可以独立思考和决定、可以为自己的行为负责；每个人都有各自的专长，而不是以年龄或分数一概而论。</p>
-<p>当然离开也是有原因的，我们一开始住在苏州的一个小别墅里，后来搬到上海，生活和工作都在一个房子里。因为很少出门，所以失去了很多认识新朋友的机会；因为独处的时间较少，博客日志的产量明显减少。于是我想体验一下「在大城市打拼的普通年轻人」的生活：租个房子一个人住，每天早上来到办公区上班，出行和娱乐则安排在周末。</p>
-<p>我们是一个纯技术团队，但只是将产品做好是不够的，我们的产品是面向终端用户的，必须让尽可能多的用户了解到我们的产品，我们不懂如何营销，甚至不知道如何寻找擅长营销的人才。在这个问题上孙亮并没有表现出在面对开发任务时的执行力，而是一拖再拖，以至于我觉得在未来很长一段时间内都不会有显著改善。</p>
-<p>我在沟通中发现团队中一些成员是认可现在「小作坊」式的公司的，因为这样的工作更加自由和灵活，为了能和互相信任、具有默契的伙伴一起工作，即使公司在商业上不成功、即使错失一些扩大公司规模的机会也是值得的。而我觉得我可能需要一个更大的舞台，所以我选择了离开。</p>
-<p>下一篇日志我想向大家介绍一下我在面试新公司时的故事。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/09/23/2015/coding-instead-of-zhuangbi/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/09/23/2015/coding-instead-of-zhuangbi/" itemprop="url">少装逼，多艹码</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-09-23T07:29:18+08:00">
-                2015-09-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%9A%8F%E7%AC%94/" itemprop="url" rel="index">
-                    <span itemprop="name">随笔</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>深切感受到自己只是个辣鸡的事实，咸鱼还学人家装什么逼，和人家吹逼吹得再厉害，也没有几个项目屌。</p>
-<p>最近的计划：</p>
-<h3 id="1-实战-Python-爬虫"><a href="#1-实战-Python-爬虫" class="headerlink" title="1. 实战 Python 爬虫"></a>1. 实战 Python 爬虫</h3><p>以前看过些 Python 的语法，算是有些基础（最开始老喜欢打个分号），最近打算多看点 Urllib 库的使用方法，看点实战教程，积累下知识。第一个用来练手的打算是 2chCN 的“想和青梅竹马啪啪啪”这个系列。并不需要模拟登录之类的，只需要解析 HTML 抓取内容就好了。进阶的话打算爬 pixiv 搜索页面的图片，这就需要模拟登录等等一大堆东西了。</p>
-<p>虽然现在说说也只是纸上谈兵而已，不过还是让窝谈谈吧。总得有个盼头。</p>
-<p>大概在窝开始写博客之前（去年了吧，窝曾经买过三个月的 pixiv 高级会员，于是去梗吧发了个贴，提供代高级搜索服务。</p>
-<p>然而当时技术有限，就只是把页面上的图片扒下来（还是用的浏览器的保存功能 qwq），然后写了个小 VB.NET 程序用于解析图片文件名，提供预览并一键打开源地址。现在看看只是个非常简单的问题，然而窝当时写这个的时候似乎还有一些坑没解决，譬如 ListBox 预览当前选中项啊，越界啊之类的问题，可以说大部分的时间都在搜索相关信息了。好在写了一天多左右就算是可以见人了，反馈也还好，并没有什么特大 BUG。</p>
-<p>有了这一次经历，窝也明白了做项目才是最好的练习。单看书别想学得有多屌，只有在实际艹码过程中碰到各种各样 BUG，各种奇异的坑，并且靠自己的力量解决它，这才是 Best Practice。如何解决？去看一遍《提问的智慧》吧。好在窝一直以来都可以熟练使用搜索引擎，恰当地提问，才不至于成为伸手党。</p>
-<p>说到这个，窝也不知道咋回事，似乎窝打小就对偏爱搜索引擎而不是各种提问社区，宁愿搜个把小时也不想去提个问（当然，并不是说这样好，恰当的提问也是很重要的哟，不然你怎么能够搜到那么多答案呢）。</p>
-<p>不过这样也好，折腾精神要从娃娃抓起（笑</p>
-<p>再回到爬虫的话题。窝想做一个自助的 pixiv 代搜索站点。如果有人看这篇文章且不知道 pixiv，高级搜索是啥的话，为了节省时间你的宝贵时间，窝简单说明下，pixiv 一个绘画分享网站，它的高级搜索功能可以提供按作品人气排序，但是是付费的。</p>
-<p>窝想做这样一个站点，用户在前端键入关键词，搜索，后端使用 pixiv 高级用户账号模拟登录进行搜索，解析返回的 HTML，抓取其中搜索结果中的内容（图片链接，描述之类的），返回前端展示给用户。</p>
-<p>然而现在还只是个想法而已，或许在你的眼中只是个很简单的实现，窝现在还是连所需要的技术栈还不清楚。</p>
-<p>目前还不确定具体该使用啥进行前后端通信，毕竟没有相关经验，待窝多搜索解决方案些再来更新～</p>
-<h3 id="2-其他杂七杂八的小项目计划"><a href="#2-其他杂七杂八的小项目计划" class="headerlink" title="2. 其他杂七杂八的小项目计划"></a>2. 其他杂七杂八的小项目计划</h3><p>写到这里的时候突然词穷，于是回去看了下 GTasks，发现并没有啥稍微能打点儿的 idea 了 qvq，其他也就是些想做的小玩意儿而已。</p>
-<p>上次看到 Andy 他们拿 qaq.cat 的域名做了个短网址服务，于是窝也想实现个玩玩。想了下感觉似乎并不是太困难，实现方式大概是用 PHP+MySQL，然而窝并没有系统学习过 PHP，更不用说操作数据库了，不过多看些文档和实例应该可以写出点像样的东西来的，大概。</p>
-<p>还有想做的就是个 真 · 微不足道的小玩意儿了，主要是窝自己的需求，有时候需要把 P站的作品，画师 id 转换为 URL，或者是把 hash 转换为磁力链（琉璃神社），以前都是自己写个小 win32 程序，最近算是会了点前端，打算将这个搬到 web 上去。</p>
-<p>这个确实不是啥难事儿，用到的技术栈顶多 HTML+CSS+JavaScript 了，不多提。</p>
-<h3 id="3-给-WordPress-文章添加“是否有帮助”选项"><a href="#3-给-WordPress-文章添加“是否有帮助”选项" class="headerlink" title="3. 给 WordPress 文章添加“是否有帮助”选项"></a>3. 给 WordPress 文章添加“是否有帮助”选项</h3><p>突然想起来的，这条还没写到 Todo List 里去。从 Google MS 之类的文档页得到的灵感，而且从窝自身角度在浏览其它博客文章时也不是很喜欢评论，加个这个功能估计会对这种用户有用吧。预计需要用到的技术栈是 PHP+MySQL+HTML+CSS，AJAX 之类的窝这个水平还无法企及。而且还要去看一点 WordPress 二次开发相关，毕竟窝现在对 WP 的钩子之类的了解很少。不过看一些现现成的 WP 点赞功能实现的代码，撸出个能用的东西也不算太难。</p>
-<p>实践出真知，纸上谈兵没啥卵用，等窝做到坑的时候再来写几篇吧。</p>
-<p>最后，还是那句话：少装逼，多艹码。</p>
-<p> </p>
-<p>PS. 唔。。手机码完这么多字好辛苦。。手指好累。写了快一个小时了吧？十一点半了，睡觉睡觉～(；´Д｀)</p>
-<p>PSP. 最近看了些 NOIP 需要的 Pascal，整个人都被这破语法搞得不好了 qwq</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/09/23/2015-09-23-Learn%20Yii-01/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/09/23/2015-09-23-Learn%20Yii-01/" itemprop="url">Learn Yii-01</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-09-23T06:07:31+08:00">
-                2015-09-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/PHP/" itemprop="url" rel="index">
-                    <span itemprop="name">PHP</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>#Learn Yii Framework-01 for newer</p>
-<p>基本概念<br>一、入口文件<br>入口文件内容：一般格式如下：</p>
-<blockquote>
-<?php
-$yii=dirname(__FILE__).'/../../framework/yii.php';   //Yii框架位置<br/>
-$config=dirname(__FILE__).'/protected/config/main.php';   //当前应用程序的主配置文件位置
-</blockquote>
-<blockquote>
-<p>&#x2F;&#x2F; 部署正式环境时，去掉下面这行<br/><br>&#x2F;&#x2F; defined(‘YII_DEBUG’) or define(‘YII_DEBUG’,true);&#x2F;&#x2F;是否运行在调试模式下</p>
-</blockquote>
-<blockquote>
-<p>require_once($yii);&#x2F;&#x2F;包含Yii框架<br/><br>Yii::createWebApplication($config)-&gt;run();&#x2F;&#x2F;根据主配置文件建立应用实例，并运行。你可以在当前应用的任何位置通过Yii::app()来访问这个实例。  </p>
-</blockquote>
-<p>二、主配置文件<br>保存位置：你的应用&#x2F;protected&#x2F;config&#x2F;main.php<br>文件内容：一般格式如下：<br>&#96;<br>&lt;?php<br>return array(<br>    ‘basePath’&#x3D;&gt;dirname(<strong>FILE</strong>).DIRECTORY_SEPARATOR.’..’, &#x2F;&#x2F;当前应用根目录的绝对物理路径<br>    ‘name’&#x3D;&gt;’Yii Blog Demo’, &#x2F;&#x2F;当前应用的名称</p>
-<pre><code>// 预载入log（记录）应用组件，这表示该应用组件无论它们是否被访问都要被创建。该应用的参数配置在下面以“components”为关键字的数组中设置。
-&#39;preload&#39;=&gt;array(&#39;log&#39;), //log为组件ID
-
-// 自动载入的模型和组件类
-&#39;import&#39;=&gt;array(
-    &#39;application.models.*&#39;, //载入“application/models/”文件夹下的所有模型类
-    &#39;application.components.*&#39;, //载入“application/components/”文件夹下的所有应用组件类
-),
-
-&#39;defaultController&#39;=&gt;&#39;post&#39;, //设置默认控制器类
-
-// 当前应用的组件配置。更多可供配置的组件详见下面的“核心应用组件”
-&#39;components&#39;=&gt;array(
-    &#39;user&#39;=&gt;array( //user（用户）组件配置，“user”为组件ID
-        // 可以使用基于cookie的认证
-        &#39;allowAutoLogin&#39;=&gt;true, //允许自动登录
-    ),
-    &#39;cache&#39;=&gt;array( //缓存组件
-                &#39;class&#39;=&gt;&#39;CMemCache&#39;, //缓存组件类
-                &#39;servers&#39;=&gt;array( //MemCache缓存服务器配置
-                    array(&#39;host&#39;=&gt;&#39;server1&#39;, &#39;port&#39;=&gt;11211, &#39;weight&#39;=&gt;60), //缓存服务器1
-                    array(&#39;host&#39;=&gt;&#39;server2&#39;, &#39;port&#39;=&gt;11211, &#39;weight&#39;=&gt;40), //缓存服务器2
-                ),
-    ),
-    &#39;db&#39;=&gt;array( //db（数据库）组件配置，“db”为组件ID
-        &#39;connectionString&#39; =&gt; &#39;sqlite:protected/data/blog.db&#39;, //连接数据库的DSN字符串
-        &#39;tablePrefix&#39; =&gt; &#39;tbl_&#39;, //数据表前缀
-    ),
-    // 如果要使用一个MySQL数据库，请取消下面的注释
-    /*
-    &#39;db&#39;=&gt;array(
-        &#39;connectionString&#39; =&gt; &#39;mysql:host=localhost;dbname=blog&#39;, //连接mysql数据库
-        &#39;emulatePrepare&#39; =&gt; true,
-        &#39;username&#39; =&gt; &#39;root&#39;, //MySQL数据库用户名
-        &#39;password&#39; =&gt; &#39;&#39;, //MySQL数据库用户密码
-        &#39;charset&#39; =&gt; &#39;utf8&#39;, //MySQL数据库编码
-        &#39;tablePrefix&#39; =&gt; &#39;tbl_&#39;, //MySQL数据库表前缀
-    ),
-    */
-    &#39;errorHandler&#39;=&gt;array(
-        // 使用SiteController控制器类中的actionError方法显示错误
-        &#39;errorAction&#39;=&gt;&#39;site/error&#39;, //遇到错误时，运行的操作。控制器名和方法名均小写，并用斜线“/”隔开
-    ),
-  //URL路由管理器
-    &#39;urlManager&#39;=&gt;array(
-        &#39;urlFormat&#39;=&gt;&#39;path&#39;, //URL格式。 共支持两种格式：&#39;path&#39;格式（如：/path/to/EntryScript.php/name1/value1/name2/value2...）和&#39;get&#39;格式（如: /path/to/EntryScript.php?name1=value1&amp;name2=value2...）。当使用&#39;path&#39;格式时，需要设置如下的规则：
-        &#39;rules&#39;=&gt;array( //URL规则。语法：&lt;参数名:正则表达式&gt; 
-            &#39;post/&lt;id:\d+&gt;/&lt;title:.*?&gt;&#39;=&gt;&#39;post/view&#39;, //将post/12/helloword指向post/view?id=12&amp;title=helloword
-            &#39;posts/&lt;tag:.*?&gt;&#39;=&gt;&#39;post/index&#39;, //将posts/hahahaha指向post/index?tag=hahahaha
-            &#39;&lt;controller:\w+&gt;/&lt;action:\w+&gt;&#39;=&gt;&#39;&lt;controller&gt;/&lt;action&gt;&#39;,
-        ),
-    ),
-    &#39;log&#39;=&gt;array(  //记录
-        &#39;class&#39;=&gt;&#39;CLogRouter&#39;, //处理记录信息的类
-        &#39;routes&#39;=&gt;array(
-            array(
-                &#39;class&#39;=&gt;&#39;CFileLogRoute&#39;, //处理错误信息的类
-                &#39;levels&#39;=&gt;&#39;error, warning&#39;, //错误等级
-            ),
-            // 如要将错误记录消息在网页上显示，取消下面的注释即可
-            /*
-            array(
-                &#39;class&#39;=&gt;&#39;CWebLogRoute&#39;,
-            ),
-            */
-        ),
-    ),
-), //应用组件配置结束
-
-
-// 使用Yii::app()-&gt;params[&#39;参数名&#39;]可以访问应用层的参数
-&#39;params&#39;=&gt;require(dirname(__FILE__).&#39;/params.php&#39;),
-</code></pre>
-<p>);<br>？&gt;<br>&#96;</p>
-<p>Yii的16个核心应用组件：<br>Yii 预定义了一系列核心应用组件，提供常见 Web 应用中所用的功能。例如， request 组件用于解析用户请求并提供例如 URL，cookie 等信息。通过配置这些核心组件的属性，我们可以几乎任意的修改Yii 的默认行为。<br/></p>
-<p>下面我们列出了由 CWebApplication 预定义的核心组件。<br>*assetManager: CAssetManager - 管理私有资源文件的发布。<br/><br>*authManager: CAuthManager - 管理基于角色的访问控制 (RBAC).<br/><br><em>cache: CCache - 提供数据缓存功能。注意，你必须指定实际的类（例如</em>CMemCache, CDbCache）。否则，当你访问此组件时将返回 NULL。<br/><br>*clientScript: CClientScript - 管理客户端脚本 (javascripts 和 CSS).<br/><br>*coreMessages: CPhpMessageSource - 提供 Yii 框架用到的核心信息的翻译。<br/><br>*db: CDbConnection - 提供数据库连接。注意，使用此组件你必须配置其 connectionString 属性。<br/><br>*errorHandler: CErrorHandler - 处理未捕获的 PHP 错误和异常。<br/><br>*format: CFormatter - 格式化数值显示。此功能从版本 1.1.0 起开始提供。<br/><br>*messages: CPhpMessageSource - 提供Yii应用中使用的信息翻译。<br/><br>*request: CHttpRequest - 提供关于用户请求的信息。<br/><br>*securityManager: CSecurityManager - 提供安全相关的服务，例如散列，加密。<br/><br>*session: CHttpSession - 提供session相关的功能。<br/><br>*statePersister: CStatePersister - 提供全局状态持久方法。<br/><br>*urlManager: CUrlManager - 提供 URL 解析和创建相关功能<br/><br>*user: CWebUser - 提供当前用户的识别信息。<br/><br>*themeManager: CThemeManager - 管理主题。<br/></p>
-<p>要访问一个应用组件，使用 Yii::app()-&gt;组件的ID</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/ios-ads-blockers">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/ios-ads-blockers" itemprop="url">iOS 9 and content blockers</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-09-21T17:33:00+08:00">
-                2015-09-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          Some opinions on ads and content blockers and how they affect web development.
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/ios-ads-blockers">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/09/20/2015/get-alphassl-wildcard/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/09/20/2015/get-alphassl-wildcard/" itemprop="url">AlphaSSL 的 Wildcard 签下来辣~</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-09-20T21:16:35+08:00">
-                2015-09-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%97%A5%E5%B8%B8/" itemprop="url" rel="index">
-                    <span itemprop="name">日常</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>从 <a target="_blank" rel="noopener" href="https://www.andy1999.com/">@Andy1999</a> 那里搞到的野卡，dalao 有路子所以很便宜哦 <a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/09/2015-09-20_05-13-56.gif"><img src="https://img.prin.studio/images/2015/09/2015-09-20_05-13-56.gif" alt="20150920131347"></a></p>
-<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/09/2015-09-20_05-15-40.png"><img src="https://img.prin.studio/images/2015/09/2015-09-20_05-15-40.png" alt="crt info"></a></p>
-<p>终于可以替换掉辣鸡沃通的证书辣 <a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/09/2015-09-13_07-32-05.jpg"><img src="https://img.prin.studio/images/2015/09/2015-09-13_07-32-05.jpg" alt="QQ图片20150913141653"></a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/09/18/2015/use-arp-spoofing-to-forbid-accessing-internet-on-other-devices-under-the-same-lan/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/09/18/2015/use-arp-spoofing-to-forbid-accessing-internet-on-other-devices-under-the-same-lan/" itemprop="url">使用 ARP 欺骗禁止同一局域网下的设备访问网络</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-09-18T20:29:02+08:00">
-                2015-09-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
-                    <span itemprop="name">技术</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>几天前窝们宿舍拿中继蹭对面 WiFi 的事儿被几个大嘴巴说漏了，引来一堆人蹭网，于是速度就慢如狗爬了。。</p>
-<p>于是拿出中继的那只就给窝说，有个叫 WiFi 杀手 的 APP，可以让蹭网的不能上网。</p>
-<p>窝当时就震惊了，woc 还有这么的 dio 的东西，问了下原理，结果他也讲不出个所以然来，似乎还说啥 DNS 污染。这完全不对嘛，应该是假冒网关之类的吧。遂 Google 之：</p>
-<blockquote>
-<p>WiFi 杀手的工作原理使用了ARP 欺骗的原理，假冒 ARP 回复来欺骗同一 WiFi 网络上的其他设备，让它们以为你的 Android 手机是网关，然后 WiFiKill 丢掉它们的网络包。</p>
-</blockquote>
-<p>唔。。ARP 欺骗啊，窝记得几年前有看过这个的资料（在窝还在使用三六蛋的时候）。这里给出维基百科上关于 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%9C%B0%E5%9D%80%E8%A7%A3%E6%9E%90%E5%8D%8F%E8%AE%AE">ARP</a> 和 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/ARP%E6%AC%BA%E9%A8%99">ARP 欺骗</a> 的页面。</p>
-<p>那么这个啥 WiFi 杀手到底是个啥黑科技呢？窝就来通俗的讲讲吧～</p>
-<p>ARP 协议是拿来干啥的呢？就是将一个网络层地址（譬如 IPv4 地址）转换为数据链路物理地址（MAC 地址）。</p>
-<p>那么估计你应该懂了吧？ARP 欺骗的原理就是伪造 ARP 回复报文。举个栗子（栗子中的 A，B 即为 IP，位置即为 MAC 地址：</p>
-<blockquote>
-<p>A 要和局域网中的 B 通信，于是在 LAN 中发了个广播：“我是 A，地址是 123，B，你丫在哪？”。如果是正常情况下，其他人看到广播会保持沉默，等到 B 收到广播后，他就会回应给 A：“A，我是 B，劳资地址是 234，找我干啥？” 于是可以进行通信。</p>
-</blockquote>
-<p>然而，在受到 ARP 欺骗的局域网中，情况就会是这样子。。</p>
-<blockquote>
-<p>A 要和 B 通信，发了个广播找 B 的 MAC 地址：“B，你在哪儿？”，然后就在 B 回应之前，同一局域网下恶意满满的主机 C 以迅雷不及掩耳盗铃之势抢答道：“窝是 B，MAC 地址是 450 哟～☆ ”。然而傻傻的 A 并不会验证 ARP 回复的真实性，就在地址簿上写上：“IP：B，MAC 地址：450” 供通信用，然后主机 A 尝试对 B 进行 IP 通信，就喜闻乐见地错误啦。</p>
-</blockquote>
-<p>ARP 欺骗大☆成★功～</p>
-<p>这就是 WiFi 杀手的原理，如果欺骗的是网关的 MAC 地址的话就会导致无法访问网络了。那么要如何防范呢？Android 平台上也有许多防御 ARP 欺骗的应用，有需要可以去找下。也可以手动清空 ARP 缓存表（在攻击者长时间跑着 ARP 欺骗程序的情况下没卵用</p>
-<p>顺带一提窝是不太提倡使用 WiFi 杀手这类应用呢。</p>
-<p>BTW，ARP 缓存表一般会在设备重启后清空哦～可以在手机终端中使用 <code>cat /proc/net/arp</code> 来查看你设备的 ARP 表</p>
-<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/09/2015-09-18_14-46-04.jpg"><img src="https://img.prin.studio/images/2015/09/2015-09-18_14-46-04.jpg" alt="image" title="wp-1442587367872"></a></p>
-<p> </p>
-<p>PS. 今天是窝博客第一次达到文章和评论数量相等哦～（虽然有一半评论是窝的 qwq</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/09/15/2015/lets-encrypt-project-published-the-first-ca/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/09/15/2015/lets-encrypt-project-published-the-first-ca/" itemprop="url">Let’s Encrypt 项目发行了第一个证书！</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-09-15T20:18:30+08:00">
-                2015-09-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%9A%8F%E7%AC%94/" itemprop="url" rel="index">
-                    <span itemprop="name">随笔</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>9 月窝最期待的项目终于有动静了！(*´∀｀) 第一个使用此项目签名的证书的网站是：<a target="_blank" rel="noopener" href="https://helloworld.letsencrypt.org/">https://helloworld.letsencrypt.org/</a>，不过目前还没有被信任。</p>
-<p>ISP：我们已做好封锁 443 端口的准备（笑</p>
-<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/09/2015-09-15_15-10-46.png"><img src="https://img.prin.studio/images/2015/09/2015-09-15_15-10-46.png" alt="lisfwIGqXcOfM"></a></p>
-<p>Let’s Encrypt 项目旨在让每个网站都能使用 HTTPS 加密，该项目获得了 Mozilla、思科、Akamai、IdenTrust 和 EFF 等组织的支持，由 Linux 基金会托管。目前 Let’s Encrypt CA 还没有被加入到信任CA列表，用户需要自己添加 ISRG root CA 才能在浏览器上正常访问Let’s Encrypt 签名的 HTTPS 网站。它已经向 Mozilla、Google、Microsoft 和Apple 递交了root CA 申请。Let’s Encryp t计划在11月份开放签名申请，感兴趣的网站可以申请参加 beta。</p>
-<p>以上来自 <a target="_blank" rel="noopener" href="http://solidot.org.feedsportal.com/c/33236/f/556826/s/49d9d106/sc/27/l/0L0Ssolidot0Borg0Cstory0Dsid0F4550A2/story01.htm">Solidot</a>。</p>
-<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/09/2015-09-15_04-18-28.png"><img src="https://img.prin.studio/images/2015/09/2015-09-15_04-18-28-576x1024.png" alt="wpid-2015-09-15_04-18-28.png"></a></p>
+            <p>从 <a target="_blank" rel="noopener" href="https://www.anotherhome.net/2106">Anotherhome</a> 看到了这玩意，看起来挺有趣的，就搞了个在站点侧边栏上 |∀ﾟ</p>
+<p>后端用的 LWL 写的 PHP 版本，前端自己瞎写的。</p>
+<p>现在依然是可怜的个位数，有看到的顺手点一个呗 (　ﾟ 3ﾟ)</p>
 
           
         
@@ -3569,7 +3923,7 @@ $config=dirname(__FILE__).'/protected/config/main.php';   //当前应用程序�
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/54/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/54/">54</a><span class="page-number current">55</span><a class="page-number" href="/page/56/">56</a><span class="space">&hellip;</span><a class="page-number" href="/page/79/">79</a><a class="extend next" rel="next" href="/page/56/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/54/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/54/">54</a><span class="page-number current">55</span><a class="page-number" href="/page/56/">56</a><span class="space">&hellip;</span><a class="page-number" href="/page/82/">82</a><a class="extend next" rel="next" href="/page/56/">&gt;</a>
   </nav>
 
 
@@ -3615,7 +3969,7 @@ $config=dirname(__FILE__).'/protected/config/main.php';   //当前应用程序�
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1579</span>
+                  <span class="site-state-item-count">1622</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3626,7 +3980,7 @@ $config=dirname(__FILE__).'/protected/config/main.php';   //当前应用程序�
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">64</span>
+                  <span class="site-state-item-count">71</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>

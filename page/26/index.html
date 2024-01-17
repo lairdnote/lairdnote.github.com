@@ -273,7 +273,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/08/06/%E9%80%9A%E8%BF%87ApiExplorer%E4%B8%BASwagger%E6%8F%90%E4%BE%9BMVC%E6%89%A9%E5%B1%95/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/12/09/springboot-multidatasource-mybatis-annotation/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -292,7 +292,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/08/06/%E9%80%9A%E8%BF%87ApiExplorer%E4%B8%BASwagger%E6%8F%90%E4%BE%9BMVC%E6%89%A9%E5%B1%95/" itemprop="url">通过 ApiExplorer 为 Swagger 提供 MVC 扩展</a></h2>
+                <a class="post-title-link" href="/2019/12/09/springboot-multidatasource-mybatis-annotation/" itemprop="url">Spring Boot 集成 MyBatis（注解方式）实现多数据源配置</a></h2>
         
 
         <div class="post-meta">
@@ -304,8 +304,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-06T23:02:50+08:00">
-                2019-08-06
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-09T21:18:20+08:00">
+                2019-12-09
               </time>
             
 
@@ -327,8 +327,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
+                  <a href="/categories/Spring-Boot-%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring Boot 系列</span>
                   </a>
                 </span>
 
@@ -376,10 +376,10 @@
 
       
         
-          这个接口位于`System.Web.Http.Description`命名空间下，而显然这是 WebApi 相关的命名空间，所以，对于一般的 WebApi 项目，因为微软已经帮我们实现了默认的 ApiExplorer，所以，Swagger 可以识别出项目中的 Controller 及其 Action，并通过 XML 注释文档进一步填充接口相关的描述信息;我们的想法是通过反射取出所有的 MVC 控制器及其 Action，然后组织出这些接口的描述信息，再将它们添加到默认的 IApiExplorer 实现中去，这样 MVC 和 WebApi 都可以被 Swagger 识别，为此，我们继承默认的 ApiExplorer，并实现我们自定义的`MvcApiExplorer`：;一旦想到这一层，我们就会明白，为什么 Swagger 不支持 MVC 项目，因为 MVC 里压根就没有实现 IApiExplorer 接口啊
+          <p>MyBatis 注解方式配置多数据源与 XML 方式大同小异，唯一不同是注解方式不用指定 XML 文件的位置。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/08/06/%E9%80%9A%E8%BF%87ApiExplorer%E4%B8%BASwagger%E6%8F%90%E4%BE%9BMVC%E6%89%A9%E5%B1%95/">
+            <a class="btn" href="/2019/12/09/springboot-multidatasource-mybatis-annotation/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -431,7 +431,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/08/04/2019-08-04-American-trap/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/12/09/springboot-multidatasource-mybatis-xml/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -450,7 +450,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/08/04/2019-08-04-American-trap/" itemprop="url">美国怎么对付华为 - 读《美国陷阱》</a></h2>
+                <a class="post-title-link" href="/2019/12/09/springboot-multidatasource-mybatis-xml/" itemprop="url">Spring Boot 集成 MyBatis（XML 方式）实现多数据源配置</a></h2>
         
 
         <div class="post-meta">
@@ -462,8 +462,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-04T23:56:54+08:00">
-                2019-08-04
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-09T21:14:27+08:00">
+                2019-12-09
               </time>
             
 
@@ -485,8 +485,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
+                  <a href="/categories/Spring-Boot-%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring Boot 系列</span>
                   </a>
                 </span>
 
@@ -534,50 +534,1760 @@
 
       
         
+          <p>在实际开发中，我们会遇到一个应用需要访问多个数据源的情况。因此，我们需要配置多个数据源。这里我们来看看使用 MyBatis（XML 方式）实现多数据源配置。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/09/springboot-multidatasource-mybatis-xml/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/12/09/springboot-mybatis-annotation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/09/springboot-mybatis-annotation/" itemprop="url">Spring Boot 集成 MyBatis（注解方式）操作数据库</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-09T21:11:10+08:00">
+                2019-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
           
-            <h2 id="序"><a href="#序" class="headerlink" title="序"></a>序</h2><p>最近读了一本有意思的书，叫《美国陷阱》，作者是阿尔斯通公司的前高管弗雷德里克·皮耶鲁齐。本书讲述的是美国的联邦调查局通过对阿尔斯通公司高管的逮捕和威胁，最终使得美国通用电气公司将阿尔斯通收购的故事。</p>
-<p>作者用第一人称，讲述自己从被捕，到艰难保释，到辩护，最终被判坐牢，以及最终出狱后为宣传美国的这种打压手法而做的努力。</p>
-<p>美国一直对全球标榜着自由，开放，公平，但是其实在国家利益面前，每个国家都不愿意在某个规则内被削弱，美国也是这样。所以，当美国发现它的经济利益、政治利益、军事利益等受到威胁或者削弱的时候，规则是什么样的就不重要了，重要的是赢。</p>
-<ul>
-<li><p>如果在规则下能够赢，那么美国就会强调规则。</p>
-</li>
-<li><p>如果规则有一些空子可以钻，来带来竞争优势，美国就会钻空子。在本书中介绍的就是美国利用《反海外腐败法》来打压国外的公司。</p>
-</li>
-<li><p>如果规则没有空子可以钻，那美国就会宣布退出这个规则。最近川普退出了很多规则，比如退出了军事上的《中导条约》。去年，美国还退出了《伊朗核协议》、联合国人权理事会、联合国教科文组织。美国还威胁退出 WTO。</p>
-</li>
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring-Boot-%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring Boot 系列</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>注解方式相较于 XML 方式而言，SQL 语句查找方便，直接放在接口方法的注解上，可以很容易找到，但 SQL 语句排版效果不是很好，如果是复杂的 SQL 语句很难看明白它的逻辑，并且对动态 SQL 语句的支持很差，需要单独提供生成 SQL 语句的方法。</p>
+<p>下面，我们来看看基于注解方式的 MyBatis 如何配置。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/09/springboot-mybatis-annotation/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/12/09/springboot-mybatis-xml/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/09/springboot-mybatis-xml/" itemprop="url">Spring Boot 集成 Mybatis（XML 方式）和 PageHelper 分页插件</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-09T21:09:23+08:00">
+                2019-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring-Boot-%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring Boot 系列</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>MyBatis 是一款优秀的持久层框架，它对 JDBC 的操作数据库的过程进行封装，支持定制化 SQL、存储过程以及高级映射，避免了几乎所有的 JDBC 代码和手动设置参数以及获取结果集。MyBatis 可以使用简单的 XML 或注解来配置和映射原生信息，将接口和 Java 的 POJO（Plain Old Java Objects，普通的 Java 对象）映射成数据库中的记录。</p>
+<p>通俗地讲，MyBatis 就是我们使用 Java 程序操作数据库时的一种工具，可以简化我们使用 JDBC 时的很多操作，而且还简化了数据库记录与 POJO 之间的映射方式。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/09/springboot-mybatis-xml/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/12/09/springboot-multidatasource-jpa/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/09/springboot-multidatasource-jpa/" itemprop="url">Spring Boot 集成 JPA 实现多数据源配置</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-09T21:00:36+08:00">
+                2019-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring-Boot-%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring Boot 系列</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>在实际开发中，我们会遇到一个应用需要访问多个数据源的情况。因此，我们需要配置多个数据源。这里我们来看看使用 Jpa 实现多数据源配置。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/09/springboot-multidatasource-jpa/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/12/09/springboot-jpa/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/09/springboot-jpa/" itemprop="url">Spring Boot 集成 JPA 操作数据库</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-09T20:57:49+08:00">
+                2019-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring-Boot-%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring Boot 系列</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>Jpa (Java Persistence API) 是 Sun 官方提出的 Java 持久化规范。它为 Java 开发人员提供了一种对象&#x2F;关联映射工具来管理 Java 应用中的关系数据。它的出现主要是为了简化现有的持久化开发工作和整合 ORM 技术，结束现在 Hibernate，TopLink，JDO 等 ORM 框架各自为营的局面。</p>
+<p>下面我们来看看，Spring Boot 怎样集成 JPA。 </p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/09/springboot-jpa/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/12/09/springboot-multidatasource-jdbctemplate/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/09/springboot-multidatasource-jdbctemplate/" itemprop="url">Spring Boot 集成 JdbcTemplate 实现多数据源配置</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-09T20:52:15+08:00">
+                2019-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring-Boot-%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring Boot 系列</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>在实际开发中，我们会遇到一个应用需要访问多个数据源的情况。因此，我们需要配置多个数据源。使用 JdbcTemplate 实现多数据源配置是比较简单的。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/09/springboot-multidatasource-jdbctemplate/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/12/09/springboot-jdbctemplate/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/09/springboot-jdbctemplate/" itemprop="url">Spring Boot 集成 JdbcTemplate 操作数据库</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-09T20:49:08+08:00">
+                2019-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring-Boot-%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring Boot 系列</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>本示例使用 Spring Boot 集成 Druid 数据库连接池和 JdbcTemplate 操作数据库，包括对数据的增删改查操作。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/09/springboot-jdbctemplate/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/12/09/springboot-c3p0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/09/springboot-c3p0/" itemprop="url">Spring Boot 整合 C3P0 数据库连接池</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-09T20:46:05+08:00">
+                2019-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring-Boot-%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring Boot 系列</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>本示例使用 C3P0 + DbUtils + SQLServer 进行整合来操作数据库。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/09/springboot-c3p0/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/12/09/springboot-properties/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/09/springboot-properties/" itemprop="url">Spring Boot 资源配置文件读取</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-09T20:19:03+08:00">
+                2019-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring-Boot-%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring Boot 系列</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>在实际开发中，我们会遇到关于配置文件的读取，获取配置文件的自定义配置，以及如何多环境下的配置文件信息的获取。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/09/springboot-properties/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/12/09/springboot-devtools/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/09/springboot-devtools/" itemprop="url">Spring Boot 使用 devtools 实现热部署</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-09T20:14:59+08:00">
+                2019-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring-Boot-%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring Boot 系列</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>在进行 Spring Boot 的 Web 项目开发中，我们经常会遇到源代码文件、配置文件等的修改，但每次修改后都会重启 Web 服务器才能修改后的文件生效，这样很耗时，影响开发效率。而热部署就是不需要重启 Web 服务器就可以保证各项文件修改后便立即生效。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/09/springboot-devtools/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/12/09/springboot-banner/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/09/springboot-banner/" itemprop="url">Spring Boot 定制 Banner</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-09T20:11:55+08:00">
+                2019-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring-Boot-%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring Boot 系列</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>Spring Boot 启动时会有默认的 Banner 被加载，但 Spring Boot 也支持自定义 Banner 功能。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/09/springboot-banner/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/12/09/springboot-helloworld/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/12/09/springboot-helloworld/" itemprop="url">Spring Boot 快速上手</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-09T20:08:38+08:00">
+                2019-12-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring-Boot-%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring Boot 系列</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><ul>
+<li>微框架，与 Spring4 一起诞生，比如 @RestController。</li>
+<li>可以快速上手，整合了一些子项目（开源框架或者第三方开源库）。</li>
+<li>可以依赖很少的配置就可以十分快速的搭建并运行项目。</li>
+<li>完全注解化，简化 XML 配置，不需要 web.xml 文件，内置嵌入 HTTP 服务器。</li>
 </ul>
-<p>所以，在国家利益面前，什么公平，正义都是虚伪的。去年沙特王储萨勒曼谋杀了记者卡舒吉，川普却说：“我们可能永远也无法知道关于贾迈勒·卡舒吉被谋杀的全部事实。”</p>
-<p>如果结合美国打压华为的行为来看本书，我们可以更明显的看到美国在维护国家利益面前时的选择性执法。而美国抓捕华为 CFO 孟晚舟行为，与逮捕阿尔斯通高管的案例极其相似，所以本书也有着不错的借鉴意义。</p>
-<h2 id="故事梗概"><a href="#故事梗概" class="headerlink" title="故事梗概"></a>故事梗概</h2><p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E9%98%BF%E7%88%BE%E6%96%AF%E9%80%9A">阿尔斯通</a> 是一家法国公司，这是一家在电力和交通运输上具备国际竞争力的公司。在电力上，阿尔斯通主要向海外各个国家提供各种发电设备的建造服务。在交通上，阿尔斯通主要对外输出高速铁路的建造服务。当年中国建三峡大坝的时候，就采购过阿尔斯通提供的水轮机和发电机组。</p>
-<p>阿尔斯通主要的业务是通过参加跨国的招投标来获取的，而腐败是这其中难以回避的问题。对于一些发展中国家的业务，当地的法律法规执行并不严苛，阿尔斯通以及其它的竞标者，就可能通过贿赂来获得项目。</p>
-<p>在本书中，作者并不认为这件事情光彩，他在书中也呼吁法国在国家层面上对这种行为进行打击。作者气愤的是，美国在反腐这件事情上采用双重标准，重点盯着竞争对手，而对于美国公司自己睁一只眼闭一只眼。</p>
-<p>这就相当于美国是足球场上的裁判，然后犯规明显是不对的，但是这个裁判只抓一边的犯规，对另一边的犯规视而不见。那么很显然，这样的球没法踢。那么说回来，美国到底是怎么做到的呢？</p>
-<h3 id="长臂管辖"><a href="#长臂管辖" class="headerlink" title="长臂管辖"></a>长臂管辖</h3><p>美国的很多法律，可以直接管到全球的所有公司。比如说本书中涉及的阿尔斯通腐败案，其实是发生在印尼。印尼没有管，法国也没有管，但是美国利用《反海外腐败法》，也可以把人抓起来起诉。</p>
-<p>这相当于什么呢？举个例子，假如有一天，中国的有家公司在中国境内做生意，没有违反中国的法律，但是违反了美国的法律，美国的 FBI 可以想办法把你引渡到美国受审判。</p>
-<p>这相当于是说，美国的法律高于全世界所有国家的法律。即使你不在本土，即使你也不是美国国籍，美国的法律也能管你。FBI 没有抓到你只是因为你没有机会让他执法，因为他不可能直接跑到别的国家抓人。但是孟晚舟的案例告诉我们，只要是你在亲美国的国家，美国都可以利用各种引渡协议把你引渡到美国受审。</p>
-<p>这合理吗？明显不合理。全球性的法律条款理因由全球性的组织来制定和实施，比如联合国以及国际刑警。这样的机制下才可能保证法规的中立以及执法的中立。</p>
-<h3 id="辩诉交易"><a href="#辩诉交易" class="headerlink" title="辩诉交易"></a>辩诉交易</h3><p>有了长臂管辖，我们再来看看美国司法的一个特点：辩诉交易。</p>
-<p>根据全国刑事辩护律师协会 2018 年的一份报告，在 2017 年，在联邦体系中，有 97.2% 的刑事案件被告人选择通过辩诉交易而认罪，放弃了得到开庭审判的机会。而本文的作者，也是选择了认罪。为什么会这样呢？</p>
-<p>首先，美国的检察官不会客观的给你指控，他会尽可能多的指控你，然后抬高你的刑期。比如本书中的皮耶鲁齐，就被指控了多项罪名，如果都成立的话，会有 125 年的刑期。这直接就让被告人吓傻了。然后，检察官就会给你一个刑期很小的认罪协议。只要你认罪，就只会被判这么久。</p>
-<p>在本书中，皮耶鲁齐的律师给他说，如果认罪就只判 6 个月。确定的 6 个月和 不确定的 125 年，我想所有人都会迫于恐惧而选择确定性的坐 6 个月牢吧。而且皮耶鲁齐当时已经在狱中了，真正判决下来后，他 6 个月的刑期已经结束了。</p>
-<h3 id="海量证据"><a href="#海量证据" class="headerlink" title="海量证据"></a>海量证据</h3><p>皮耶鲁齐的案件，检方提供了 150 万项证据。这些证据很多都是一些没有信息量的内容，比如阿尔斯通相关部门 10 年间所有的电子邮件。没有人可以阅读完这些内容。检方也不会告诉你他会拿出哪一项证据让法官判断。</p>
-<p>这种攻击手法类似网络的 DDOS，检方把有用的 15 个证据，加入了 10 万倍的噪音。正常人根本无法处理这些信息，也就无法针对性提供反驳的证据了。</p>
-<p>海量证据也有利于搞定​陪审团制度。美国的培审团人员虽然都是市民，但是他们面对专业的检察官递交的各种海量证据，根本无从分辨，通常都会同意起诉。​2010年呈交到大陪审团的 162351 起案件中，只有 11 起被大陪审团否决。</p>
-<h3 id="皮耶鲁齐的经历"><a href="#皮耶鲁齐的经历" class="headerlink" title="皮耶鲁齐的经历"></a>皮耶鲁齐的经历</h3><p>在阿尔斯通的案例中，美国联邦调查局先通过安插线人，收集到了阿尔斯通贿赂的证据。</p>
-<p>然后他就通过把案件中的一些知情人抓起来受审，本书作者皮耶鲁齐虽然不是贿赂的直接人，但是他知晓事情。FBI 通过这种方式给阿尔斯通管理层施压。</p>
-<p>为了给阿尔斯通的 CEO 施压，FBI 除了应用辩诉交易，让皮耶鲁齐写认罪协议外，还将皮耶鲁齐的审判尽可能延长。皮耶鲁齐被关了一年多，都没有开庭。</p>
-<p>FBI 也尽可能增加皮耶鲁齐被保释的难度，除了不断上涨保释金之外（从 40 万美元涨到 150 万美元），FBI 还要求他提供两个美国朋友的房产作为担保，如果之后不受审，两个美国朋友的房产将被扣押。这几乎是不可能达成的任务。</p>
-<p>最终皮耶鲁齐还是达成了保释要求，但是审判时最终被判了 3 年。他签认罪协议时检方承诺的 6 个月刑期并没有被遵守，于是他只能服刑坐牢。</p>
-<p>不过他最终通过法国大使馆达成了引渡请求，虽然历经波折，他还是被引渡回了法国，并且立刻得到了保释。</p>
-<p>与皮耶鲁齐服刑期间，阿尔斯通与美国司法部达成了认罪协议，并且在被美国通用电气收购后，收到了罚单。更为重要的是，阿尔斯通与美国司法部谈判时，通用电气的人居然一起参与。皮耶鲁齐认为，“美国司法部不是独立的，而是处于强大的美国跨国公司的控制之下”。</p>
-<h2 id="华为"><a href="#华为" class="headerlink" title="华为"></a>华为</h2><p>在华为公司的案例上，很明显美国在故意打压华为。利用拘捕孟晚舟这种方式让华为管理层害怕，是美国一直以来熟练的做法。与此同时，美国还把华为列入负面清单，让华为失去大量合作伙伴。最后，美国不停地宣扬华为有窃听，不安全，但是又拿不出任何证据。</p>
-<p>对于中国来说，不应该让美国的阴谋得逞。华为是中国少有的在科技创新领域做到全球领先的公司。应对美国的打压，中国也应该推出负面清单，限制那些配合美国打压华为的公司。中国也应该拘捕那些在中国不好好做生意的美国公司高管。</p>
-<p>当然，中国也需要更加鼓励创新，让中国出现更多创新企业，把产品向全世界输出。在这场国家利益的斗争中，我对中国还是满怀信心的。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本书简单小结就是一句话：政府是为国家利益服务的。</p>
-<p>国家之间的竞争，没有什么规则可言。</p>
-
-          
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/12/09/springboot-helloworld/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -625,7 +2335,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/08/01/NET-Core-POCOController%E5%9C%A8%E5%8A%A8%E6%80%81Web-API%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/12/04/Referrer%E8%BF%98%E6%98%AFReferer-%E4%B8%80%E4%B8%AA%E8%BF%B7%E4%BA%BA%E7%9A%84%E9%94%99%E8%AF%AF/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -644,7 +2354,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/08/01/NET-Core-POCOController%E5%9C%A8%E5%8A%A8%E6%80%81Web-API%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/" itemprop="url">.NET Core POCOController 在动态 Web API 中的应用</a></h2>
+                <a class="post-title-link" href="/2019/12/04/Referrer%E8%BF%98%E6%98%AFReferer-%E4%B8%80%E4%B8%AA%E8%BF%B7%E4%BA%BA%E7%9A%84%E9%94%99%E8%AF%AF/" itemprop="url">Referrer 还是 Referer? 一个迷人的错误</a></h2>
         
 
         <div class="post-meta">
@@ -656,8 +2366,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-01T16:44:59+08:00">
-                2019-08-01
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-12-04T17:22:33+08:00">
+                2019-12-04
               </time>
             
 
@@ -728,10 +2438,10 @@
 
       
         
-          POCOController 是 ASP.NET Core 中提供的一个新特性，按照约定大于配置的原则，在 ASP.NET Core 项目中，所有带有 Controller 后缀的类，或者是使用了[Controller]标记的类，即使它没有像模板中一样继承 Controller 类，ASP.NET Core 依然会将其识别为 Controller，并拥有和普通 Controller 一样的功能，说到这里，你是不是有点兴奋了呢，因为我们在 ASP.NET 里花了大力气去做类似的事情，因为 ASP.NET 里一个普通的类是没有办法成为 Controller 的，即使通过 Castle 的 Dynamic Proxy 黑科技，我们依然需要去 Hack 整个 MVC 框架创建、筛选 Controller 和 Action 的过程;所以，我们希望在提供默认路由的基础上，使用者可以自由配置路由风格，所以，我们需要通过这个接口来构造路由信息，值得一提的是，我们可以在这个过程中设置 ApiExplorer 是否可见，为接口参数设置合适的绑定模型等等，所以，我们会使用 HttpGet/HttpPost 等来标记接口的调用方式，使用 Route 来标记用户自定义的路由信息，使用 FromBody/FromQuery 等来标记参数的绑定信息，有了这些配合 Swagger 简直是无往不胜，并非是开发人员不愿意写文档，而是因为文档的更新速度往往赶不上需求的变化速度，一旦文档落后于实际业务，这样的文档实际是没有意义的，我真的讨厌所有人都来找你问接口的地址、参数这些东西，如果你写完了一个 Service，写好对应的方法注释，然后你就有了一个可用的 Web API，和一个可用的在线文档，何乐而不为呢;这篇博客延续了上一篇博客中关于动态 Controller 的设想，而借助于.NET Core 框架提供的良好特性，它以一种更为简洁的方式被实现了，核心的内容有两个点，其一是 ControllerFeatureProvider，它能决定 MVC 会不会把一个普通的类当做控制器
+          既然要使用`Referer`这个错误的拼写，那就一直这样错下去好了，为什么特么又冒出来个`Referrer`，虽然它的拼写的确是对的，可不统一的写法还是会让人抓狂啊;说到这里，大家至少明白了一件事情，这个错误的`Referer`其实是指`Referrer`;有人说，使用 JavaScript 开发同构应用的体验非常好，恐怕从今天这篇博客以后要打个折扣，因为你刚刚在后端写完`referer`，转眼就要在前端写`referrer`，希望像博主这样的`伪全栈工程师`不会因此而精神分裂
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/08/01/NET-Core-POCOController%E5%9C%A8%E5%8A%A8%E6%80%81Web-API%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/">
+            <a class="btn" href="/2019/12/04/Referrer%E8%BF%98%E6%98%AFReferer-%E4%B8%80%E4%B8%AA%E8%BF%B7%E4%BA%BA%E7%9A%84%E9%94%99%E8%AF%AF/">
               Read more &raquo;
             </a>
           </div>
@@ -783,7 +2493,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/6959bf0.html">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/11/29/%E6%87%92%E5%8A%A0%E8%BD%BD%E5%9C%A8%E5%89%8D%E7%AB%AF%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E5%BA%94%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -802,7 +2512,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/post/6959bf0.html" itemprop="url">PhpStorm 使用 PHPCS 检查代码规范及自动修正和Git提交检查</a></h2>
+                <a class="post-title-link" href="/2019/11/29/%E6%87%92%E5%8A%A0%E8%BD%BD%E5%9C%A8%E5%89%8D%E7%AB%AF%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E5%BA%94%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/" itemprop="url">懒加载在前端性能优化的应用及原理</a></h2>
         
 
         <div class="post-meta">
@@ -814,8 +2524,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-27T00:20:15+08:00">
-                2019-07-27
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-29T21:22:13+08:00">
+                2019-11-29
               </time>
             
 
@@ -863,1026 +2573,155 @@
 
       
         
-        
-          
-            <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>在团队开发中，每个人的代码风格都不一样，为了日后方便更新和维护，必须考虑协作和编码规范。</p>
-<p>本文就介绍如何在 PhpStorm 中配置 PSR2 代码规范检查和保存自动格式化修复，以及利用 Git Hook 对提交的代码进行检查。</p>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><h3 id="安装-PHP-CS"><a href="#安装-PHP-CS" class="headerlink" title="安装 PHP-CS"></a>安装 PHP-CS</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">composer global require &quot;squizlabs/php_codesniffer=*&quot;</span><br></pre></td></tr></table></figure>
-
-<p>安装完成后会在全局依赖包目录生成 phpcbf 和 phpcs 文件</p>
-<blockquote>
-<p>查看 composer 全局依赖包路径，下面会用到</p>
+          <blockquote>
+<p>背景是在某项目中的其中一个页面，接入现场真实数据后，加载时间很长，长达10几秒，严重影响用户体验。</p>
 </blockquote>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">composer global config bin-dir --absolute</span><br></pre></td></tr></table></figure>
-
-<h3 id="配置-PhpStorm-使用-PSR-2-标准"><a href="#配置-PhpStorm-使用-PSR-2-标准" class="headerlink" title="配置 PhpStorm 使用 PSR-2 标准"></a>配置 PhpStorm 使用 PSR-2 标准</h3><h4 id="1-代码风格"><a href="#1-代码风格" class="headerlink" title="1. 代码风格"></a>1. 代码风格</h4><p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/d8bf4d6423310685be6a4bdcd55ff64.png" alt="img"></p>
-<h4 id="2-设置-PHP-CS-路径"><a href="#2-设置-PHP-CS-路径" class="headerlink" title="2. 设置 PHP-CS 路径"></a>2. 设置 PHP-CS 路径</h4><p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/150de5624de5b230c93bb636eb794e7.png" alt="img"></p>
-<h4 id="3-代码检查"><a href="#3-代码检查" class="headerlink" title="3. 代码检查"></a>3. 代码检查</h4><p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/3eb78dc76568e3656798747eea83e8c.png" alt="img"></p>
-<blockquote>
-<p>如果没有下拉选项，可以点击旁边的刷新按钮</p>
-</blockquote>
-<p>还有这个</p>
-<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/d9c37df038c2cf0a6538ea4bc5630ca.png" alt="img"></p>
-<p>配置到这里后，打开一个 PHP 文件，就会在不符合 PSR-2 的代码下边加一条波浪线</p>
-<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/20190727141029.png" alt="img"></p>
-<p>使用 <code>Ctrl + Alt + L</code> 将会自动格式化成 PSR-2 的风格</p>
-<h3 id="集成-PHP-CS"><a href="#集成-PHP-CS" class="headerlink" title="集成 PHP-CS"></a>集成 PHP-CS</h3><p>经过上面的操作，Phpstorm 代码格式化的规则基本与 PHP-CS 的规则基本一致了，但也有一小部分不一致，所以后面还要用到 phpcs 和 phpcbf</p>
-<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/20190727141709.png" alt="img"></p>
-<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/20190727141817.png" alt="img"></p>
-<h4 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h4><p>Program：<code>phpcs/phpcbf</code> 路径</p>
-<p>Arguments：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">--standard=PSR2 $FileDir$/$FileName$ ## 当前文件</span><br><span class="line">--standard=PSR2 $FileDir$ ## 当前文件夹</span><br></pre></td></tr></table></figure>
-
-<p>Working directory：<code>$ProjectFileDir$</code></p>
-<h4 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h4><p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/20190727142731.png" alt="img"></p>
-<h3 id="配置保存自动格式化和修复"><a href="#配置保存自动格式化和修复" class="headerlink" title="配置保存自动格式化和修复"></a>配置保存自动格式化和修复</h3><h5 id="1-为-phpcbf-添加快捷键"><a href="#1-为-phpcbf-添加快捷键" class="headerlink" title="1. 为 phpcbf 添加快捷键"></a>1. 为 phpcbf 添加快捷键</h5><p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/20190727142957.png" alt="img"></p>
-<h5 id="2-录制宏"><a href="#2-录制宏" class="headerlink" title="2. 录制宏"></a>2. 录制宏</h5><p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/20190727143052.png" alt="img"></p>
-<p>步骤：</p>
-<ol>
-<li><code>Ctrl + Alt + L</code></li>
-<li><code>Ctrl + Alt + Shift + P</code> （phpcbf 快捷键）</li>
-<li><code>Ctrl + S</code></li>
-<li>按下编辑器右下角保存录制</li>
-</ol>
-<h5 id="3-为宏配置快捷键"><a href="#3-为宏配置快捷键" class="headerlink" title="3. 为宏配置快捷键"></a>3. 为宏配置快捷键</h5><p>先删除默认的保存快捷键 <code>Ctrl + S</code>，另外配置一个别的快捷键<code>Ctrl + Alt + Shift + S</code></p>
-<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/20190727143522.png" alt="img"></p>
-<p>为宏配置快捷键</p>
-<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/20190727143824.png" alt="img"></p>
-<h3 id="利用-Git-Hook-对提交的代码进行检查"><a href="#利用-Git-Hook-对提交的代码进行检查" class="headerlink" title="利用 Git Hook 对提交的代码进行检查"></a>利用 Git Hook 对提交的代码进行检查</h3><h4 id="安装-GrumPHP"><a href="#安装-GrumPHP" class="headerlink" title="安装 GrumPHP"></a>安装 GrumPHP</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">composer require --dev phpro/grumphp</span><br></pre></td></tr></table></figure>
-
-<p>安装完后会自动生成一个 <code>grumphp.yml</code></p>
-<p>请修改成：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">parameters:</span><br><span class="line">  git_dir: .</span><br><span class="line">  bin_dir: vendor/bin</span><br><span class="line">  tasks:</span><br><span class="line">    phpcs:</span><br><span class="line">      standard: PSR2</span><br><span class="line">      ignore_patterns:</span><br><span class="line">        - ./database/*</span><br><span class="line">        - ./vendor/*</span><br></pre></td></tr></table></figure>
-
-<p>这样 <code>git commit</code> 的时候就会对提交的代码进行检查，只有符合 PSR-2 规范的代码才能通过。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/07/22/%E9%95%BF%E5%AE%89%E9%9A%8F%E6%83%B3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/22/%E9%95%BF%E5%AE%89%E9%9A%8F%E6%83%B3/" itemprop="url">长安十二时辰随想</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-22T11:17:23+08:00">
-                2019-07-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%94%9F%E6%B4%BB%E6%84%9F%E6%82%9F/" itemprop="url" rel="index">
-                    <span itemprop="name">生活感悟</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          我们更无从得知，那一年的白居易到底怀着什么样的抱负来到长安，当他从已为陈迹的花萼相辉楼里捡起李白用过的笔的时候，是否真的如他想说想要开创一个新的时代，谱写一曲荡气回肠的长恨歌;据说马亲王这本书的灵感来自“刺客信条”，我本人同样是这部游戏的忠实粉丝，可当你真正想在长安寻找鸟瞰点并进行同步的时候，你会发现小雁塔顶端早已残损，攀爬这样的建筑物简直就是在碰瓷儿，而大雁塔的高度早已被周遭的大悦城超越，按照书中的设定，只要在大悦城的天台上增设武侯，不要说同步鸟瞰点，分分钟就会被弓弩手射中失去同步，因为据说大雁塔下面只有音乐喷泉，并没有安置干草堆;《妖猫传》里绮丽璀璨的幻术表演，极力展现长安奢华的一面，虽然这一切都是活在两位主角的想象中，因为它想表达的是一种美的消逝和幻灭，此时的长安，其伟大和无与伦比体现在这三个符号上——空海代表的真理密法、李白代表的艺术创作、杨贵妃代表的绝对的美
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/07/22/%E9%95%BF%E5%AE%89%E9%9A%8F%E6%83%B3/">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/07/10/2019-07-10-zgf-life-summary/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/10/2019-07-10-zgf-life-summary/" itemprop="url">尚拙 - 读《曾国藩传》</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-10T21:55:41+08:00">
-                2019-07-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>几个月前读完了张宏杰所著的<a target="_blank" rel="noopener" href="https://item.jd.com/12469371.html">《曾国藩传》</a>，前几天公司组织去欧洲团建，在飞机上又完整再读了一遍，感触很多。</p>
-<p>曾国藩（1811－1872）是晚清时期的名臣，中国近代政治家、军事家。有些人的传记你读起来感觉他就是天才，高不可攀。而曾国藩的传记给人的感觉更像是一个普通人的奋斗之路，能够借鉴到自己的生活工作中。</p>
-<h2 id="尚拙"><a href="#尚拙" class="headerlink" title="尚拙"></a>尚拙</h2><p>这是一种不追求技巧，追求踏实累进的态度。曾国藩说：“天下之至拙，能胜天下之至巧”。纵观曾国藩自己的成长经历，无一不是靠用笨办法，踏踏实实一步一个脚印成长起来的。</p>
-<p>遇到问题时承认自己笨，一方面会虚心自省，另一方面也会更加坚定用普通的办法，不会想什么取巧偷懒的办法。曾国藩面对逆境时的逆商，也因此变得相当高。</p>
-<p>曾国藩自省的办法很简单，就是写日记，并且把内容分享给自己的兄弟，这些 “曾国藩家书”，成为我们现在了解他的重要方式。</p>
-<p>曾国藩其实走了很多弯路，包括考功名考了很多年，早年读书只会读八股文见识浅，为人太过正直得罪了包括皇帝在内的很多人。但是经过自省，他最终能够在被咸丰解除兵权后深入思考，再次出山后变得谦虚，并且懂得变通。</p>
-<p>晚年的曾国藩其实已经近乎完美。在那个年代就能意识到近代工业的重要性，组建制造局，兴办洋务运动。虽然后来因为甲午战争使得洋务运动失败，但不得不说这是中国工业化转型的一次重要的机会。</p>
-<h2 id="结硬寨、打呆仗"><a href="#结硬寨、打呆仗" class="headerlink" title="结硬寨、打呆仗"></a>结硬寨、打呆仗</h2><p>曾国藩带兵打仗的能力，完全是自己一点一点摸索和总结出来的。</p>
-<p>首先他不信权威，敢于用颠覆的方法解决正纯清军的面临的问题。比如兵源，曾国藩主要招朴实的农民。比如组织上，他强调兵为将有，利用乡党关系把部队内部团结起来。</p>
-<p>然后，曾国藩能够发展出一套适合湘军的战斗理念，即：结硬寨、打呆仗。每次攻打城池，总是用更大的兵力围城，一围围个一年，直接把对方的粮食消耗光。围城的时候，前后都挖战壕，用于防御。只要挖好了战壕，对方基本上就进入了消耗战，没有什么好办法。</p>
-<p>曾国藩利用这个战术，打败了太平天国。太平天国面对这个战术，也只能靠围魏求赵一类的战术来解，遇上曾国藩这种死抗的，一点办法也没有。而且战争后期，曾国藩还将这个战术发展成 “围城打援”，利用这个办法来偷袭过来的援军。</p>
-<p>最终湘军围攻下了南京城，结束了太平天国运动。</p>
-<p>“结硬寨、打呆仗” 这种战术背后，是一种追求确定性，把对手带到自己的游戏节奏中来的战略。我们工作当时，有些时候为了走捷径，其实是牺牲了确定性，有一种投机的心理。这种心理有可能会占一些小便宜，但是在大的事情面前，确定性比远比小的一得一失重要得多。虽然曾国藩打仗慢，没有技巧，但是人员损失极小，获胜的确定性又极大，相比而言那一点时间上的损失微不足道。</p>
-<h2 id="独立思考"><a href="#独立思考" class="headerlink" title="独立思考"></a>独立思考</h2><p>曾国藩具有很强的独立思考能力，能够结合现实情况，创造性的提出解决问题的办法。</p>
-<p>“结硬寨、打呆仗”的战法，就是湘军独创的战法，虽然笨，但是非常有效。</p>
-<p>曾国藩剿捻，发明了河墙战法，最终花了两年多时候剿灭了捻军。</p>
-<p>面对天津教案，他能不迷信谣言，认真找到事件的真相。可惜当时皇权实际上是慈禧把持，慈禧本人读书太少过于迷信，天津事件反倒让曾国藩戴上了卖国贼的帽子，这是后话。</p>
-<p>面对列强，他会仔细思考中国的差距在哪里，进而发展洋务运动，希望用工业现代化来改善国家的经济实力和军事实力。</p>
-<p>独立思考的能力，在创业公司非常重要。创业中，我们很多时候面对的困难都没有案例参考，这个时候每种做法肯定都各有优劣。如何平衡和判断各种方案就显得尤为重要。</p>
-<h2 id="培养人才"><a href="#培养人才" class="headerlink" title="培养人才"></a>培养人才</h2><p>曾国藩在自己的幕僚体系内，做了大量的培养工作。实际上相当于他自己办了一个商学院，把有潜力的人才招进去培养。</p>
-<p>曾国藩这个商学院也办得非常现代化。主要的学习方式并不是他一人讲，而是大家讨论，颇像现在的研究型学术机构。比如他会拿政治上的各种具体的案例交由大家提建议，从而考查这些幕僚的水平。曾国藩也会用一对一 “面援” 的方式进行单独辅导。</p>
-<p>培养好人才之后，曾国藩就利用自己的影响力做保荐。根据这些人才的性格特点推荐好的岗位。李鸿章就是这样被他发掘并培养出来的。</p>
-<p>有人统计，曾国藩的幕僚，最后出任出使大臣 5 人，军机大臣 2 人，尚书 2 人，大学士 2 人，侍郎 3 人，总督 16 人，巡抚 28 人。所以英国历史学家包耳格说，“曾国藩是中国最有势力的人，因为他死的时候，所有总督都是他的学生或者下属。如果他希望的话，他可能已经成为皇帝。“ </p>
-<p>不但自己培养人才，曾国藩也帮国家制定人才战略，在他的建议下，清政府发展了留学生计划，送出上百名留学生出国留学，学习西方的科学知识。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>曾国藩资质平平，但是靠着自己的做事方法，不断自省和累进，最终成为一代名臣。他做事情有自己的独到的思考和判断，在对太平天国的战争、剿捻战争、洋务运动、培养人才上都取得有辉煌的成就。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/07/07/2019/41-%E4%B8%8A%E6%B5%B7%E5%B8%82%E5%9E%83%E5%9C%BE%E5%88%86%E7%B1%BB%E7%9A%84%E4%B8%80%E7%82%B9%E6%83%B3%E6%B3%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/07/2019/41-%E4%B8%8A%E6%B5%B7%E5%B8%82%E5%9E%83%E5%9C%BE%E5%88%86%E7%B1%BB%E7%9A%84%E4%B8%80%E7%82%B9%E6%83%B3%E6%B3%95/" itemprop="url">上海市垃圾分类的一点想法</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-07T14:33:43+08:00">
-                2019-07-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%A7%82%E7%82%B9/" itemprop="url" rel="index">
-                    <span itemprop="name">观点</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p>注意到上海最近的垃圾分类引发了热烈讨论，其实我老家（包邮区某十八线小县城）早就实施了垃圾分类一年有余。当然没有上海这样细分，主要是分为“厨余垃圾”和“其他垃圾”两类，类似于上海的“干垃圾”和“湿垃圾”。家里主要是厨房设置两个垃圾桶，社区也会给每户门口配发两个垃圾桶，倒垃圾时候对应倒在两个垃圾桶里就可以了。实际体验上没有感觉到什么不方便的地方，基本上在家中扔垃圾时候就分类完成了。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/07/07/2019/41-%E4%B8%8A%E6%B5%B7%E5%B8%82%E5%9E%83%E5%9C%BE%E5%88%86%E7%B1%BB%E7%9A%84%E4%B8%80%E7%82%B9%E6%83%B3%E6%B3%95/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/07/04/%E4%BD%BF%E7%94%A8ASP-NET-Core%E5%92%8CHangfire%E5%AE%9E%E7%8E%B0HTTP%E5%BC%82%E6%AD%A5%E5%8C%96%E6%96%B9%E6%A1%88/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/04/%E4%BD%BF%E7%94%A8ASP-NET-Core%E5%92%8CHangfire%E5%AE%9E%E7%8E%B0HTTP%E5%BC%82%E6%AD%A5%E5%8C%96%E6%96%B9%E6%A1%88/" itemprop="url">使用 ASP.NET Core 和 Hangfire 实现 HTTP 异步化方案</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-04T08:56:28+08:00">
-                2019-07-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          而**Recurring jobs**和**Continuations**则是周期性任务，任务在入队后可以按照固定的时间间隔去执行，周期性任务都是支持 CRON 表达式的，**Continuations**类似于 Task 中的 ContinueWith()方法，可以对多个任务进行组合，我们现在的项目中开发了大量基于 Quartz 的 Job，可当你试图把这些 Job 相互组合起来的时候，你就会觉得相当尴尬，因为后台任务做所的事情往往都是大同小异的;return new JsonResult (new { Flag = true, Message = $"Job:#{jobId}-{jobDescriptor.JobName}已加入队列" });return new JsonResult (new { Flag = true, Message = $"Job:#{jobId}-{jobDescriptor.JobName}已加入队列" })
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/07/04/%E4%BD%BF%E7%94%A8ASP-NET-Core%E5%92%8CHangfire%E5%AE%9E%E7%8E%B0HTTP%E5%BC%82%E6%AD%A5%E5%8C%96%E6%96%B9%E6%A1%88/">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/07/02/2019/2019-07-02-space-exploration/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/07/02/2019/2019-07-02-space-exploration/" itemprop="url">我和太空探索的故事</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-07-02T00:00:00+08:00">
-                2019-07-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>从小我就对太空以及人类对太空的探索特别感兴趣，最近一段时间因猎鹰重型火箭首次商业发射和回收成功，又激起了我对于太空探索的兴趣，今天我想讲一讲我和太空探索的故事以及这件事为何如此让我着迷。</p>
-<p>在 2002 年前后（7 岁），我爸送了我两本书 <a target="_blank" rel="noopener" href="https://book.douban.com/subject/1062137/">最新21世纪少年儿童百科</a> 和「十万个为什么」（这个版本全是文字、每本几百页左右、共 12 册，我并没有在网络上找到，现在想起来这本书的目标用户也许是家长才对）。我对太空探索以及其他科学知识的启蒙都来自于这两本书，小时候可以阅读的内容并不多，在之后的近十年中，这两本我起码看了十几遍以上，不过现在其实并不能想起来着两本书上具体讲了什么，只有一些模糊的片段。</p>
-<p>后来 2005 年（10 岁）的暑假，发现号航天飞机在哥伦比亚号的事故后首次 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/STS-114">执行任务</a>，我记得那半个月我每天都从新闻和报纸关注事件的动态，还用积木（其实是麻将牌）去模拟我所理解的航天飞机发射过程。那时候每天晚上会有一段固定的时间，爷爷会给我解答一些我感兴趣的问题，我当时并不理解太空是怎样的，也不了解飞船是如何工作的。我想搞清楚这些，但受限于当时的知识，我只能以我所理解的方式去提问，所以很多时候并没有得到想要的答案。</p>
-<p>值得一提的时候我高中有那么一年多在玩 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-cn/%E6%98%9F%E6%88%98%E5%89%8D%E5%A4%9C">EVE</a> 这个游戏，其实说起来 EVE 在飞船的操纵上已经十分简化了，游戏背景中的先进科技也绕开了现实中的燃料和光速等限制。但在 EVE 中驾驶飞船给了我对于宇宙的一种直观的认识 —— 星球是如此地大、星球之间的距离是如此地远，其余的空间都是一片虚无，如果没有一个坐标的话，你几乎不可能和别人相遇。</p>
-<p>对我影响比较大的作品还有 <a target="_blank" rel="noopener" href="https://book.douban.com/subject/2567698/">三体</a> 和 <a target="_blank" rel="noopener" href="https://movie.douban.com/subject/1889243/">星际穿越</a>。三体是我在高中的时候看的，因为我小说其实看得并不多，所以这是第一本让我印象深刻的科幻小说；星际穿越则是我刚刚离开学校（18 岁）时看的，也是我非常喜欢的太空背景电影。这两部作品构建了我对于太空的形象化的认识，无论是三体中的黑暗森林设定还是星际穿越中黑洞的视觉呈现，都很好地把握了宇宙的尺度。当时看完星际穿越我发了一条 <a target="_blank" rel="noopener" href="https://twitter.com/jysperm/status/532929099954520064">推文</a>：「看了 Interstellar, 虽然不喜欢结局，但确实是一部非常之优秀的科幻作品。觉得在宇宙面前人类的力量实在太渺小，或许其他的技术难关都可以克服，但时间的限制是永远突破不了的。大概人类永远也无法离开地球，因为一旦到宇宙中去，对于人类，时间或是过于短暂，或是无比漫长。」</p>
-<p>蛋黄同样对太空探索很感兴趣，近两年我们也看了不少相关的纪录片，我们经常互相拉着对方讲新了解到的关于太空探索有趣的事情：蛋黄讲得比较多的是历史，而我会更关注技术。我们关注最多的具体项目还是阿波罗计划了，毕竟是人类首次登上另外一颗星球，直到目前依然保持着人类所到达的最远的地方的记录。在做了更多了解之后，我发现其实有非常多的美国公司（尤其是飞机制造商）都参与了阿波罗计划，负责具体的火箭和飞船制造，而 NASA 主要负责的是设计和组织，整个项目也可以算是人类历史上最宏大的工程之一了。</p>
-<p>提到太空探索的爱好者，就必须要提 <a target="_blank" rel="noopener" href="https://store.steampowered.com/app/220200/Kerbal_Space_Program/">Kerbal Space Program</a>（坎巴拉太空计划）这款游戏，基本上在知乎这样的社区只要涉及航天或火箭相关的话题，评论区就一定有人刷坎巴拉的梗。在我入手这个游戏后便很快沉迷无法自发，在游戏中我可以亲手实现之前的文字或视频中见到过无数次的技术：发射入轨、霍曼转移、交会对接、反推着陆、引力弹弓。也对比冲、Δv 之类的数值有了更深刻的认识，之后再看纪录片的时候就能脑补出其中提到的各种操作了。后面我应该会专门写一篇文章来介绍坎巴拉太空计划这个游戏。</p>
-<p>那么为什么我对于太空探索如此着迷呢？首先我还是视它为一种兴趣，是因为去了解这些知识会让我感到高兴和满足，而不是我要用这些知识做一件什么事情。相比于其他的学科，例如数学、物理甚至是计算机，最新的研究成果几乎都是我无法理解的，并不适合作为消遣和兴趣；而美国人登陆了月球、火星发现了液态水、木卫四可能存在生命这些就要好理解得多。这大概是因为作为太空探索的主力 —— NASA 的大部分资金都来自于财政拨款，这要求它必须以一种普通人能够理解的方式，向美国的纳税人解释他们的工作，以得到更多人的支持、得到更多的拨款。</p>
-<p>接下来的几年也非常值得期待，在太空竞赛、人类登月之后，经过几十年的修整，接下来十几年人类很有可能会在航天领域取得新突破。比如 SpaceX 的 BFR 和 Starlink，人类重返月球和登上火星以及更多的深空探测计划。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/06/23/2019-06-23-the-4th-custom-economy/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/23/2019-06-23-the-4th-custom-economy/" itemprop="url">物欲时代的终结 -《第 4 消费时代》</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-23T22:21:13+08:00">
-                2019-06-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近读完了《第 4 消费时代》，作者是日本的三浦展。</p>
-<p>日本与中国同属亚洲国家，日本的经济发展整个比中国快几十年，一些国内现在正经历的事情，例如人口出生率下降，房价泡沫，老龄化等，在日本其实已经是历史了，所以了解日本的发展，多少对中国未来的发展也能有一些参考。</p>
-<h2 id="4-个消费时代"><a href="#4-个消费时代" class="headerlink" title="4 个消费时代"></a>4 个消费时代</h2><p>作者是这么划分 4 个消费时代的：</p>
-<p>1、第一消费时代。那个时代资源短缺，城市形成，人口正在往城市慢慢集中。但是消费品还不充足，产品批量化生产程度不高。</p>
-<p>2、第二消费时代。工业化的发展，使得资源开始普及，洗衣机，冰箱，电视进入了百姓家里，小汽车的保有量迅速上涨。工业化的快速发展使得 GDP 也快速上升，平均增速为 9%（日本 1956-1973，中国 1990-2011）</p>
-<p>3、第三消费时代。由于资源丰富，所以大家不再简单的满足于拥有，而开始重视个性化，品牌化，差异化。大家开始追求名牌，追求豪车，追求每人一辆车，追求各种功能的车（跑车、SUV 等）。同时大家更追求一些心理上的消费，例如：听音乐剧，旅游，运动健身，健康餐等。</p>
-<p>4、第四消费时代。GDP 不再增长。人们的幸福观念也发生变化，不再追求贵，追求品牌。不再满足于炫耀自己的消费能力，而追求内心的满足，比如节俭、共享、环保。作者认为，无印良品就是第 4 消费时代的典型品牌。设计简约、排斥过度包装、强调文化、强调环保，而且（在日本）价格便宜。</p>
-<p>整本书其实讲的就是人类在追求物质享受的不同发展阶段：</p>
+<h2 id="排查原因"><a href="#排查原因" class="headerlink" title="排查原因"></a>排查原因</h2><p><img src="https://github.com/palmerye/pictureBed/raw/master/blog/16eb705ee0cabdca.png"></p>
+<p>在<code>chrome</code>的<code>DevTools</code>中，清缓存硬加载，可模拟用户第一次访问页面的场景。根据<code>Network</code>中的若干指标，对性能瓶颈初步判断：</p>
 <ul>
-<li>第一消费时代像农民，吃不饱，穿不暖。</li>
-<li>第二消费时代像工人，终于可以过上温饱日子了。</li>
-<li>第三消费时代像暴发户，这个时候就喜欢显示自己比别人有钱。跑车、豪宅、名包、名表，什么贵买什么。毕竟经历过苦日子，希望自己能多享受一点是一点。</li>
-<li>第四消费时代像有家教的富家子弟，从小就没有经历苦难，又受到良好教育。和别人比谁有钱？多 Low 啊！这个时候，人家反倒追求节俭，追求慈善。</li>
-</ul>
-<h2 id="时代与人性"><a href="#时代与人性" class="headerlink" title="时代与人性"></a>时代与人性</h2><p>书中有一句话道破了人性：</p>
-<blockquote>
-<p>可以说，物质欲望带来的满足感仅建立在其未得到满足的阶段，一旦这种欲望得到了实现，那么在这一瞬间，满足感就会马上消失，人们就被这种极端讽刺的机制玩弄于股掌之中。</p>
-</blockquote>
-<p>类似这种过犹不及的道理，还有很多。比如在以前吃不饱的年代，那个时候有吃的就不错了，根本不会想吃什么。而现在，我们可选的吃的多种多样，吃东西反倒成了一件发愁的事情。每天中午都犯愁，不但愁吃什么，而且还愁吃太多长太胖。</p>
-<p>又比如以前获取信息的渠道只有电视报纸，每天大家就安心看新闻联播就行了，但是现在各种 App，各种公众号朋友圈的信息实在太多，于是大家不再渴求信息了，而是对信息感觉到焦虑了，大家会有意识地屏蔽信息，以减少信息的干扰。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>第 4 消费时代总结了日本社会由于经济发展变化，而带来的人们的消费观念的变化，解释了不同消费时代人们的消费观念，以及与之配套的商业状况。</p>
+<li><code>requests</code>：在<code>HTTP / 1.0</code>或<code>HTTP / 1.1</code>连接上，<code>Chrome</code>每个主机最多允许六个同时<code>TCP</code>连接，所以请求数过多会导致<code>TTFB</code>等待时间过长。</li>
+<li><code>xhr</code>：<code>ajax</code>接口时间过长，瓶颈在于后端接口。</li>
+<li><code>Finish</code>：<code>Finish</code>时间远远大于<code>DOMContentLoaded</code>和<code>Load</code>时间，说明页面中的请求资源很大
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/11/29/%E6%87%92%E5%8A%A0%E8%BD%BD%E5%9C%A8%E5%89%8D%E7%AB%AF%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%9A%84%E5%BA%94%E7%94%A8%E5%8F%8A%E5%8E%9F%E7%90%86/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/11/25/2019/2019-11-25-thinking-about-my-23/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/11/25/2019/2019-11-25-thinking-about-my-23/" itemprop="url">23 岁的我在想些什么</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-25T00:00:00+08:00">
+                2019-11-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>又一年过去了，已经 24 岁了，最近两年我已经有些感觉到了时间的流逝。大概人对时间流逝的感觉是基于已经度过的时间吧 —— 同样的一年在 16 岁时是经历过人生的 1&#x2F;16，而现在的一年则只是 1&#x2F;23。这就开始让我在很多事情上有一种「会不会太晚了」的焦虑，尤其今年移民的进程并不顺利，之前觉得自己年龄小的优势可能会越来越小。</p>
+<p>最近两年学习和输出的节奏也慢了一些，休息时间更多地选择看视频来放松，表达欲望也比之前下降了不少。偶尔会有一些灵感，但大多没能写完，都积压在了草稿箱中，博客快要变成年更了。这当然不是一个好现象，我还是希望能花更多的时间做一些输出。今年我决定减少在业余时间对于写代码的投入，不去造一些很可能没有什么后续的轮子了。而是花更多的时间在写文章，包括技术文章上，这样能帮助到更多人，我也会得到更直接的反馈。</p>
+<p>虽然去年和蛋黄的那次比较大的矛盾在年初就结束了，但对我一整年的心态的影响还是很大，有些患得患失，对我们的未来有点迷茫，或者说觉得未来是很遥远的事情，就想维持现有的状态。就像人们觉得 35 岁之后诞生的科技都是违反自然规律的，现在想想我们互相对于在一起之前或刚在一起时就已经暴露出来的差异，就更容易互相接受；但对于之后才暴露出来的差异则非常难以互相理解。</p>
+<p>蛋黄在年初就说要学习编程并希望直接去找编程相关的工作，一年里她也断断续续、三天打渔两头晒网地学，但进度实在太慢了，也没有什么阶段性的进展，还不愿意听我的建议。所以我还是对她的工作和学习能力有一些担忧、担心她能够找到合适的工作，也担心之前完全交给她的移民的事情是否做出了正确的决策。如果没有的话，其实包括学习编程和移民，都是在坚持一个结果非常渺茫的事情，这种感觉让我非常焦虑。</p>
 
           
         
@@ -1932,7 +2771,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/06/22/Java-Web%E6%9E%B6%E6%9E%84%E5%8F%91%E5%B1%95/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/11/23/2019/setting-up-manjaro-linux/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -1951,7 +2790,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/06/22/Java-Web%E6%9E%B6%E6%9E%84%E5%8F%91%E5%B1%95/" itemprop="url">Java Web架构发展</a></h2>
+                <a class="post-title-link" href="/2019/11/23/2019/setting-up-manjaro-linux/" itemprop="url">Manjaro Linux 踩坑调教记录</a></h2>
         
 
         <div class="post-meta">
@@ -1963,8 +2802,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-22T16:06:08+08:00">
-                2019-06-22
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-23T22:26:53+08:00">
+                2019-11-23
               </time>
             
 
@@ -2035,10 +2874,12 @@
 
       
         
-          <p>前后端分离已成为互联网项目开发的业界标准使用方式，通过Nginx + Tomcat的方式（也可以中间加一个Node.js）有效的进行解耦，并且前后端分离会为以后的大型分布式架构、弹性计算架构、微服务架构、多端化服务（多种客户端，例如：浏览器，车载终端，安卓，iOS等等）打下坚实的基础。</p>
+          <p>去年买的游戏本重得要死，续航又差，背出去简直像个傻 X。所以这次双十一对比了一下最近的机器，新添置了一台轻薄本 —— 荣耀 MagicBook 2019 锐龙版。Ryzen 5 3500U，8 + 512G，￥3499，香疯了！AMD YES！</p>
+<p>之前我就听说过 Manjaro 这个 Arch Linux 的衍生发行版有多么多么赞<del>（洗手.jpg）</del>，既然这次正好机器也没预装 Windows，就打算在实机上安装体验一下。这是我第一次在日常生活中使用 Linux 作为主力操作系统（以前要么是虚拟机要么是 WSL），从结果来看，不得不说实际体验还是非常不错的。</p>
+<p>虽然 Linux 桌面对普通用户依然不友好（你看这篇文章配置各种软件写了这么长就知道了……），不过对于我这种算不上非常 geek 但还是懂一些 Linux 知识的人来说，只需要进行一番配置就能用得很舒适 —— 网页浏览、影音视听、聊天通讯、文档编辑、编程开发，实际几天日常使用下来，一点问题也没有，远超我的预期。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/06/22/Java-Web%E6%9E%B6%E6%9E%84%E5%8F%91%E5%B1%95/#more" rel="contents">
+            <a class="btn" href="/2019/11/23/2019/setting-up-manjaro-linux/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -2090,7 +2931,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/06/08/%E9%80%9A%E8%BF%87%E5%8A%A8%E6%80%81Controller%E5%AE%9E%E7%8E%B0%E4%BB%8EWCF%E5%88%B0Web-API%E7%9A%84%E8%BF%81%E7%A7%BB/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/solutions-engineer-facebook">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -2109,7 +2950,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/06/08/%E9%80%9A%E8%BF%87%E5%8A%A8%E6%80%81Controller%E5%AE%9E%E7%8E%B0%E4%BB%8EWCF%E5%88%B0Web-API%E7%9A%84%E8%BF%81%E7%A7%BB/" itemprop="url">通过动态 Controller 实现从 WCF 到 Web API 的迁移.</a></h2>
+                <a class="post-title-link" href="/solutions-engineer-facebook" itemprop="url">The role of Solutions Engineer at Facebook</a></h2>
         
 
         <div class="post-meta">
@@ -2121,8 +2962,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-08T13:48:41+08:00">
-                2019-06-08
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-18T07:00:00+08:00">
+                2019-11-18
               </time>
             
 
@@ -2131,29 +2972,6 @@
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
           
 
           
@@ -2193,10 +3011,10 @@
 
       
         
-          DynamicControllerActivator 实现了 IHttpControllerActivator 接口，这里我们通过单例模式获得了 DynamicHttpControllerManager 对象的一个实例，其内部封装了 Castle 的容器接口 IWindsorContainer，所以，在这里我们直接通过 controllerType 从容器中 Resolve 对应的 Controller 即可，而默认情况下，所有的 Controller 都实现了 IHttpController 接口，所以，这一步我们需要做一个显示的类型转换，后面我们会通过它替换微软默认的实现，这样，当一个请求被发送过来的时候，我们实际上是从这个自定义容器中获取对应 Controller 的实例;老实说，通过自定义 IHttpControllerActivator 的方式实现依赖注入的方式并不常见，因为更一般的情况是，大家在 Global.asax 里初始化像 Unity、Autofac 等等类似的容器，然后在 Controller 里通过容器去 Resolve 一个服务出来，对于 IHttpControllerActivator 接口而言，它只有一个 Create()方法，在这篇文章中，我们是通过 Castle 这个容器来实现依赖注入的，所以，你大概可以想象出它的过程，首先把所有动态生成的 Controller 全部注入到 Ioc 容器中，然后再根据传入的类型获取对应 Controller 的实例;在这个过程中，我们回顾了 ASP.NET MVC 的基本原理，了解了 MVC 是如何根据路由筛选 Controller、激活 Controller 和筛选 Action，在此基础上，我们对微软的 MVC 进行了一次 Hack，使用我们自定义的组件替换了微软的默认实现，从而可以让原来托管在 ServiceHost 上的接口，通过 Web API 来访问和调用
+          Solutions Engineers partner with advertisers to solve their business challenges through Facebook technology. This is my take on what the role involves.
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/06/08/%E9%80%9A%E8%BF%87%E5%8A%A8%E6%80%81Controller%E5%AE%9E%E7%8E%B0%E4%BB%8EWCF%E5%88%B0Web-API%E7%9A%84%E8%BF%81%E7%A7%BB/">
+            <a class="btn" href="/solutions-engineer-facebook">
               Read more &raquo;
             </a>
           </div>
@@ -2248,7 +3066,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/06/07/2019/40-%E6%9C%80%E8%BF%91%E7%9A%84%E5%8F%B0%E6%B9%BE%E7%94%B5%E8%A7%86%E8%8A%82%E7%9B%AE/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/11/15/%E5%85%B3%E4%BA%8E%E5%8D%95%E4%BD%8D%E8%BD%AC%E6%8D%A2%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98%E7%9A%84%E5%B8%B8%E8%A7%81%E6%80%9D%E8%B7%AF/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -2267,7 +3085,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/06/07/2019/40-%E6%9C%80%E8%BF%91%E7%9A%84%E5%8F%B0%E6%B9%BE%E7%94%B5%E8%A7%86%E8%8A%82%E7%9B%AE/" itemprop="url">最近的台湾电视节目</a></h2>
+                <a class="post-title-link" href="/2019/11/15/%E5%85%B3%E4%BA%8E%E5%8D%95%E4%BD%8D%E8%BD%AC%E6%8D%A2%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98%E7%9A%84%E5%B8%B8%E8%A7%81%E6%80%9D%E8%B7%AF/" itemprop="url">关于单位转换相关问题的常见思路</a></h2>
         
 
         <div class="post-meta">
@@ -2279,8 +3097,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-07T12:53:05+08:00">
-                2019-06-07
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-15T09:43:54+08:00">
+                2019-11-15
               </time>
             
 
@@ -2302,8 +3120,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%A7%82%E7%82%B9/" itemprop="url" rel="index">
-                    <span itemprop="name">观点</span>
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
+                    <span itemprop="name">数据存储</span>
                   </a>
                 </span>
 
@@ -2351,509 +3169,10 @@
 
       
         
-        
-          
-            <p>话说最近台湾的电视节目是越来越无聊了。闽南语本土剧《炮仔声》好好的剧情开始往不可控制的方向发展，剧情从最开始的温情路线走向了狗血，男主角女主角长期消失，男女配角倒是天天走主线剧情，渐渐主角化。我都怀疑是不是主角出场费太高了，少写些剧情可以省钱（误）。导致我现在都不看直播了，甚至都不去看完整的剧集，直接看网上的精剪版，而且居然也不影响追剧的节奏，也是很魔幻了。</p>
-<p>而本来之前在关注的几个思路“比较正常”的政论节目《新闻深喉咙》、《少康战情室》也渐渐迷失了逻辑。前者的最强主持人平秀琳出走东森，导致该节目彻底“韩天化”。后者除了一贯以来以有色眼镜看大陆与香港外，也暗戳戳“捧郭踩韩”却口口声声坚持中立。</p>
-<p>现在发现《<a target="_blank" rel="noopener" href="https://www.youtube.com/channel/UCiOR3zQCU-tLza5g1MuqABA">寰宇全視界</a>》这个节目似乎还不错，一周一更新，不像那些天天更新的节目般粗制滥造。而且，来宾有蓝有绿却都不极端偏激，讨论问题也不仅仅局限于岛内选举，会把很多时间用来讨论国际事务。</p>
-<p>另外，王志郁小姐姐的在三立 iNEWS 上的《iNEWS 大世界》节目立场观点因为没有像三立一贯以来那样以有色眼镜看待大陆（<del>其实可能只是因为王志郁小姐姐的颜值吧</del>），意外地获得了大陆网友的广泛好评，正如大家评论所言“一三五吹、二四六贬”。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/06/04/2019/39-WWDC2019%E5%90%8E%E7%9A%84%E6%8A%98%E8%85%BE/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/04/2019/39-WWDC2019%E5%90%8E%E7%9A%84%E6%8A%98%E8%85%BE/" itemprop="url">WWDC 2019 后的折腾</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-04T16:30:53+08:00">
-                2019-06-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%94%9F%E6%B4%BB/" itemprop="url" rel="index">
-                    <span itemprop="name">生活</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>大晚上看了一下 WWDC 2019 的直播，其中比较印象深刻的就是 iPad OS 和 macOS 之间的整合联动了。官方支持 iPad 成为 Mac 的扩展屏幕，而且 iPad 支持了读取 U 盘和非正式支持鼠标操作，分屏功能也更强大了，截图编辑功能也丰富了许多，感觉这几项更新大大提升了 iPad 生产力。</p>
-<p>不过说到更新开发者版本的系统，以前只需要安装一个描述文件就可以升级了，结果这次 iPad OS 和 iOS 13 都不能这样操作了，大概是因为 bug 太多吧，所以只能下载固件手动更新系统了。反正对于主力机器手机和电脑我是不敢升级的，比较测试版 bug 满天飞，就把手头的 iPad Pro 升级了试试看。</p>
-<p>升级完的感觉大概就两个字，真香！体验上很不错，就是个别地方还是存在一些 bug 的，但是不影响 iPad 的日常使用。手痒的我又想尝试升级一下 macOS，翻了一下 Twitter 和微博上升级后的体验，发现事情没有这么简单，特别是 OneDrive 似乎是无法在新系统下正常运行的。于是，成功被劝退，我还是等公众测试版发布了再更新吧。</p>
-<p><img src="https://cos.pinlyu.com/posts/2019/39-iPadOS.webp#350x" alt="iPad OS"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/06/02/2019-06-02-positioning-book-summary/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/06/02/2019-06-02-positioning-book-summary/" itemprop="url">品牌延伸的陷阱 - 读《定位》</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-06-02T20:43:02+08:00">
-                2019-06-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h2 id="序"><a href="#序" class="headerlink" title="序"></a>序</h2><p>最近把一本很早以前看过的书又拿起来翻了一遍，这本书就是《定位》，作者是艾·里斯和杰克·特劳特。很多书重复看会有新的收获，以下是一些小结。</p>
-<h2 id="定位"><a href="#定位" class="headerlink" title="定位"></a>定位</h2><p>作者首先从心理学入手。他认为人们在认知一个品牌的时候，总希望用一个特别简单的词语来概括它。反过来也一样，对于一个具体的品类，人们总希望用一个产品来代表他。</p>
-<p>比如: 人们会用可口可乐代表可乐这个品类，用麦当劳代表汉堡这个品类。想到奔驰车就是舒适，想到沃尔沃就是安全。</p>
-<p>而《定位》觉得商业上应该通过分化，开创新的细分品类，然后成为这个品类的领导者。分化的方法就是寻找差异，别人做大你就做小，别人做便宜你就做贵。差异化的方法也包括做细分的人群，比如专注于男性（万宝路香烟）或者年轻人（百事可乐）。</p>
-<p>差异化还有一个办法就是定义对手。比如方便面最早都是油炸的。大家认知上并没有关注到油炸这个概念。但是后来突然出现了非油炸方便面，一下子把自己和对手都定义了。</p>
-<h2 id="名字"><a href="#名字" class="headerlink" title="名字"></a>名字</h2><p>名字很重要，人造黄油这个名字就非常糟糕，因为 “人造” 是和 “天然” 对应的，而人们默认认为天然的更好，人造黄油有点假冒黄油的感觉。作者建议叫做大豆黄油。</p>
-<p>从名字上看，大豆黄油和从牛奶中提取出来的黄油，给人的感觉都是天然的，类似植物油和动物油的差别。确实就没有人造的，假冒的这种感觉了。</p>
-<p>中国企业在名字上更喜欢用具像化的名字（如用水果名，动物名，植物名）以及叠字，希望让用户更加容易记住品牌名。例如: 老虎证券，瓜子二手车，坚果手机，斑马英语，西瓜视频。</p>
-<h2 id="品牌延伸"><a href="#品牌延伸" class="headerlink" title="品牌延伸"></a>品牌延伸</h2><p>书里面说几乎任何品牌都不应该做品牌延伸的事情。比如讲到无糖可乐的时候，作者就觉得可口可乐旗下的独立品牌 Tab 更好，而无糖百事是一个糟糕的想法。但是我看现在在中国的无糖可口可乐，却是零度。Wikipedia 显示，Tab 被可口可乐公司改用作能量饮料了。</p>
-<p>《定位》在书中列举了少量可以做品牌延伸的场景:</p>
-<ul>
-<li>销量不大</li>
-<li>竞争过于激烈</li>
-<li>广告预算小</li>
-<li>创新小</li>
-<li>销售代表上门推销</li>
-</ul>
-<p>书中的案例是 3M 公司，他们生产数千种销量很小的产品。</p>
-<h2 id="给自己定位"><a href="#给自己定位" class="headerlink" title="给自己定位"></a>给自己定位</h2><p>书中 “给自己定位” 的部分颇具启发，揭示了大家给自己的定位应该基于市场，而不是基于自己。</p>
-<p>对于自己来说，每个人都希望自己是一个全才。但是定位理论告诉我们，即使你是一个全才，大家也需要一个特点来认识和记住你。</p>
-<p>所以，每个人的定位应该尽可能做到自己那个品类的最好。因为你其实在市场上和别人争夺职位。如果大家定位都一样，那么那个职位必然不稀缺，自然就竞争激烈。一个成功的定位，应该尽可能避免这样的僧多粥少的情况，让自己的竞争力越来越强。</p>
-<p>我自己的独特定位是什么？技术人常见的发展有两个：一个是成为技术专家，一个是成为管理人才。我希望自己是一个懂业务的技术管理者。未来能不能做成业务负责人可能得看自己的努力以及机遇，但是至少可以是一个可以辅助业务负责人的技术管理者，不让技术成为拖后腿的部分。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>我最近关于品牌与定位看了 3 本书了，分别是《定位》、《品牌的起源》、《商战》。自己的体会是：</p>
-<ul>
-<li>品牌延伸首先要看场景，场景上需要是可以协同的。如果不能协同，就很难延伸。例如：拍照搜题和在线直播授课，协同性就比较差。社交和支付，本来也没有什么协同，但是微信搞了一个红包把社交和支付协同起来了。</li>
-<li>品牌延伸其次要看延伸的市场是不是足够大，足够大的话，竞争对手直接做那个市场，在宣传和用户心智上，别人的品牌都更占优势。这个时候就不要延伸了。</li>
-<li>品牌延伸也要看用户的心智。如果用户的心智已经把你定位成某一个特别的品类了。品牌延伸可能让用户感觉到迷惑。</li>
-</ul>
-<p>小结来说，就是场景不能协同、市场足够大、用户心智足够专一的时候，都不要做品牌的延伸。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/05/28/%E3%80%8AWeb-API-%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%BC%80%E5%8F%91%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-md/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/05/28/%E3%80%8AWeb-API-%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%BC%80%E5%8F%91%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-md/" itemprop="url">《Web API 的设计与开发》读书笔记</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-28T12:00:53+08:00">
-                2019-05-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index">
-                    <span itemprop="name">读书笔记</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          - 指使用符合 RPC 风格的 XML 或 JSON + HTTP 接口的系统(不使用 SOAP);- 使用 HTTP;# 查询参数和路径的使用区别
+          我今天想说的是，一个业务中遇到的单位转换的问题，我们平时在存储货物的重量时，默认都是以千克作为单位来存储的，直到我们对接了一家以大宗商品交易作为主要业务的客户，对方要求我们在界面上统一用吨来展示数据，因为这样更符合客户方的使用习惯;我最终还是通过反射解决了这个问题，即在使用 AutoMapper 前，从数据库查出数据后，首先要做的第一件事情就是对数值进行转换：;这样看起来是没有问题的，可当你结合今天这篇博客的背景来看是，就会发现一个问题，所有的数值在展示的时候都必须要知道，数据库里存储的数值的原始单位是什么，而使用者希望在界面上看到的数值的单位又是什么
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2019/05/28/%E3%80%8AWeb-API-%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%BC%80%E5%8F%91%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-md/">
+            <a class="btn" href="/2019/11/15/%E5%85%B3%E4%BA%8E%E5%8D%95%E4%BD%8D%E8%BD%AC%E6%8D%A2%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98%E7%9A%84%E5%B8%B8%E8%A7%81%E6%80%9D%E8%B7%AF/">
               Read more &raquo;
             </a>
           </div>
@@ -2905,7 +3224,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/05/22/Nodejs%E8%B0%83%E8%AF%95%E7%9A%84%E5%90%84%E7%A7%8D%E5%A7%BF%E5%8A%BF/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/posts/review-summary.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -2924,7 +3243,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/05/22/Nodejs%E8%B0%83%E8%AF%95%E7%9A%84%E5%90%84%E7%A7%8D%E5%A7%BF%E5%8A%BF/" itemprop="url">Nodejs调试的各种姿势</a></h2>
+                <a class="post-title-link" href="/posts/review-summary.html" itemprop="url">面试总结</a></h2>
         
 
         <div class="post-meta">
@@ -2936,143 +3255,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-22T21:22:13+08:00">
-                2019-05-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <h2 id="Node-js-调试的痛点"><a href="#Node-js-调试的痛点" class="headerlink" title="Node.js 调试的痛点"></a>Node.js 调试的痛点</h2><p>对于绝大部分前端人员，对<code>JavaScript</code>的调试更多停留在浏览器中，类似<code>console.log</code>和<code>debugger</code>，但这种方式对代码侵入性较高，甚至需要刷新页面或重启编译器。转向服务端后，没有浏览器界面，如果仅停留在原来的调试方式，开发效率想必是较低的。因此，前端人员转向服务端开发时，要习惯于命令行及 IDE 等调试手段，走出舒适区，才能准确定位问题，提高开发效率。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/05/22/Nodejs%E8%B0%83%E8%AF%95%E7%9A%84%E5%90%84%E7%A7%8D%E5%A7%BF%E5%8A%BF/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/d94be22b.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/post/d94be22b.html" itemprop="url">《黑客与画家》-读书笔记</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-19T20:37:23+08:00">
-                2019-05-19
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-10T23:58:55+08:00">
+                2019-11-10
               </time>
             
 
@@ -3122,430 +3306,66 @@
         
         
           
-            <blockquote>
-<p>本书是硅谷创业之父 Paul Graham 的博客文集，主要介绍黑客即优秀程序员的爱好和动机，讨论黑客成长、黑客对世界的贡献以及编程语言和黑客工作方法等所有对计算机时代感兴趣的人的一些话题。书中的内容不但有助于了解计算机编程的本质、互联网行业的规则，还会帮助读者了解我们这个时代，迫使读者独立思考。</p>
-<p>本书适合所有程序员和互联网创业者，也适合一切对计算机行业感兴趣的读者。</p>
-</blockquote>
-<h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>最近读完这本书，写得很不错，适合边读边思考，作者从自身经历讨论了很多问题，包括书呆子、政治、财富、创业、编程语言、设计等问题。</p>
-<p>另外本人看的是阮一峰翻译的版本，文笔非常流畅，一点都没有翻译的腔调，感觉是直接用母语写出一般。</p>
-<p>在此感谢作者 Paul Graham 先生和 译者阮一峰先生。</p>
-<p>声明，这本书的每章都是相互独立的，不必要按顺序阅读。</p>
-<p>全书大致分为 3 部分</p>
+            <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>经过前几天的面试，我从中有了一些感悟，让我觉得面试不仅仅是为了求得一份工作，也是一个自我审核的过程，它能让你意识到自身能力的不足，其中包括了你的：技术能力、沟通能力、表达能力、思考能力等。</p>
+<p>所以我想把我的感悟写下来，从而更清晰地知道自身的不足，并且加以改进。</p>
+<h2 id="投简历"><a href="#投简历" class="headerlink" title="投简历"></a>投简历</h2><p>我起初是在拉勾网上海投简历，但大多都是石沉大海，之后我转向在 BOOS 直聘上投，依然大多都是回复不适合，仅有的几个面试机会，也是因为招聘人员是个技术，并且恰好点开了我的博客，给了我一个机会，我总结了一下，觉得主要是出在以下几个问题：学历、工作经验、技能。</p>
+<p>说白了，在现在这个程序员满街跑的年代，大部分 HR 是不会看大专应届生的简历的，或者说我的简历在他们看来实在是没什么亮点，对于这个我也比较无奈，能做可能就是提升学历了。</p>
+<p>而我能拿到面试机会，是因为技术人员看了我的博客、GitHub，这也让我们更加明白坚持写博客、写开源项目的好处。</p>
+<h2 id="第一家公司"><a href="#第一家公司" class="headerlink" title="第一家公司"></a>第一家公司</h2><p>第一家公司只面了一次，总的来说面试官对我印象不错，但最后他说站在他个人的角度，认为我应该去更好的公司发展，说我很有潜力云云。</p>
+<p>虽然他对我评价比较高，但我知道在那场面试中，我是没发挥好的，因为他问的大部分问题，我之前有写过文章，但是我依然没有很好地回答，总的来说有以下原因：</p>
 <ul>
-<li>1-4 章解释黑客如何成长以及如何看待世界</li>
-<li>5-9 章介绍创业、工作的方法论</li>
-<li>10-15 章讨论编程语言的特点和使用方法</li>
+<li><p>准备不充分，偶尔会有遗漏</p>
+</li>
+<li><p>对知识点理解还不透彻，不能很直观的表达出来</p>
+</li>
+<li><p>比较紧张，回答问题不够清晰</p>
+</li>
 </ul>
-<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><h3 id="1、为什么书呆子不受欢迎"><a href="#1、为什么书呆子不受欢迎" class="headerlink" title="1、为什么书呆子不受欢迎"></a>1、为什么书呆子不受欢迎</h3><p>黑客的特点之一便是高智商，在学校一般表现为书呆子形象，不受欢迎，其主要原因是，他们专注于解决自己感兴趣的事情，而不想花心思去取悦别人。但是学校不是社会，这里并不需要解决问题的人，于是书呆子们完全没有用武之地。但是，一旦这些书呆子走入社会，社会需要能够真正解决问题的人，于是书呆子们的价值就体现出来了。</p>
-<h3 id="2、黑客与画家"><a href="#2、黑客与画家" class="headerlink" title="2、黑客与画家"></a>2、黑客与画家</h3><p>与作曲家、建筑师、作家一样，黑客和画家都是试图创作出优秀作品。他们本质上都不是在做研究，虽然在创作过程中，他们可能会发现一些新技术（那样当然更好）。</p>
-<p>从这个基本观点出发，通过借鉴这些创作领域的创作模式，我们可以得出一些重要的启示：</p>
-<ol>
-<li>编程不应该是先将思路完全想好，然后去写代码。思路的完善应该是在代码编写过程中完成的。好的编程语言应是允许动态扩展的语言，编程语言是帮助我们思考的，而 不仅仅是表达已经想好的想法。</li>
-<li>学习编程，应是实践的过程。在敲代码，写程序中去学习。</li>
-<li>保留自己写过的代码，时常翻看。</li>
-<li>大量阅读范例程序，充分利用开源的资源。</li>
-</ol>
-<p>作者也提到在大公司中，并不能发挥一个黑客的所有能力，如果你想开发出的优秀软件，那么可以选择创业，但是这样会导致你必须处理许多与开发软件无关的事情，并且赚钱的软件往往不是好玩的软件，所以解决方法是：找一个养家糊口的”白天工作“，然后在其余时间开发优美的软件。</p>
-<h3 id="3、不能说的话"><a href="#3、不能说的话" class="headerlink" title="3、不能说的话"></a>3、不能说的话</h3><p>先问自己：你是一个随大流的人吗？有没有什么观点不愿说出口？你的观点是别人灌输给你的，还是独立思考得到的？</p>
-<p>不管哪个年代，有一件事都是不会改变的，那就是“祸从口出”。</p>
-<p>满足“不能说的话”的两个条件 ：</p>
-<ol>
-<li>这些话不能说出口</li>
-<li>它们是正确的，或者看起来很可能正确，值得进一步讨论</li>
-</ol>
-<p>其中第二条更重要，很显然，你说一句 5+3&#x3D;53 并不会引起人们的注意，除了嘲笑和鄙视。因为怒触他人的言论是那些可能会有人相信的言论。我猜想，最令人暴跳如雷的言论，就是被认为说出了真相的言论。</p>
-<p>明确了什么是“不能说的话”，接着，作者给出了五种找出“不能说的话”的方法：</p>
-<ol>
-<li><p>判断言论的真伪</p>
-</li>
-<li><p>关注“异端邪说”</p>
-<blockquote>
-<p>历史上的每一个年代，都会给”异端邪说“贴一些标签，目的是在人们开始思考它们是否为真之前就把它们封杀。其实在当代，也有这样的问题。我们应该多加注意那些贴标签的行为。</p>
-</blockquote>
-</li>
-<li><p>将当代观念与不同时期的古代观念 diff 一下，将当代不同地方的观念 diff 一下</p>
-</li>
-<li><p>寻找那些一本正经的卫道者，看看他们到底在捍卫着什么。作者用一个例子解释，父母在家里会尽量避免说脏话，只是不想让孩子学到。但是，孩子虽然没从父母那里学会说脏话，但是从他的朋友那里学到了。所以在家里，父母和孩子都不说脏话，而在外面都尽情地说。</p>
-</li>
-<li><p>观察禁忌是如何产生的。流行的道德观念往往不是偶然产生的，而是被刻意创造出来的。如果有些观点不能说，可能的原因是某些团体不让我们说。</p>
-<blockquote>
-<p>我猜想，道德禁忌的最大制造者是那些权力斗争中略占上风的一方。你会发现，这一方有实力推行禁忌，同时又软弱到需要禁忌保护自己的利益。</p>
-</blockquote>
-</li>
-</ol>
-<h3 id="4、良好的坏习惯"><a href="#4、良好的坏习惯" class="headerlink" title="4、良好的坏习惯"></a>4、良好的坏习惯</h3><p>黑客往往是不服从管教的，并以违反常理的思维方式思考、行动。虽然他们的行为常常导致平凡大众的反感，甚至厌恶，进而产生了偏见，但是这种“坏习惯”反而利大于弊，让他们保持了一种常人不具备的敏感，尤其是对于一些貌似无关痛痒，却与所有人息息相关的政治行为。</p>
-<p>举例来说，为什么程序员会比其他人更在乎公民自由？表面上来看，政府侵犯公民自由并不会让代码质量下降，而只是逐渐导致一个观点占据上风。而如果一旦极权主义制度形成，那么这种制度就很难废除。黑客对公民自由这一概念比普通人理解的更透彻，更重要的是，他们明白失去知识自由之后未来的样子。所以他们能感知即将到来的暴风雨。</p>
-<p>那些占据高位、本能地想要约束黑客、强迫黑客服从的人们，请小心你们的要求，因为你们真有可能成为千古罪人。</p>
-<h3 id="5、另一条路"><a href="#5、另一条路" class="headerlink" title="5、另一条路"></a>5、另一条路</h3><p>在作者看来，一个人们拥有言论自由和行动自由的社会，往往最有可能采纳最优方案，而不是采纳最有权势的人提出的方案。</p>
-<p>要让软件变得可靠，关键是你要全神贯注，而不是开发得很慢。</p>
-<p>如果你亲眼见到某人第一次使用你的软件，你就会知道软件的哪个地方最打动他。</p>
-<p>互联网做起来很辛苦，还有许多特别大的压力，但是它们的唯一作用，就是使得创业公司成功的机会变大。</p>
-<p>管理企业其实很简单，只要记住两点就可以了：做出用户喜欢的产品，保证开支小于收入。只要做到这两点，你就会超过大多数创业公司。</p>
-<p>另外，如果你不打算自己动手开发和设计，那就不要创业。</p>
-<h3 id="6、如何创造财富"><a href="#6、如何创造财富" class="headerlink" title="6、如何创造财富"></a>6、如何创造财富</h3><p>金钱不等于财富，创造有价值的东西就是创造财富。你最好先搞清楚什么是财富。财富与金钱并不是同义词。财富存在的时间与人类历史一样长久，甚至更长久，事实上蚂蚁也拥有财富。金钱是一种历史相对较短的发明。</p>
-<p>要致富，你需要两样东西：可测量性和可放大性。</p>
-<p>如果你有一个令你感到安全的工作，你是不会致富的，因为没有危险，就几乎等于没有可放大性。</p>
-<p>创业公司通过发明新技术盈利，所以具备可放大性。</p>
-<p>如果你开发出来的技术是竞争对手难于复制的，那就够了，你不需要依靠其他防御手段了。</p>
-<p>不应该收购的危险信号，排在榜首的信号中有一个就是公司由技术顽童掌控，只想解决有趣的技术问题，不考虑用户的需要。你开办创业公司不是单纯地为了解决问题，而是为了解决那些用户关心的问题。</p>
-<p>政府禁止个人积累财富实际上就是命令人民减慢工作的速度。</p>
-<p>只要懂得藏富于民，国家就会变得强大。</p>
-<h3 id="7、关注贫富分化"><a href="#7、关注贫富分化" class="headerlink" title="7、关注贫富分化"></a>7、关注贫富分化</h3><p>进入社会以后，你不能总是靠父母养活，如果你需要什么东西，要么你自己做出来，要么做其他东西与需要的人交换金钱，再用金钱去买你想要的东西</p>
-<p>技术肯定加剧了有技术者与无技术者之间的生产效率差异</p>
-<p>技术在加大收入差距的同时，缩小了大部分的其他差距</p>
-<h3 id="8、防止垃圾邮件的一个方法"><a href="#8、防止垃圾邮件的一个方法" class="headerlink" title="8、防止垃圾邮件的一个方法"></a>8、防止垃圾邮件的一个方法</h3><p>这一节对于现在这个年代的意义不是很大，作者认为过滤垃圾邮件是可以做到的，基于内容的过滤器将发挥作用。 但是在他那个年代，意义很大的。</p>
-<p>要对单个词语进行贝叶斯判断，就能很好地过滤大部分垃圾邮件。后面通过统计学的方法做了一个过滤器，其实有点像现在的机器学习了。</p>
-<h3 id="9、设计者的品味"><a href="#9、设计者的品味" class="headerlink" title="9、设计者的品味"></a>9、设计者的品味</h3><p>他想要的学生不仅应该技术过硬，还应当能够使用技术做出优美的产品</p>
-<p>你需要的是咬牙向前冲刺的痛苦，而不是脚被钉子扎破的痛苦。解决难题的痛苦对设计师有好处，但是对付挑剔的客户的痛苦或者对付质量低劣的建材的痛苦就是另外一回事了</p>
-<p>在历史的任何时刻都有一些热点项目，一些团体在这些项目上做出伟大的成绩。如果你远离这些中心，几乎不可能单靠自己就取得伟大成果</p>
-<h3 id="10、编程语言解析"><a href="#10、编程语言解析" class="headerlink" title="10、编程语言解析"></a>10、编程语言解析</h3><p>程序员的时间比计算机的时间昂贵得多。</p>
-<p>长期使用某种语言，就会慢慢按照这种语言的思维模式进行思考。</p>
-<p>静态类型语言与动态类型语言没有绝对的好坏之分，每个人都可以有自己的选择。</p>
-<h3 id="11、一百年后的编程语言"><a href="#11、一百年后的编程语言" class="headerlink" title="11、一百年后的编程语言"></a>11、一百年后的编程语言</h3><p>语言只是一种书写法，程序则是一种严格符合规则的描述，以书面形式记录计算机如何解决你的问题。<br>随着技术的发展，每一代人都在做上一代人觉得很浪费的事情。<br>浪费分成好的浪费和坏的浪费，感兴趣的就是好的浪费，即用更多的钱得到更简单的设计。<br>对速度的追求是人类内心根深蒂固的欲望，设计编程语言的时候，应该有意识地问问自己，什么时候可以放弃一些性能，换来一点点便利性的提高。<br>将语言的语义与语言的实现分离。<br>写文章，就是为了试着搞清楚某件事情，对于软件而言也是如此。<br>效率低下的软件并不等于很烂的软件，一种让程序员做无用功的语言才真正称得上很烂，浪费程序员的时间而不是浪费机器的时间才是真正的无效率。<br>面向对象编程，使得可以对代码进行可持续性开发。<br>性能分析器有助于指导程序开发，现在许多人仍然相信程序运行速度提升的关键在于开发出能够生成更快速代码的编译器。</p>
+<p>这让我知道我有必要重新梳理一遍知识点，但不再是仅仅依靠文字，还要口头表达出来。</p>
+<p>最终我没有选择这家公司，因为我更倾向第二家。</p>
+<h2 id="第二家公司"><a href="#第二家公司" class="headerlink" title="第二家公司"></a>第二家公司</h2><p>第二家公司一共面了三次，前两次是现场面，最后一次是电话面，三次面试大部分都不是考察知识点，更多是考察对技术的理解、个人素质、成长空间。</p>
+<p>现场面试时，其实我也在观察他们，我在想如果以后我作为他们同事，我和他们是有一定差距的，这个差距不仅仅是技术，而是包括了：</p>
 <ul>
-<li>一百年后的编程语言在理论上今天就能设计出来。</li>
-<li>如果今天真的能设计出这样一种语言，很可能现在适合编程，并且能够产生更好的结果。</li>
+<li><p>技术</p>
+<p>包括了对技术的思考和理解、解决问题的方法和流程等。</p>
+</li>
+<li><p>个人素质</p>
+<p>包括了沟通能力、英语能力、思考能力等。</p>
+</li>
 </ul>
-<h3 id="12、拒绝平庸"><a href="#12、拒绝平庸" class="headerlink" title="12、拒绝平庸"></a>12、拒绝平庸</h3><p>这一节作者在推广 Lisp 语言，Lisp 很值得学习，你掌握它以后，会感到它给你带来的极大启发，这会大大提高你的编程水平，使你成为一个更好的程序员，尽管在实际工作中极少会用到 Lisp。</p>
-<h3 id="13、书呆子的复仇"><a href="#13、书呆子的复仇" class="headerlink" title="13、书呆子的复仇"></a>13、书呆子的复仇</h3><p>在某些情况下，一些语言就是比另一些语言更出色。<br>认为所有语言都一样的看法的缺点是自欺欺人，但优点是可以使许多事情变得很简单。<br>编程语言现在的发展不过刚刚赶上 1958 年 Lisp 语言的水平。</p>
-<p>为什么 Lisp 很特别，因为 Lisp 刚诞生的时候包含的 9 种思想：</p>
-<ol>
-<li>条件结构(即 if-else 结构)</li>
-<li>函数也是一种数据结构</li>
-<li>递归</li>
-<li>变量的动态类型</li>
-<li>垃圾回收机制</li>
-<li>程序由表达式组成</li>
-<li>符号类型</li>
-<li>代码使用符号和常量组成的树形表示法</li>
-<li>无论什么时候，整个语言都是可用的（Lisp 不真正区分读取期、编译期、运行期）</li>
-</ol>
-<h3 id="14-梦寐以求的编程语言"><a href="#14-梦寐以求的编程语言" class="headerlink" title="14.梦寐以求的编程语言"></a>14.梦寐以求的编程语言</h3><p>这种语言干净简练，具有最高层次的抽象和互动性，而且很容易装备，可以只用很少的代码就解决常见的问题。不管是什么程序，你真正要写的代码几乎都与你自己的特定设置有关，其他具有普遍性的问题都有现成的函数库可以调用。</p>
-<p>这种语言有大量优秀的范例可供学习，而且非常符合直觉，你只需花几分钟阅读范例就能领会应该如何使用此种语言。</p>
-<p>这种语言以层的方式构建。较高的抽象层透明地构建在较低的抽象层之上。如果需要的话，你可以直接使用较低的抽象层。</p>
-<p>这种语言的所有细节对使用者都是透明的。它提供的抽象能力只是为了方便你的开发，而不是为了强迫你按照它的方式行事。</p>
-<h3 id="15、设计与研究"><a href="#15、设计与研究" class="headerlink" title="15、设计与研究"></a>15、设计与研究</h3><p>让用户满意并不等于迎合用户的一切要求，用户不了解所有可能的选择，也经常弄错自己真正想要的东西。<br>编程语言也应该是以人为本。<br>贴近用户的设计思想被归纳为“弱即是强”模式。<br>任何时候，代码都必须能够运行。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/05/12/2019/38-%E6%B7%B1%E5%9C%B3%E6%B5%99%E6%B1%9F%E8%8F%9C%E6%8E%A2%E5%AF%BB/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/05/12/2019/38-%E6%B7%B1%E5%9C%B3%E6%B5%99%E6%B1%9F%E8%8F%9C%E6%8E%A2%E5%AF%BB/" itemprop="url">深圳浙江菜探寻</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-12T13:45:36+08:00">
-                2019-05-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%94%9F%E6%B4%BB/" itemprop="url" rel="index">
-                    <span itemprop="name">生活</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>近日又去深圳觅食，说起来在香港确实很难吃到合口味的浙江菜了，深圳倒是挺多的。总体来说，几家源自浙江的连锁餐厅味道、价格方面都不错，是值得经常去品尝品尝的。</p>
+<p>我能感觉到我们的差距，但我认为我和他们是同一类人，我有信心成为他们中的一员，不过我也知道他们的评价估计不怎么好，最后是他们老大决定再给我一次机会，再进行电话面试。</p>
+<p>电话面试中，面试官问了我很多关于成长、学习、心态、兴趣的问题，我知道这是我最后的机会，我尽可能地展示最真实的自己，也没有刻意隐瞒自己的缺点。</p>
+<p>最终我拿到了 offer，说起来也比较巧，我和他们团队刚好有共同的兴趣爱好，这也让我更坚信我们是同一类人，我会努力追上他们的脚步。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>虽然我拿到了 offer，但是我知道我发挥不怎么好，从这次的面试经历中，发现了很多自身的问题，可能有些问题我之前就注意到了，但当时的环境让我产生了没必要改进的错觉，如今我深刻知道正是因为这些问题，才让我和别人产生差距，为了不让我落后于团队的人，我必须要有所行动。</p>
+<p>主要有以下问题：</p>
 <ul>
-<li><strong>新白鹿</strong>：最佳的选择，物美价廉（见下图），而且点单结账都可以直接扫描餐桌上的二维码完成，简直是“社交恐惧症”患者的福音啊（笑）。</li>
-<li><strong>外婆家</strong>：算是其中比较出名的一家，味道也是不错的，当然和新白鹿一样，就餐排队的也是很多。</li>
-<li><strong>绿茶</strong>：比较不太好吃，，感觉网红的意味比较浓，知名度似乎蛮高的，但是菜单的菜品和口味都不是感觉很地道，因此不是很推荐。</li>
+<li><p>思考能力</p>
+<p>我缺少一个永远质疑的心态，这让我在做事情时，往往会停留在解决问题即可，可能会忽略了其他更优的解决方案。</p>
+<p>这会造成我对大多事情的理解往往会停留于表面，而不能从容地整理各种解决方案的优缺点，比较孰优孰劣。</p>
+<p>所以以后在解决问题时，要尝试别的可能性，即便当时条件不允许，事后也要重新复盘，养成习惯。</p>
+</li>
+<li><p>沟通能力</p>
+<p>很多时候我不能清晰地表达自己的意思，这是因为我平时缺少了归纳总结，表达能力也欠缺。</p>
+<p>这需要我前期大量的写作，养成能够条理清晰地描述问题的习惯，最后能够口头表达出来。</p>
+<p>我可以做这些：</p>
+<ul>
+<li>归纳总结一些事情</li>
+<li>把自己理解的知识写出来</li>
+<li>简明扼要地复述一些书的内容</li>
+<li>事后读出来，并且录下来，自己寻找问题</li>
 </ul>
-<p><img src="https://cos.pinlyu.com/posts/2019/38-xinbailu.webp#400x"></p>
+</li>
+<li><p>英语能力</p>
+<p>英语能力很重要，我之前认为英文只要能认出意思就行，不需要会读，这就发生了我在面试时想念某个单词却念不出的窘境，如果不克服这个问题，这种情况在以后工作中会经常出现。</p>
+<p>所以我制定计划，按照赖世雄老师的课本，从头开始学英文。</p>
+</li>
+<li><p>写字能力</p>
+<p>没错，由于我从小学开始就经常不写作业，导致我现在字丑不说，还经常会出现提笔忘字的情况，所以我也需要抄写文章，重拾我当年抛下的笔。</p>
+</li>
+</ul>
+<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>制定计划永远是简单的，我也曾制定过无数的计划，但真能如实执行的寥寥无几，因为之前的计划是没有督促力的，但这次我必须要执行，因为我不允许我落后于他们。</p>
 
           
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/05/10/%E5%8F%88%E8%A7%81AOP%E4%B9%8B%E5%9F%BA%E4%BA%8ERealProxy%E5%AE%9E%E7%8E%B0WCF%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/05/10/%E5%8F%88%E8%A7%81AOP%E4%B9%8B%E5%9F%BA%E4%BA%8ERealProxy%E5%AE%9E%E7%8E%B0WCF%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/" itemprop="url">又见 AOP 之基于 RealProxy 实现 WCF 动态代理</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-05-10T16:27:50+08:00">
-                2019-05-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
-                    <span itemprop="name">编程语言</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          顺着这样的思路，如果我们可以把 ChannelFactory 注入到 RealProxy 中，就可以在接口调用过程中记录相关信息，这样我们就可以关注调用本身，因为所有的我们不想写的代码，现在全部都由代理类接管了，更重要的是，所有通过这种方式调用的 WCF 服务，都可以以一种统一而简洁的方式去处理，永远不用担心因为某个人忘记写代理方法而出现问题，下面给出整个实现的关键代码：;现在，我们来考虑 WCF，WCF 需要通过 ChannelFactory 来创建和释放，而这恰恰是代理类所做的事情，就像下面的代码一样，我们通常会把所有的 WCF 集中配置在一个地方，并通过构造 Binding 和终结点地址来创建一个 WCF 服务，在调用服务的过程中，会对调用时间、异常信息等进行记录，这其实和我举的第一个例子完全一致，那么我们能不能用 RealProxy 来实现这些功能呢;首先，我们定义一个简单的接口 ICalculator，它含有加、减、乘、除四种基本运算，我们希望记录每个方法调用的参数、结果和执行时间，因此通过 RealProxy 对现有类型 CalculatorService 进行代理，并动态地创建代理对象来供调用方使用，下面给出关键代码：
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/05/10/%E5%8F%88%E8%A7%81AOP%E4%B9%8B%E5%9F%BA%E4%BA%8ERealProxy%E5%AE%9E%E7%8E%B0WCF%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
         
       
     </div>
@@ -3584,7 +3404,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/25/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><span class="page-number current">26</span><a class="page-number" href="/page/27/">27</a><span class="space">&hellip;</span><a class="page-number" href="/page/79/">79</a><a class="extend next" rel="next" href="/page/27/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/25/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><span class="page-number current">26</span><a class="page-number" href="/page/27/">27</a><span class="space">&hellip;</span><a class="page-number" href="/page/82/">82</a><a class="extend next" rel="next" href="/page/27/">&gt;</a>
   </nav>
 
 
@@ -3630,7 +3450,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1579</span>
+                  <span class="site-state-item-count">1622</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3641,7 +3461,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">64</span>
+                  <span class="site-state-item-count">71</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>

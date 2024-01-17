@@ -273,7 +273,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/charla-desarrollo-web-spotify">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/06/16/2013/2013-06-16#%E4%B8%BAPHP%E6%9E%84%E5%BB%BA%E5%8F%AF%E8%AF%BB%E7%9A%84%E9%94%99%E8%AF%AF%E6%8A%A5%E5%91%8A/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -292,7 +292,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/charla-desarrollo-web-spotify" itemprop="url">Charlando sobre Desarrollo Web en Spotify - HTML5Spain</a></h2>
+                <a class="post-title-link" href="/2013/06/16/2013/2013-06-16#%E4%B8%BAPHP%E6%9E%84%E5%BB%BA%E5%8F%AF%E8%AF%BB%E7%9A%84%E9%94%99%E8%AF%AF%E6%8A%A5%E5%91%8A/" itemprop="url">为PHP构建可读的错误报告</a></h2>
         
 
         <div class="post-meta">
@@ -304,8 +304,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-02-07T13:29:12+08:00">
-                2013-02-07
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-06-16T00:00:00+08:00">
+                2013-06-16
               </time>
             
 
@@ -353,10 +353,1377 @@
 
       
         
-          <p>El pasado 7 de febrero hablé sobre Desarrollo Web en Spotify en <a target="_blank" rel="noopener" href="http://html5spain.wordpress.com/2013/02/03/evento-online-desarrollo-web-en-spotify/">un hangout con los compañeros de HTML5Spain</a>. Aquí está la presentación:</p>
+        
+          
+            <p>当年使用ASP.Net时，每当程序出错，ASP.Net均会显示一个“漂亮”的错误页，列出出错所在行附近的代码，调用栈和一些提示信息等等。</p>
+<p>相比之下，PHP默认的报错信息十分简陋，仅仅指明了出错的位置。</p>
+<p>本文将介绍通过PHP的错误处理相关函数，构造一个类似的，具有丰富的可利用的信息的错误页。</p>
+<p><img src="http://social.msdn.microsoft.com/Forums/getfile/234858" alt="Asp.Net的错误页"></p>
+<p>提示：本文示例至少需要PHP5.4, 本文使用了PHP5.4中的数组简写语法，和PHP5.3中的匿名函数语法。</p>
+<p>应该说很多PHP框架都提供了类似的功能，本文展现的仅仅是其中一种方式。作者我并没有太多地参考其他PHP框架，仅仅是从官网文档下方的注释中精炼出了一些实用的功能。</p>
+<p>错误信息并非任何时候都可以展示的，很多情况下，错误信息中包含了很多敏感的数据，容易被攻击者利用。所以显然我们首先要引入一个“运行级别”的概念，该级别将控制我们的错误页展示错误详细信息的程度。</p>
+<pre><code>// 为避免污染全局命名空间，已对所有标识符加 `e` 前缀
+
+/**
+ *  运行模式
+ *  * debug 调试模式, 会开启详细的日志记录和错误提示
+ *  * default 默认模式, 会输出错误提示
+ *  * production 生产模式, 不会执行任何额外操作, 最高效地执行代码
+ */
+
+const eDebug = 2;
+const eDefault = 1;
+const eProduction = 0;
+
+const eRunMode = eDefault;
+</code></pre>
+<p>PHP5开始，PHP彻底进入OPP时代，但仍留下了不少历史遗留问题。比如直到目前，PHP的内部错误仍然没有以异常的方式实现，绝大部分的内置函数也没有以异常的方式来报告错误，这种内置的错误报告由<code>error_reporting</code>函数进行控制：</p>
+<pre><code>// 默认关掉所有错误提示
+error_reporting(0);
+// 如果是默认模式，打开致命错误和解析错误的报告
+if(eRunMode &amp;gt;= eDefault)
+    error_reporting(E_ERROR | E_PARSE);
+// 如果是调试模式，打开全部错误提示，并启用修改建议提示
+if(eRunMode &amp;gt;= eDebug)
+    error_reporting(E_ALL | E_STRICT);
+</code></pre>
+<p>为了能够在出现错误的时候，去除已有的输出，以及追加 HTTP 头，我们要开启缓冲：</p>
+<pre><code>ob_start();
+</code></pre>
+<p>然后我们需要向PHP引擎申请通过我们自己的函数来接管错误处理的相关流程，这其中有两个关键函数：</p>
+<ul>
+<li>set_error_handler</li>
+<li>set_exception_handler</li>
+</ul>
+<p>set_error_handler 会注册一个自定义函数用于接管由PHP产生的错误，set_exception_handler 会注册一个自定义函数用于接管在最外层仍未被处理的异常。</p>
+<p>在这里，我们会用 error_handler 函数来将PHP产生的错误统一转换为异常，再通过 exception_handler 来实现错误页的展现。</p>
+<p>set_error_handler 所注册的自定义函数会被传递5个参数，分别是错误号，错误描述信息，错误文件名和行号，当前上下文的符号表(当前时刻所有变量的值).</p>
+<p>PHP文档中推荐我们在自定义函数中重新抛出 ErrorException 类型的异常，这是一个内置的异常类型，但它并没有提供储存符号表的功能，而错误发生时的符号表却是非常有用的，所以这里我选择了自己构造一个异常类型来代替 ErrorException, 以便能将符号表储存下来。</p>
+<p>这个工作很简单：</p>
+<pre><code>class ePHPException extends Exception
+&#123;
+    protected $severity;
+    protected $varList;
+
+    public function  __construct($message = &quot;&quot;, $code = 0, $severity = 1, $filename = __FILE__, $lineno = __LINE__, Exception $previous = null, $varList = [])
+    &#123;
+        $this-&amp;gt;severity = $severity;
+        $this-&amp;gt;file = $filename;
+        $this-&amp;gt;line = $lineno;
+        $this-&amp;gt;varList = $varList;
+
+        // 调用父类的构造函数
+        parent::__construct($message, $code, $previous);
+    &#125;
+
+    public function getSeverity()
+    &#123;
+        return $this-&amp;gt;severity;
+    &#125;
+
+    public function getVarList()
+    &#123;
+        return $this-&amp;gt;varList;
+    &#125;
+&#125;
+</code></pre>
+<p>然后我们使用 set_error_handler 注册一个自定义函数将PHP报告的错误转换为抛出 ePHPException 类型的异常.</p>
+<pre><code>set_error_handler(function($no, $str, $file, $line, $varList) &#123;
+    throw new ePHPException($str, 0, $no, $file, $line, null, $varList);
+&#125;);
+</code></pre>
+<p>然后我们要重新考虑运行级别的问题，在调试模式和默认模式时，我们打算显示错误信息，而在生产模式下，我们不打算显示任何信息：</p>
+<pre><code>if(eRunMode &amp;lt;= eProduction)
+&#123;
+    set_exception_handler(function(Exception $exception) &#123;
+        header(&quot;Content-Type: text/plant; charset=UTF-8&quot;);
+
+        die(header(&quot;HTTP/1.1 500 Internal Server Error&quot;));
+    &#125;);
+&#125;
+</code></pre>
+<p>现在我们开始设计真正的错误处理函数，需要显示的信息包括：异常类型名，描述信息，调用栈，符号表，附近代码等等，这些信息都可以轻松地从异常对象上获取到：</p>
+<pre><code>else
+&#123;
+    set_exception_handler(function(Exception $exception) &#123;
+        // 暂时我们只打算以纯文本的形式展示信息
+        header(&quot;Content-Type: text/plant; charset=UTF-8&quot;);
+
+        // 头部
+        print sprintf(
+            &quot;Exception `%s`: %s\n&quot;,
+            get_class($exception),
+            $exception-&amp;gt;getMessage()
+        );
+
+        // 运行栈
+        print &quot;\n^ Call Stack:\n&quot;;
+        // 从异常对象获取运行栈
+        $trace = $exception-&amp;gt;getTrace();
+        // 如果是 ePHPException 则去除运行栈的第一项，即 error_handler
+        if($exception instanceof ePHPException)
+            array_shift($trace);
+
+        // 只有在调试模式才会显示参数的值，其他模式下只显示参数类型
+        if(eRunMode &amp;lt; eDebug)
+            foreach ($trace as $key =&amp;gt; $v)
+                $trace[$key][&quot;args&quot;] = array_map(&quot;gettype&quot;, $trace[$key][&quot;args&quot;]);
+
+        // 用于打印参数的函数
+        $printArgs = function($a) use(&amp;amp;$printArgs)
+        &#123;
+            $result = &quot;&quot;;
+            foreach($a as $k =&amp;gt; $v)
+            &#123;
+                if(is_array($v))
+                    $v = &quot;[&quot; . $printArgs($v) . &quot;]&quot;;
+                else
+                    if(is_string($v))
+                        $v = &quot;`&#123;$v&#125;`&quot;;
+                if(!is_int($k))
+                    $v = &quot;`$k` =&amp;gt; $v&quot;;
+
+                $result .= ($result ? &quot;, &#123;$v&#125;&quot; : $v);
+            &#125;
+            return $result;
+        &#125;;
+
+        // 打印运行栈
+        foreach ($trace as $k =&amp;gt; $v)
+            print sprintf(
+                &quot;#%s %s%s %s(%s)\n&quot;,
+                $k,
+                isset($v[&quot;file&quot;]) ? $v[&quot;file&quot;] : &quot;&quot;,
+                isset($v[&quot;line&quot;]) ? &quot;(&#123;$v[&quot;line&quot;]&#125;):&quot; : &quot;&quot;,
+                $v[&quot;function&quot;],
+                $printArgs($v[&quot;args&quot;])
+            );
+
+        print sprintf(
+            &quot;#  &#123;main&#125;\n  thrown in %s on line %s\n\n&quot;,
+            $exception-&amp;gt;getFile(),
+            $exception-&amp;gt;getLine()
+        );
+
+        // 如果当前是调试模式，且异常对象是我们构造的 ePHPException 类型，打印符号表和源代码
+        if(eRunMode &amp;gt;= eDebug &amp;amp;&amp;amp; $exception instanceof ePHPException)
+        &#123;
+            // 用于打印符号表的函数
+            $printVarList = function($a, $tab=0) use(&amp;amp;$printVarList)
+            &#123;
+                $tabs = str_repeat(&quot;   &quot;, $tab);
+                foreach($a as $k =&amp;gt; $v)
+                    if(is_array($v))
+                        if(!$v)
+                            print &quot;&#123;$tabs&#125;`&#123;$k&#125;` =&amp;gt; []\n&quot;;
+                        else
+                            print &quot;&#123;$tabs&#125;`&#123;$k&#125;` =&amp;gt; [\n&quot; . $printVarList($v, $tab+1) . &quot;&#123;$tabs&#125;]\n&quot;;
+                    else
+                        print &quot;&#123;$tabs&#125;`&#123;$k&#125;` =&amp;gt; `&#123;$v&#125;`\n&quot;;
+            &#125;;
+
+            print &quot;^ Symbol Table:\n&quot;;
+            $printVarList($exception-&amp;gt;getVarList());
+
+            print &quot;\n^ Code:\n&quot;;
+
+            // 显示出错附近行的代码
+            $code = file($exception-&amp;gt;getFile());
+            $s = max($exception-&amp;gt;getLine()-6, 0);
+            $e = min($exception-&amp;gt;getLine()+5, count($code));
+            $code = array_slice($code, $s, $e - $s);
+
+            // 为代码添加行号
+            $line = $s + 1;
+            foreach($code as &amp;amp;$v)
+            &#123;
+                $l = $line++;
+                if(strlen($l) &amp;lt; 4)
+                    $l = str_repeat(&quot; &quot;, 4-strlen($l)) . $l;
+                if($exception-&amp;gt;getLine() == $l)
+                    $v = &quot;&#123;$l&#125;-&amp;gt;&#123;$v&#125;&quot;;
+                else
+                    $v = &quot;&#123;$l&#125;  &#123;$v&#125;&quot;;
+            &#125;
+
+            print implode(&quot;&quot;, $code);
+        &#125;
+
+    &#125;);
+&#125;
+</code></pre>
+<p>下面我们编写一个示例来测试一下：</p>
+<pre><code>function throwException()
+&#123;
+    class MyException extends Exception&#123;&#125;
+    throw new MyException(&quot;Aal izz well&quot;);
+&#125;
+
+function call($func, $arg)
+&#123;
+    $func($arg);
+&#125;
+
+// 错误1：
+call(&quot;array_keys&quot;, 1234);
+// 错误2：
+throwException();
+</code></pre>
+<p>下面是<code>错误1</code>在eDefault下的显示：</p>
+<pre><code>Exception `ePHPException`: array_keys() expects parameter 1 to be array, integer given
+
+^ Call Stack:
+#0 /var/www/test.php(188): array_keys(integer)
+#1 /var/www/test.php(192): call(string, integer)
+#  &#123;main&#125;
+  thrown /var/www/test.php on line 188
+</code></pre>
+<p>很不错！显示了错误信息和运行栈，运行栈中的参数内容都以类型掩去了。</p>
+<p>在 eDebug 下：</p>
+<pre><code>Exception `ePHPException`: array_keys() expects parameter 1 to be array, integer given
+
+^ Call Stack:
+#0 /var/www/test.php(188): array_keys(1234)
+#1 /var/www/test.php(192): call(`array_keys`, 1234)
+#  &#123;main&#125;
+  thrown in /var/www/test.php on line 188
+
+^ Symbol Table:
+`func` =&amp;gt; `array_keys`
+`arg` =&amp;gt; `1234`
+
+^ Code:
+ 183      throw new MyException;
+ 184  &#125;
+ 185
+ 186  function call($func, $arg)
+ 187  &#123;
+ 188-&amp;gt;    $func($arg);
+ 189  &#125;
+ 190
+ 191  // 错误1：
+ 192  call(&quot;array_keys&quot;, 1234);
+ 193  // 错误2：
+</code></pre>
+<p>也如我们预期一样，在eDebug模式下，在运行栈中会显示参数内容，还会显示符号表和出错附近的代码。</p>
+<p>至于eProduction模式，服务器没有返回任何信息，浏览器直接给出了下面的错误提示：</p>
+<p>HTTP 错误 500（Internal Server Error）：服务器尝试执行请求时遇到了意外情况。</p>
+<p>错误2的eDefault模式(其他两个模式不再详细展示)：</p>
+<pre><code>Exception `MyException`: Aal izz well
+
+^ Call Stack:
+#0 /var/www/test.php(194): throwException()
+#  &#123;main&#125;
+  thrown in /var/www/test.php on line 183
+</code></pre>
+<p>就这样，我们通过百行左右的代码实现了一个具有丰富的可利用信息的PHP错误页，除了我们仅仅是纯文本，已经不逊色于Asp.Net的错误页了。</p>
+<p>这将会是非常值得的，会为你的调试工作带来很多方便。</p>
+<p>本文全部代码：<a target="_blank" rel="noopener" href="https://gist.github.com/jybox/5789249">https://gist.github.com/jybox/5789249</a></p>
+<p>应该说，这个方案是存在硬伤的：PHP并不允许用户使用自定义函数处理致命错误！这包括无法解析的语法，调用未定义的函数等等行为，在发生致命错误时，仍会出现PHP那“丑陋”的错误提示。好在，但凡是致命错误，大都是很容易更正的，反倒是那些乱七八糟的“警告”和“提示”，最难以调试，这也是本文希望解决的问题。</p>
+<p>更进一步地，你可以使用PHP的反射机制，获取更多的信息用于调试：<a target="_blank" rel="noopener" href="http://www.php.net/manual/zh/book.reflection.php">http://www.php.net/manual/zh/book.reflection.php</a></p>
+<p>所谓反射，就是在运行时，与PHP的解释器进行交互，获取关于代码的元信息，进行“反向工程”的一种机制，使用反射，你可以深入地挖掘类，函数，扩展的元信息。</p>
+<p>比如，获取一个匿名函数的源代码：<a target="_blank" rel="noopener" href="http://segmentfault.com/q/1010000000160912">http://segmentfault.com/q/1010000000160912</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/06/14/2013/2013-06-14#%E9%9B%B6%E6%AF%AB%E7%A7%92%EF%BC%9AKademlia%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2013/06/14/2013/2013-06-14#%E9%9B%B6%E6%AF%AB%E7%A7%92%EF%BC%9AKademlia%E7%AC%94%E8%AE%B0/" itemprop="url">零毫秒：Kademlia 笔记</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-06-14T00:00:00+08:00">
+                2013-06-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>Kademlia协议(模型)是被电驴，BitTorrent所采用了的，基于异或距离算法的分布式散列表(DHT), 它实现了一个去中心化的信息储存与查询系统。</p>
+<p>Kademlia将网络设计为一个具有160层的二叉树，树最末端的每个叶子便是一个节点，节点在树中的位置由同样是160bit的节点ID决定。</p>
+<p>每个bit的两种可能值(0或1), 决定了节点在树中属于左面还是右面的子树，160层下来，每个节点ID便都有了一个确定的位置。</p>
+<p>Kademlia使用独特的异或距离算法来计算节点间的距离，异或是一种简单的数学计算，它有很多独特的性质，这些性质在之后会为我们带来方便：</p>
+<pre><code>自己与自己的距离为0:
+x ^ x = 0
+不同的节点间必有距离:
+x ^ y &gt; 0
+交换律，x到y的距离等于y到x的距离:
+x ^ y = y ^ x
+从a经b绕到c, 要比直接从a到c距离长:
+a ^b + b ^ c &gt;= a ^ c
+下面两个是资料上提到的，似乎很重要，但我不大理解他们的含义:
+a + b &gt;= a ^ b
+(a ^ b) ^ (b ^ c) = a ^ c
+</code></pre>
+<p>在Kademlia中，异或(距离)算法具有单向性(或者说一一对应关系)，即给定一个节点和一个距离，必定存在唯一一个相对应节点。包括距离算法在内的，Kademlia中大部分的概念，都既有算术上的意义，又可以在节点树上表现实际意义。</p>
+<p>事实上，节点间距离反映的就是节点ID中比特的差异情况，而且越靠前的比特权值越大。或者说是反映节点在树中相隔了多少个分支，需要向上多少个树节点才能找到共同的祖先节点。</p>
+<p>Kademlia中使用了名为K-桶的概念来储存其他(临近)节点的状态信息，这里的状态信息主要指的就是节点ID, IP, 和端口。</p>
+<p>对于160bit的节点ID, 就有160个K-桶，对于每一个K-桶i, 它会储存与自己距离在区间 [2^i, 2^(i+1)) 范围内的节点的信息，每个K-桶中储存有k个其他节点的信息，在BitTorrent的实现中，k的取值为8.</p>
+<p>下表反映了每个K-桶所储存的信息</p>
+<table>
+<tr><td>K-桶</td><td>储存的距离区间</td><td>储存的距离范围</td><td>储存比率</td></tr>
+<tr><td>0</td><td>[2<sup>0</sup>, 2<sup>1</sup>)</td><td>1</td><td>100%</td></tr>
+<tr><td>1</td><td>[2<sup>1</sup>, 2<sup>2</sup>)</td><td>2-3</td><td>100%</td></tr>
+<tr><td>2</td><td>[2<sup>2</sup>, 2<sup>3</sup>)</td><td>4-7</td><td>100%</td></tr>
+<tr><td>3</td><td>[2<sup>3</sup>, 2<sup>4</sup>)</td><td>8-15</td><td>100%</td></tr>
+<tr><td>4</td><td>[2<sup>4</sup>, 2<sup>5</sup>)</td><td>16-31</td><td>75%</td></tr>
+<tr><td>5</td><td>[2<sup>5</sup>, 2<sup>6</sup>)</td><td>32-63</td><td>57%</td></tr>
+<tr><td>10</td><td>[2<sup>10</sup>, 2<sup>11</sup>)</td><td>1024-2047</td><td>13%</td></tr>
+<tr><td>i</td><td>[2<sup>i</sup>, 2<sup>i+1</sup>)</td><td>/</td><td>0.75<sup>i-3</sup></td></tr>
+</table>
+
+<p>放在节点树上，即每个节点都更倾向于储存与自己距离近的节点的信息，形成 <strong>储存的离自己近的节点多, 储存离自己远的节点少</strong> 的局面。</p>
+<p>从上表可以看出，在1-15这个范围内的节点，只要发现，就会被100%地储存下来，而离自己距离在1000左右的节点，只会储存13%.</p>
+<p>对于一个节点而言，K-桶就代表着节点树上那些未知的节点(其实除了自己都是未知的)构成的子树，160个K桶分别是具有1到160层的子树，由小至大。对于节点ID, 160个K-桶分别储存着节点ID前0到159个bit和自己一致的节点。</p>
+<p>K-桶中的条目(其他临近节点的状态信息)排序的，每当收到一个消息(如查询)时，就要更新一次K桶。</p>
+<p>首先计算自己与对方的距离，然后储存到对应的K-桶中，但如果K-桶已满(前面提到每个K-桶储存有k&#x3D;8个条目), 则会倾向放弃储存，继续保持旧的节点信息(如果还有效的话). 除了距离外，Kademlia更倾向于与在线时间长，稳定的节点建立联系。</p>
+<p>这是因为实践证明，累积在线时间越长的节点越稳定，越倾向于继续保持在线，即节点的失效概率和在线时长成反比。</p>
+<p>这样还可以在一定程度上抵御攻击行为。因为当大量恶意的新节点涌入时，大家都会选择继续保持旧的节点信息，而不是接受新的。</p>
+<p>除此之外，还需要定时检查K-桶中的节点是否任然在线，及时删去已失效节点。</p>
+<p>Kademlia协议仅定义了四种操作：</p>
+<ul>
+<li>PING: 探测一个节点是否在线</li>
+<li>STORE: 令对方储存一份数据</li>
+<li>FIND NODE: 根据节点ID查找一个节点</li>
+<li>FIND VALUE: 根据键查找一个值(数据)</li>
+</ul>
+<p>当查找一个节点时，首先计算自己与目标节点的距离d, 然后将 log<sub>2</sub>d 向下取整，找到对应的K-桶，从这个K-桶中选取a个节点(在BitTorrent的实现中取值为3), 向它们发送查询。</p>
+<p>收到查询的节点同样计算距离后从自己的对应K-桶中选取a个节点返回给查询者。查询者不断重复这个过程，知道找到目标节点，或无法再找到更近的结果。</p>
+<p>很多资料将这个过程描述成是递归的，但我觉得这里认为它是迭代的更为恰当。</p>
+<p>因为每个节点都更倾向于储存距自己近的节点的信息，而整个网络又是一个二叉树，因此每次查询都会至少取得距离减半的结果，对于有N个节点的网络，至多只需要 log<sub>2</sub>N 次查询。</p>
+<p>当进行 FIND VALUE 操作时，查询操作是类型的，每份数据都有一个同样是160bit的键，每份数据都倾向于储存在与键值距离较近的节点上。</p>
+<p>当上传者上传一份数据时，上传者首先定位几个较为接近键值的节点，用STORE操作要求他们储存这份数据。</p>
+<p>储存有数据的节点，每当发现比自己与键值距离更为接近的节点时，便将数据复制一份到这个节点上。</p>
+<p>当一个新节点欲加入网络时，只需找到一个已在网络中的节点，借助它对自己的节点ID进行一次常规查询即可，这样便完成了对自己信息的广播，让距自己较近的节点获知自己的存在。而离开网络不必执行任何操作，一段时间后，你的信息会自动地从其他节点被删除。</p>
+<p>毫无疑问，Kademlia要比我之前为零毫秒设想的网络模型优秀得多，更为彻底地实现了去中心化，弱化了关键节点失效对整个网络的影响。而电驴和BitTorrent的实践也证明了kademlia是具有相当的可行性的。</p>
+<p>Kademlia的精妙之处在于它选择了异或运算作为计算距离的依据，异或运算不仅具有算术的意义，在二叉树式的网络模型中，同样具有实际意义，同时任何情况下都在强调距离的概念，让节点间通过距离来聚合起来。</p>
+<p>在上一篇日志的末尾，我便在思考如何来聚合节点，现在通过Kademlia, 我算是找到了。下一步我想思考的是，既然以上是Kademlia的优势，那么它的弱势在哪？哪些地方存在不足？</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/06/12/2013/2013-06-12#%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%85%AC%E9%92%A5%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2013/06/12/2013/2013-06-12#%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%85%AC%E9%92%A5%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/" itemprop="url">笔记：公钥加密算法</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-06-12T00:00:00+08:00">
+                2013-06-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>在一年多以前，我曾计划写一个系列，关于密码学基础的科普文章。但当我写完第一篇，散列算法的时候，便觉得自己功力尚浅，仍需修炼。今天重新捡起来，写下去。</p>
+<p>公钥密码学，也称非对称加密，可以说是现代密码学的基础设施之一。公钥密码学也可以说标志着现代密码学的诞生，让密码学从政府，军方之间的斗智斗勇，成为了具有严谨数学基础的学科。</p>
+<p>目前使用最为广泛的公钥加密算法：RSA, 其发明者因此获得图灵奖(计算机领域的最高奖项).</p>
+<p>应该说密码学一直以来和军队，战争都是密不可分的。</p>
+<p>我们设想这样一个场景，同属一个阵营的两个部队，被相隔一段距离，其间都被地方部队占领，这意味着他们之间通过信使传递的所有信息，都是可能被敌人监控(阅读)的。</p>
+<p>那么如何在事先没有沟通的情况下安全地交换信息呢？</p>
+<p>对于经典的对称加密算法(对等加密, 共享密钥加密), 这是很难做到的。因为对称加密需要一个密钥(密码), 而两个部队事先是没有沟通过的，没有对密钥达成共识。</p>
+<p>而且他们现在也不可能再协商密钥，因为现在他们所有的通信都是被监控的了，一旦他们在这种环境下协商密钥，那么敌人也会知道密钥，便也能解密他们之后传送的加密信息。</p>
+<p>对称加密对加密和解密都使用同一个密钥，我们可能需要的是一种针对加密和解密，使用不同密钥的加密算法，这便是非对称加密的含义。</p>
+<p>试想，部队A可以生成一对密钥，分别用于加密(公钥)和解密(私钥), 然后将公钥发送给部队B. B便可以使用这份密钥对信息进行加密，再将加密信息发送回A了。</p>
+<p>这里的公钥，即使被敌人获取也没有关系，因为这里的公钥，仅仅能够用于加密数据，而唯一可以解密数据的私钥，自始自终都在A手中，从未公布出去。</p>
+<p>这样一来，A和B便可以在受监控的情况下，没有实现沟通，便能安全地交换信息了。</p>
+<p>让我们进一步设想，如果敌人可以篡改A和B之间发送的信息呢？</p>
+<p>例如当A发送公钥给B的时候，敌人将公钥拦截下来，自己生成一堆公私钥，将自己的公私钥发送给B. 相当于敌人冒充了B与A建立联系，建立了两个加密通道，分别是从A到敌人，和从敌人到B.</p>
+<p>这样以来，敌人便可以在两个通道之间，监控到A和B通信的明文了，同时敌人还可以任意篡改A和B之间发送的信息，即使它们已经被加密。</p>
+<p>这便是经典的“中间人攻击”. 应该说如果A和B没有事先沟通过，而且没有一个可信的第三方，那么这个问题几乎是无解的。</p>
+<p>但如果允许A和B事先进行沟通，该如何在敌人可以篡改信息的前提下，安全地交换信息呢？</p>
+<p>其实这个问题很好解决，只需在实现沟通时互相交换密钥即可，其后敌人(中间人)便无法再进行冒充了，因为密钥根本没有在这时被交换。</p>
+<p>然而更为通用的做法是使用“数字签名”，数字签名恰好是公钥加密的逆运算。即将加密密钥保密，而将解密密钥公布出去，使得只有自己可以加密信息，而任何人都可以解密信息。</p>
+<p>要实现数字签名，只需自己将要签名的信息(通常是一个散列摘要值)加密并公布即可，其他人可以认为，凡是用你公布出去的解密密钥能解密的信息，都是你自己加密(签名)过的。</p>
+<p>这样便可以识别一段信息，是否真正地由其宣传的发信人所发送，识别出被中间人所篡改的信息。</p>
+<p>在前面的情况下，我们还需要考虑的是“重放”攻击，即中间人虽然不知道A和B传输的实际内容，但却可以将其中的一份信息复制两遍甚至更多，已达到干扰的目的。通常应对重放攻击只需在加密信息中约定一个递增的编号，或者时间戳即可。</p>
+<p>下面我们来讨论公钥加密算法(RSA)背后的数学原理，本人数学很渣，只能大概谈谈应用RSA时需要了解的一些原理，更详细的数学原理请围观各种大牛的文章，如：  <a target="_blank" rel="noopener" href="http://www.matrix67.com/blog/archives/5100">http://www.matrix67.com/blog/archives/5100</a></p>
+<p>RSA基于这样一个原理：计算两个数的乘积是十分容易，但对一个数进行因式分解，得到这两个数却十分不易。</p>
+<p>可能这个原理并不直观，甚至有点反常识，但RSA选择的两个数的乘积，都是2^2048这样数量级的数字，换算为十进制，那么将会是1后面跟6000多个0.</p>
+<p>直到目前，对大数进行因式分解仍是一个难题，数学家还没有找到比试除法更高效一点的方法，因此在目前，对一个足够大的数进行因式分解可以认为是一项不可能完成的任务。但也不排除今后有数学家发明进行因式分解的简单方法，届时，RSA算法，甚至整个密码学，整个世界都会坍塌。</p>
+<blockquote>
+<p>有点虎头蛇尾啊，本来打算最后举一个RSA计算的例子的，结果还是写不下去 …</p>
+</blockquote>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/06/12/2013/2013-06-12#%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%AF%B9%E6%AF%94TCP%E4%B8%8EUDP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2013/06/12/2013/2013-06-12#%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%AF%B9%E6%AF%94TCP%E4%B8%8EUDP/" itemprop="url">笔记：对比TCP与UDP</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-06-12T00:00:00+08:00">
+                2013-06-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>TCP和UDP是传输层最常用的两种协议，几乎每个应用层协议都要在它们中间选择一个。同样，本文不详述其协议本身，而是着重对比。</p>
+<p>显然如果我要是说，TCP是面向连接的可靠传输协议，而UDP无连接且不可靠，那么我这半个月的书算是白读了。</p>
+<p>UDP仅仅是在IP的基础上提供了多路分解和多路复用，以及差错校验，十分简单——从UDP报头就能看出。</p>
+<p>而TCP提供的功能则要复杂得多，首先为了保证数据能够正确、有序地到达，TCP使用了“流水线”“积累确认”的模型。</p>
+<p>TCP会对每个数据报进行编号，同时在每个数据报中，都包含一个“确认序列号”的字段，用来指明上一个从对方正确接收的数据报。一旦接收方在一定时间内没有发送相应的确认序列号，那么发送方就会重传这些数据报。</p>
+<p>数据报的发送行为是“流水线”(与之对应的是“逐一确认”)的，即发送方不逐一等待确认，而是一次发送若干个数据报，换句话说，发送和确认的行为是异步的。</p>
+<p>而在这里，确认行为是“积累”(与之对应的是“选择重传”)的，也就是说，一旦一个数据报丢失了，那么在这之后的所有数据报都会重传。</p>
+<p>TCP还提供有流量控制和拥塞控制的功能。</p>
+<p>流量控制即在每个数据报中，都会指明自己的缓冲区还能容纳多少数据，发送方将根据这个值来协调同时存在于“流水线”上的数据量。流量控制保证了，应用层程序不会因为缓冲区不足而无法接收到新数据。当缓冲区满了以后，发送方会暂停发送。</p>
+<p>拥塞控制即TCP会根据网络情况，自动调整发送速率。典型策略是每发送成功一个包，即提高一些发送速率，每出现一次重传，即降低一些发送速率。</p>
+<p>同时TCP还使用了“慢启动”模型，即建立连接后默认速率是最低的(1MSS&#x2F;RTT, MSS即最小TCP分段, MTU减去TCP报头), 然后逐渐提升发送速率。</p>
+<p>这样可以保证重传行为始终是受控的，不会因为网络不稳定而出现大量重传的数据报而堵塞线路。</p>
+<p>TCP往往用于要求数据分毫不差的应用中，比如网页(HTTP), 文件传输(FTP), 电子邮件(SMTP&#x2F;POP3), 终端(Telnet)等等。</p>
+<p>而UDP往往用于可以容忍数据丢失的协议，如流媒体应用, 语音和视频通话等，这些应用即使出现数据丢失，影响也是瞬间的，可以容忍的。</p>
+<p>那么为什么这些流媒体应用要选择UDP呢？换言之，TCP在保证可靠传输的同时又牺牲了什么呢？</p>
+<p>对于流媒体应用，临时的数据丢失是可以容忍的，但绝不能容忍的是延迟。</p>
+<p>为了建立一个TCP连接，TCP需要进行“三次握手”，只有当三次握手完成后，才会正式传输数据。这样一来，建立连接并传输一份数据，至少需要2个RTT(往返延迟), 如果考虑发送端确认的话，那么需要2.5个RTT.</p>
+<p>在断开连接时，TCP还需要“四次挥手”，又会消耗掉至少1.5个RTT.</p>
+<p>UDP则没有这个顾虑，直接发送数据，只需0.5个RTT.</p>
+<p>UDP协议本身保证了，当应用层通过Socket将数据传递给传输层时，UDP会立刻将数据报发送出去。而TCP不提供这个担保，TCP因为提供有流量控制和拥塞控制服务，TCP会自行选择在“合适”的时候再发送数据报。</p>
+<p>流媒体应用在需要低延迟的情况下，还需要尽可能的带宽保证。</p>
+<p>尤其是因为TCP的拥塞控制服务，注定了TCP不能够尽可能利用带宽，当网络出现堵塞时，TCP的拥塞控制会降低发送速率，让出带宽，直到网络恢复。</p>
+<p>而UDP只会简单粗暴地继续发送数据报，很多情况下，TCP都在为UDP让出带宽，这也算是劣币驱逐良币的一种表现，据说有大牛在研究给UDP加上拥塞控制。</p>
+<p>总结：那些宁可在UDP上自行实现TCP的部分功能的应用，主要原因在于希望避开TCP的拥塞控制，以便于尽可能地利用带宽。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/06/12/2013/2013-06-12#%E8%AF%95%E7%9D%80%E7%BB%99%E8%87%AA%E5%B7%B1%E5%86%99%E4%BA%86%E4%B8%80%E4%BB%BD%E7%AE%80%E5%8E%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2013/06/12/2013/2013-06-12#%E8%AF%95%E7%9D%80%E7%BB%99%E8%87%AA%E5%B7%B1%E5%86%99%E4%BA%86%E4%B8%80%E4%BB%BD%E7%AE%80%E5%8E%86/" itemprop="url">试着给自己写了一份简历</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-06-12T00:00:00+08:00">
+                2013-06-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="写在前"><a href="#写在前" class="headerlink" title="写在前"></a>写在前</h2><p>只是试着写一份，没找工作的意思~</p>
+<h2 id="简历"><a href="#简历" class="headerlink" title="简历"></a>简历</h2><p>王子亭，男，辽宁沈阳，1995.11.25</p>
+<h3 id="C-2010-2013"><a href="#C-2010-2013" class="headerlink" title="C++ (2010-2013)"></a>C++ (2010-2013)</h3><p>熟悉C++的绝大部分语法，对C++11有些许了解，对boost有些许了解，能熟练使用STL，Qt等库，了解过openssl.</p>
+<p><strong>零毫秒1.x</strong>：基于Qt的，一个C&#x2F;S结构的，在Internet上支持百人规模的即时通讯系统，规模约3000行代码。</p>
+<p><strong>零毫秒后续</strong>：计划基于DHT构建一个去中心化的网络模型，正在进行设计，目前有约千行代码。</p>
+<h3 id="PHP与Web前端-2011-2013"><a href="#PHP与Web前端-2011-2013" class="headerlink" title="PHP与Web前端 (2011-2013)"></a>PHP与Web前端 (2011-2013)</h3><p>对PHP的语法特征有深入了解，包括最新的PHP5.5，使用过PHPDoc, PHPUnit等工具，对ThinkPHP，Zend等框架有些许了解。</p>
+<p>Web前端方面，熟悉HTML和CSS，包括HTML5，喜欢Bootstrap；能用jQuery完成简单的DOM操作，能够使用浏览器的开发人员工具进行调试。</p>
+<p>配合PHP使用过MySQL，Mongo，SQLite等数据库。</p>
+<p><strong>LightPHP</strong>：一个具有模版，路由，数据库模型，验证，国际化，类构造器等功能的简单PHP框架，设计时参考了ThinkPHP，Zend等框架，规模约1500行代码。</p>
+<p><strong>RootPanel</strong>：一个虚拟主机管理系统，前台包括工单系统，创建和编辑站点设置等等，后台会生成对应的配置文件，规模约3000行(不计前端部分).</p>
+<h3 id="Linux-2010-2013"><a href="#Linux-2010-2013" class="headerlink" title="Linux (2010-2013)"></a>Linux (2010-2013)</h3><p>两年服务器维护经验，目前有5台Linux VPS，独立经营一个百人左右的虚拟主机服务(用上面自己写的管理系统).</p>
+<p>日常使用Linux进行开发和娱乐三年左右。</p>
+<h3 id="互联网-生活"><a href="#互联网-生活" class="headerlink" title="互联网&#x2F;生活"></a>互联网&#x2F;生活</h3><p>常年GoAgent，能阅读技术方面的英文资料。</p>
+<p>熟练使用git并用Github分享代码，试用过Travis-CI.</p>
+<p>关注&#x2F;喜欢：Android，比特币，Markdown，开源，魔方，维基百科。</p>
+<h3 id="社区"><a href="#社区" class="headerlink" title="社区"></a>社区</h3><p>混于V2EX，OSChina，SegmentFault，知乎，果壳网等社区。</p>
+<p>自2011年创建了一个博客，目前有高质量原创文章110篇，其中技术文章40篇。</p>
+<p>自2009年起经营一个论坛，虽然用户不多，但也一直坚持了下来。</p>
+<h3 id="计算机科学"><a href="#计算机科学" class="headerlink" title="计算机科学"></a>计算机科学</h3><p>对TCP&#x2F;IP架构，密码学基础，Web安全有一定了解。</p>
+<p>除此之外曾接触过ASP.Net, VB6, 还有众多小规模项目没有一一列出。</p>
+<h2 id="写在后"><a href="#写在后" class="headerlink" title="写在后"></a>写在后</h2><p>这么看来，我的资历还有很多需要丰富的地方，希望能在高中毕业之前做到吧。</p>
+<p>C++方面，应该仔细研究一下作为准标准库的boost, 看一看平台相关的API(Linux syscall和Win API), 多少了解一下MFC.</p>
+<p>另外算法方面，一个奖都没拿到算一个遗憾，最近的一次是去年百度之星，只差一个监测点进复赛 … 现在对百度之星失望了，打算拿到一个Google Code Jam的成绩，至少也得进复赛。</p>
+<p>还有就是零毫秒木有完成，加快进度吧 …</p>
+<p>PHP方面，我应该真正地使用一下CodeIgniter, Yii, CakePHP, ThinkPHP, Zend这些框架，不用深入，但也应该用过。这样的话在设计自己的框架(LightPHP)的时候也许会有新的想法。</p>
+<p>感觉搞Web, 不造一个论坛或者博客的轮子，真的很遗憾。现在的JyBBS不过百来行代码，上不得台面，我得好好完善下。</p>
+<p>前端方面，要认真学一学js的语法，调研一下jQuery的更多高级功能。</p>
+<p>Linux方面，对于Linux的神器，如vim, awk之类的，用得还是太少，以至于我只能强调我用了Linux多少年，没多少硬东西。一直在用Ubuntu, 我一定要尝试一下Arch Linux.</p>
+<p>Python和Go还是值得学习一下的，Python我打算只是搞到了解的程度就好了，我想认真地学习一下Go.</p>
+<p>理论方面，感觉操作系统原理这方面，还有库的链接和装载是需要补充的，前一阵已经买了几本书，正在看。</p>
+<p>英语水平是需要提高的，我的博客应该算是我很满意的，文章一直都在保持相当的高质量，以后继续保持。</p>
+<blockquote>
+<p>2013.6.15补充：</p>
+</blockquote>
+<p>我还打算在维基百科参与翻译一些技术方面的词条，混一混StackOverflow.</p>
+<p>参与知名的开源项目似乎是个很大的加分项，不过这对目前的我来说好像有点遥遥无期的样子 …</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/06/06/2013/2013-06-06#%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%AF%B9%E6%AF%94HTTP%E5%92%8CFTP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2013/06/06/2013/2013-06-06#%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%AF%B9%E6%AF%94HTTP%E5%92%8CFTP/" itemprop="url">笔记：对比 HTTP 和 FTP</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-06-06T00:00:00+08:00">
+                2013-06-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>HTTP和FTP作为互联网架构中相当基本的应用层协议，想必大家对它们都有一些了解，因此，本文不详述其协议本身，而是着重于它们之间的对比。</p>
+<p>应该说HTTP和FTP的定位是相当接近的，FTP用于传输文件，而HTTP用于传输本质也是文件的“对象”(不要忘了HTTP还有PUT和DELETE等方法). 它们均基于TCP, C&#x2F;S架构，均为基于纯文本的“简单”协议，都有SSL版本：HTTPS和FTPS(不是SFTP!).</p>
+<p>通常FTP除了文件本身的属性，如体积，修改时间外，没有其他的元信息(meta-data), 而每个HTTP报文则都会携带大量的元信息，即HTTP报头中的键&#x2F;值对。这估计也是HTTP将文件抽象为“对象”的原因吧。下面是一个简单(大多数浏览器都会产生更多报头)的HTTP请求报头：</p>
+<pre><code>GET / HTTP/1.1
+Host: jyprince.me
+Connection: kepp-alive
+User-agent: Mozilla/4.0
+Accept-language: zh-cn
+</code></pre>
+<p>之所以我将报头中的键&#x2F;值对视为“信息”而不是协议本身，是因为它们中的大部分字段都是交由Web服务器或者浏览器来处理的。</p>
+<p>当然，也有一些例外，如 <code>Connection: kepp-alive</code>, 这个报头指出客户端希望于服务器建立持久连接。基于持久连接的HTTP, 和FTP一样，都可以认为是一问一答的交互式会话。</p>
+<p>但HTTP是无状态的，每一问一答中间，是没有关联的，将多个应答放在同一个TCP连接中仅仅是为了节约建立TCP连接的时间。</p>
+<p>而FTP的两个应答之间，服务器是需要维护状态信息的，例如客户端的当前路径，这将直接影响到之后的指令的行为。</p>
+<p>HTTP虽然也有手段携带状态信息(如Cookie), 但在我看来，这些属于协议之上承载的信息，并非协议本身。</p>
+<p>HTTP报文的数据紧接报头，以一个空行隔开，即HTTP报文中的键&#x2F;值对(元信息)和数据是一体的。而FTP连接中仅发送控制指令，每当需要传输文件的数据时，会建立另一个连接专用于传输数据。</p>
+<p>总结：</p>
+<ul>
+<li>HTTP在报头中以键&#x2F;值对携带元信息，FTP没有</li>
+<li>HTTP无状态，FTP在会话期间维护状态</li>
+<li>HTTP的元信息与数据一同传输，FTP使用单独的连接传输数据</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/06/05/2013/2013-06-05#RootPanel%202.0%20Case%20Close/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2013/06/05/2013/2013-06-05#RootPanel%202.0%20Case%20Close/" itemprop="url">RootPanel 2.0 Case Close</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-06-05T00:00:00+08:00">
+                2013-06-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>我最喜欢的，便是在一个项目完成后，写一篇总结性质的日志，可惜这样的机会并不多。</p>
+<p>这一段时间，我心里的压力挺大的，更多的是自己给自己的压力吧——我估计那几十名用户可能不大关心新版本什么的吧。不过这压力似乎并没影响我一天拖一天，看新闻，逛论坛，打游戏。</p>
+<p>现在，代码已经全部完成，也完成了大部分的测试，只等上线和微调了，但我心里还是很不安。这一次的更新很大，不亚于重新写一个，但准备工作却远不如RP首次上线时充分，仅预留了几天的测试时间，而且这次要迁移的用户要比上次多很多。这种不安直接导致这几天，经常打开论坛，又关上；打开IDE, 又关上；打开游戏，又退出 ….</p>
+<p>一开始我没打算为RP2增加这么多功能，但是写着写着，越来越想一步到位。RP2从3月一直拖到了6月，其实只有五月中下旬我在写RP2的代码我会说么？3-4月一直在反复折腾LightPHP, LightPHP在Web领域，可谓是见证了我成长，从我入门PHP两个月，到现在(两年), 我一直在完善它，虽然它现在仍不完美。</p>
+<p>一步到位，我想我做到了，在之后的一段时间，RP面板不会有大的更新了，因为这次的架构设计还算不错，应该可以撑很长时间，小修小补就够了。接下来我将着手宣传工作，同时如果Parthas有时间的话，准备开拓一下海外市场。</p>
+<p>我也没想到，我的第一桶金竟然是靠卖虚拟主机，想一年半以前，我还在为寻找一个物美价廉的虚拟主机而发愁。说实话，要不是因为面板是我自己写的，我真的不屑于卖虚拟主机，这离我靠卖代码赚钱的目标还有很大差距，不过也许对于现在的网络环境，卖服务才是更好的选择。</p>
+<p>附新版宣传稿：</p>
+<p>RP主机：技术宅的Linux虚拟主机</p>
+<p>可前往官网了解更多：<a target="_blank" rel="noopener" href="http://rpvhost.net/">http://rpvhost.net</a></p>
+<p>我是一名高二学生，出售虚拟主机已经一年多了，RP主机也上线半年了。一直觉得 ____ 是一个高质量的社区，所以我一直在学习和完善，直到现在才敢来这里宣传。</p>
+<p>在我还是初中生时，我便涉足Web编程，但那时候零花钱少啊，找不到性价比高又能满足需求的虚拟主机——我一直喜欢追一些新鲜的技术。我深知学生党和业余建站党的需求，于是在我现在有能力时，搞出了RP主机。</p>
+<p>RP主机本质上是一个严格划分了用户权限的Linux服务器，你可以在这里通过Shell随意运行进程，(以非root权限)自行安装软件和运行时，当然，也有公用的运行时。需要共享的80端口，MySQL，PPTP等服务，则可以通过我自己编写的面板进行自助管理。</p>
+<p>RP主机对PHP，Python，Go，NodeJS，C&#x2F;C++等语言均有非常好的支持。RP主机的服务器来自Linode，LocVPS等VPS提供商，目前有日本和美国两个节点，稍后会新增香港节点。价格8元&#x2F;月，19&#x2F;季度。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/giving-android-development-a-try">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/giving-android-development-a-try" itemprop="url">Giving Android development a try</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-06-04T07:03:59+08:00">
+                2013-06-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>It may seem a bit strange that I talk about Android. After all I am a web developer and I have been actively promoting Web for mobile development. But after a course I have been taking, I wanted to share some thoughts.</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/charla-desarrollo-web-spotify#more" rel="contents">
+            <a class="btn" href="/giving-android-development-a-try#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -408,7 +1775,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/01/23/2013-01-23-set-ios-system-ui-language/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/06/04/2013/2013-06-04#%E7%AC%94%E8%AE%B0%EF%BC%9A%E4%BA%92%E8%81%94%E7%BD%91%E7%94%B5%E5%AD%90%E9%82%AE%E4%BB%B6%E6%9E%B6%E6%9E%84/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -427,7 +1794,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2013/01/23/2013-01-23-set-ios-system-ui-language/" itemprop="url">设置应用内的系统控件语言</a></h2>
+                <a class="post-title-link" href="/2013/06/04/2013/2013-06-04#%E7%AC%94%E8%AE%B0%EF%BC%9A%E4%BA%92%E8%81%94%E7%BD%91%E7%94%B5%E5%AD%90%E9%82%AE%E4%BB%B6%E6%9E%B6%E6%9E%84/" itemprop="url">笔记：互联网电子邮件架构</a></h2>
         
 
         <div class="post-meta">
@@ -439,765 +1806,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-01-23T21:05:00+08:00">
-                2013-01-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <img src="/images/bdj-rank.jpg" class="">
-
-<p>在iOS应用中，有时候会需要调用系统的一些UI控件，例如：</p>
-<ol>
-<li>在UIWebView中长按会弹出系统的上下文菜单</li>
-<li>在UIImagePickerController中会使用系统的照相机界面</li>
-<li>在编译状态下的UITableViewCell，处于待删除时，会有一个系统的删除按钮。</li>
-</ol>
-<p>以上这些UI控件中，其显示的语言并不是和你当前手机的系统语言一致的。而是根据你的App内部的语言设置来显示。结果就是，如果你没有设置恰当的话，你的中文App可能会出现一些英文的控件文字。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2013/01/23/2013-01-23-set-ios-system-ui-language/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/music-hack-day-stockholm-2013">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/music-hack-day-stockholm-2013" itemprop="url">Music Hack Day Stockholm 2013</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-01-21T07:47:22+08:00">
-                2013-01-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p>Last weekend Spotify hosted the <a target="_blank" rel="noopener" href="http://stockholm.musichackday.org/2013/">Music Hack Day Stockholm 2013</a> at their office in Stockholm. In the end, <a target="_blank" rel="noopener" href="https://www.hackerleague.org/hackathons/music-hack-day-stockholm-13/hacks">65 projects</a> were built by 162 participants, using APIs from a variety of music services such as Echonest, Musixmatch, Soundcloud, Radio and Spotify among others.<br><img src="/assets/images/posts/music-hack-day-stockholm-300x225.jpg" alt="Music Hack Day Stockholm"></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/music-hack-day-stockholm-2013#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/01/13/2013-01-13-two-stage-creation-on-cocoa/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2013/01/13/2013-01-13-two-stage-creation-on-cocoa/" itemprop="url">谈ObjC对象的两段构造模式</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-01-13T10:15:00+08:00">
-                2013-01-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Objective-c 语言在申请对象的时，需要使用两段构造 (<a target="_blank" rel="noopener" href="http://volonbolon.net/post/634999801/two-stage-creation-in-cocoa">Two Stage Creation</a>) 的模式。一个对象的创建，需要先调用 alloc 方法或 allocWithZone 方法，再调用 init 方法或 initWithSomething 方法。如下是一个 NSString 对象的创建示例：</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSString</span> * str = [[<span class="built_in">NSString</span> alloc] initWithString:<span class="string">@&quot;http://blog.devtang.com&quot;</span>];</span><br></pre></td></tr></table></figure>
-
-<p>由于该语言的对象创建方法和大多数其它语言（如 C、C++、Java、JavaScript）都不一样，所以引起了我的好奇。是什么原因促使 Objective-C 做了这种设计，而又是什么原因促使大多数其它语言都采用 “new” 方法来一次性创建对象呢？</p>
-<p>在看了 <a target="_blank" rel="noopener" href="http://www.amazon.com/Cocoa-Design-Patterns-Erik-Buck/dp/0321535022">《Cocoa Design Patterns》</a> 一书（顺便吐槽一下该书中文版翻译质量不高，建议看英文版），并且做了一些调研之后，我将总结分享给大家，欢迎大家讨论。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2013/01/13/2013-01-13-two-stage-creation-on-cocoa/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/image-optimization-lossy-lossless-techniques">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/image-optimization-lossy-lossless-techniques" itemprop="url">Image optimization: Lossy, lossless and other techniques</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-01-04T21:44:57+08:00">
-                2013-01-04
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p>During last days I have come across interesting articles about images optimization. Images are currently the largest average payload in web sites, meaning a <a target="_blank" rel="noopener" href="http://httparchive.org/interesting.php">62%</a> of all the bytes. With the increasingly importance of responsive design, <a target="_blank" rel="noopener" href="http://css-tricks.com/which-responsive-images-solution-should-you-use/">responsive images</a> are becoming a challenge to face.</p>
-<p>I have already talked about image optimization in my <a href="/techniques-optimize-web-sites/#images-optimization">list of optimization techniques</a> and my short <a href="/jpegoptim-optimize-jpg-page-speed/">post about using jpegoptim</a>. But recently I have read about highly compressed JPG to target high-res screens and progressive JPG images, and I thought it would worth sharing.</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/image-optimization-lossy-lossless-techniques#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/01/01/2013-01-01-2012-summary/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2013/01/01/2013-01-01-2012-summary/" itemprop="url">2012年个人总结</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-01-01T14:31:00+08:00">
-                2013-01-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p>和 <a href="/2012/01/01/2011-summary/">去年</a> 一样，记录一下今年的成长和收获。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2013/01/01/2013-01-01-2012-summary/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/12/29/2012-12-29#%E5%AF%B9%E4%BA%8E%E5%85%8B%E9%9A%86%E4%BA%BA%E7%B1%BB%EF%BC%8C%E6%88%91%E7%9A%84%E6%80%81%E5%BA%A6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2012/12/29/2012-12-29#%E5%AF%B9%E4%BA%8E%E5%85%8B%E9%9A%86%E4%BA%BA%E7%B1%BB%EF%BC%8C%E6%88%91%E7%9A%84%E6%80%81%E5%BA%A6/" itemprop="url">对于克隆人类，我的态度</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-12-29T00:00:00+08:00">
-                2012-12-29
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-06-04T00:00:00+08:00">
+                2013-06-04
               </time>
             
 
@@ -1248,28 +1858,28 @@
         
           
             <blockquote>
-<p>如果有一天，技术上可行的话，你对克隆人类报什么态度？应该禁止？</p>
-<p>现在克隆技术还只能克隆出克隆羊，克隆牛等动物，目前由于技术和道德和法律等因素，还没有真正的克隆人出现。</p>
-<p>对于克隆人研究，当今国际社会的普遍态度是“禁”，但怎么个禁法，禁到什么程度，却是仁者见仁，智者见智。</p>
-<p>根据联合国大会第56&#x2F;93号决议，制定《禁止生殖性克隆人国际公约》和工作组会议分别于2002年2月和9月在纽约联合国总部召开。包括中国在内的约80个国家出席了上述会议。</p>
-<p>中国代表团在此次会议中，态度鲜明地提出“四不政策”，即“在任何情况、任何场合、任何条件下，都不赞成、不允许、不支持、不接受生殖性克隆人的实验。”</p>
+<p>果然写笔记是最好的读书方式，这里的笔记绝不是对知识点的堆砌，而是要让没读过这书的人有一个大概的了解，或者让读过书的人有新的发现。</p>
+<p>  最高效的阅读便是从书中为自己寻找论据。</p>
+<p>在我的日志中，“笔记”前缀表示我这是现学现卖，对内容没太多把握。</p>
 </blockquote>
-<p>我的观点，支持发展克隆技术，在技术成熟的条件下，支持在人类身上应用克隆技术(指克隆完整的人类, 并非器官).</p>
-<p>随着科技的进步，人们普遍的道德准则也在变化。迟早有一天，人们会接受克隆人类。我认为，技术成熟的时候，就是人们接受的时候。</p>
-<p>可以想象，在一百年前，人们对于器官移植、体外人工授精(试管婴儿)，是什么态度。但今天，当技术成熟了，我们都习以为常了。</p>
-<p>很多人用道德伦理来做反对克隆人类的理由。</p>
-<p>我觉得，克隆人类在产生道德问题的同时，也解决了一些道德伦理问题。</p>
-<p>克隆人类最大的意义在于造福那些希望拥有一个孩子，但无法生育的夫妇，在目前大多是领养或者利用来自精子库中的精子进行人工授精，这同样存在很大的道德阴影——毕竟是别人的孩子，但因为今天技术成熟了，我们也习以为常。</p>
-<p>如果能够克隆人类，那么这些人可以得到真正意义上的，自己的孩子。</p>
-<p>很多人对克隆人类的认识还停留在科幻电影中。</p>
-<p>克隆仅仅是两人拥有同样的基因，但因为经历、环境、饮食的差异，两个人可能在无论是性格还是相貌上，都完全不同。</p>
-<p>克隆并不能复制记忆！克隆人也是从婴儿长大的！他有自己独立的人格！</p>
-<p>并不存在太多的道德问题——克隆人也是一个婴儿，也需要人来抚养，抚养他的人自然顺理成章的成为他的父母。</p>
-<p>而且在进行克隆之前，势必要调查他是否有能力抚养一个婴儿(或者是否结婚)——就像人工授精一样。</p>
-<p>至于歧视的问题，你是通过克隆，还是有性繁殖诞生的，并不是可以直接观测的，不像肤色、民族那么显然。估计也不会有人去问他人是否是克隆人(或者试管婴儿)，因为这也毫无意义 …</p>
-<p>另一方面是无性繁殖将导致人类的基因很难进化。这一点也不是很明显，首先并不是所有人都要选择克隆的，另一方面，人类发达的医学早已使人类脱离了自然选择。</p>
-<p>还有观点说如果克隆人和被克隆人具有同样的基因，那么在分辨(犯罪)时会有麻烦(好像有类似的电影), 但别忘了，我们之前假设只有当一个人拥有抚养婴儿的能力的时候，才允许进行克隆，这样的话，两人的年龄、生活环境会有很大的差异，他们更可能除了基因，其他的都完全不同。</p>
-<p>经历和环境对人的影响是非常巨大，我们见到双胞胎长得很像，主要是因为往往他们小时候的经历、环境、饮食基本相同。</p>
+<p>电子邮件的出现要比Web早得多，一直以来都可以算是互联网的核心服务之一。</p>
+<p>应该说由于历史遗留问题，目前电子邮件的架构并不完美，但一直都没有合格的替代品出现。</p>
+<p>电子邮件使用SMTP协议被发送，SMTP是一个“简单”的，基于纯文本的交互式协议，位于TCP之上。当A向B发送邮件时，A向B在25端口上发起TCP连接，使用SMTP协议向B传输一份邮件，同时指明发信人地址和收信人地址。</p>
+<p>这时，A和B就可以称为邮件服务器，通常一个邮件服务器是既可以收信也可以发信的，即同时是SMTP服务器和SMTP客户端。作为一台服务器，需要保持时刻在线，以便随时接收新邮件。显然，用户是不会直接使用服务器的。</p>
+<p>在经典的电子邮件架构中，在每个用户的个人计算机上，都有一个本地SMTP代理，它负责在本地收集邮件，并定时发往服务器。引入本地SMTP代理后，A向B发送邮件时，用户A将写好的邮件交给本地SMTP代理(通常是个人计算机上的一个用户程序)，本地SMTP代理通过SMTP协议将邮件发送到A的邮件服务器，A的邮件服务器再将邮件通过SMTP发送到B的邮件服务器。</p>
+<p>本地SMTP代理和邮件服务器都会维护一个邮件队列，逐个发送邮件，当邮件无法送达时会进行几次重试，仍无法发送时会退回发信人。</p>
+<p>邮件已经到达了B的邮件服务器，再来考虑B如何收信。B的个人计算机并不能保证时刻在线，也可能没有固定的IP地址，所以邮件服务器很难将新邮件发送到他的个人计算机上。</p>
+<p>可以想象，SMTP是一个“推送”协议，当有新信息时，由发信人向收信人推送信息。而在从邮件服务器检查新邮件时，我们需要的可能是一种“拉取”协议，由收信人定时拉取新信息。</p>
+<p>于是有了POP3, 它同样是在TCP之上的，基于纯文本的“简单”交互式协议。个人计算机上的POP3代理，定时使用POP3协议从邮件服务器检查新邮件，同时将新邮件下载到个人计算机。</p>
+<p>除POP3以外还有功能更加复杂的IMAP协议，IMAP协议在POP3的基础上还支持同步阅读状态，搜索，建立文件夹对邮件进行分类等等功能。</p>
+<p>SMTP代理和POP3(IMAP)代理分别代表了收信和发信，它们通常是一体的，称为邮件客户端，如Outlook, Thunderbird.</p>
+<p>一封邮件除了正文之外，还可能有很多元信息，如收信人，发信人，日期，标题，收信来源等。这些键&#x2F;值对信息以邮件报头的形式存在于一封邮件中，非常类似于HTTP中的报头。在早期的SMTP协议中，仅在邮件中支持ASCII字符，无法使用非ASCII字符(如中文)，也无法使用格式文本和嵌入附件。于是出现了MIME标准，通过将邮件正文(base64)编码，并添加特殊的报头信息，即可实现使用非ASCII字符，使用HTML, 嵌入图片和附件等功能。</p>
+<p>形如 <a href="mailto:&#x6d;&#x40;&#106;&#121;&#98;&#111;&#120;&#x2e;&#110;&#x65;&#116;">&#x6d;&#x40;&#106;&#121;&#98;&#111;&#120;&#x2e;&#110;&#x65;&#116;</a> 的电子邮件地址指明了该邮箱位于 jybox.net 这台服务器上，对应的用户名是 m, 显然我们可以通过DNS查询到jybox.net所对应的IP, 但电子邮件服务器并非由通常的A记录指定，而是有专门的MX记录。发信人通过向DNS查询邮件地址中域名的MX记录来找到收信人的邮件服务器。</p>
+<p>我们再来考虑安全性问题，SMTP是可选验证的。在本地SMTP代理向邮件服务器提交邮件时，通常是需要验证用户名和密码的，因为邮件服务器只希望向它的用户而不是所有人提供邮件转发服务。而在邮件服务器间发送的邮件则无需验证，因为你需要接收来自所有人的邮件。</p>
+<p>至于邮件拉取协议(POP3, IMAP)显然也需要验证，因为一个人只应当能够查看自己邮箱里的邮件。</p>
+<p>至此，还没有任何方式来鉴定一封邮件的真伪，任何人都可以在向收信人邮件服务器发送邮件时伪造发信人地址。为此，你可以通过DNS在一个域名的TXT记录中查询到一份被称为SPF的记录，该记录指明了经过认证的，用于该域名的发信服务器的地址，若发信人不是这个地址，则可以认为邮件是伪造的。除此之外，还有一些手段可以对SMTP进行加密，签名，工作量证明，但它们不是业界标准的一部分或应用较少，这里不再介绍。</p>
+<p>Hotmail是当年最为成功的，基于Web的免费邮件服务，现在几乎所有邮件服务提供商均支持通过Web发送和接收邮件，甚至不再提供SMTP和POP3&#x2F;IMAP访问服务。</p>
+<p>不过随着智能手机的普及，SMTP和POP3&#x2F;IMAP又回来了。</p>
 
           
         
@@ -1319,7 +1929,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/12/25/2012/2012-12-25#LightPHP%20v4/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/05/27/2013/2013-05-27#%E9%9B%B6%E6%AF%AB%E7%A7%92%EF%BC%9A%E5%85%B3%E4%BA%8E%E7%BD%91%E7%BB%9C%E6%9E%B6%E6%9E%84%E5%92%8C%E8%8A%82%E7%82%B9%E6%9F%A5%E6%89%BE%E7%9A%84%E8%AE%A8%E8%AE%BA/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -1338,7 +1948,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2012/12/25/2012/2012-12-25#LightPHP%20v4/" itemprop="url">LightPHP v4</a></h2>
+                <a class="post-title-link" href="/2013/05/27/2013/2013-05-27#%E9%9B%B6%E6%AF%AB%E7%A7%92%EF%BC%9A%E5%85%B3%E4%BA%8E%E7%BD%91%E7%BB%9C%E6%9E%B6%E6%9E%84%E5%92%8C%E8%8A%82%E7%82%B9%E6%9F%A5%E6%89%BE%E7%9A%84%E8%AE%A8%E8%AE%BA/" itemprop="url">零毫秒：去中心化网络：关于网络架构和节点查找的讨论</a></h2>
         
 
         <div class="post-meta">
@@ -1350,8 +1960,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-12-25T00:00:00+08:00">
-                2012-12-25
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-05-27T00:00:00+08:00">
+                2013-05-27
               </time>
             
 
@@ -1401,36 +2011,53 @@
         
         
           
-            <p>我又迫不及待地写LightPHP的第四个版本.<br>原因是RootPanel(RP主机面板)的代码又出现了危机，如果不修改LightPHP的漏洞，引入一些更先进的理念，恐怕很难再扩展了.</p>
-<p>LightPHP v1和v2, 几乎都是我凭空造出来的，在此之前，我没阅读过别人的代码，没用过已有的框架，完全抱着“方便自己”的想法写了这么个库.<br>现在看来，其中很多设计，竟和一些已有的理念不谋而合…..很多时候都是这样.</p>
-<p>那是2011年7月，刚刚考完中考，我决定用PHP重写我那原有的Asp.Net的网站.<br>我写了一个半月，宣告失败，改用PHPWind和WordPress.<br>失败的原因，很多，PHP基础不扎实，算是一方面.</p>
-<p>Asp.Net, 提供给了我一个封装的非常好的框架，我刚刚用Asp.Net的时候，仅仅有VB6的基础，连HTML都不熟. 但Asp.Net却能够让我写出一个个复杂的网站(CMS+博客+论坛), 当然，代码很烂. 很多HTML片段甚至在不同的文件出现了几十次(比如<code>&lt;head&gt;</code>). 但也算是写出来了，这要归功于Asp.Net设计良好的框架，你只需要照着做就行了.</p>
-<p>Asp.Net给我的感觉是我仍然在写桌面软件，你可以在代码中像操作窗体控件一样改变HTML <code>&lt;input&gt;</code>标记的值. 像响应窗体控件事件一样响应HTML <code>&lt;button&gt;</code>的点击.</p>
-<p>而PHP更为原始，不愧于它“超文本预处理器”的名字，我一个人无法设计出整个网站的架构.<br>(当时)我对于PHP的C风格的数据库API、Cookie API、需要手动构造表单、处理表单非常不满.<br>因为Asp.Net的封装，我根本不理解Cookie和表单的工作原理，于是我继续不下去了.</p>
-<p>当然我不是说Asp.Net不好，如果能够理解Asp.Net的工作原理，或许能够得到更大的收益.<br>不过我现在没那个兴趣了，因为我投入了自由软件的阵营.</p>
-<hr>
-<p>在最后，我从已经失败的项目中抽取了一个库，叫LightPHP, 我绝对不会告诉你”Light”其实是“光”的意思.</p>
-<p>LightPHP v1,有一个灰常简陋的模版系统，可以让多个页面共享一些HTML, 还是基于文本替换的，灰常蛋疼.<br>还有参考自Abreto的简陋的MySQL数据库封装，只是封装了申请&#x2F;释放资源(<a target="_blank" rel="noopener" href="http://www.cppblog.com/jinq0123/archive/2008/05/20/50522.aspx">RAII概念</a>)、打开数据库、设置编码的功能.<br>其实PHP对内存泄漏并不敏感，反正执行完，进程就销毁了…<br>还有一个类似Asp中的Application, 全局的键&#x2F;值对储存系统.</p>
-<p>LightPHP v1基本上没派上什么用场, 2011年9月我开始搞LightPHP v2.</p>
-<p>在MySQL封装中充分的考虑了安全，这时的LightPHP已经可以防御各种SQL注入了.<br>很简单的一个原则：SQL和参数分离，每一个参数必须经过<a target="_blank" rel="noopener" href="http://php.net/manual/zh/function.mysql-real-escape-string.php"><code>mysql_real_escape_string()</code></a>的转义.</p>
-<p>引入了登录状态管理，核心设计来自我之前的Asp.Net网站.<br>只使用Cookie, 不用Session, 每个页面都会重新计算密码，写入Cookie.</p>
-<p>应该说LightPHP v2的后端工具(数据库封装什么的)还算是派上一些用场，前端(模版功能)依旧鸡肋….</p>
-<hr>
-<p>2012年2月, whtsky开始写PBB( <a target="_blank" rel="noopener" href="https://github.com/whtsky/PBB">https://github.com/whtsky/PBB</a> ), 这个名字还是我起的呢….我绝对不会告诉你”Pb”是“铅”的意思(PBB &#x3D; Pb BBS). 我从他的代码(Python)中学到了很多新的理念.<br>尤其是模版和路由，真的是让我眼前一亮，我从whtsky那学到了很多新的东西，包括使用<a target="_blank" rel="noopener" href="https://github.com/">Github</a>.</p>
-<p>我以像Python那样写网站为目标，开始写LightPHP v3.<br>我为MySQL加入了无需SQL的，基于数组的查询接口(有点类似Mongodb的接口).<br>重新设计了模版系统，基于缓冲和eval. 加入了路由，每个页面用一个类来对应. 引入了Bootstrap和jQuery.<br>后来还加了互斥锁、SMTP发信等工具.<br>而且我为LightPHP v3写了完整的文档和示例——虽然根本没人看.</p>
-<p>LightPHP v3的作品则有很多了，如JyBBS( <a target="_blank" rel="noopener" href="https://github.com/jybox/JyBBS">https://github.com/jybox/JyBBS</a> )、RootPanel( <a target="_blank" rel="noopener" href="http://rp2.jybox.net/">http://rp2.jybox.net/</a> )等.</p>
-<p>最近，我又参考了一些PHP框架，ThinkPHP、esoTalk的ET什么的，对很多东西又有了新的认识.</p>
-<hr>
-<h2 id="LightPHP-v4："><a href="#LightPHP-v4：" class="headerlink" title="LightPHP v4："></a>LightPHP v4：</h2><h3 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h3><p>让NoSQL封装支持更多功能. 支持下面的语法：</p>
-<pre><code>$conn(&quot;user&quot;)-&gt;where(&quot;xxx&quot;,&quot;ooo&quot;)-&gt;sort(&quot;id&quot;)-&gt;top(5)-&gt;select();
-</code></pre>
-<p>通过插件的形式支持更多数据库，甚至可以同时支持关系数据库和NoSQL数据库——只要不直接使用SQL的话.</p>
-<h3 id="模版-模型"><a href="#模版-模型" class="headerlink" title="模版&#x2F;模型"></a>模版&#x2F;模型</h3><p>MVC中的Model和View, 之前一直不理解Model层的作用——其实现在也不是很理解.</p>
-<h3 id="路由"><a href="#路由" class="headerlink" title="路由"></a>路由</h3><p>没啥变化.</p>
-<h3 id="缓存-键-值对储存"><a href="#缓存-键-值对储存" class="headerlink" title="缓存(键&#x2F;值对储存)"></a>缓存(键&#x2F;值对储存)</h3><p>调研一下memcache</p>
-<h3 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h3><p>互斥锁、邮件等，没啥变化</p>
-<h3 id="登录状态管理"><a href="#登录状态管理" class="headerlink" title="登录状态管理"></a>登录状态管理</h3><p>使用更安全的方式：<br>像Dropbox一样，可以追踪每一个会话，为每个会话生成不同的令牌.</p>
-<h3 id="插件"><a href="#插件" class="headerlink" title="插件"></a>插件</h3><p>这个是受ET的启发，要让每一个部件都是可以随时插拔的. 并且可以以插件的形式，随时在任何地方插入功能.</p>
+            <p>零毫秒，计划已久，也拖了很久，其概念一直都在我的脑海中，这可能是第一篇正式的“讨论”。</p>
+<p>之所以是讨论，是因为我对整个系统的架构依旧迷茫。而相比之下，RootPanel(RP主机面板), JyBBS(论坛系统), 的蓝图则非常清晰，实现起来不过是时间问题而已。</p>
+<p>目前最大的困难是没人和我讨论，这个项目几乎走在了世界前列，没有多少资料可以借鉴，希望正在读的《计算机网络——自顶向下方法》能给我一些帮助。</p>
+<p>然而当前几天我看到又一个类似项目，比特信(BitMessage)的时候，不能再忍了。</p>
+<p>纵观现在的互联网，个人认为它具有以下几个特点：</p>
+<p><strong>面向信任模型</strong></p>
+<p>即默认假定网络中的节点都是受信任的，如：IP和TCP, UDP数据报均不加密不签名，传输过程中的任何路由节点均可修改数据报。IP不提供担保，能否无误送达取决于中间路由节点。发信人向收信人发送数据报完全不需要收信人的同意，收信人无法拒收。</p>
+<p><strong>分层架构，在端点实现功能</strong></p>
+<p>即大多数功能在通信的两端实现，中间的路由无需关心，只需转发。如TCP的面向连接，排序，错误重传，IP的分段等等。</p>
+<p>同时协议分层，上层协议更新不影响底层协议。</p>
+<p><strong>天生去中心化</strong></p>
+<p>互联网从未依赖于一个中心节点，每个路由都是独立工作的，这使得没有人能控制整个网络，除非控制每一个路由器。同时即使一处网络断开，被分割的各个部分也可以单独工作。</p>
+<p>IPv6一定程度上解决了IPv4在上述特点中暴露的问题，IPv6的普及工作已经进行了十几年，仍没有显著成效。零毫秒希望在应用层组建一个去中心化网络，为上层应用提供身份验证，名称注册，加密传输，节点查找，信息广播&#x2F;查询，组群，离线储存等功能。作为一个示例，零毫秒会首先实现一个即时通讯软件。</p>
+<p>可以预见，在应用层进行数据报转发是非常不明智的。零毫秒也分为多层架构，在核心(最底层)只转发控制指令，实现最为基本的组网和节点查找功能，毕竟只要找到目标节点，即可进行点对点通讯。通过组件树状的结构化网络，为上层应用提供方便，使网络流量最小化。</p>
+<p>零毫秒分层：</p>
+<ul>
+<li>核心层：组网，节点查找，身份验证，组群</li>
+<li>服务层：名称注册(加强版DNS), 信息广播和查询，离线储存</li>
+<li>应用层：应用自有协议，如即时通讯</li>
+</ul>
+<p>零毫秒网络有树状的结构，每个树节点有30个子节点。最次一级叫NNode(Normal Node), 其余具有子节点的树节点叫MNode(Master Node). 由底向上，由多至少，按层级分别为M1Node, M2Node, M3Node, 可无限扩充。一个新节点接入网络时，只需知道网络中任意一个节点的地址(IP和端口), 即可通过它获取到M1Node列表，并逐个尝试接入。网络中第一个节点启动时，则直接默认自己是M1Node. MNode需要有公网IP, 或使用UPnP.</p>
+<p>加入网络后，作为NNode, 可以向M1Node申请成为M1Node. 成为M1Node后可向M2Node申请成为M2Node, 如果没有M2Node, 则像其他M1Node申请成为第一个M2Node.</p>
+<p>申请是否成功并非绝对，有多少节点通过了你的申请，你就成为了多少节点眼中的MNode. 处理申请时要考虑的因素包括：网络延迟，带宽，已有节点数量，历史信用等。</p>
+<p>这可能让读者存在一些疑惑，最高级的MNode是否可以控制整个网络，进行破坏呢？事实上因为零毫秒会对每一个数据包进行加密和签名，所以即使是MNode也无法对数据包进行篡改。当然它可以选择不作为——不按约定转发数据包，但这种行为会很快地被发现，其他节点会很快自动地推选出另一个MNode. 同时可以在核心层实现一个简单的点对点信用系统(类似于电驴的积分系统), 每当上级MNode为自己提供服务时，即为对方增加一点信用值，当上级MNode出现丢包，网络中断时，即为对方减少信用值。一段时间后，该信用值将能够很好地评估对方是否适合成为一个MNode.</p>
+<p>我们再来讨论该模型的负荷，很显然，整个网络的节点数量取决于MNode的层级，以30为底数呈指数关系，而整个网络的瓶颈在于最高级的MNode, 因为在接下来的设计中，MNode需要储存(缓存)其所有(直接或间接)子节点的信息。这些信息包括256 Byte的用户ID(公钥), 18 Byte的地址(兼容IPv6, 以及端口号), 可选的256 Byte的额外信息(如节点层级等等), 合集530 Byte.</p>
+<p>下表是含有M1Node至M8Node的网络下，可容纳节点数与MNode所需储存的信息的表格：</p>
+<table>
+<tr><td>M1Node</td><td>900</td><td>16 KiB</td></tr>
+<tr><td>M2Node</td><td>2.7万</td><td>477 KiB</td></tr>
+<tr><td>M3Node</td><td>81万</td><td>14 MiB</td></tr>
+<tr><td>M4Node</td><td>243万</td><td>429 MiB</td></tr>
+<tr><td>M5Node</td><td>7290万</td><td>13 GiB</td></tr>
+<tr><td>M6Node</td><td>2.2亿</td><td>390 GiB</td></tr>
+<tr><td>M7Node</td><td>660亿</td><td>11 TiB</td></tr>
+<tr><td>M8Node</td><td>2万亿</td><td>330 TiB</td></tr>
+</table>
+
+<p>以当前硬件水平而论，M1Node至M3Node, 甚至M4Node, 都可以运行于个人计算机。而M4Node和M5Node适合运行于服务器，M6Node可运行于高性能集群。至此，M6Node已可以容纳2.2亿个节点。至今内存的发展远未达到瓶颈，仍在以摩尔定律预测的速度更新，更何况MNode可通过散列表，数据库引擎等技术来降低内存占用，所以单就内存而言，我认为不存在瓶颈。</p>
+<p>在这种树状结构下，节点查找显得十分有序：逐级向上查找即可。查询经过的节点数量在最不理想的情况下，和网络规模(节点数量)成对数关系。当然，前文只讨论了内存瓶颈，毫无疑问最顶层MNode会收到大量的查询请求。但我们可以非常简单地通过集群来处理查询。即使在极大规模的MNode, 如M7Node, 我们也可以通过两层集群轻松应对：路由将零毫秒的数据包(甚至可以不做区分，直接全部)随机发往第一个集群，读出被查询的ID, 进行散列后发往第二个集群中的散列值前缀指定的服务器。每个服务器只需处理指定散列前缀的查询。数据包加解密和序列化可由单独的服务器进行。</p>
+<p>在具体实现方面，我选择了以RSA公私玥对作为用户标识，公钥为ID, 私钥为凭证，每个数据包均需签名，签名值同时可以作为一个数据包的编号。节点之间使用SSL连接，支持IPv6. 因为目前所讨论的内容只涉及控制指令，所有指令都无需加密，这样可以使节点列表等信息被中间节点所缓存。所以只需在节点之间加密即可，无需在端点之间进行加密。</p>
+<p>我选择使用JSON来承载通讯协议，因为JSON应用广泛，被众多开发环境支持，易于调试，具有很好的扩展性，同时可作为流来使用。为提高传输性能，可以考虑使用其二进制版本BSON, 也可以JSON, BSON双支持，前者用于调试环境，后者用于生产环境。</p>
+<p>我还需要指出目前设计存在的几个问题：</p>
+<p><strong>节点的聚合方式</strong></p>
+<p>30个节点依据什么聚合在一起？我更倾向于按网络情况聚合，这样可以保证在网络的任意部分都具有高速的连接。不过也可以考虑通过经常联系与否来进行聚合，毕竟在较低层级处理查询将显著减少顶级MNode的负荷。</p>
+<p><strong>单个节点如何估计网络规模，选择时机进行“升级”</strong></p>
+<p><strong>时间校准</strong></p>
+<p>数据包中应当包含时间戳，以供今后查证，但很难找到一个去中心化的时间校准方式。</p>
 
           
         
@@ -1480,7 +2107,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/12/23/2012-12-23#RP%E4%B8%BB%E6%9C%BA%E5%B9%BF%E5%91%8A%EF%BC%9A%E4%BD%A0%E5%B8%8C%E6%9C%9B%E6%9C%89%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84%E7%BD%91%E7%AB%99%E4%B9%88/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/05/26/2013/2013-05-26#%E7%94%B5%E5%BD%B1%EF%BC%9A%E8%87%B4%E6%88%91%E4%BB%AC%E7%BB%88%E5%B0%86%E9%80%9D%E5%8E%BB%E7%9A%84%E9%9D%92%E6%98%A5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -1499,7 +2126,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2012/12/23/2012-12-23#RP%E4%B8%BB%E6%9C%BA%E5%B9%BF%E5%91%8A%EF%BC%9A%E4%BD%A0%E5%B8%8C%E6%9C%9B%E6%9C%89%E4%B8%AA%E8%87%AA%E5%B7%B1%E7%9A%84%E7%BD%91%E7%AB%99%E4%B9%88/" itemprop="url">RP主机广告：你希望有个自己的网站么</a></h2>
+                <a class="post-title-link" href="/2013/05/26/2013/2013-05-26#%E7%94%B5%E5%BD%B1%EF%BC%9A%E8%87%B4%E6%88%91%E4%BB%AC%E7%BB%88%E5%B0%86%E9%80%9D%E5%8E%BB%E7%9A%84%E9%9D%92%E6%98%A5/" itemprop="url">电影：致我们终将逝去的青春</a></h2>
         
 
         <div class="post-meta">
@@ -1511,8 +2138,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-12-23T00:00:00+08:00">
-                2012-12-23
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-05-26T00:00:00+08:00">
+                2013-05-26
               </time>
             
 
@@ -1562,30 +2189,42 @@
         
         
           
-            <p>不懂技术的你是否梦想有一个自己的网站？</p>
-<p>写一个属于自己的博客，一切都由自己决定，不必受制于QQ空间&#x2F;百度空间&#x2F;新浪博客的限制？</p>
-<p>建一个论坛，拉起一个自己的圈子？过一会当版主的瘾.</p>
-<p>刚刚入门网页编程的你？是否希望有一个自己的服务器，随时上传、测试自己的作品？</p>
-<p>让朋友看到你的成果.</p>
-<p>或者从头写一个自己的网站，很有挑战吧.</p>
-<p>或者你是一个Linux控，有一个随时在线的Linux服务器是一件很酷的事情吧？</p>
-<p>你可以在上面运行自己的程序，它将会一直运行下去.</p>
-<p>网络通畅才是学习效率的保证，你是否因为访问一些网站而发愁呢？</p>
-<p>何时互联网才能真正自由？</p>
-<p>RP主机( <a target="_blank" rel="noopener" href="http://rp2.jybox.net/">http://rp2.jybox.net/</a> )将会为你提供一个高效而廉价的解决方案，最低每月仅需8元钱，可以实现你上面任何一个或多个目标！</p>
-<p>没错每月只要8元钱！一顿饭钱、一盒烟钱！按季度购买可享更多优惠！</p>
-<p>不懂如何开始没关系，有会卖萌的客服随时提供指导，帮助你扫清障碍！</p>
-<p><img src="http://i.imgur.com/JOlAe.png" alt="RP-HOST"></p>
-<hr>
-<p>RP主机，Linux虚拟主机，<a target="_blank" rel="noopener" href="http://rp2.jybox.net/">http://rp2.jybox.net/</a></p>
-<p>可开博客、论坛、测试自己编写网页，支持cgi&#x2F;php&#x2F;python&#x2F;c&#x2F;c++&#x2F;各种库&#x2F;ruby&#x2F;mysql.</p>
-<p>可登录ssh终端，完整的linux环境，ssh&#x2F;vpn用来搭梯子.</p>
-<p>可以在终端跑程序，可当socket服务器，三级域名随便用.</p>
-<p>东京&#x2F;洛杉矶两个机房随便换.</p>
-<p>RP主机已上线一个月，它的前身已稳定运营将近一年.</p>
-<p>8元&#x2F;月，19&#x2F;季度.</p>
+            <h2 id="流水账"><a href="#流水账" class="headerlink" title="流水账"></a>流水账</h2><p>今天和许小璐去看了这电影，第一次去电影院啊，不算学校带着去的话。</p>
+<p>最近一个月，总能在各种渠道看到这部电影。电影看着看着，发现好多台词我都听过。</p>
+<p>比如“也许我愿意跟你一起吃苦呢？”“但是我不愿意！”，只是当时不知道出自哪。</p>
+<p>听说是赵薇的导演系毕业作品，我也没报多大期待。</p>
+<h2 id="电影本身"><a href="#电影本身" class="headerlink" title="电影本身"></a>电影本身</h2><p>也许我不在那个时代，对电影中那一代人的青春，我没有什么共鸣，更何况我也没上过大学。</p>
+<p>说实话我看得稀里糊涂，角色太多，都是学生，没太鲜明的特点，没有主次关系，记不住；头重脚轻，后半部分铺垫不够，情节发展显得有些莫名其妙；有的情节略做作(如开头寝室那段)。</p>
+<p>我也只能挑这么几块骨头了，因为我没看出有什么主导精神，或者说电影想要表达的观念，甚至没有讲一个完整的故事，更像是一个个场景片段的堆叠。</p>
+<p>也许这电影就是用来纪念那一代人的青春的，可能真的不是给我看的。</p>
+<p>但我总是喜欢看别人的故事的。更重要的是这些零碎的片段，让我想到了我的青春，不是过去，而是在将来。</p>
+<p>如果要挑一句台词展开来说，我想会是“我的人生是一栋只能建造一次的楼房，我必须让它精确无比，不能有一厘米差池”。</p>
+<h2 id="没有如果"><a href="#没有如果" class="headerlink" title="没有如果"></a>没有如果</h2><p>我也希望我有一个幸福的人生，但我不认为人生是一栋整齐的楼房，整齐划一，精确无比。</p>
+<p>我会把人生比作旅行，有无数条路可以通往目的地，每条路上的景色各不相同，每时每刻都在做选择，不能回头。</p>
+<p>我不会为我的选择后悔，因为每条路上都有不同的风景，而且无法预见。我总是喜欢拿我初一从雨田退学的事情说事，那是迄今为止我人生中最大的转折点，很多事情从那以后都变了。</p>
+<p>小学的时候，我是个非常好动，淘气的孩子，出了名的。小学六年级，我爸妈以买电脑为利诱，忽悠我去考雨田——这是个变态的初中。</p>
+<p>初一我突然进入了雨田这个，全沈阳出了名的快节奏的初中，周围都是学霸，甚至我觉得我现在的高中都不及那竞争激烈。我一直想不通我在为了什么，这么起早贪黑地学习，当时也没现在这么多理论，没想太多，就是坚持不下去了而已。于是因为一点小事和父母闹了起来，一连半个月没怎么上学。再回到学校，我总觉得同学和我有距离了，看我的眼神和以前不一样了，再加上因为成绩下滑被老师特殊关照，开始变得自卑，想和同学们一样，但又不想上学，就这么矛盾着。这样的状态一直持续了半年，其间三天两头地不去上学，终于我还是从雨田退学了。父母又在这时候离婚，我发现我很难解释为什么我妈不在了，另一个女人又是谁，直到一年多以后我才释怀。就是从这个时候开始，我变得内向，和不熟的人话很少，一副天然呆的样子。</p>
+<p>后来和雨田同班的同学聊天，发现一切都只是我想多了，他们从未觉得我从那逃离是很失败的，甚至觉得我很酷。</p>
+<p>但现在即使我不再自卑，性格也很难改变了。</p>
+<p>从雨田退学，我转到了我们家附近的一个普通的初中，不能说这里不好，只是这里普通人更多一点，我被分到了最后一个最“普通”的班。这一下，我从一个极端到了另一个极端，这里没有学霸，却有抽烟逃学打架的考试零分，班里就二、三十个人，教室显得空旷旷的，但老师也更有人情味，不像现在的班主任，总像戴着面具一样。</p>
+<p>在这里我见到了更多普通人的生活，那些没机会考上高中的，父母老师眼中的“不正经”的孩子，他们也有自己擅长的事情，也有积极的一面，他们也有父母家人，他们不可能将来都去“捡破烂”，他们也会有自己的生活，也会很幸福。</p>
+<p>现在想起来从小我就对电脑有种特殊的感情，在幼儿园的时候，家里短暂地有过一台电脑，当时我并不知道电脑可以玩游戏，也不知道可以上网——我根本不知道它能干什么，只是觉得很酷。从那以后，整个小学，我都喜欢在本子上，用笔来画电脑上那些图标，界面，游戏，画了六年，都没厌倦，这也许是我小学同学对我最深刻的印象之一，并不是画着玩，而是当成一个作品来画，虽然只是简笔画而已，我的美术一直不好。我父母爷爷奶奶，很多次开玩笑地说，也许你以后会设计自己的电脑，软件，游戏呢。</p>
+<p>谁又能想到，我现在在做的事情呢？远远超出当时的想象。同样的话在三年前(2010.1)我也感慨过，现在看来，三年前的我又是另外一个模样。</p>
+<p>现在随便拿出小时候画的东西，我就能够滔滔不绝讲个没完，只怕没人愿意听。我在想如果当时有这样一个大哥哥给我讲解会怎样呢？不，没有如果。</p>
+<p>入门编程只是因为退学在家成天打网游，打到没意思了，碰巧一小学同学托我帮他研究一下如何破开机密码。从那以后，不可思议地，五年的时间我从未想过放弃。</p>
+<p>我在想如果当初没人拜托我帮他查东西，或者我被第一个问题难倒，放弃，我现在会怎样的？不，没有如果，没有人能预见这些事情。</p>
+<p>我即将做的下一个决定是不去上大学，对于比较守旧的长辈(很高兴我的父母不在内)来说，这是天大的事情。在我较为年轻的网友里(只算大学毕业或已经工作的), 认为我应该上大学的，和劝我千万不要上的，几乎参半，他们都有自己或朋友的故事，讲给我听。这更加坚定了我的想法：每一条路，都有不同的风景，而且你无法预见。更重要的是，我很清楚接下来的路我要怎么走，我不会后悔。</p>
+<p>我是个很固执，很天真的人，也许你觉得用天真来形容我很不恰当。但我相信世界总是在向好的方向发展，我相信正义终能战胜邪恶，阴暗面会越来越少，我相信付出总会有收获，我相信会有纯粹的友情和爱情，我相信宪法早晚能够切实落实下去，我相信每个人都有像我一样天真的一面，你相信么？这不是开玩笑，我觉得一个人的世界观，在17岁可以算是初步形成了。</p>
+<p>我当然知道社会的阴暗面，甚至比大多数人更多，因为你们接触到的很多信息都是被过滤过的。上周五，一位艺术招生培训的老师给我们讲他的故事，讲那种畸形的社会规则，我只是希望能够通过我的努力，至少能让我和我的后代，远离这种畸形的规则，不必再去做违心的事情。</p>
+<h2 id="我的青春"><a href="#我的青春" class="headerlink" title="我的青春"></a>我的青春</h2><p>还有半年我就18岁了，成年了，一直都是孩子，什么事都有父母担着，在学校也只需要照着做就是了，以为长大是很遥远的事情。虽然长大不是一个干脆的分界线，但也意味着我要改变观念，开始独立了。</p>
+<p>说实话我不觉得在资金来源上有什么问题，按照RP主机现在的势头，我甚至可以不必去工作也有足够的收入。我感觉和同龄人相比，我欠缺的是与人沟通的经验，甚至是“玩”的经验。这些年实在太宅了，一直泡在网上，毕竟学校那么小，志同道合的人太少。</p>
+<p>虽然我这么叛逆，但我觉得我还算是一个标准的乖孩子，过分老实的乖孩子，没干过任何“出格”的事情，什么事我都敢摊开了讲。</p>
+<p>不管什么片子，多么烂大街的情节，只要沾了青春，爱情，都能卖座。</p>
+<p>以前我对初中那些秀恩爱的不以为然，谁说青春只有爱情。我一直觉得只有经济能够独立了，勾搭妹纸才会有底气，否则花着父母的钱终究不痛快。所以现在这是巧合么？现在才开窍是不是太晚了点。</p>
+<p>大人常说赚了钱就知道不易了，知道省着花了。虽然我爸死活不同意按月计算收入，非要收回17年所有的成本才算赚钱。</p>
+<p>而我恰相反啊，最近赚了点钱，但反而却花得更快的(也许是之前太小气了)，我没想节约，只是想赚更多，直到够花。看来我就是不知满足啊，注定要奋斗啊，我的青春才刚刚开始。</p>
 <blockquote>
-<p>欢迎大家帮忙宣传，让对方在购买时注明是“XXX介绍来的”，邀请和被邀请者均可以额外增加5天使用时长.</p>
+<p>这篇日志写了 6 个小时以上我会说么 … 算是我最文艺的日志了</p>
 </blockquote>
 
           
@@ -1636,7 +2275,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/12/16/2012-12-16#TCP-IP-%E7%AC%94%E8%AE%B0-5-ICMP/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/05/21/2013/2013-05-21#PHP%20%E8%BF%9B%E9%98%B6%EF%BC%9A%E6%96%B0%E7%89%B9%E5%BE%81/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -1655,7 +2294,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2012/12/16/2012-12-16#TCP-IP-%E7%AC%94%E8%AE%B0-5-ICMP/" itemprop="url">TCP/IP 笔记(5.ICMP)</a></h2>
+                <a class="post-title-link" href="/2013/05/21/2013/2013-05-21#PHP%20%E8%BF%9B%E9%98%B6%EF%BC%9A%E6%96%B0%E7%89%B9%E5%BE%81/" itemprop="url">PHP进阶：2.PHP中的新特征(1)</a></h2>
         
 
         <div class="post-meta">
@@ -1667,8 +2306,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-12-16T00:00:00+08:00">
-                2012-12-16
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-05-21T00:00:00+08:00">
+                2013-05-21
               </time>
             
 
@@ -1718,29 +2357,427 @@
         
         
           
-            <p>IP是不可靠的传输协议，并没有提供错误处理相关的功能. 错误处理的能力由ICMP(Internet Control Message Protocol,互联网控制消息协议)提供.</p>
-<p>ICMP是配合IP运行的不可或缺的重要机制，IMCP也运行于网际层，利用IP的传输能力来发送消息.</p>
-<p>TCP&#x2F;IP的错误报告与信息性功能主要是通过ICMP来传达的.</p>
-<p>ICMP可用于进行：</p>
+            <blockquote>
+<p>这篇文章的最新版本位于 <a target="_blank" rel="noopener" href="http://segmentfault.com/a/1190000000403307">PHP 自 5.2 到 5.6 中新增的功能详解</a>，该页面已停止维护 —— 2015.5.29</p>
+</blockquote>
+<p>截至目前(2014.2), PHP 的最新稳定版本是 PHP5.5, 但有差不多一半的用户仍在使用已经不在维护 [注] 的 PHP5.2, 其余的一半用户在使用 PHP5.3 [注].<br>因为 PHP 那“集百家之长”的蛋疼语法，加上社区氛围不好，很多人对新版本，新特征并无兴趣。<br>本文将会介绍自 PHP5.2 起，直至 PHP5.6 中增加的新特征。</p>
 <ul>
-<li>流程控制</li>
+<li>PHP5.2 以前：autoload, PDO 和 MySQLi, 类型约束</li>
+<li>PHP5.2：JSON 支持</li>
+<li>PHP5.3：弃用的功能，匿名函数，新增魔术方法，命名空间，后期静态绑定，Heredoc 和 Nowdoc, const, 三元运算符，Phar</li>
+<li>PHP5.4：Short Open Tag, 数组简写形式，Traits, 内置 Web 服务器，细节修改</li>
+<li>PHP5.5：yield, list() 用于 foreach, 细节修改</li>
+<li>PHP5.6: 常量增强，可变函数参数，命名空间增强</li>
 </ul>
-<p>当数据报抵达的速度太快而来不及处理时，目的主机或中间网关会回传一个SQM(ICMP Source Quench Message)给发送方，要求数据报的来源停止传送.</p>
+<p>注：已于2011年1月停止支持： <a target="_blank" rel="noopener" href="http://www.php.net/eol.php">http://www.php.net/eol.php</a><br>注：<a target="_blank" rel="noopener" href="http://w3techs.com/technologies/details/pl-php/5/all">http://w3techs.com/technologies/details/pl-php/5/all</a></p>
+<h2 id="PHP5-2以前"><a href="#PHP5-2以前" class="headerlink" title="PHP5.2以前"></a>PHP5.2以前</h2><p>(2006前)<br>顺便介绍一下 PHP5.2 已经出现但值得介绍的特征。</p>
+<h2 id="autoload"><a href="#autoload" class="headerlink" title="autoload"></a>autoload</h2><p>大家可能都知道 <code>__autoload()</code> 函数，如果定义了该函数，那么当在代码中使用一个未定义的类的时候，该函数就会被调用，你可以在该函数中加载相应的类实现文件，如：</p>
+<pre><code>function __autoload($classname)
+&#123;
+    require_once(&quot;&#123;$classname&#125;.php&quot;)
+&#125;
+</code></pre>
+<p>但该函数已经不被建议使用，原因是一个项目中仅能有一个这样的 __autoload() 函数，因为 PHP 不允许函数重名。但当你使用一些类库的时候，难免会出现多个 autoload 函数的需要，于是 spl_autoload_register() 取而代之：</p>
+<pre><code>spl_autoload_register(function($classname)
+&#123;
+    require_once(&quot;&#123;$classname&#125;.php&quot;)
+&#125;);
+</code></pre>
+<p>spl_autoload_register() 会将一个函数注册到 autoload 函数列表中，当出现未定义的类的时候，SPL [注] 会按照注册的倒序逐个调用被注册的 autoload 函数，这意味着你可以使用 spl_autoload_register() 注册多个 autoload 函数.</p>
+<p>注：SPL: Standard PHP Library, 标准 PHP 库, 被设计用来解决一些经典问题(如数据结构).</p>
+<h2 id="PDO-和-MySQLi"><a href="#PDO-和-MySQLi" class="headerlink" title="PDO 和 MySQLi"></a>PDO 和 MySQLi</h2><p>即 PHP Data Object, PHP 数据对象，这是 PHP 的新式数据库访问接口。</p>
+<p>按照传统的风格，访问 MySQL 数据库应该是这样子：</p>
+<pre><code>// 连接到服务器，选择数据库
+$conn = mysql_connect(&quot;localhost&quot;, &quot;user&quot;, &quot;password&quot;);
+mysql_select_db(&quot;database&quot;);
+
+// 执行 SQL 查询
+$type = $_POST[&#39;type&#39;];
+$sql = &quot;SELECT * FROM `table` WHERE `type` = &#123;$type&#125;&quot;;
+$result = mysql_query($sql);
+
+// 打印结果
+while($row = mysql_fetch_array($result, MYSQL_ASSOC))
+&#123;
+    foreach($row as $k =&gt; $v)
+        print &quot;&#123;$k&#125;: &#123;$v&#125;\n&quot;;
+&#125;
+
+// 释放结果集，关闭连接
+mysql_free_result($result);
+mysql_close($conn);
+</code></pre>
+<p>为了能够让代码实现数据库无关，即一段代码同时适用于多种数据库(例如以上代码仅仅适用于MySQL)，PHP 官方设计了 PDO.<br>除此之外，PDO 还提供了更多功能，比如：</p>
 <ul>
-<li>无法到达目的地</li>
+<li>面向对象风格的接口</li>
+<li>SQL预编译(prepare), 占位符语法</li>
+<li>更高的执行效率，作为官方推荐，有特别的性能优化</li>
+<li>支持大部分SQL数据库，更换数据库无需改动代码</li>
 </ul>
-<p>当无法将数据报送达目的地时，检测到此问题的系统会发出DUM(Destination Unreachable Message)给数据包的来源.</p>
-<p>所谓目的地，可能是某网络或某主机，也可能是目标主机的通讯端口.</p>
-<p>对于前者，由中间网关发出DUM, 后者则由目标主机发出DUM.</p>
-<ul>
-<li>重定向路由</li>
-</ul>
-<p>网关通过RM(ICMP Redirect Message)让主机知道另一个网关或许是比较好的选择. 只有源主机与网关都位于同一个网络上时，才能使用该消息.</p>
-<ul>
-<li>检查远程主机</li>
-</ul>
-<p>主机可利用EM(ICMP Echo Message)来检查远程主机的IP是否已经激活，以及是否能正常运行. 当一个系统收到EM后，他会将收到的数据返回给源主机.</p>
-<p><code>ping</code>命令使用的就是EM.</p>
+<p>上面的代码用 PDO 实现将会是这样：</p>
+<pre><code>// 连接到数据库
+$conn = new PDO(&quot;mysql:host=localhost;dbname=database&quot;, &quot;user&quot;, &quot;password&quot;);
+
+// 预编译SQL, 绑定参数
+$query = $conn-&gt;prepare(&quot;SELECT * FROM `table` WHERE `type` = :type&quot;);
+$query-&gt;bindParam(&quot;type&quot;, $_POST[&#39;type&#39;]);
+
+// 执行查询并打印结果
+foreach($query-&gt;execute() as $row)
+&#123;
+    foreach($row as $k =&gt; $v)
+        print &quot;&#123;$k&#125;: &#123;$v&#125;\n&quot;;
+&#125;
+</code></pre>
+<p>PDO 是官方推荐的，更为通用的数据库访问方式，如果你没有特殊需求，那么你最好学习和使用 PDO.<br>但如果你需要使用 MySQL 所特有的高级功能，那么你可能需要尝试一下 MySQLi, 因为 PDO 为了能够同时在多种数据库上使用，不会包含那些 MySQL 独有的功能。</p>
+<p>MySQLi 是 MySQL 的增强接口，同时提供面向过程和面向对象接口，也是目前推荐的 MySQL 驱动，旧的C风格 MySQL 接口将会在今后被默认关闭。<br>MySQLi 的用法和以上两段代码相比，没有太多新概念，在此不再给出示例，可以参见 PHP 官网文档 [注]。</p>
+<p>注：<a target="_blank" rel="noopener" href="http://www.php.net/manual/en/mysqli.quickstart.php">http://www.php.net/manual/en/mysqli.quickstart.php</a></p>
+<h3 id="类型约束"><a href="#类型约束" class="headerlink" title="类型约束"></a>类型约束</h3><p>通过类型约束可以限制参数的类型，不过这一机制并不完善，目前仅适用于类和 callable(可执行类型) 以及 array(数组), 不适用于 string 和 int.</p>
+<pre><code>// 限制第一个参数为 MyClass, 第二个参数为可执行类型，第三个参数为数组
+function MyFunction(MyClass $a, callable $b, array $c)
+&#123;
+    // ...
+&#125;
+</code></pre>
+<h2 id="PHP5-2"><a href="#PHP5-2" class="headerlink" title="PHP5.2"></a>PHP5.2</h2><p>(2006-2011)</p>
+<h3 id="JSON-支持"><a href="#JSON-支持" class="headerlink" title="JSON 支持"></a>JSON 支持</h3><p>包括 json_encode(), json_decode() 等函数，JSON 算是在 Web 领域非常常用的数据交换格式，可以被 JS 直接支持，JSON 实际上是 JS 语法的一部分。<br>JSON 系列函数，可以将 PHP 中的数组结构与 JSON 字符串进行转换：</p>
+<pre><code>$array = [&quot;key&quot; =&gt; &quot;value&quot;, &quot;array&quot; =&gt; [1, 2, 3, 4]];
+$json = json_encode($array);
+echo &quot;&#123;$json&#125;\n&quot;;
+
+$object = json_decode($json);
+print_r($object);
+</code></pre>
+<p>输出：</p>
+<pre><code>&#123;&quot;key&quot;:&quot;value&quot;,&quot;array&quot;:[1,2,3,4]&#125;
+stdClass Object
+(
+    [key] =&gt; value
+    [array] =&gt; Array
+        (
+            [0] =&gt; 1
+            [1] =&gt; 2
+            [2] =&gt; 3
+            [3] =&gt; 4
+        )
+)
+</code></pre>
+<p>值得注意的是 json_decode() 默认会返回一个对象而非数组，如果需要返回数组需要将第二个参数设置为 true.</p>
+<h2 id="PHP5-3"><a href="#PHP5-3" class="headerlink" title="PHP5.3"></a>PHP5.3</h2><p>(2009-2012)</p>
+<p>PHP5.3 算是一个非常大的更新，新增了大量新特征，同时也做了一些不向下兼容的修改。</p>
+<h3 id="弃用的功能"><a href="#弃用的功能" class="headerlink" title="弃用的功能"></a>弃用的功能</h3><p>以下几个功能被弃用，若在配置文件中启用，则 PHP 会在运行时发出警告。</p>
+<h4 id="Register-Globals"><a href="#Register-Globals" class="headerlink" title="Register Globals"></a>Register Globals</h4><p>这是 php.ini 中的一个选项(register_globals), 开启后会将所有表单变量($_GET和$_POST)注册为全局变量.<br>看下面的例子：</p>
+<pre><code>if(isAuth())
+    $authorized = true;
+if($authorized)
+    include(&quot;page.php&quot;);
+</code></pre>
+<p>这段代码在通过验证时，将 $authorized 设置为 true. 然后根据 $authorized 的值来决定是否显示页面.</p>
+<p>但由于并没有事先把 $authorized 初始化为 false, 当 register_globals 打开时，可能访问 &#x2F;auth.php?authorized&#x3D;1 来定义该变量值，绕过身份验证。</p>
+<p>该特征属于历史遗留问题，在 PHP4.2 中被默认关闭，在 PHP5.4 中被移除。</p>
+<h4 id="Magic-Quotes"><a href="#Magic-Quotes" class="headerlink" title="Magic Quotes"></a>Magic Quotes</h4><p>对应 php.ini 中的选项 magic_quotes_gpc, 这个特征同样属于历史遗留问题，已经在 PHP5.4 中移除。</p>
+<p>该特征会将所有用户输入进行转义，这看上去不错，在第一章我们提到过要对用户输入进行转义。<br>但是 PHP 并不知道哪些输入会进入 SQL , 哪些输入会进入 Shell, 哪些输入会被显示为 HTML, 所以很多时候这种转义会引起混乱。</p>
+<h4 id="Safe-Mode"><a href="#Safe-Mode" class="headerlink" title="Safe Mode"></a>Safe Mode</h4><p>很多虚拟主机提供商使用 Safe Mode 来隔离多个用户，但 Safe Mode 存在诸多问题，例如某些扩展并不按照 Safe Mode 来进行权限控制。<br>PHP官方推荐使用操作系统的机制来进行权限隔离，让Web服务器以不同的用户权限来运行PHP解释器，请参见第一章中的<code>最小权限原则</code>.</p>
+<h3 id="匿名函数"><a href="#匿名函数" class="headerlink" title="匿名函数"></a>匿名函数</h3><p>也叫闭包(Closures), 经常被用来临时性地创建一个无名函数，用于回调函数等用途。</p>
+<pre><code>$func = function($arg)
+&#123;
+    print $arg;
+&#125;;
+
+$func(&quot;Hello World&quot;);
+</code></pre>
+<p>以上代码定义了一个匿名函数，并赋值给了 $func.<br>可以看到定义匿名函数依旧使用 function 关键字，只不过省略了函数名，直接是参数列表。</p>
+<p>然后我们又调用了 $func 所储存的匿名函数。</p>
+<p>匿名函数还可以用 use 关键字来捕捉外部变量：</p>
+<pre><code>function arrayPlus($array, $num)
+&#123;
+    array_walk($array, function(&amp;$v) use($num)&#123;
+        $v += $num;
+    &#125;);
+&#125;
+</code></pre>
+<p>上面的代码定义了一个 arrayPlus() 函数(这不是匿名函数), 它会将一个数组($array)中的每一项，加上一个指定的数字($num).</p>
+<p>在 arrayPlus() 的实现中，我们使用了 array_walk() 函数，它会为一个数组的每一项执行一个回调函数，即我们定义的匿名函数。<br>在匿名函数的参数列表后，我们用 use 关键字将匿名函数外的 $num 捕捉到了函数内，以便知道到底应该加上多少。</p>
+<h3 id="魔术方法：-invoke-callStatic"><a href="#魔术方法：-invoke-callStatic" class="headerlink" title="魔术方法：__invoke(), __callStatic()"></a>魔术方法：__invoke(), __callStatic()</h3><p>PHP 的面向对象体系中，提供了若干“魔术方法”，用于实现类似其他语言中的“重载”，如在访问不存在的属性、方法时触发某个魔术方法。</p>
+<p>随着匿名函数的加入，PHP 引入了一个新的魔术方法 __invoke().<br>该魔术方法会在将一个对象作为函数调用时被调用：</p>
+<pre><code>class A
+&#123;
+    public function __invoke($str)
+    &#123;
+        print &quot;A::__invoke(): &#123;$str&#125;&quot;;
+    &#125;
+&#125;
+
+$a = new A;
+$a(&quot;Hello World&quot;);
+</code></pre>
+<p>输出毫无疑问是：</p>
+<pre><code>A::__invoke(): Hello World
+</code></pre>
+<p>__callStatic() 则会在调用一个不存在的静态方法时被调用。</p>
+<h3 id="命名空间"><a href="#命名空间" class="headerlink" title="命名空间"></a>命名空间</h3><p>PHP的命名空间有着前无古人后无来者的无比蛋疼的语法：</p>
+<pre><code>&lt;?php
+// 命名空间的分隔符是反斜杠，该声明语句必须在文件第一行。
+// 命名空间中可以包含任意代码，但只有 **类, 函数, 常量** 受命名空间影响。
+namespace XXOO\Test;
+
+// 该类的完整限定名是 \XXOO\Test\A , 其中第一个反斜杠表示全局命名空间。
+class A&#123;&#125;
+
+// 你还可以在已经文件中定义第二个命名空间，接下来的代码将都位于 \Other\Test2 .
+namespace Other\Test2;
+
+// 实例化来自其他命名空间的对象：
+$a = new \XXOO\Test\A;
+class B&#123;&#125;
+
+// 你还可以用花括号定义第三个命名空间
+namespace Other &#123;
+    // 实例化来自子命名空间的对象：
+    $b = new Test2\B;
+
+    // 导入来自其他命名空间的名称，并重命名，
+    // 注意只能导入类，不能用于函数和常量。
+    use \XXOO\Test\A as ClassA
+&#125;
+</code></pre>
+<p>更多有关命名空间的语法介绍请参见官网 [注].</p>
+<p>命名空间时常和 autoload 一同使用，用于自动加载类实现文件：</p>
+<pre><code>spl_autoload_register(
+    function ($class) &#123;
+        spl_autoload(str_replace(&quot;\\&quot;, &quot;/&quot;, $class));
+    &#125;
+);
+</code></pre>
+<p>当你实例化一个类 \XXOO\Test\A 的时候，这个类的完整限定名会被传递给 autoload 函数，autoload 函数将类名中的命名空间分隔符(反斜杠)替换为斜杠，并包含对应文件。<br>这样可以实现类定义文件分级储存，按需自动加载。</p>
+<p>注：<a target="_blank" rel="noopener" href="http://www.php.net/manual/zh/language.namespaces.php">http://www.php.net/manual/zh/language.namespaces.php</a></p>
+<h3 id="后期静态绑定"><a href="#后期静态绑定" class="headerlink" title="后期静态绑定"></a>后期静态绑定</h3><p>PHP 的 OPP 机制，具有继承和类似虚函数的功能，例如如下的代码：</p>
+<pre><code>class A
+&#123;
+    public function callFuncXXOO()
+    &#123;
+        print $this-&gt;funcXXOO();
+    &#125;
+
+    public function funcXXOO()
+    &#123;
+        return &quot;A::funcXXOO()&quot;;
+    &#125;
+&#125;
+
+class B extends A
+&#123;
+    public function funcXXOO()
+    &#123;
+        return &quot;B::funcXXOO&quot;;
+    &#125;
+&#125;
+
+$b = new B;
+$b-&gt;callFuncXXOO();
+</code></pre>
+<p>输出是：</p>
+<pre><code>B::funcXXOO
+</code></pre>
+<p>可以看到，当在 A 中使用 <code>$this-&gt;funcXXOO()</code> 时，体现了“虚函数”的机制，实际调用的是 <code>B::funcXXOO()</code>.<br>然而如果将所有函数都改为静态函数：</p>
+<pre><code>class A
+&#123;
+    static public function callFuncXXOO()
+    &#123;
+        print self::funcXXOO();
+    &#125;
+
+    static public function funcXXOO()
+    &#123;
+        return &quot;A::funcXXOO()&quot;;
+    &#125;
+&#125;
+
+class B extends A
+&#123;
+    static public function funcXXOO()
+    &#123;
+        return &quot;B::funcXXOO&quot;;
+    &#125;
+&#125;
+
+$b = new B;
+$b-&gt;callFuncXXOO();
+</code></pre>
+<p>情况就没这么乐观了，输出是：</p>
+<pre><code>A::funcXXOO()
+</code></pre>
+<p>这是因为 self 的语义本来就是“当前类”，所以 PHP5.3 给 static 关键字赋予了一个新功能：后期静态绑定：</p>
+<pre><code>class A
+&#123;
+    static public function callFuncXXOO()
+    &#123;
+        print static::funcXXOO();
+    &#125;
+
+    // ...
+&#125;
+
+// ...
+</code></pre>
+<p>这样就会像预期一样输出了：</p>
+<pre><code>B::funcXXOO
+</code></pre>
+<h3 id="Heredoc-和-Nowdoc"><a href="#Heredoc-和-Nowdoc" class="headerlink" title="Heredoc 和 Nowdoc"></a>Heredoc 和 Nowdoc</h3><p>PHP5.3 对 Heredoc 以及 Nowdoc 进行了一些改进，它们都用于在 PHP 代码中嵌入大段字符串。</p>
+<p>Heredoc 的行为类似于一个双引号字符串：</p>
+<pre><code>$name = &quot;MyName&quot;;
+echo &lt;&lt;&lt; TEXT
+My name is &quot;&#123;$name&#125;&quot;.
+TEXT;
+</code></pre>
+<p>Heredoc 以三个左尖括号开始，后面跟一个标识符(TEXT), 直到一个同样的顶格的标识符(不能缩进)结束。<br>就像双引号字符串一样，其中可以嵌入变量。</p>
+<p>Heredoc 还可以用于函数参数，以及类成员初始化：</p>
+<pre><code>var_dump(&lt;&lt;&lt;EOD
+Hello World
+EOD
+);
+
+class A
+&#123;
+    const xx = &lt;&lt;&lt; EOD
+Hello World
+EOD;
+
+    public $oo = &lt;&lt;&lt; EOD
+Hello World
+EOD;
+&#125;
+</code></pre>
+<p>Nowdoc 的行为像一个单引号字符串，不能在其中嵌入变量，和 Heredoc 唯一的区别就是，三个左尖括号后的标识符要以单引号括起来：</p>
+<pre><code>$name = &quot;MyName&quot;;
+echo &lt;&lt;&lt; &#39;TEXT&#39;
+My name is &quot;&#123;$name&#125;&quot;.
+TEXT;
+</code></pre>
+<p>输出：</p>
+<pre><code>My name is &quot;&#123;$name&#125;&quot;.
+</code></pre>
+<h3 id="用-const-定义常量"><a href="#用-const-定义常量" class="headerlink" title="用 const 定义常量"></a>用 const 定义常量</h3><p>PHP5.3 起同时支持在全局命名空间和类中使用 const 定义常量。</p>
+<p>旧式风格：</p>
+<pre><code>define(&quot;XOOO&quot;, &quot;Value&quot;);
+</code></pre>
+<p>新式风格：</p>
+<pre><code>const XXOO = &quot;Value&quot;;
+</code></pre>
+<p>const 形式仅适用于常量，不适用于运行时才能求值的表达式：</p>
+<pre><code>// 正确
+const XXOO = 1234;
+// 错误
+const XXOO = 2 * 617;
+</code></pre>
+<h3 id="三元运算符简写形式"><a href="#三元运算符简写形式" class="headerlink" title="三元运算符简写形式"></a>三元运算符简写形式</h3><p>旧式风格：</p>
+<pre><code>echo $a ? $a : &quot;No Value&quot;;
+</code></pre>
+<p>可简写成：</p>
+<pre><code>echo $a ?: &quot;No Value&quot;;
+</code></pre>
+<p>即如果省略三元运算符的第二个部分，会默认用第一个部分代替。</p>
+<h3 id="Phar"><a href="#Phar" class="headerlink" title="Phar"></a>Phar</h3><p>Phar即PHP Archive, 起初只是Pear中的一个库而已，后来在PHP5.3被重新编写成C扩展并内置到 PHP 中。<br>Phar用来将多个 .php 脚本打包(也可以打包其他文件)成一个 .phar 的压缩文件(通常是ZIP格式)。<br>目的在于模仿 Java 的 .jar, 不对，目的是为了让发布PHP应用程序更加方便。同时还提供了数字签名验证等功能。</p>
+<p>.phar 文件可以像 .php 文件一样，被PHP引擎解释执行，同时你还可以写出这样的代码来包含(require) .phar 中的代码：</p>
+<pre><code>require(&quot;xxoo.phar&quot;);
+require(&quot;phar://xxoo.phar/xo/ox.php&quot;);
+</code></pre>
+<p>更多信息请参见官网 [注].</p>
+<p>注：<a target="_blank" rel="noopener" href="http://www.php.net/manual/zh/phar.using.intro.php">http://www.php.net/manual/zh/phar.using.intro.php</a></p>
+<h2 id="PHP5-4"><a href="#PHP5-4" class="headerlink" title="PHP5.4"></a>PHP5.4</h2><p>(2012-2013)</p>
+<h2 id="Short-Open-Tag"><a href="#Short-Open-Tag" class="headerlink" title="Short Open Tag"></a>Short Open Tag</h2><p>Short Open Tag 自 PHP5.4 起总是可用。<br>在这里集中讲一下有关 PHP 起止标签的问题。即：</p>
+<pre><code>&lt;?php
+// Code...
+?&gt;
+</code></pre>
+<p>通常就是上面的形式，除此之外还有一种简写形式：</p>
+<pre><code>&lt;? /* Code... */ ?&gt;
+</code></pre>
+<p>还可以把</p>
+<pre><code>&lt;?php echo $xxoo;?&gt;
+</code></pre>
+<p>简写成：</p>
+<pre><code>&lt;?= $xxoo;?&gt;
+</code></pre>
+<p>这种简写形式被称为 Short Open Tag, 在 PHP5.3 起被默认开启，在 PHP5.4 起总是可用。<br>使用这种简写形式在 HTML 中嵌入 PHP 变量将会非常方便。</p>
+<p>对于纯 PHP 文件(如类实现文件), PHP 官方建议顶格写起始标记，同时 <strong>省略</strong> 结束标记。<br>这样可以确保整个 PHP 文件都是 PHP 代码，没有任何输出，否则当你包含该文件后，设置 Header 和 Cookie 时会遇到一些麻烦 [注].</p>
+<p>注：Header 和 Cookie 必须在输出任何内容之前被发送。</p>
+<h3 id="数组简写形式"><a href="#数组简写形式" class="headerlink" title="数组简写形式"></a>数组简写形式</h3><p>这是非常方便的一项特征！</p>
+<pre><code>// 原来的数组写法
+$arr = array(&quot;key&quot; =&gt; &quot;value&quot;, &quot;key2&quot; =&gt; &quot;value2&quot;);
+// 简写形式
+$arr = [&quot;key&quot; =&gt; &quot;value&quot;, &quot;key2&quot; =&gt; &quot;value2&quot;];
+</code></pre>
+<h3 id="Traits"><a href="#Traits" class="headerlink" title="Traits"></a>Traits</h3><p>所谓Traits就是“构件”，是用来替代继承的一种机制。PHP中无法进行多重继承，但一个类可以包含多个Traits.</p>
+<pre><code>// Traits不能被单独实例化，只能被类所包含
+trait SayWorld
+&#123;
+    public function sayHello()
+    &#123;
+        echo &#39;World!&#39;;
+    &#125;
+&#125;
+
+class MyHelloWorld
+&#123;
+    // 将SayWorld中的成员包含进来
+    use SayWorld;
+&#125;
+
+$xxoo = new MyHelloWorld();
+// sayHello() 函数是来自 SayWorld 构件的
+$xxoo-&gt;sayHello();
+</code></pre>
+<p>Traits还有很多神奇的功能，比如包含多个Traits, 解决冲突，修改访问权限，为函数设置别名等等。<br>Traits中也同样可以包含Traits. 篇幅有限不能逐个举例，详情参见官网 [注].</p>
+<p>注：<a target="_blank" rel="noopener" href="http://www.php.net/manual/zh/language.oop5.traits.php">http://www.php.net/manual/zh/language.oop5.traits.php</a></p>
+<h3 id="内置-Web-服务器"><a href="#内置-Web-服务器" class="headerlink" title="内置 Web 服务器"></a>内置 Web 服务器</h3><p>PHP从5.4开始内置一个轻量级的Web服务器，不支持并发，定位是用于开发和调试环境。</p>
+<p>在开发环境使用它的确非常方便。</p>
+<pre><code>php -S localhost:8000
+</code></pre>
+<p>这样就在当前目录建立起了一个Web服务器，你可以通过 <a target="_blank" rel="noopener" href="http://localhost:8000/">http://localhost:8000/</a> 来访问。<br>其中localhost是监听的ip，8000是监听的端口，可以自行修改。</p>
+<p>很多应用中，都会进行URL重写，所以PHP提供了一个设置路由脚本的功能:</p>
+<pre><code>php -S localhost:8000 index.php
+</code></pre>
+<p>这样一来，所有的请求都会由index.php来处理。</p>
+<p>你还可以使用 XDebug 来进行断点调试。</p>
+<h3 id="细节修改"><a href="#细节修改" class="headerlink" title="细节修改"></a>细节修改</h3><p>PHP5.4 新增了动态访问静态方法的方式：</p>
+<pre><code>$func = &quot;funcXXOO&quot;;
+A::&#123;$func&#125;();
+</code></pre>
+<p>新增在实例化时访问类成员的特征：</p>
+<pre><code>(new MyClass)-&gt;xxoo();
+</code></pre>
+<p>新增支持对函数返回数组的成员访问解析(这种写法在之前版本是会报错的)：</p>
+<pre><code>print func()[0];
+</code></pre>
+<h2 id="PHP5-5"><a href="#PHP5-5" class="headerlink" title="PHP5.5"></a>PHP5.5</h2><p>(2013起)</p>
+<h3 id="yield"><a href="#yield" class="headerlink" title="yield"></a>yield</h3><p>yield关键字用于当函数需要返回一个迭代器的时候, 逐个返回值。</p>
+<pre><code>function number10()
+&#123;
+    for($i = 1; $i &lt;= 10; $i += 1)
+        yield $i;
+&#125;
+</code></pre>
+<p>该函数的返回值是一个数组：</p>
+<pre><code>[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+</code></pre>
+<h3 id="list-用于-foreach"><a href="#list-用于-foreach" class="headerlink" title="list() 用于 foreach"></a>list() 用于 foreach</h3><p>可以用 list() 在 foreach 中解析嵌套的数组：</p>
+<pre><code>$array = [
+    [1, 2, 3],
+    [4, 5, 6],
+];
+
+foreach ($array as list($a, $b, $c))
+    echo &quot;&#123;$a&#125; &#123;$b&#125; &#123;$c&#125;\n&quot;;
+</code></pre>
+<p>结果：</p>
+<pre><code>1 2 3
+4 5 6
+</code></pre>
+<h3 id="细节修改-1"><a href="#细节修改-1" class="headerlink" title="细节修改"></a>细节修改</h3><p>不推荐使用 mysql 函数，推荐使用 PDO 或 MySQLi, 参见前文。<br>不再支持Windows XP.</p>
+<p>可用 <code>MyClass::class</code> 取到一个类的完整限定名(包括命名空间)。</p>
+<p>empty() 支持表达式作为参数。</p>
+<p>try-catch 结构新增 finally 块。</p>
 
           
         
@@ -1790,7 +2827,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/12/15/2012-12-15-do-not-use-storyboard/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/05/20/2013/2013-05-20#%E8%AF%BB%E4%B9%A6%EF%BC%9A%E7%BC%96%E7%A0%81/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -1809,7 +2846,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2012/12/15/2012-12-15-do-not-use-storyboard/" itemprop="url">StoryBoard--看上去很美</a></h2>
+                <a class="post-title-link" href="/2013/05/20/2013/2013-05-20#%E8%AF%BB%E4%B9%A6%EF%BC%9A%E7%BC%96%E7%A0%81/" itemprop="url">读书：编码</a></h2>
         
 
         <div class="post-meta">
@@ -1821,8 +2858,1006 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-12-15T10:21:00+08:00">
-                2012-12-15
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-05-20T00:00:00+08:00">
+                2013-05-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>前些天，我花了差不多300元来买了一些书。应该说以前买书一直被坑了很久，当时因为认识的大牛没几个，没人推荐，只能是自己去书店找，找到哪本算哪本。大部分都是坑爹的国产书，不得不说国产书的质量普遍不如国外的——想必能漂洋过海来到中国的书应该都算是经典吧。因为鸟语水平不理想，读不下原著，只好看翻译的，译本的一个问题就是语言非常之僵硬，可以说是“英式中文”，不过有人说这不重要，技术书籍要以严谨为第一要素。</p>
+<p>后来我就聪明多了，网购发展起来了，我会在网上买大牛们推荐的经典，顺便对比一下书评，被坑得也少了。<br>其实两三年来我一直在辽宁省图书馆借书看，免费借，挺划算的。应该说借书和买书还是有很大区别的，在图书馆看到一本书哪怕有10%对我有用，我也会借来看——反正不借白不借。而买书的话我得确定它全书都是值得反复读的才肯掏钱。</p>
+<p>这次买的六本书，按对我的难易程度：</p>
+<ul>
+<li>MongoDB权威指南</li>
+<li>程序员的数学</li>
+<li>编码——隐匿在计算机软硬件背后的语言</li>
+<li>计算机网络——自顶向下方法与Internet特色</li>
+<li>深入理解计算机系统(第2版)</li>
+<li>程序员的自我修养——链接、装载与库</li>
+</ul>
+<p>把这个书单发给龙哥(某奔三十却还没有妹纸的程序员抠脚大叔)的时候，龙哥问我这是要造电脑么。</p>
+<p>龙哥给我的印象就是一个躲在微软搭建的华丽城堡里的……嗯——奔三十却还没有妹纸的抠脚大叔。当然，用龙哥的话说，这又有什么关系呢？</p>
+<p>我对原理性的细节总是很感兴趣，不仅仅是计算机。霍金的《时间简史》等书我的读过，宇宙如何运行，微观粒子如何作用，可能永远也不会和我发生关系，除了能在和民科对骂的时候加点底气，可能真的没什么用了。</p>
+<p>同样我也知道我不可能有机会从三极管开始设计一款芯片，我也不会使用机器指令，手工汇编，甚至我也不大可能使用汇编语言以及C语言。但我觉得这很有趣。</p>
+<p>我通常会把书拿来一遍一遍地看，泛读一遍最多几个小时，然后再读一遍，每一次都会理解到新的东西，直到没有新东西了，才算看完了，但过几个月也许我会再捡起来。</p>
+<p>《Mongo…》只花了半天就看得差不多了，这只是一本参考性质的工具书，对官网文档的一个中文翻译，当时我看它不贵也就买了。</p>
+<p>《编码…》这书我打开看了一遍，其他四本暂时只看了个开头。</p>
+<p>《编码…》它自底向上地描述了一台计算机的构造过程，从继电器到逻辑门，加法器，随机存储器(RAM), CPU, 字符终端，汇编器。<br>从最简单的导线，开关，电磁铁开始，每一步都在使用上一步设计好的零件来组装，看完不由得感叹原来计算机的构造如此简单，只是遵从着几个基本的原理，但其思路却又如此精密。作为第一个示例，本书用了144个继电器(三极管)和十几个开关以及灯泡，实现了一个具有输出和输出的8位加法器。昨天去淘宝看了一下，继电器1元一个，三极管0.1元一个，看来自己造一个加法器也不是没有可能。</p>
+<p>我想说这书其实是零基础的，你并不需要有多少基础知识，因为它是自底向上，自成体系的——我真的说不出需要什么基础，仅有的一点电路现学也够了。</p>
+<p>在我看来，本书可分为三个部分：</p>
+<ul>
+<li>如何将数据编码为计算机可以理解的形式</li>
+<li>如何用基本的电路组成芯片实现自动化地计算</li>
+<li>如何通过构造更高级的编程语言提高编码效率</li>
+</ul>
+<p>第一部分(如何将数据编码为计算机可以理解的形式)除了让我了解到了多一点细节，应该说对我没什么帮助，这部分应该就是面向零基础读者的吧，无非是进制换算，以及将数字和字符编码为二进制。</p>
+<p>第二部分(如何用基本的电路组成芯片实现自动化地计算)则让我眼前一亮，把我带进了一个新的世界。其实之前我也知道逻辑门，但很难想象当今复杂的计算机是如何用基本的逻辑门构成的。<br>所以说抽象是最重要的工具，计算机中每一层都是对上一层的抽象，一开始可能会把逻辑门里的导线都画出来，后面就会用一个方块来代替加法器了。抽象也许是人类最伟大的创造，就好像你不能指望狗把一沓人民币抽象成骨头。</p>
+<p>第三部分(如何通过构造更高级的编程语言提高编码效率)则是填补了我很多的知识空白。之前一直对机器指令以及汇编语言的定位很模糊，现在我算是理解了他们的合理性和必要性。<br>机器指令中需要直接使用操作数的内存地址，而汇编语言使用了助记符代替机器指令的编号，用标识符代替了内存地址，并且可以对地址进行计算。从汇编语言到机器指令的过程就叫汇编，在汇编器出现之前，是需要手工汇编，计算内存地址的。而汇编语言和机器指令都依赖于具体的CPU指令集，所以才有了后来高级编程语言的出现。</p>
+<p>计算机可谓人类构造的最精密的系统之一，但我觉得它仍不及网络复杂，因为对芯片而言，大部分行为都是十分确定，可预测的。<br>而网络则增添了更多变数——事实上网络几乎是围绕着错误处理构造的。</p>
+<p>前一阵我想写一篇日志，科普互联网是如何工作的，但写了一半就感觉写不下去了。虽然只是些基础的知识，估计有机会读我日志的各位都知道，但想要写出来，则并不简单。也许正是这样，霍金这等尖端物理学家，却还要写科普书。</p>
+<p>与《编码…》不同，《网络…》一书是自顶向下的，内容量比较大，估计要看很久。</p>
+<p>不过再难恐怕也比不上《操作系统…》和《链接…》，尤其《链接…》一书差不多已经把程序的每个字节都研究透了。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/05/19/2013/2013-05-19#PHP%20%E8%BF%9B%E9%98%B6%EF%BC%9A%E5%AE%89%E5%85%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2013/05/19/2013/2013-05-19#PHP%20%E8%BF%9B%E9%98%B6%EF%BC%9A%E5%AE%89%E5%85%A8/" itemprop="url">PHP进阶：1.安全</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-05-19T00:00:00+08:00">
+                2013-05-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <blockquote>
+<p>我决定写一系列教程：PHP进阶——一个论坛系统的实现，这是第一章。</p>
+</blockquote>
+<h1 id="1-0-安全"><a href="#1-0-安全" class="headerlink" title="1.0 安全"></a>1.0 安全</h1><p>我们将安全放到了最前边，对于Web应用来说，安全的重要性不言而喻，如果你编写的程序存在漏洞，攻击者将有可能取得服务器的控制权，进行破坏，甚至利用你的站点进一步散播木马。</p>
+<p>有些人认为测试性的代码，位于内网的应用，可以暂时不必关心安全，这是非常不负责任的。你很难预见这段代码什么时候会被作为你的应用的一部分，保险的做法是，为你写下的每一段代码负责，通过本章提出的几项原则，这并不麻烦。</p>
+<ul>
+<li>SQL 注入</li>
+<li>Shell 注入</li>
+<li>Eval</li>
+<li>XSS</li>
+<li>CSRF</li>
+<li>关注官方通告</li>
+<li>最小权限原则</li>
+<li>中间人攻击</li>
+<li>Dos 攻击</li>
+<li>隐藏信息</li>
+</ul>
+<h2 id="SQL-注入"><a href="#SQL-注入" class="headerlink" title="SQL 注入"></a>SQL 注入</h2><p>如果你的应用需要将一个包含用户输入的字符串作为代码(如SQL)执行，那么攻击者可以通过构造巧妙的输入，来将额外的代码<strong>注入</strong>到要执行的字符串中，实现攻击.</p>
+<p>下面举一个 SQL 注入的例子, 如果有如下的用户验证的代码：</p>
+<pre><code>$result = $db-&gt;query(&quot;SELECT * FROM `users` WHERE (`name` = &#39;&#123;$_POST[&#39;user&#39;]&#125;&#39;) and (`passwd` = &#39;&#123;$_POST[&#39;passwd&#39;]&#125;&#39;)&quot;);
+if($result-&gt;fetch())
+    echo &quot;登录成功&quot;;
+</code></pre>
+<p>这段代码从 users 表中查询用户名为 $_POST[&#8216;user&#8217;] 且密码为 $_POST[&#8216;passwd&#8217;]的记录，如存在这样的记录，就认为登录成功。</p>
+<p>但攻击者可以通过将 user 和 passwd 分别构造为如下的字符串进行攻击：</p>
+<pre><code>admin
+1&#39; OR &#39;1&#39;=&#39;1
+</code></pre>
+<p>这样一来，实际执行的SQL变成了这个样子：</p>
+<pre><code>SELECT * FROM `users` WHERE (`name` = &#39;admin&#39;) and (`passwd` = &#39;1&#39; OR &#39;1&#39;=&#39;1&#39;)
+</code></pre>
+<p>就可以绕过验证，实现以管理员登录.</p>
+<p>产生SQL注入的原因在于单引号在 SQL 中具有特殊含义，单引号标识着一段字符串的开始和结束，如果用户输入中含有单引号，那么该字符串就会提前结束，剩下的部分就会作为SQL命令来解析.</p>
+<p>所以，我们有必要对进入 SQL 语句的所有用户输入进行转义，所谓转义就是让代码中具有特殊含义的字符，失去特殊含义，仅仅表示它本身.</p>
+<p>具体来说，我们在SQL中需要转义的字符有：</p>
+<ul>
+<li>反斜杠 \</li>
+<li>NUL \0</li>
+<li>换行 \n</li>
+<li>回车 \r&#8221;</li>
+<li>单引号 &#8216;</li>
+<li>双引号 &#8220;</li>
+<li>Ctrl+Z \x1a</li>
+</ul>
+<p>还有一些和字符集相关的字符(在特定的字符集中，会有一些同义字).</p>
+<p>所幸我们不必自己做这些工作，MySQL提供了一个名为 mysql_real_escape_string() 的函数用于将字符串转义，以安全地嵌入SQL.</p>
+<p>而 PDO[1] 里同样有 PDO::quote() 完成同样的工作。</p>
+<p>值得注意的是 mysql_real_escape_string() 和 PDO::quote() 的行为有细微的区别，前者只是转义字符串，后者在转义后还会在字符串前后加上单引号。</p>
+<p>经过修改的代码会是这样：</p>
+<pre><code>$user = $db-&gt;quote($_POST[&#39;user&#39;]);
+$passwd = $db-&gt;quote($_POST[&#39;passwd&#39;]);
+$result = $db-&gt;query(&quot;SELECT * FROM `users` WHERE (`name` = &#123;$user&#125;) and (`passwd` = &#123;$passwd&#125;)&quot;);
+if($result-&gt;fetch())
+    echo &quot;登录成功&quot;;
+</code></pre>
+<p>如果攻击者继续构造类似之前的注入字符串，那么数据库会去查询用户名为 admin 且密码为 <code>1&#39; OR &#39;1&#39;=&#39;1</code> 的记录，数据库仅仅将这段注入字符串视为它字面的意思，不会作为命令来解析，这样攻击者就不会得逞了.</p>
+<p>所以，记住我们的第一个原则：</p>
+<p><strong>如果你需要将一段字符串作为代码来执行，那么要对所有进入字符串的用户输入进行转义</strong>。</p>
+<p>用户输入不仅仅在于 $_GET 和 $_POST, 包括HTTP Header, Cookie, 文件都是用户输入。</p>
+<p>[1]: PHP Data Object, PHP的新式数据库访问接口, 后文会讲解.</p>
+<p>更多SQL注入的例子参见: <a target="_blank" rel="noopener" href="http://php.net/manual/zh/security.database.sql-injection.php">http://php.net/manual/zh/security.database.sql-injection.php</a></p>
+<h2 id="Shell-注入"><a href="#Shell-注入" class="headerlink" title="Shell 注入"></a>Shell 注入</h2><p>如有如下代码：</p>
+<pre><code>shell_exec(&quot;rm /data/files/&#123;$_POST[&#39;file&#39;]&#125;&quot;);
+</code></pre>
+<p>这段代码会根据用户输入，删除 &#x2F;data&#x2F;file&#x2F; 下的指定文件.</p>
+<p>既然你已经知道了我们的第一个原则，显然我们要对输入进行转义。<br>于是我们找到了 escapeshellarg(), 它会对进入Shell的参数进行转义，添加空格。</p>
+<p>经过修改的代码：</p>
+<pre><code>$arg = escapeshellarg(&quot;/data/files/&#123;$_POST[&#39;file&#39;]&#125;&quot;);
+shell_exec(&quot;rm &#123;$arg&#125;&quot;);
+</code></pre>
+<p>如果攻击者输入 <code>xxoo;rm -rf /</code>, 那么实际执行的命令是：</p>
+<pre><code>rm &#39;/data/files/xxoo;rm -rf /&#39;
+</code></pre>
+<p>可以看到攻击者没有成功。</p>
+<p>但是攻击者可以继续尝试输入 <code>../../etc/passwd</code>, 这下你傻眼了, 因为执行了：</p>
+<pre><code>rm &#39;/data/files/../../etc/passwd&#39;
+</code></pre>
+<p>相当于：</p>
+<pre><code>rm &#39;/etc/passwd&#39;
+</code></pre>
+<p>删掉了系统的用户数据库.</p>
+<p>所以，我们除了要对用户输入进行转义之外，还需要 <strong>从逻辑上对输入进行检验</strong>。</p>
+<p>在前面SQL注入的例子中，这种检验是不必要的，因为我们知道数据库里面用户的密码不可能恰巧等于攻击者构造的恶意字符串。</p>
+<p>但在这个Shell注入的例子中，我们有这个必要：</p>
+<pre><code>if(strstr($_POST[&#39;file&#39;], &quot;/&quot;) !== false)
+&#123;
+    echo &quot;文件名非法&quot;;
+&#125;
+else
+&#123;
+    $arg = escapeshellarg(&quot;/data/files/&#123;$_POST[&#39;file&#39;]&#125;&quot;);
+    shell_exec(&quot;rm &#123;$arg&#125;&quot;);
+&#125;
+</code></pre>
+<p>这样我们便安全了，如果文件名包含了斜杠，程序会拒绝执行命令.</p>
+<p>在Linux下，文件名可以使用除斜杠外的所有字符，如果需要迁移到Windows下，我们还需要做更多工作。</p>
+<p>所以请记住我们的第二个原则：</p>
+<p><strong>不要相信用户的输入，考虑到每一种可能性</strong>。</p>
+<p>你最好把编写代码的过程，看作“证明这段代码不会出错”的过程。</p>
+<h2 id="Eval"><a href="#Eval" class="headerlink" title="Eval"></a>Eval</h2><p>包括 PHP 在内的大多数脚本语言都提供了类似 eval 的函数，可以将字符串作为代码来执行。同样，在使用 eval() 时我们也需要考虑注入攻击。</p>
+<p>但不同于 SQL 和 Shell, 使用 eval() 的大多数场合都是可以避免的，你需要的可能是匿名函数等机制(后文会介绍), 所以在这里不推荐使用 eval() 函数。</p>
+<h2 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h2><p>Cross-site scripting, 跨站脚本攻击，或者你可以认为是 HTML 注入，这种攻击并非针对服务器，而是针对访客。</p>
+<p>大多数网页的输出都是 HTML, 这意味着你的 PHP 程序的输出会作为 HTML 代码来显示在用户的浏览器中，而 HTML 中嵌入的 JS 脚本则会被用户的浏览器执行。</p>
+<p>例如一个论坛系统显示帖子的代码：</p>
+<pre><code>&lt;?php
+$post = getPostData($_POST[&#39;id&#39;]);
+?&gt;
+&lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;&lt;?= $post[&#39;title&#39;];?&gt;&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;?= $post[&#39;content&#39;];?&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>如果有一个帖子的内容是下面这样呢：</p>
+<pre><code>&lt;span style=&quot;color: red;&quot;&gt;帖子内容&lt;/span&gt;
+</code></pre>
+<p>显然文字会被显示为红色，这意味着如果帖子中含有 HTML 代码，将会被直接执行，在这个例子中这段 HTML 代码可以认为是无害的，但如果是嵌入一段脚本呢：</p>
+<pre><code>&lt;script&gt;alert(&quot;帖子内容&quot;);&lt;/script&gt;
+</code></pre>
+<p>浏览器会执行一段 JS 代码！如果你认为这除了开个玩笑外也是无害的，那么请看下面的输入：</p>
+<pre><code>&lt;script&gt;
+    $.post(&quot;/topic/create/&quot;, &#123;&quot;title&quot;: &quot;点进来看一看啊~&quot;, &quot;content&quot;: &quot;&lt;script&gt;&quot; + $(&quot;body script:first&quot;).html() + &quot;&lt;/script&gt;&quot;&#125;);
+&lt;/script&gt;
+</code></pre>
+<p>这段代码会自动发布一个新帖子，其内容就是这段代码本身！这样以来，这个“无害的玩笑”会在整个论坛传播开。</p>
+<p>XSS 有持久性和非持久性(反射型)之分，前面介绍的例子属于持久性 XSS, 即已经将攻击代码保存在数据库中，其他人访问这些信息时，HTML代码就会被执行。</p>
+<p>而非持久性的意思就是注入代码并未被持久性的保存，而是存在于 URL 中，如：</p>
+<pre><code>http://xxoo.xo/show.php?id=&lt;script&gt;alert();&lt;/script&gt;
+</code></pre>
+<p>对应的 PHP 代码：</p>
+<pre><code>if(!is_numeric($_GET[&#39;id&#39;]))
+    echo &quot;&#123;$_GET[&#39;id&#39;]&#125; 不是一个数字&quot;;
+</code></pre>
+<p>如果你轻易点击了这个连接，那么你将会被执行一段脚本，危险性不再复述。</p>
+<p>你想说不会有人点这么显然的链接？其实它可以很隐蔽：</p>
+<pre><code>http://xxoo.xo/show.php?id=%3Cscript%3Ealert()%3B%3C%2Fscript%3E
+</code></pre>
+<p>甚至：</p>
+<pre><code>http://xxoo.xo/show.php?id=%3C%73%63%72%69%70%74%3E%61%6c%65%72%74%28%29%3B%3C%2F%73%63%72%69%70%74%3E
+</code></pre>
+<p>既然是注入 HTML，那么对策并不复杂：对所有输出到 HTML 的数据进行转义，使用 htmlspecialchars(), 如：</p>
+<pre><code>if(!is_numeric($_GET[&#39;id&#39;]))
+&#123;
+    $id = htmlspecialchars($_GET[&#39;id&#39;]);
+    echo &quot;&#123;$id&#125; 不是一个数字&quot;;
+&#125;
+</code></pre>
+<p>好吧，其实前面那么多铺垫这是为了让你了解 XSS 的重要性，当下它们甚至比 SQL 注入更加流行。</p>
+<h2 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h2><p>Cross-site request forgery, 跨域请求伪造。</p>
+<p>浏览器本身为 JS 制定的一个“跨域保护”规则，保证了 JS 仅能访问当前站点下的资源。</p>
+<p>规则即一个域名下的 JS 无法使用 XHR[4] 访问另一个域名下的资源。</p>
+<p>但这个限制并不包括 <code>&lt;img&gt;</code>, <code>&lt;script&gt;</code> 等标记的 src 属性，而且这也不现实，因为一个站点难免引用其他站点的图片等资源。</p>
+<p>现在很多站点都使用类似于 &#x2F;user&#x2F;logout&#x2F; 的链接来实现注销登录的功能。如果有这样一段代码：</p>
+<pre><code>&lt;img src=&quot;//xxoo.xo/user/logout/&quot; /&gt;
+</code></pre>
+<p>那么如果用户访问了这个页面，它在 xxoo.xo 网站就会被注销登录，无论当前站点是不是 xxoo.xo ！</p>
+<p>这样攻击是非常隐蔽的，因为如果图片加载失败了也只不过是一个小叉而已，还可以通过 CSS 隐藏起来。</p>
+<p>上面的例子也许可以认为是无害，因为被注销登录也算不得什么大不了的事情，但如果你继续使用 GET 方式响应非修改性的请求的话，事情就没那么简单了。</p>
+<p>记住： <strong>所有修改性的操作都使用POST方式</strong>。</p>
+<p>[2]: XMLHttpRequest, JS 无刷新请求技术的 API 接口。</p>
+<h2 id="关注官方通告"><a href="#关注官方通告" class="headerlink" title="关注官方通告"></a>关注官方通告</h2><p>有时候，漏洞并不在于我们编写的代码，而在于我们所使用的软件本身，如PHP, 或者Linux, MySQL等等。</p>
+<p>虽然这些软件的代码审核和发布过程是非常严谨的，但也难免有漏网之鱼。一些严重的漏洞会在一天之间被传播，利用和修复。</p>
+<p>对此我们没有什么对策，毕竟这些软件不是我们自己写的，我们能做的但只有：</p>
+<ul>
+<li>使用官方的稳定发行版</li>
+<li>及时关注官方通告，安装补丁</li>
+</ul>
+<p>在PHP领域，有很多问题是官方在反复提醒，但仍广泛存在的，我们在此指出几点：</p>
+<h3 id="关闭-Register-Globals"><a href="#关闭-Register-Globals" class="headerlink" title="关闭 Register Globals"></a>关闭 Register Globals</h3><p>这是 php.ini 中的一个选项(register_globals), 开启后会将所有表单变量($_GET和$_POST)注册为全局变量.</p>
+<p>看下面的例子：</p>
+<pre><code>if(isAuth())
+    $authorized = true;
+if($authorized)
+    include(&quot;page.php&quot;);
+</code></pre>
+<p>这段代码在通过验证时，将 $authorized 设置为 true. 然后根据 $authorized 的值来决定是否显示页面.</p>
+<p>但由于并没有事先把 $authorized 初始化为 false, 当 register_globals 打开时，可能访问 &#x2F;auth.php?authorized&#x3D;1 来定义该变量值，绕过身份验证。</p>
+<p>该特征属于历史遗留问题，在 PHP4.2 中被默认关闭，在 PHP5.4 中被移除。</p>
+<h3 id="关闭-Magic-Quotes"><a href="#关闭-Magic-Quotes" class="headerlink" title="关闭 Magic Quotes"></a>关闭 Magic Quotes</h3><p>对应 php.ini 中的选项 magic_quotes_gpc, 这个特征同样属于历史遗留问题，已经在 PHP5.4 中移除。</p>
+<p>该特征会将所有用户输入进行转义，这看上去不错，我们之前提到过要对用户输入进行转义。</p>
+<p>但是 PHP 并不知道哪些输入会进入 SQL , 哪些输入会进入 Shell, 哪些输入会被显示为 HTML, 所以很多时候这种转义会引起混乱。</p>
+<h2 id="最小权限原则"><a href="#最小权限原则" class="headerlink" title="最小权限原则"></a>最小权限原则</h2><p>让我们试想如果 PHP 出现了一个验证漏洞，导致可以任意执行Shell命令，这将会多么恐怖。事实上这种漏洞在各种服务器软件上时有发生。</p>
+<p>虽然我们无法阅读和修改 PHP 的源代码，但我们可以通过给予 PHP 最小的权限，来减少漏洞被利用后的损失。</p>
+<p>很多教程在遇到文件权限问题的时候，会很不负责任地让你将文件夹权限设置为 777, 即最宽松权限。</p>
+<p>在Linux下，每个文件，每个进程都对应着一个用户，非 root 用户只能控制自己的文件，自己的进程，自己的进程创建的文件也是属于自己的。</p>
+<p>每个文件有 9 个权限位，分别对应 <strong>自己, 同组用户, 其他用户</strong> 的 <strong>读取, 修改, 执行 权限</strong>。</p>
+<p>基于这种机制，我们可以将服务器的不同功能划分为不同的用户，实现隔离，即使一个服务被攻击者控制，也不会影响到其他的服务。</p>
+<p>事实上各个发行版也是这么做的，Apache2, PHP-FPM[2] 大多是以 www-data 或类似的用户运行的，即使被拿到权限，也只能控制网站的部分，无法执行需要 root 权限的系统级命令。</p>
+<p>我们可以进一步对权限进行细分，如果应用不需要写入文件，那么给 Web 目录设置只读权限就可以了。</p>
+<p>储存静态资源(图片, CSS, JS等)的目录，不要允许 PHP 执行。</p>
+<p>甚至让每一个站点都以单独的用户来运行[3].</p>
+<p>如果服务器仅提供 Web 服务，那么防火墙仅开放 80 端口。</p>
+<p>对于数据库以及其他服务，我们也需要给予应用最小的权限，为每个应用建立单独的账户，只赋予每个应用读写自己的数据库的权限。</p>
+<p>[3]: PHP 在 Apache2 下可能依附于 Apache2进程，在 Nginx 则大多用 PHP-FPM 方式运行。</p>
+<p>[4]: Apache2 可使用 apache2-mpm-itk, PHP-FPM 可使用配置文件中的 user 选项。</p>
+<h2 id="中间人攻击"><a href="#中间人攻击" class="headerlink" title="中间人攻击"></a>中间人攻击</h2><p>在 Web 领域，中间人攻击即服务器和用户之间，存在着一个可以双向篡改数据包的 <strong>中间人</strong>，它有可能是网络中的一个路由节点，也可能是一个钓鱼网站。</p>
+<p>说实话这已经是网络传输层面的问题了，和 PHP 没多大关系，解决中间人攻击的唯一途径就是使用 https 协议，SSL 除了可以防御中间人攻击外，还可以让你的数据以加密的形式传输(HTTP是明文传输的), 目前网络上已经有了一些免费的证书颁发机构(CA), 如 StarSSL.</p>
+<h2 id="DoS-攻击"><a href="#DoS-攻击" class="headerlink" title="DoS 攻击"></a>DoS 攻击</h2><p>Denial of Service, 阻断服务攻击，通过大量垃圾请求迫使服务器无法工作。</p>
+<p>如果你的网站让攻击者无处下手，那么攻击者可能会使出最野蛮的攻击方式，DoS, 比如使用脚本快速访问你的站点，让你的服务器不堪重负。</p>
+<p>首先你应当避免你的站点出现性能瓶颈，尽量通过缓存(后文会讲解)来提供内容，减少请求处理时间。</p>
+<p>设置 Web 服务器的最大进程数，避免进程过多导致内存不足。</p>
+<p>还可以使用如 DDoS deflate[5] 的脚本，自动对攻击 IP 进行封禁，这对单点 DoS 非常有效。</p>
+<p>如果攻击者不计成本地使用流量“堵”你的线路，那么你可以选择一些知名的 CDN 服务来过滤请求，隐藏服务器的真实 IP 地址。</p>
+<h2 id="隐藏信息"><a href="#隐藏信息" class="headerlink" title="隐藏信息"></a>隐藏信息</h2><p>虽然隐藏信息是一种比较消极的防御手段，但也能为攻击者添加一些障碍。</p>
+<p>值得隐藏的信息包括：Web服务器版本，脚本引擎(PHP)版本，错误信息等等。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/05/11/2013/2013-05-11#%E7%AC%94%E8%AE%B0-%E5%BE%AA%E7%8E%AF-%E9%80%92%E5%BD%92-%E8%BF%AD%E4%BB%A3-%E9%81%8D%E5%8E%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2013/05/11/2013/2013-05-11#%E7%AC%94%E8%AE%B0-%E5%BE%AA%E7%8E%AF-%E9%80%92%E5%BD%92-%E8%BF%AD%E4%BB%A3-%E9%81%8D%E5%8E%86/" itemprop="url">笔记: 循环, 递归, 迭代, 遍历</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-05-11T00:00:00+08:00">
+                2013-05-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <blockquote>
+<p>本文首发于SegmentFault, <a target="_blank" rel="noopener" href="http://segmentfault.com/q/1010000000199577#a-1020000000199630">http://segmentfault.com/q/1010000000199577#a-1020000000199630</a></p>
+</blockquote>
+<p>表示&#8221;重复&#8221;这个含义的词有很多, 比如循环(loop), 递归(recursion), 遍历(traversal), 迭代(iterate).</p>
+<h3 id="循环"><a href="#循环" class="headerlink" title="循环"></a>循环</h3><p>循环算是最基础的概念, 凡是重复执行一段代码, 都可以称之为循环. 大部分的递归, 遍历, 迭代, 都是循环.</p>
+<h3 id="递归"><a href="#递归" class="headerlink" title="递归"></a>递归</h3><p>递归的定义是, 根据一种(几种)基本情况定义的算法, 其他复杂情况都可以被逐步还原为基本情况.</p>
+<p>在编程中的特征就是, 在函数定义内重复调用该函数.</p>
+<p>例如斐波那契数列, 定义F(0)&#x3D;1, F(1)&#x3D;1, 所有其他情况: F(x)&#x3D;F(x-1)+F(x-2).</p>
+<p>所有大于1的整数经过有限次的反推之后都可以转换到两种基本情况. 而在编程中, 算法则是这样的:</p>
+<pre><code>int F(x)
+&#123;
+    if(x==0 || x==1)
+        return 1;    //这里是退出递归的条件, 以保证在有限次递归后能够得到结果
+    return F(x-1)+F(x-2);    //转化为更为基本的情况, 重复调用自身进行计算
+&#125;
+</code></pre>
+<h3 id="迭代-数学"><a href="#迭代-数学" class="headerlink" title="迭代(数学)"></a>迭代(数学)</h3><p>迭代在数学和编程中有不同的含义.</p>
+<p>数学方面是指在循环的基础上, 每一次循环, 都比上一次更为接近结果.</p>
+<p>例如下面是一个迭代的例子.</p>
+<pre><code>int result = 0;
+for(int i=0; i&gt;10; i++)
+    result += i;    //每一次循环之后, result都更加接近结果45
+</code></pre>
+<p>有很多数学问题, 都是迭代算法, 如牛顿迭代法(求平方根).</p>
+<h3 id="迭代-编程"><a href="#迭代-编程" class="headerlink" title="迭代(编程)"></a>迭代(编程)</h3><p>按顺序访问一个列表中的每一项, 这在很多编程语言中表现为foreach语句:</p>
+<pre><code>$arr = [1, 2, 3, 4];
+foreach($arr as $i)
+    echo $i;
+</code></pre>
+<h3 id="遍历"><a href="#遍历" class="headerlink" title="遍历"></a>遍历</h3><p>按一定规则访问一个非线性的结构中的每一项, 强调非线性结构(树, 图). 而迭代一般适用于线性结构(数组, 队列).</p>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><ul>
+<li>循环(loop) &#8211; 最基础的概念, 所有<strong>重复</strong>的行为</li>
+<li>递归(recursion) &#8211; 在<strong>函数内调用自身</strong>, 将复杂情况逐步转化成基本情况</li>
+<li>(数学)迭代(iterate) &#8211; 在多次循环中<strong>逐步接近结果</strong></li>
+<li>(编程)迭代(iterate) &#8211; 按<strong>顺序</strong>访问<strong>线性</strong>结构中的<strong>每一项</strong></li>
+<li>遍历(traversal) &#8211; 按规则访问<strong>非线性</strong>结构中的<strong>每一项</strong></li>
+</ul>
+<p>这些概念都表示“重复”的含义, 彼此互相交叉, 在上下文清晰的情况下, 不必做过于细致的区分.</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><a target="_blank" rel="noopener" href="http://www.nowamagic.net/librarys/veda/detail/2324">http://www.nowamagic.net/librarys/veda/detail/2324</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.cn-cuckoo.com/2010/08/09/loop-iterate-traversal-and-recursion-1846.html">http://www.cn-cuckoo.com/2010/08/09/loop-iterate-traversal-and-recursion-1846.html</a></li>
+<li>维基百科相关词条</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/05/08/2013-05-08-git-submodule-issues/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2013/05/08/2013-05-08-git-submodule-issues/" itemprop="url">Git submodule的坑</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-05-08T21:44:00+08:00">
+                2013-05-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/shell/" itemprop="url" rel="index">
+                    <span itemprop="name">shell</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>随着近几年的发展，Git 已经成为开源界的标准的版本控制工具。开源界的重量级项目，如 Linux, Android, Eclipse, Gnome, KDE, Qt, ROR, Debian，无一例外的都是使用 git 来进行版本控制。如果你还不会 Git，那么恕我直言，你已经 out 了，赶紧抽空充充电吧。本文并不打算做 Git 入门级介绍，想学习 git 的同学，推荐国内作者蒋鑫写的 <a target="_blank" rel="noopener" href="http://book.douban.com/subject/6526452/">《Git 权威指南》</a>。</p>
+<p>对于一些比较大的工程，为了便于复用，常常需要抽取子项目。例如我开发的猿题库客户端现在包括 3 门考试，客户端涉及的公共 UI、公共底层逻辑、公共的第三方库、以及公共的答题卡扫描算法就被我分别抽取成了子项目。这些子项目都以 git submodule 的形式，增加到工程中。</p>
+<p>在使用了 git submodule 一段时间后，我发现了一些 submodule 的问题，在此分享给大家。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2013/05/08/2013-05-08-git-submodule-issues/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/05/01/2013/2013-05-01#RP%20%E4%B8%BB%E6%9C%BA%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2013/05/01/2013/2013-05-01#RP%20%E4%B8%BB%E6%9C%BA%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6/" itemprop="url">RP主机如何进行权限控制</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-05-01T00:00:00+08:00">
+                2013-05-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>折腾虚拟主机一年多了, 除去编写面板，研究的更多的就是权限控制了. 在此我分享一下我在Linux虚拟主机权限控制方面的经验.</p>
+<p>阅读本文需要一定的Linux服务器维护基础.</p>
+<p>《应用密码学》的前言中讲到:</p>
+<blockquote>
+<p>如果我把一封信锁在保险柜中, 把保险柜藏在纽约的某个地方, 然后告诉你去读这封信, 这并不是安全, 而是隐藏.</p>
+<p>  相反，如果我把一封信锁在保险柜中, 然后把保险柜及其设计规范和许多同样的保险柜给你, 以便你和世界上最好的开保险柜的专家能够研究锁的装置.</p>
+<p>  而你还是无法打开保险柜去读这封信, 这才是安全.</p>
+</blockquote>
+<p>我不是说我的安全措施无懈可击, 我只是认为隐藏起来也于事无补, 不如分享出来, 在此我也提示RP主机的用户, 请不要在服务器上做尝试突破限制的操作, 根据协议你可能被封停帐号, 你可以自行架设环境来测试, 或与我交流. 啊, 题外话说了这么多.</p>
+<p>我很懒, 我在尽可能地借助Linux本身的功能来进行权限控制, 而且这也是RP主机的宗旨——提供完整的Linux环境.</p>
+<h2 id="文件"><a href="#文件" class="headerlink" title="文件"></a>文件</h2><p>文件方面, Linux本身已经提供了一套文件权限系统, 我只需要提示用户应当将文件权限设置为770即可: <code>chmod -R 770 ~</code></p>
+<p>为了防止疏忽，我们还可以在<code>.bashrc</code>中加入<code>umask 007</code>这样创建出来的文件默认就是660(注1), 不过这对PHP等脚本生成的文件并不起作用, 因为他们没有通过bash环境.</p>
+<p>注1: Linux不允许一个文件创建时就有执行权限, 所以默认是660, 对于目录则是770.</p>
+<p>我没有使用单独的FTP软件, 比如有名的vsftp, 因为我觉得配置起来很麻烦, 容易产生新漏洞. sshd自带的SFTP功能完全可以满足文件管理的需求, 这是自带的功能, 方便.</p>
+<p>我还使用了quota-tools来限制用户的磁盘占用, 因为磁盘这东西, 占了多少就是多少, 总不能随便删人的文件啊, 所以一定要限制死.</p>
+<h2 id="Web"><a href="#Web" class="headerlink" title="Web"></a>Web</h2><p>Web部分可谓是重中之重, 因为按照Linux的规则, 端口是被一个进程独占的, 但是大家都需要用80端口来开设Web服务, 这就需要以root运行一个Web服务器, 然后根据用户的在面板中的配置, 分发, 执行Web请求. 其实, 只需要一个反向代理来分发请求就够了, 但是为了降低建站的门槛, 毕竟相当大一部分用户购买RP主机就是为了建站, 所以还要提供公共的常见脚本(PHP)运行环境.</p>
+<p>Apache负责运行各种网页脚本, 如PHP, Python, CGI等等. 为了保证自由度, 我没有对PHP加任何的限制, 我希望借助Linux本身的进程安全模型——让脚本以对应的Linux用户来运行.</p>
+<p>于是我找到了 mpm_itk_module, 这种工作模式, 可以为每个Virtual Host指定实际运行的用户. 当收到请求时, Apache的工作进程会setuid为相应用户, 然后再执行相应的脚本完成请求.</p>
+<p>借助于Linux本身的功能, PHP进程可以按照权限访问文件, 创建新进程(以实际的用户), 而不会干扰到其他用户.</p>
+<p>但和标准的 mpm_perfork_module 相比, 因为要频繁地setuid, 创建和销毁进程, 性能相差了几十上百倍之多. 但为了权限控制的灵活性, 只能牺牲性能了. 在新版本中, 我正在把性能低下的Apache边缘化.</p>
+<p>目前, 事实上是Nginx在监听80端口, 负责处理静态文件请求, 并把其他请求反向代理到Apache. 为了提供静态文件, Nginx需要能偶访问所有用户的文件.</p>
+<p>我选择了以www-data用户来运行Nginx, 同时将www-data加入到每个用户的组当中, 所以需要用户将文件设置为770, 给予同组的Nginx权限.</p>
+<h2 id="新版本的Web"><a href="#新版本的Web" class="headerlink" title="新版本的Web"></a>新版本的Web</h2><p>新版本中将使用PHP-FPM代替Apache处理PHP脚本, PHP-FPM的功能很强大, 可以建立不同的进程池, 在新版本中, 每个用户都会有一个单独的进程池.</p>
+<p>每个进程池表现为一个UNIX socket文件, 用户也可以编译自己的PHP和PHP-FPM来代替默认的PHP-FPM.</p>
+<p>新版本中使用了 uWSGI 代替Aapche的 mod_wsgi 来处理Python脚本, 用户需要自行运行uWSGI守护进程, 监听一个UNIX socket, 并配置Nginx的反向代理即可.</p>
+<p>事实上这种方式适用于所有的fcgi服务器.</p>
+<h2 id="MySQL"><a href="#MySQL" class="headerlink" title="MySQL"></a>MySQL</h2><p>MySQL再简单不过了, 装一个phpmyadmin, 默认的安全策略已经相当完善, 每个用户对以自己的用户名为前缀的数据库具有全部权限, 可以随意建立数据库.</p>
+<h2 id="流量统计"><a href="#流量统计" class="headerlink" title="流量统计"></a>流量统计</h2><p>说实话直到目前我还没找到较可行的方案, 我希望依然以Linux中的用户为单位进行统计. 目前我正在调研iptables的相关功能.</p>
+<p>目前还有两个部分的用户相关进程没有以实际用户运行: PPTP, Nginx的worker.</p>
+<p>不知不觉写了这么多, 不过好像没啥实际的啊.</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/04/30/2013-04-30-the-history-of-wwdc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2013/04/30/2013-04-30-the-history-of-wwdc/" itemprop="url">历史上的WWDC门票售空图片</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-04-30T22:40:00+08:00">
+                2013-04-30
               </time>
             
 
@@ -1893,15 +3928,29 @@
 
       
         
-          <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>StoryBoard 是苹果在 2011 年的 WWDC Session 309《Introducing Interface Builder Storyboarding》中介绍的 Interface Builder 的新功能。其基本想法是将原本的 xib 进行升级，引入一个容器用于管理多个 xib 文件，并且这个容器可以通过拖拽设置 xib 之间的界面跳转。而这个容器就是被苹果称做的 StoryBoard。下图是一个 Storyboard 的截图。</p>
-<img src="/images/enbrace-ios5-1.png" class="">
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2012/12/15/2012-12-15-do-not-use-storyboard/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
+        
+          
+            <h2 id="2008年"><a href="#2008年" class="headerlink" title="2008年"></a>2008年</h2><p>62天售空。介绍了iPhone 3G。</p>
+<img src="/images/wwdc-2008.jpg" width="500px" />
+
+<h2 id="2009年"><a href="#2009年" class="headerlink" title="2009年"></a>2009年</h2><p>33天售空。介绍了iPhone 3GS。</p>
+<img src="/images/wwdc-2009.png" width="500px" />
+
+<h2 id="2010年"><a href="#2010年" class="headerlink" title="2010年"></a>2010年</h2><p>8天售空。介绍了iPhone 4。</p>
+<img src="/images/wwdc-2010.png" width="500px" />
+
+<h2 id="2011年"><a href="#2011年" class="headerlink" title="2011年"></a>2011年</h2><p>12小时售空。介绍了iOS5, ARC, Storyboard, iCloud, Mac OS X Lion。</p>
+<p>从这一年开始，iPhone新品都没能赶上在WWDC中介绍。</p>
+<img src="/images/wwdc-2011.jpg" width="500px" />
+
+<h2 id="2012年"><a href="#2012年" class="headerlink" title="2012年"></a>2012年</h2><p>2小时售空。介绍了iOS6。</p>
+<img src="/images/wwdc-2012.jpg" width="500px" />
+
+<h2 id="2013年"><a href="#2013年" class="headerlink" title="2013年"></a>2013年</h2><p>2分钟售空。期待。</p>
+<img src="/images/wwdc-2013.jpg" width="500px" />
+
+
+          
         
       
     </div>
@@ -1949,7 +3998,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/12/09/2012-12-09-iap-crack-issue/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/04/29/2013-04-29-the-missing-objc-keywords/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -1968,7 +4017,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2012/12/09/2012-12-09-iap-crack-issue/" itemprop="url">关于IAP的破解</a></h2>
+                <a class="post-title-link" href="/2013/04/29/2013-04-29-the-missing-objc-keywords/" itemprop="url">那些被遗漏的Objective-C保留字</a></h2>
         
 
         <div class="post-meta">
@@ -1980,8 +4029,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-12-09T15:06:00+08:00">
-                2012-12-09
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-04-29T20:22:00+08:00">
+                2013-04-29
               </time>
             
 
@@ -2052,11 +4101,28 @@
 
       
         
-          <h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>大概在今年7月份，有俄罗斯黑客<a target="_blank" rel="noopener" href="http://www.in-appstore.com/">破解</a>了苹果的应用内付费（In-App Purchases），设备在不越狱的情况下就可以免费获得来自苹果官网App Store里应用的收费道具。受影响的产品众多，包括著名的Angry Birds，切水果，Mega Jump, Pandora等。<a target="_blank" rel="noopener" href="https://docs.google.com/spreadsheet/ccc?key=0AvSXyNTiqEXMdGRKZlN1Snl5S3h1Z1NsTTFYTlJPTUE#gid=0">这里</a>有一份受影响的著名的游戏应用列表。</p>
-<p>正常的越狱行为还是比较复杂的，需要下载破解软件，并且操作进入DFU模式，所以大部分人并不能够方便地越狱。但该方案不需要越狱就可以破解应用内付费，给用户实施该行为提供了方便。</p>
+          <img src="/images/forget.jpeg" class="">
+
+<p>今天翻到很久以前自己在网易博客上写的 <a target="_blank" rel="noopener" href="http://tangqiaoboy.blog.163.com/blog/static/116114258201110133108545/">这篇文章</a>，惊奇地发现自己都忘记了里面的一些内容。所以我又重新学习了一下，然后改了改内容，挪到这里。</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><a target="_blank" rel="noopener" href="http://www.amazon.cn/s?ie=UTF8&search-alias=books&field-author=Steffen%20Itterheim">Steffen Itterheim</a> 是 <a target="_blank" rel="noopener" href="http://www.amazon.cn/Learn-Iphone-and-Ipad-Cocos2d-Game-Development-The-Leading-Framework-for-Building-2D-Graphical-and-Interactive-Applications-Itterheim-Steffen/dp/1430233036/ref=sr_1_1?ie=UTF8&qid=1321168092&sr=8-1">《Learn Iphone and Ipad Cocos2d Game Development》</a> 作者。cocos2d 和 cocos2d-x 现在已成为著名的游戏开发引擎。在 AppStore 上有超过 100 个游戏是基于 Cocos2D。</p>
+<p>Steffen Itterheim 在 <a target="_blank" rel="noopener" href="http://www.learn-cocos2d.com/2011/10/complete-list-objectivec-20-compiler-directives">他的博客</a> 中总结了 Objective-C 2.0 所有的编译器保留字，并且对这些保留字做了介绍和使用示例。这些保留字如下：</p>
+<pre>
+@class
+@defs
+@protocol @required @optional @end
+@interface @public @package @protected @private @property @end
+@implementation @synthesize @dynamic @end
+@throw @try @catch @finally
+@synchronized @autoreleasepool
+@selector @encode
+@compatibility_alias
+@”string”
+</pre>
+
+<p>我把这些保留字过了一遍，发现很少用到的有 @dynamic @defs @encode @compatibility_alis，所以就给大家介绍一下这几个关键字吧。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2012/12/09/2012-12-09-iap-crack-issue/#more" rel="contents">
+            <a class="btn" href="/2013/04/29/2013-04-29-the-missing-objc-keywords/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -2108,7 +4174,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/12/09/2012-12-09-in-app-purchase-check-list/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013/04/25/2013/2013-04-25#%E7%9F%B3%E5%A4%B4%E5%89%AA%E5%AD%90%E5%B8%83/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -2127,7 +4193,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2012/12/09/2012-12-09-in-app-purchase-check-list/" itemprop="url">iOS应用内付费(IAP)开发步骤列表</a></h2>
+                <a class="post-title-link" href="/2013/04/25/2013/2013-04-25#%E7%9F%B3%E5%A4%B4%E5%89%AA%E5%AD%90%E5%B8%83/" itemprop="url">石头剪子布</a></h2>
         
 
         <div class="post-meta">
@@ -2139,301 +4205,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-12-09T12:55:00+08:00">
-                2012-12-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p>前两天和服务端同事一起，完成了应用内付费（以下简称IAP, In app purchase）的开发工作。步骤繁多，在此把开发步骤列表整理如下。因为只是步骤列表，所以并不含详细的说明教程，需要看教程的新手，可以看我附在最后的一些参考链接。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2012/12/09/2012-12-09-in-app-purchase-check-list/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/revisitando-nueva-web-senado">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/revisitando-nueva-web-senado" itemprop="url">Revisitando la nueva web del Senado</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-12-03T21:20:16+08:00">
-                2012-12-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p>Hace unos días hacía un <a href="/estudiando-el-rediseno-de-la-web-del-senado-de-espana/">análisis del rediseño de la web del Senado</a>, justo tras su lanzamiento, desde el punto de vista de rendimiento web y mejores prácticas a la hora de desarrollar sitios web. La nueva web del Senado sufría múltiples problemas poco más que inaceptables para un proyecto tan reciente y con tal presupuesto.</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/revisitando-nueva-web-senado#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/11/30/2012-11-30#RP%E4%B8%BB%E6%9C%BA%E6%AD%A3%E5%BC%8F%E5%BC%80%E5%8D%96%EF%BC%81/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2012/11/30/2012-11-30#RP%E4%B8%BB%E6%9C%BA%E6%AD%A3%E5%BC%8F%E5%BC%80%E5%8D%96%EF%BC%81/" itemprop="url">RP 主机正式开卖！</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-11-30T00:00:00+08:00">
-                2012-11-30
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-04-25T00:00:00+08:00">
+                2013-04-25
               </time>
             
 
@@ -2483,814 +4256,19 @@
         
         
           
-            <p>RP主机官网：<a target="_blank" rel="noopener" href="http://rp2.jybox.net/">http://rp2.jybox.net</a></p>
-<p>RP主机的功能和定位，以及价格，在官网说的已经很明白了，不再重复.</p>
-<p>2011年8月，因为零毫秒的需要，我买了一个VPS, 因为之前有半年多的Linux使用经验，也算很快就调教好了. 因为没钱，质量很差，动不动就挂，之后又辗转换过几家VPS服务商.</p>
-<p>2012年3月，换到了大名鼎鼎的Linode, 140元&#x2F;月，这价格我实在有点负担不起，于是决定将VPS上剩余的资源以虚拟主机的形式来出售，主要用于建站、翻墙之类的. 用了这么久的Linux, 也有了点Linux服务器管理的经验，这正好是一个实践的好机会，同时还能捞回点钱.</p>
-<p>我很快就开干了，我没有选择安装市面上一些常见的虚拟主机管理系统，而是让用户直接给我发邮件，我自己来按照用户的要求修改配置文件. 包括新建和删除用户等等，都是手动的.</p>
-<p>不使用面板一方面是版权的问题，很多面板是收费的. 另一方面是对免费的面板的不信任，不是怕作者使坏，而是怕那么大一个系统，会有某些细节不符合我的预期，造成漏洞. 另外别人的代码，有了bug我也没法改.</p>
-<p>我给它起名<code>神马终端</code>, 很蛋疼的名字&#8230;., 5元&#x2F;月. 我也没想到盈利，只是想收回一部分买VPS的钱，减轻点负担. 我以为这么蛋疼的卖法不会有几个人来买的. 但事实上还是有20几个人在用. 手动管理起来实在有点烦，于是我想着自己写个虚拟主机管理面板，将管理操作自动化，顺便把服务器搞的规范一点，实现盈利.</p>
-<p>我给这个面板起名RootPanel, 这也是RP主机名字的由来.  我从2012年9月一直写到11月末，大致把它写完了，并结束了相关的测试工作.</p>
-<p>期间神马终端受到过5、6次DDOS, 至今也不知道是谁干的、为什么要这样做. 这些次攻击给我的打击也挺大的，一度想放弃卖虚拟主机.</p>
-<p>在这段时间，我又购进了一台LocVPS的VPS, 性价比很不错，我主要就是在用它进行面板的测试工作.</p>
-<p>现在RP主机在LocVPS上已经开卖了，半个月后，Linode上原有的神马终端也将装上新的面板、更名，成为RP主机的第二个节点.</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/11/29/2012-11-29#TCP-IP-%E7%AC%94%E8%AE%B0-4-IP%E8%B7%AF%E7%94%B1%E9%80%89%E6%8B%A9%E5%92%8C%E5%88%86%E6%AE%B5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2012/11/29/2012-11-29#TCP-IP-%E7%AC%94%E8%AE%B0-4-IP%E8%B7%AF%E7%94%B1%E9%80%89%E6%8B%A9%E5%92%8C%E5%88%86%E6%AE%B5/" itemprop="url">TCP/IP 笔记(4.IP路由选择和分段)</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-11-29T00:00:00+08:00">
-                2012-11-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>IP数据报头中的<code>目标地址</code>决定数据报的去处，它代表目标网络中的特定主机. 如果目标地址在本地网络，直接将数据报送到该主机即可.</p>
-<p>如果目标地址指向外部网络，则将数据报发给网关，而决定发给哪个网关的过程，叫路由选择.</p>
-<p>IP会为每个数据报选择路由.</p>
-<h3 id="路由选择"><a href="#路由选择" class="headerlink" title="路由选择"></a>路由选择</h3><p>Internet网关(gateway)通常被称为IP路由器(IP router). 网关根据IP决定数据报传送的路径.</p>
-<p>严格来说，网关能在不同的协议之间传输数据，路由器则在不同网络间，使用相同协议传输数据.</p>
-<p>在TCP&#x2F;IP术语中，网络设备分为网关和主机.</p>
-<p>网关同时连接到多个网络，并可以在网络之间传输数据，而主机不能. 但如果主机被连接到多个网络，也可以被视为网关.</p>
-<p>网关和主机最大的差别在于，主机的数据包必须逐层经过四层协议的处理，而在网关上，数据包只需上达网际层即可，因为IP会为数据包决定路由.</p>
-<p>任何网络设备都只能将数据报送到与自己连接在同一物理网络上的其他设备. 若要向其他网络上的设备发送数据报，则必须先将数据报发给连接两个网络的网关，然后由网关转发给目标设备.</p>
-<p>对于一个主机而言，它只需知道本地网关可以将数据报送往其他网络，不必也不能控制数据报在经过网关之后的转发路径.</p>
-<p>这是因为不同的物理网络之间可能完全不兼容，一个网络中的数据报，必须经过网关的转换才能送达另一网络. 这样，数据报像接力棒一样可以跨越多个不同的物理网络，到达目标.</p>
-<h3 id="数据报的分段"><a href="#数据报的分段" class="headerlink" title="数据报的分段"></a>数据报的分段</h3><p>因为不同的物理网络本质上的差异，连接不同种类物理网络的网关的IP模块可能会将数据报拆分成较小的片段(fragment). 如果网关两端连接的是相同种类的物理网络，则不必拆分数据报.</p>
-<p>每一种物理网络，都有自己的最大传输单元(MTU, Maximum Transmission Unit)限制，也就是说，各种网络所能承载的最大数据报容量并不一致.</p>
-<p>当数据报从MTU较大的网络流向MTU较小的网络时，网关就必须将数据报拆分成较小的传输单位. 这个过程叫<code>分段</code>.</p>
-<p>分解后的数据报称为<code>片段</code>，其格式与普通数据报一样，报头的<code>编号</code>部分可以用来唯一地区分一个片段，并作为还原数据报的依据.</p>
-<p>而<code>片段(分段)偏移量</code>代表该片段在原数据报中的位置(顺序).</p>
-<p><code>标记</code>中的<code>是否为最后一个片段(分段)</code>, 可使IP判断是否已经收集到了一个数据报的所有片段.</p>
-<h3 id="传送数据给传输层"><a href="#传送数据给传输层" class="headerlink" title="传送数据给传输层"></a>传送数据给传输层</h3><p>当IP收到一个传送给本机的数据报时，它会去掉报头，将得到的数据交给正确的传输层协议(如TCP或UDP). 至于要交给哪一种传输层协议，则由<code>协议号</code>决定，每一种传输层协议都有自己的协议号，以便IP进行识别.</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/11/28/2012-11-28#TCP-IP-%E7%AC%94%E8%AE%B0-3-IP%E5%8D%8F%E8%AE%AE%E6%A6%82%E8%BF%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2012/11/28/2012-11-28#TCP-IP-%E7%AC%94%E8%AE%B0-3-IP%E5%8D%8F%E8%AE%AE%E6%A6%82%E8%BF%B0/" itemprop="url">TCP/IP 笔记(3.IP协议概述)</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-11-28T00:00:00+08:00">
-                2012-11-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>IP(Internet Protocol, 网际协议)工作在网际层，是TCP&#x2F;IP协议族中最重要的组成部分，所有TCP&#x2F;IP的数据包都通过IP来传输.</p>
-<h3 id="IP的功能"><a href="#IP的功能" class="headerlink" title="IP的功能"></a>IP的功能</h3><ul>
-<li>定义数据报的格式，它是Internet的基本传输单位</li>
-<li>定义Internet的寻址方式</li>
-<li>在网络访问层和传输层之间传输数据</li>
-<li>决定数据报到远程主机的传输路径</li>
-<li>对数据报进行分解和重组</li>
-</ul>
-<p>IP是一种非连接式协议，这意味着在传输数据前，两个端点之间不必交换控制信息(握手)来建立点对点连接.</p>
-<p>对于需要面向连接的应用，须依赖于其他层的协议，如TCP.</p>
-<p>IP是不可靠的协议，依赖于其他的协议来提供错误检测(ICMP,Internet Control Message Protocol, 互联网控制消息协议)和纠正(TCP)的能力.</p>
-<h3 id="IP数据报"><a href="#IP数据报" class="headerlink" title="IP数据报"></a>IP数据报</h3><p>数据报是包含控制信息(如接收者地址)的数据块.</p>
-<p>IP会把数据报从一个物理网络转发到另一个物理网络，直到到达最终目标，每一个数据报的转发路径都是独立，与其他数据报没有关系.</p>
-<p>下面是IPv4数据报的格式：</p>
-<p><img src="http://i.minus.com/ibablEURIiXCDG.png" alt="1"></p>
-<p><strong>版本</strong> IP的版本号，这里介绍的是IPv4, 应为4.</p>
-<p><strong>IHL</strong> Internet Header Lenght, IP报头长度，单位为32bit, 该字段最小值为5, 通过增加该字段长度，可以在图中的报头结构之后，再追加选项(选项部分要补齐到32bit的整数倍).</p>
-<p><strong>服务类型</strong> 目前被重新规定为DSCP(Differentiated Services Code Point, 差分服务代码点)占6bit和ECN(Explicit Congestion Notification, 显式拥塞通知)占2bit, 两者主要用于区分数据报的优先级、对延迟、吞吐率、可靠度的要求.</p>
-<p><strong>数据报全长</strong> 单位Byte.</p>
-<p><strong>编号</strong> 分段的编号，唯一地标识一个数据报的所有分段.</p>
-<p><strong>标记</strong> 与分段相关的标记，标记<code>是否允许被分段</code>、<code>是否为最后一个分段</code>.</p>
-<p><strong>分段偏移量</strong> 该分段相对于原始数据报的偏移量，单位64bit.</p>
-<p><strong>TTL</strong> Time To Live, 存活时间，单位秒，但事实上通常每经过一个路由器会被减一.</p>
-<p><strong>协议号</strong> 指明所承载的数据使用的协议，常见的协议号如下：</p>
-<p><strong>校验和</strong> 报头校验和，用来核对报头是否被正确地传输，如果校验失败，则这个数据报会被丢弃.</p>
-<p><strong>源地址</strong> <strong>目标地址</strong> IPv4地址，二进制形式.</p>
-<p>在通常的报头之后，还会有选项(由IHL决定)和实际的数据.</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/11/27/2012-11-27#TCP-IP-%E7%AC%94%E8%AE%B0-2-TCP-IP%E6%A8%A1%E5%9E%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2012/11/27/2012-11-27#TCP-IP-%E7%AC%94%E8%AE%B0-2-TCP-IP%E6%A8%A1%E5%9E%8B/" itemprop="url">TCP/IP 笔记(2.TCP/IP模型)</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-11-27T00:00:00+08:00">
-                2012-11-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>上一篇提到的TCP&#x2F;IP模型：</p>
-<p>下面是四层模型，和每一层上所传输的数据的术语.</p>
-<ul>
-<li>网络访问层 &#8211; 帧(frame)</li>
-<li>网际层 &#8211; 数据报(datagram)</li>
-<li>主机对主机传输层 &#8211; TCP:段(segment) UDP:包(packet)</li>
-<li>应用层 &#8211; TCP:流(stream) UDP:消息(message)</li>
-</ul>
-<h3 id="网络访问层"><a href="#网络访问层" class="headerlink" title="网络访问层"></a>网络访问层</h3><p>与OSI模型的前三层对应，隐藏物理设备的细节，相当于物理设备的驱动.</p>
-<p>将IP数据报封装成适合物理设备传输的帧.</p>
-<p>将IP地址转换为物理地址(ARP协议,Address Resolution Protocol,地址解析协议), 为传送IP数据报提供基础.</p>
-<h3 id="网际层"><a href="#网际层" class="headerlink" title="网际层"></a>网际层</h3><p>本层最重要的是IP协议，目前被广泛应用的是IPv4, 还有它的替代品IPv6. 本系列笔记暂时只涉及IPv4.</p>
-<p>无论是上层协议(TCP&#x2F;UDP), 还是下层协议(ARP), 都使用IP来传输数据, TCP&#x2F;IP模型中所有的<code>数据包</code>必定经过IP.</p>
-<p>术语<code>数据包</code>在这里，以及以后，笼统地表示<code>一段自成整体的数据</code>.</p>
-<h3 id="主机对主机传输层"><a href="#主机对主机传输层" class="headerlink" title="主机对主机传输层"></a>主机对主机传输层</h3><p>简称传输层，本层最重要的是TCP(Transmission Control Protocol,传输控制协议)和UDP(User Datagram Protocol,用户数据报协议).</p>
-<ul>
-<li>TCP提供可靠的数据传输服务，而且能侦测、更正端点之间的错误.</li>
-<li>UDP提供低成本、非连接式的数据传输服务.</li>
-</ul>
-<h3 id="应用层"><a href="#应用层" class="headerlink" title="应用层"></a>应用层</h3><p>应用层就是应用程序实际交流数据的层次，协议有很多种，取决于具体的应用程序，很多应用程序都会定义属于自己的应用层协议.</p>
-<p>常见的开放协议有SMTP, FTP, HTTP, DNS, Telnet等等.</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/11/26/2012/2012-11-26#HTML5%20%E6%96%B0%E7%9A%84%E8%AF%AD%E4%B9%89%E5%8C%96%E6%A0%87%E8%AE%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2012/11/26/2012/2012-11-26#HTML5%20%E6%96%B0%E7%9A%84%E8%AF%AD%E4%B9%89%E5%8C%96%E6%A0%87%E8%AE%B0/" itemprop="url">HTML5 新的语义化标记</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-11-26T00:00:00+08:00">
-                2012-11-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>它们的行为和<code>&lt;div&gt;</code>几乎是相同的，只是被赋予了语义.</p>
-<p>通过使用语义化标记，可以提高代码的可读性，让浏览器更好地优化你的网页(尤其在移动终端), 以及让搜索引擎爬虫更好地理解你的网页.</p>
-<ul>
-<li><code>&lt;section&gt;</code></li>
-</ul>
-<p>段落，一个网页可以有多个这样的段落，多个段落之间可能有联系也可能没有联系.</p>
-<p><code>&lt;section&amp;gt;</code>中通常会有<code>&lt;header&gt;</code>(标题)和<code>&lt;footer&gt;</code>(页脚).</p>
-<ul>
-<li><code>&lt;article&gt;</code></li>
-</ul>
-<p>文章，自成整体的内容，如新闻、日志的正文. 它也可能包含标题和页脚，可以认为是<code>&lt;section&gt;</code>的一种特殊形式.</p>
-<ul>
-<li><code>&lt;header&gt;</code></li>
-</ul>
-<p>标题，还可以是页眉，包含Logo, 搜索框等.</p>
-<ul>
-<li><code>&lt;nav&gt;</code></li>
-</ul>
-<p>主导航栏，通常每个页面只有一个，包含指向各个<code>&lt;section&gt;</code>的导航.</p>
-<ul>
-<li><code>&lt;aside&gt;</code></li>
-</ul>
-<p>侧边栏.</p>
-<ul>
-<li><code>&lt;figure&gt;</code></li>
-</ul>
-<p>图表、图片、视频等，用于辅助理解文章，在某些情况下被移除也不影响原文的其他信息.</p>
-<ul>
-<li><code>&lt;footer&gt;</code></li>
-</ul>
-<p>页脚，包括版权信息、相关链接等，提供额外的数据。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/11/24/2012-11-24#TCP-IP-%E7%AC%94%E8%AE%B0-1-%E6%A6%82%E8%BF%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2012/11/24/2012-11-24#TCP-IP-%E7%AC%94%E8%AE%B0-1-%E6%A6%82%E8%BF%B0/" itemprop="url">TCP/IP 笔记(1.概述)</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-11-24T00:00:00+08:00">
-                2012-11-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>TCP&#x2F;IP代表一套数据通讯协议的组合. TCP(Transmission Control Protocol, 传输控制协议)和IP(Internet Protocol, 网际协议)是其中最重要的两种协议. 它们是目前使用最广泛的协议组合，全球性Internet的基础.</p>
-<p>TCP&#x2F;IP是统一的开放标准，不受制于特定的硬件或操作系统.</p>
-<p>Internet协议多由IETF(Internet Engineering Task Force,互联网工程任务小组)以RFC(Request For Comments,征求修正意见书)的形式发表.</p>
-<h3 id="OSI参考模型-Open-System-Interconnection-Reference-Model-开放式通信系统互联参考模型"><a href="#OSI参考模型-Open-System-Interconnection-Reference-Model-开放式通信系统互联参考模型" class="headerlink" title="OSI参考模型(Open System Interconnection Reference Model,开放式通信系统互联参考模型)"></a>OSI参考模型(Open System Interconnection Reference Model,开放式通信系统互联参考模型)</h3><p>(由底层至上层)</p>
-<p>更多信息：<a target="_blank" rel="noopener" href="http://zh.wikipedia.org/wiki/OSI%E6%A8%A1%E5%9E%8B">http://zh.wikipedia.org/wiki/OSI%E6%A8%A1%E5%9E%8B</a></p>
-<ul>
-<li>物理层(Physical Layer)</li>
-</ul>
-<p>定义传输数据的物理规格(电平、电压、接口和引脚等)，物理层传输的是原始比特流，物理层需要保证对方能够正确地解析比特流，如约定哪个引脚发送的多少电压表示0或1, 一个bit持续多少微秒.</p>
-<ul>
-<li>数据链路层(Data Link Layer)</li>
-</ul>
-<p>保证数据能在物理层正确地被传输.</p>
-<ul>
-<li>网络层(Network Layer)</li>
-</ul>
-<p>管理网络间的连接、寻址，屏蔽底层的细节. IP通常被认为在这一层.</p>
-<ul>
-<li>传输层(Transport Layer)</li>
-</ul>
-<p>保证接收方能够正确无误、按顺序接到发送方的数据. TCP通常被认为在这一层.</p>
-<ul>
-<li>会话层(Session Layer)</li>
-</ul>
-<p>配合应用层管理会话式,某些协议允许在一个连接中进行多个会话. 而在某些协议中(如HTTP&#x2F;1.0)连接和会话并无区别.</p>
-<ul>
-<li>表示层(Presentation Layer)</li>
-</ul>
-<p>双方就数据的格式达成共识，如压缩和加密.</p>
-<ul>
-<li>应用层(Appliction Layer)</li>
-</ul>
-<p>应用程序交互的实际内容.</p>
-<h3 id="TCP-IP模型"><a href="#TCP-IP模型" class="headerlink" title="TCP&#x2F;IP模型"></a>TCP&#x2F;IP模型</h3><p>(由底层至上层)</p>
-<p>更多信息：<a target="_blank" rel="noopener" href="http://zh.wikipedia.org/wiki/TCP/IP%E5%8D%8F%E8%AE%AE">http://zh.wikipedia.org/wiki/TCP/IP%E5%8D%8F%E8%AE%AE</a></p>
-<p>TCP&#x2F;IP并没有一个标准的模型，通常认为它有四层，但不同资料对四层的划分并不相同.</p>
-<ul>
-<li>网络访问层(Network Access Layer)</li>
-<li>网际层(Internet Layer)</li>
-<li>主机对主机传输层(Host-to-Host Transport Layer)</li>
-<li>应用层</li>
-</ul>
-<p>无论是OSI还是TCP&#x2F;IP, 数据都是逐层传输的.</p>
-<p>发送方的数据，由应用层，逐层向下，经过每层时被加上该层的报头或进行封装.</p>
-<p>接收方由下至上，每层剥离报头与数据，并将数据交给正确的上层应用.</p>
+            <p>(写于半个月前)</p>
+<p>闲来无聊看了一部同名微电影，25分钟，翻拍自在QQ空间和微博流传了很久的一个段子。</p>
+<p>一个变态杀人狂绑架一对情侣，让他们玩石头剪子布，赢的人活下来，平局一起死。</p>
+<p>电影本身，画面还是相当精致的，而剧情在原有的不足140字的段子的基础上真的没有什么突破。影片展现了三对情侣的选择，他们无一例外地都事先约定好了一起死，但却又都没能如愿，有的是因为自私，有的是想保护对方，还有的不得而知。</p>
+<p>对我这个情商为零的死理性谈爱情和生命的取舍实在不好玩。生命的唯一意义就是繁衍后代，爱情不过是附属品。从前有一群人不这么认为，后来就没有后来了，因为他们都死光了。更何况两个人活一个比一起死要划算的多，就算是为了惩处凶手，避免更多人受害，也要留个活口啊。再加上石头剪子布这个十分不靠谱的游戏方式，如果不是因为有情侣这个元素，我丝毫不认为这个段子会火。</p>
+<p>我想如果是我，我不会事先约定的，随运气吧。</p>
+<p>来看另一个更经典也更简洁的博弈问题(囚徒困境).</p>
+<p>两个同案犯，因证据不足，必须要互相指认对方的罪行才能定罪，于是警察将他们分开审问。</p>
+<p>若两人都不指认对方，则均无罪释放；若一人指认另一人不指认，则前者从轻后者从重，分别判一年和十年；若两人都指认对方，则各判一年。</p>
+<p>本来从两个罪犯组成的团体来讲，两人都不指认是最好的结果。</p>
+<p>但一旦从个人的角度来考虑，那么指认则是最佳选择：若对方不指认，我指认，那么我能获得更少的刑期；如果对方指认，那我同样必须指认才能获得更少的刑期。</p>
+<p>可以看出囚徒困境是对个人利益和团体利益的一个博弈，在无法沟通的情况下，因为出卖同伙会为自己带来短期的利益，所以彼此出卖虽然违反团体的最佳利益，但却是个人的最佳选择。</p>
+<p>我想电影中的杀人狂想要通过游戏验证的也是情侣之间是否真正地信任对方，能否通过这种信任换取两个人的最佳利益。不得不说，电影中这个游戏规则，设计得很失败。</p>
 
           
         
@@ -3331,7 +4309,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/72/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/72/">72</a><span class="page-number current">73</span><a class="page-number" href="/page/74/">74</a><span class="space">&hellip;</span><a class="page-number" href="/page/79/">79</a><a class="extend next" rel="next" href="/page/74/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/72/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/72/">72</a><span class="page-number current">73</span><a class="page-number" href="/page/74/">74</a><span class="space">&hellip;</span><a class="page-number" href="/page/82/">82</a><a class="extend next" rel="next" href="/page/74/">&gt;</a>
   </nav>
 
 
@@ -3377,7 +4355,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1579</span>
+                  <span class="site-state-item-count">1622</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3388,7 +4366,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">64</span>
+                  <span class="site-state-item-count">71</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>

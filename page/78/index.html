@@ -273,7 +273,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2011/08/10/2011-08-10-do-not-use-accessor-in-init-and-dealloc-method/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/03/24/2012-03-24-talk-about-uiwebview-and-phonegap/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -292,7 +292,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2011/08/10/2011-08-10-do-not-use-accessor-in-init-and-dealloc-method/" itemprop="url">不要在init和dealloc函数中使用accessor</a></h2>
+                <a class="post-title-link" href="/2012/03/24/2012-03-24-talk-about-uiwebview-and-phonegap/" itemprop="url">关于UIWebView的总结</a></h2>
         
 
         <div class="post-meta">
@@ -304,8 +304,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-08-10T17:32:00+08:00">
-                2011-08-10
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-03-24T20:19:00+08:00">
+                2012-03-24
               </time>
             
 
@@ -376,308 +376,11 @@
 
       
         
-        
-          
-            <p>Objective-C 2.0 增加了 dot syntax，用于简单地调用成员变量的 accessor。相当于 java 的 getter 和 setter。<br>因为正常情况下，写一个 accessor 对于初学者来说，还是挺容易犯错的。比如有一个 NSString * 的成员变量叫 name。一个错误的写法是：</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-(<span class="type">void</span>)setName:(<span class="built_in">NSString</span> *)newName &#123;</span><br><span class="line">     name = newName;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Java 同学肯定想不通上面的代码有什么错吧？原因是 Objective-C 需要自己负责内存的释放。<br>所以需要在改变 reference 之前，将原对象 release，对新的对象，也需要 retain 一下，代码就改成这样：</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-(<span class="type">void</span>)setName:(<span class="built_in">NSString</span> *)newName &#123;</span><br><span class="line">     [name release];</span><br><span class="line">     name = [newName <span class="keyword">retain</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>初学者可能以为这样就对了，其实还是有错，如果 newName 和 name 的指向的是同一个对象，并且这个对象 retain count 只有 1 的话。<br>那么 name release 之后，这个对象就被回收掉了。所以应该改成：</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-(<span class="type">void</span>)setName:(<span class="built_in">NSString</span> *)newName &#123;</span><br><span class="line">     <span class="keyword">if</span> (name != newName) &#123;</span><br><span class="line">          [name release];</span><br><span class="line">          name = [newName <span class="keyword">retain</span>];</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这样才算是一个正确的 set 函数，Java 同学肯定被吓到了，虽然知道这么写，但这比 Java 麻烦多了。于是，Objective-C 允许程序员使用 <code>@property</code> + <code>@synthesize</code> 关键字来自动生成这些代码（注：Xcode 现在会默认自动添加 @synthesize 关键字）。于是 Objective-C 的程序员幸福了。大部分时候根本就不用写 getter 和 setter。</p>
-<p>但是需要小心，Objective-C 的 accessor 不能在 init 和 dealloc 函数中使用！如果你在 dealloc 中这么写，就有问题：</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">-(<span class="type">void</span>)dealloc &#123;</span><br><span class="line">     <span class="keyword">self</span>.name = <span class="literal">nil</span>;</span><br><span class="line">     [<span class="variable language_">super</span> dealloc]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>苹果在它的开发者文档库中有一个专门讲 cocoa 的内存管理的文章：<br><a target="_blank" rel="noopener" href="http://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/MemoryMgmt/MemoryMgmt.pdf">http://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/MemoryMgmt/MemoryMgmt.pdf</a></p>
-<p>文章的第 16 页有一节题目是：Don’t Use Accessor Methods in Initializer Methods and dealloc</p>
-<p>文章说：你唯一不应该用 Accessor 的地方是 init 函数和 delloc 函数。在 init 函数中，对于一个 <code>_count</code> 成员变量应该像下面这样赋值：</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">-(<span class="type">id</span>)init &#123; </span><br><span class="line">     <span class="keyword">self</span> = [<span class="variable language_">super</span> init]; </span><br><span class="line">     <span class="keyword">if</span> (<span class="keyword">self</span>) &#123;</span><br><span class="line">          _count = [[<span class="built_in">NSNumber</span> alloc] initWithInteger:<span class="number">0</span>]; </span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>对于一个带参数的 init 函数，你应该实现成下面这样：</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="type">id</span>)initWithCount:(<span class="built_in">NSNumber</span> *)startingCount &#123; </span><br><span class="line">     <span class="keyword">self</span> = [<span class="variable language_">super</span> init]; </span><br><span class="line">     <span class="keyword">if</span> (<span class="keyword">self</span>) &#123;</span><br><span class="line">          _count = [startingCount <span class="keyword">copy</span>];</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>对于在 dealloc 中，对应的写法应该是调 release:</p>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="type">void</span>)dealloc &#123; </span><br><span class="line">     [_count release]; </span><br><span class="line">     [<span class="variable language_">super</span> dealloc];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>但是比较郁闷的是，文章最后没有说为什么不能！去 stackoverflow 上搜了一下，比较不靠谱的说法是这样少一次函数调用，更快。比较靠谱的说法是：在 init 和 dealloc 中，对象的存在与否还不确定，所以给对象发消息可能不会成功。</p>
-<p>顺便说一下 , 当发现这个文章的时候，我们的代码中已经有了很多这样错误用法。虽然程序没有出现严重的内存问题，但是为了保险，还是打算一行一行改掉，后来我想，这个能不能用 vim 搞定呢？<br>于是我进 vim，用 qa 启动宏录制，然后输入 </p>
-<pre>
-:%s/self./[/g  再输入：%s/= nil/release]/g 
-</pre>
-<p>再输入 q, 这样就可以用 @a 来启动刚刚录制的宏来做替换了。相当方便。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2011/08/10/2011-08-10#%E5%9C%A8%E5%86%9B%E8%AE%AD%E4%B9%8B%E5%89%8D%E9%9C%80%E8%A6%81%E4%BA%A4%E4%BB%A3%E7%9A%84%E4%B8%80%E4%BA%9B%E9%81%97%E8%A8%80/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2011/08/10/2011-08-10#%E5%9C%A8%E5%86%9B%E8%AE%AD%E4%B9%8B%E5%89%8D%E9%9C%80%E8%A6%81%E4%BA%A4%E4%BB%A3%E7%9A%84%E4%B8%80%E4%BA%9B%E9%81%97%E8%A8%80/" itemprop="url">在军训之前需要交代的一些遗言</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-08-10T00:00:00+08:00">
-                2011-08-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>现在是2011.8.10,明天(也就是11日)下午一点需要去一下学校,估计是要交代一下军训的事情。然后12到17日都是正式的军训。</p>
-<p>近两天的打算是,今天接着写hosts 文件编辑器(HostEdit),能写多少写多少,写不完就先放下。然后明天把这几天发现的LightPHP的bug整理一下,发一个新版本,顺便弄个二级域名,方便宣传。<br>另外还打算在军训之后重新把电脑装一遍,包括重装系统,重新分区等等。原因是因为我以后的发展方向已经基本确定了,而且网站的开发也告一段落了。<br>系统用Windows7+Ubuntu,彻底告别XP,因为现在XP已经彻底过时了,而且兼容性越来越差。至于以后写的程序要不要对XP提供支持,要不要像抵制IE6一样不兼容XP则仍需考虑。</p>
-<p>军训的时候打算带本书去啃,有两个候选的书,都是从图书馆借的C++的书,都是外国人写的,而且都非常难啃,估计若不是军训这样大块的时间,恐怕没时间啃了：「C++沉思录」和「68讲贯通C++」</p>
-<p>还是没想好带哪一本,或者两个都带?但体积太大了。</p>
-<p>再说Abreto也够气人的,主动申请管理组之后一点动静都没有。<br>刚刚又仔细的想了一想,如果拿作品来说话,其实精英盒子也就我们两个有作品了。但技术还是难分高下。唉,也不知道这家伙到底在忙什么。</p>
-<p>希望军训中能认识一些志同道合的朋友吧。<br>至于到时候能不能用手机上网,这个还要另说。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/server-sent-events-iphone">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/server-sent-events-iphone" itemprop="url">Server Sent Events on iOS</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-08-08T19:13:31+08:00">
-                2011-08-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          Server Sent Events are fired on iOS even when the page is not active. Are there any good applications for this?
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天参加了 Adobe 和 CSDN 组织的一个关于 <a target="_blank" rel="noopener" href="http://hui.csdn.net/MeetingInfo.aspx?mid=99">PhoneGap 的开发讲座</a> ，而 PhoneGap 在 iOS 设备上的实现就是通过 UIWebView 控件来展示 html 内容，并且与 native 代码进行交互的。</p>
+<p>正好我们在做有道云笔记的 iPad 版，因为我们也是使用 UIWebView 来展示笔记内容，所以也需要做 js 与 native 代码相互调用的事情。所以在这儿顺便总结一下 UIWebView 在使用上的细节，以及谈谈我对 PhoneGap 的看法。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/server-sent-events-iphone">
+            <a class="btn" href="/2012/03/24/2012-03-24-talk-about-uiwebview-and-phonegap/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -729,7 +432,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2011/08/03/2011-08-03#%E6%9C%89%E5%85%B3%E9%BB%91%E5%AE%A2/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/03/10/2012-03-10-xcode4-tips/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -748,7 +451,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2011/08/03/2011-08-03#%E6%9C%89%E5%85%B3%E9%BB%91%E5%AE%A2/" itemprop="url">有关黑客</a></h2>
+                <a class="post-title-link" href="/2012/03/10/2012-03-10-xcode4-tips/" itemprop="url">Xcode4 使用技巧</a></h2>
         
 
         <div class="post-meta">
@@ -760,8 +463,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-08-03T00:00:00+08:00">
-                2011-08-03
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-03-10T20:42:00+08:00">
+                2012-03-10
               </time>
             
 
@@ -770,6 +473,29 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
           
 
           
@@ -809,751 +535,10 @@
 
       
         
-        
-          
-            <p>又是好久没写日志了，貌似有一周了。照例，先来说题外话。<br>这几天把网站折腾的差不多定型了，并启动了一个新的项目：光进程(LightPHP).<br>另一方面，学校也快军训了，但我悲剧的把学校发的有关军训需要准备的物品和注意事项的纸给弄丢了。更确切的说是被我爸弄丢的。<br>好吧，下面开始是正文。</p>
-<p>–围观群众:你不是说这博客不写技术嘛？<br>–要是这也不让写的话还不如杀了我。不写技术的标准就是不出现代码！</p>
-<p>为什么说黑客呢？这源于我刚刚在起点看小说。没错，一本有关黑客的小说。但名字我实在是记不起来了。这本书写的还算有些技术含量。至少没出现某某黑客家的IP是192.168.1.1的笑话。<br>我并不是很喜欢用黑客喜欢使用黑客这个词。原因很多方面。<br>比如，这个词有些贬义，在国内经常和“因入侵服务器&#x2F;制作外挂被某某公司起诉”扯上关系。</p>
-<p>插一句，听说疯狂的程序员作者绝影因做DNF外挂被腾讯扔到监狱里半年，也不知道是真的假的。</p>
-<p>又因为黑客这个人群的界定太过模糊，拿着别人的工具到处炫耀的，在正经公司搞“安全”工作的，一天到晚入侵服务器的，做外挂做破译的，对编程有深入了解的，都称得上黑客，但其实又差了十万八千里。<br>而我作为一个编程爱好者加一个混了两年的站长，多少对这些技术还是有些研究的。那我也算的上一个黑客？不过我真是不喜欢这个称号。<br>（以下个人观点，对此不满的大牛不要去搞我的网站）所谓黑客精神都是浮云，都是那些在边缘的人拿出来忽悠人的。上面说了，黑客的概念很模糊，所以黑客精神也很杂很模糊。倒不如直接说“分享精神”、“开源精神”、“雷锋精神”来的具体和痛快。<br>真正的高手是很低调的，我也不举例子了。虽然我算不上高手，但事实上我也很低调，在朋友面前很少把我自己和电脑扯上关系。因为他们总以为我是万能的，凡是和电脑挨边的问题都给我……</p>
-<p>对于没事就随着舆论攻击某某国家网站的黑客，我还是持鄙视态度的。你只要主动的攻击了别人，你就是非正义的，而无论你打着怎样的旗帜。而且黑客手段本来就属于偷袭性质的。</p>
-<p>还有一群“拿着别人的工具”到处炫耀的人。我要解释一下，这里指的是用别人的工具，而动不动就说“我要搞掉你的站”的那些人。其实在我身边也有不少这样的人。不过没关系，大概每个人都是从这种（很狂很得意）的时候过来的。<br>另一种很不错的对黑客的解释是“生活在黑暗里的人”，我倒觉得这个解释更加恰当，话说现在是凌晨三点。</p>
-<p>这文章的内容其实我在日常的聊天中都曾透露出来过。今天把他们写在一起。但感觉写的并不好，没能最好的表达我的想法…哎<br>个人水平有限，必定有很多不成熟的想法，见谅。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2011/07/29/2011-07-29#%E4%B8%AD%E8%80%83%E4%B9%8B%E5%90%8E/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2011/07/29/2011-07-29#%E4%B8%AD%E8%80%83%E4%B9%8B%E5%90%8E/" itemprop="url">中考之后</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-07-29T00:00:00+08:00">
-                2011-07-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>先来点题外话，写下这段话的时候，我还没找到几天前写的一篇同名日志，不过我估计是能找到的。</p>
-<p>事实上，至少在现在，能去十中是我非常满意，或者说是最好的结果了。但似乎并不像想象中那么高兴，感觉就像理所当然一样。</p>
-<p>本来在中考前三个月，我是计划冲刺一下的。拿到最少700分的成绩来显摆显摆的。但，还是没坚持下来。</p>
-<p>似乎高中的军训快开始了，这个假期也快结束的。我还在纠结上高中以后应该给自己一个怎样的定位。在高中会交到一些朋友吗。</p>
-<p>下面就是我几天前写的同名文章，内容以流水账为主。记叙了中考这几天的事。</p>
-<hr>
-<p>2011.7.16</p>
-<p>其实自从中考之后我一直想写这样一篇日志，因为中考的确算的上一个不小的转折。</p>
-<p>但最近实在太忙太忙了，再加上网站关掉了，QQ不用了，没地方可发。好吧，这日志实在没地方发了，只能用邮件、QQ群等方式“内部流传”了。<br>另，现在是凌晨4点，用新买的手机写的。</p>
-<p>正文，好吧，原谅我再说点废话。在我的计划中，《我的初中三年》是计划写到中考的前一天收尾，所以本文从中考开始说。</p>
-<p>再废话一下， 《我的初中三年》计划在近几天写完。</p>
-<p>中考。</p>
-<p>在小学的时候，看到六年级的大哥哥，我以为他们会很辛苦。而到了六年级发现也不过如此。再看，初中貌似很辛苦嘛，等到了初一，也没怎么样。觉得，到初三一定很紧张了吧？我受得了吗？很害怕初三的到来。</p>
-<p>现在，初三的一年过去了，我依旧要说一句“不过如此嘛”。现在，看到我爸以及其他认识或者不认识的人的工作，我又觉得，也许工作之后会真的辛苦吧，我可不想那么辛苦。</p>
-<p>我立志要做一个自己写程序就能养活自己的人，而不是给别人或者公司写。也不是要把事业最大，因为一旦做大了，和你打交道的就不止是代码了。这样才是真正的为了兴趣而工作吧，但貌似实现起来不是很简单啊。</p>
-<p>在我号称准备中考的几个月里，事实上我也没如何努力，只是不碰一切和编程的东西了，就算中途上网也只是聊天打游戏，并不影响学习。因为编程这玩意的确非常费脑子。其他的还是该玩玩，和平时没啥区别。这确实还是有些难度的，因为，想还是不想，这不是你能轻易控制的。</p>
-<p>上面这两段看起来有些杂乱无章是吗？不过交代它们确实是有必要的。</p>
-<p>我在半年前，对中考的到来感到非常恐惧，形容不好，反正是“非常”。但在中考前的这几天，我实在是太放松了。这还要源于半个月前，我和家长说我不想要去高中，而是职高。这算件不小的事了。也许比得上雨田转学（详见 《我的初中三年》 ）的那次了。但估计我父母被转学的事搞得有心理准备了，也没生气。</p>
-<p>事实上，这样的大事我都是有预谋的，我想提醒一下他们，不要对我报太大希望，不要再像雨田那样。对于去高中还是职高，各有优劣吧，我还是犹豫不绝的，更多的一点还是偏向了去高中。这样导致了一个什么样的局面呢？我中考无论成绩是否理想，实际上都是我想要的。我考好了，可以说我有能力，考不好可以说我是完全故意的。</p>
-<p>因此，考试的时候我一点都不紧张，非常随意的。用老师的话讲，就是“吊儿郎当”。</p>
-<p>好吧，好吧，下面真的是正文了！</p>
-<p>中考第一天，上午语文，下午物理化学。客观上分析，这一天没啥压力，语文分数对每个人来说都是相对稳定的，变数不会太大。下午的物理化学是我的强项，再差也差不到哪里去。唯一有些压力的是语文的作文，写好写差，虽说不过几分而已，但这会影响整个中考的心情。</p>
-<p>相应老师的号召，八点半考试，我六点多点就走了。临走还喝了一杯咖啡，因为我貌似是夜行性动物，一到早上困得很。之前坐车侦查了一下考场的地点，回家也用Google看了一下路线。就是一条路，一直走到头，再拐个弯就到了。我是骑车去的，因为我感觉骑车更自由，一切都在自己的掌握之中。</p>
-<p>但是，意外依旧发生了，骑着车，走着走着，前面貌似封路了（修路），我以为这就是“到头”了，于是转弯，但是转弯之后走了好久也没看到学校。怀疑自己走错了，原地调头，回到了封路的那个路口，看了一看，确实是走不了了。于是改走反方向，我完全不认识路，凭着方向乱走的，走了好久，发现到北站了，这下有希望了，终于找到了学校。</p>
-<p>话说我这天没带表，问了下同学才发现，早得很呢，还有一个小时呢。</p>
-<p>进了考场，还不错，挺好的，宽敞。这考场里有貌似五个我认识的。在考试之前，老师暗示如果有机会，作弊也可以。</p>
-<p>同学们，尤其是和我在一个考场的，恩，可以用“拿着鸡毛当令剑”来形容。非拉着我商量暗号什么的，当然，我没这个打算，他们逼着我答应的。<br>但事实上，都没用到，至少在我们那个考场，监考还是非常严格的。但，考场里最悲剧的是没有表&#8230;&#8230;..</p>
-<p>语文卷纸我是提前30分钟答完的。文言文的课内阅读是出师表（狂汗，手机搜狗拼音输入法居然不能直接打出这个词）。恰巧前一天我爸问我复习的怎么样，我说像出师表这么长的文言文我都没看，我爸兴趣大发，开始给我讲出师表。其实我觉得需要背那么多文言文，但考试中只占那么几分，不值得，不如看看其他的什么，于是所有的文言文我一概跳过，一点都没看。当然，考试考的和我爸讲的完全是两个范畴，基本上没帮上忙。</p>
-<p>作文，二选一，“有温度的话语”和“XX原来就是XX”。我选了后者。主要是什么内容我就不说了，怕你们笑话，连题目我都没脸说。总之写的一塌糊涂，但还是凑够了字数。</p>
-<p>答完卷纸还剩半个小时，简单的检查了一下有没有落题，答题卡有没有抄错，就开始发呆了。到时间，收卷纸，然后老师轻点卷纸，好慢，貌似点了有十分钟才放我们出去。</p>
-<p>直接跳到下午，下午是物理化学，统称理综合，放在一起考。虽说我很擅长这两科。但因为我平时用计算器太多了，而且考试又不能像平时那么随意，而需要验算来保证结果正确，所以我在考试的时候答题很慢，基本都是赶着时间答完的，偶尔还答不完。其实在这两科上，因为小时候看科普书太多，很多时候都有一种“直觉”，平时基本就是用计算器把题目里的数用加减乘除乱算一下，看哪个顺眼就用哪个。倒别说，这方法准确率很高的。所以平时计算根本没有“过程”考试的时候又没办法挨个试验（没有计算器），又要求写过程，所以慢。</p>
-<p>好在，一切还算顺利，在考试结束前五分钟答完的（监考老师提醒我们还剩五分钟），想到清点卷纸那么慢，检查没有漏题之后就果断提前交卷，离开考场。</p>
-<p>然后就是回家，回家之后找我爸要了个手表。</p>
-<p>第二天，依旧一杯咖啡，早上七点多走的，路上一切顺利。</p>
-<p>第二天上午数学，下午英语，都是我不擅长的科目，能不能考好运气占了很大一部分。</p>
-<p>数学嘛，从来没有答完的时候，差不多把会写的都写完之后就是反复验算。省一分钟的时候提前交卷。反正是自我感觉良好，说不上算是运气不好还是好。</p>
-<p>中午午休三个半小时，下了些非常小的小雨，一个人去了附近（也不算附近了，有一公里）的家乐福超市。突然感觉肚子痛，好像岔气了似的。自己在超市里一遍一遍的绕圈，大概一个小时才感觉好了一些，去超市里买了个汉堡吃，顺便买了本读者，回到考场门口看。就算是心理很忐忑，也要抱着一本杂志，告诉别人，也是告诉自己，我很放松。看了一个小时，该考下午的英语了。历来，一考英语我就困，一方面是有的地方看不懂，一方面是一个一个阅读，太多了。反正这次是最后一次了（暂时不考虑高中），我坚持坚持再坚持， 总算是把卷纸顺利答完了。但实在没耐心再检查一遍了，于是我提前了五十分钟交卷纸。</p>
-<p>骑车回家路过家旁边的二十一中学，也是考点，貌似他们还没考完呢。</p>
-<p>第三天，早上下了点雨，说大不大说小不小，我不打算骑车了。骑车到车站，坐车。但路上堵车了估计和下雨也有关系，早知道还是骑车好。一直在堵，但也没办法，就算下车打车也是一样的堵。本来应该坐车到终点的，车到终点的前一站已经八点十分了（八点半正式考试）。我怕在最后一站再堵车，果断下车飞奔到考场，提前了十分钟。</p>
-<p>第三天，历史政治（文综合）和英语听力，都在上午考。历史政治还是很轻松的，反正就是那些固定的东西。我们要开考一个小时才允许交卷，我就是在正好一个小时的时候交卷出去的。但人家不让出学校，除非你放弃参加听力考试。学校里连个坐的地方都没有，真悲剧，早知道还不如在考场里坐着呢。</p>
-<p>在外面站了一个小时，开始听力考试。喇叭放录音，还是很简单的。老师一开始就说听力考试不允许提前交卷，因为听力考试只有一个小时。放完一遍录音才半个小时候，刚准备睡觉了没想到它居然还放第二遍。没办法，耐着性子接着听。那么简单的题，又听了两遍，估计我听力都能答满分了。<br>然后，结束了，中考，初中的三年就这样结束了。在之后的好几天，编程的时候总是进入不了状态，忘记了中考已经结束了的这个事实。</p>
-<p>然后，回到家想看了看标准答案，但在网上一直找不到。直到2011.7.6，网上出现了真正的标准答案，简单的看了物理和数学，哎呀，一塌糊涂，索性不看了，省着闹心，两天后见分晓。</p>
-<p>2011.7.8，出成绩</p>
-<p>语文 119<br>数学 131<br>外语 131<br>理综合 135 （物理75，化学60）<br>文综合 92 （历史与社会53，思想品德39）<br>体育 60.0<br>总分 668.0</p>
-<p>还算在我意料之中，十中是没问题了，只是还在公费和指标到校之间晃悠。虽然公费和指标到校不差什么，但是&#8230;.名头不一样吗，还是公费听着好听。</p>
-<p>是2011.7.16吧？公布录取结果</p>
-<p>早上去官网上看了看，公布的分数线是669，貌似查了一分，悲剧。但是到了学校，却是公费，而且录取通知书也来了&#8230;.</p>
-<p>根据我妈的观点 … 分数线总是比实际高一分，这样使得低一分的意外的被录取上，使用搞定。<br>如果要是比实际低一点，岂不是有很多人倒霉的没录取上 …</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2011/07/29/2011-07-29#%E8%85%BE%E8%AE%AF%E5%8D%81%E5%B9%B4%E8%AF%BB%E5%90%8E%E6%84%9F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2011/07/29/2011-07-29#%E8%85%BE%E8%AE%AF%E5%8D%81%E5%B9%B4%E8%AF%BB%E5%90%8E%E6%84%9F/" itemprop="url">腾讯十年读后感</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-07-29T00:00:00+08:00">
-                2011-07-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>《腾讯十年》在线阅读地址，嘻嘻，官方发的，算是正版呢！<br><a target="_blank" rel="noopener" href="http://book.qq.com/s/book/0/19/19280/"> http://book.qq.com/s/book/0/19/19280/</a></p>
-<p>在看腾讯十年这书，虽然是腾讯自己写的，但内容基本还算属实，和另一本腾讯的传记企鹅凶猛叙述的差别并不大。只不过貌似隐藏了一小部分并不光彩的事实。</p>
-<p>让人很不爽的一点就是，书中把腾讯在Q币、会员、钻石这些方面的“创新” 说的很伟大&#8230;&#8230;&#8230;</p>
-<p>自己总结出腾讯成功的两个要点，首先是把用户当成傻瓜，其次就是用户需要什么就做什么，不需要的就别做。</p>
-<p>马化腾在初期说过，就是要把QQ做成像水和电一样人们离不开的东西，现在看来他似乎是做到了。</p>
-<p>我放弃QQ就是因为觉得被这样一个强大的社区所控制是一件很恐怖的事情。这不是对腾讯的抵制，如果有其他类似的社区化的软件或者网站我一样不会加入。我还是要一个人，或者说几个要好的朋友在一起，不去认识那些没必要认识的人。我现在用的只有腾讯的微博和邮箱。</p>
-<p>相反，我还是非常崇拜腾讯的。在我的朋友圈里，估计没几个玩腾讯的游戏的（个人感觉所有骂腾讯的都是因为游戏），所以貌似我遭到人身攻击的几率也不大。崇拜腾讯的原因很简单，三个方面：技术、创意、同情。</p>
-<p>作为一个编程爱好者和站长，我当然崇尚技术，我找来找去，貌似国内技术最强的也就是腾讯了，话说我昨天去copy他们的代码，确实很强大，就网页代码上来说，写的要比百度强的多。</p>
-<p>不要说腾讯没有创意，腾讯的模仿。貌似模仿者都是后来的吧？作为后来者，要面对很大的压力，腾讯能超过被模仿者自然也有他的道理。</p>
-<p>同情，腾讯需要同情？至少现在不需要。但很多人都不知道一个真相。在腾讯最初（只有QQ）的时间，他们找不到盈利的方法，但面对大量的用户，也没办法放弃。于是在最初两年多的时间里，他们都在以每个月十几万的速度在烧钱（维持服务器）。两年，两年才换来回报。</p>
-<p>再啰嗦一些，一开始（就国内来讲）我还是比较看好百度的，但似乎，从公司创立开始，拿的出手的就只有搜索引擎。没什么创新，或者说创新大都没有成功。就我的观点看来，现在互联网正在向社区化转型。估计仅有搜索引擎的百度活不了多久了，现在连google都在搞社区。</p>
-<p>国际上，无需质疑，Google，</p>
-<p>它最吸引人的就是它的开放，很多产品都是开源形式（android、chrome），就算不开源，也都提供了非常详细的开发人员接口，作为一个商业公司，实在难得。</p>
-<p>个人认为的互联网的另一个走向就是开源，因为随着计算机的发展，软件的代码量越来越庞大，这意味着需要更多人来书写代码，而且需要更高的代码质量，解决这个问题唯一的办法就是开源。</p>
-<p>哎，后面有些跑题了。我为了论证自己的观点可能有些夸张，请各位围观群众不要纠结于细节。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2011/07/28/2011-07-29#%E7%AC%AC%E4%B8%80%E7%AF%87%E6%97%A5%E5%BF%97/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2011/07/28/2011-07-29#%E7%AC%AC%E4%B8%80%E7%AF%87%E6%97%A5%E5%BF%97/" itemprop="url">第一篇日志</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-07-28T00:00:00+08:00">
-                2011-07-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>这个博客的第一篇文章，其实也没啥好写的，总感觉在电脑上写东西比在纸上写的不好，主要还是心不静。</p>
-<p>原因是多方面的，比如：</p>
-<ul>
-<li>在电脑上打字，多少还是要比写字更有「技术含量」，需要分出来点精力来打字</li>
-<li>可以分散精力的东西太多了</li>
-<li>电子稿改起来很方便，所以有些不追求完美了</li>
-</ul>
-<hr>
-<p>唉，一放弃自己写网站，都没心情接着写首页和软件中心了。<br>这两个部分都是静态的，连js都不涉及，但就是没心情写。</p>
-<p>争取在 8 月 1 日把这两个给弄完吧 ……</p>
-<hr>
-<p>至于这个博客的更新上，我力争做到每周3-5篇文章，每周5000字左右吧，我也尽量写的好一点</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2011/07/27/2011/2011-07-27#Hello%20World/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2011/07/27/2011/2011-07-27#Hello%20World/" itemprop="url">Hello World</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-07-27T00:00:00+08:00">
-                2011-07-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>又是一个新的开始，以后用这个博客了。依旧，这里不写技术文章，纯粹的记录生活。<br>因为精力有限，没有搞账户同步 … 反正我这是记的是生活点滴，也没人感兴趣，也不必评论的</p>
-<p>所有技术文章我都会发到论坛(<a target="_blank" rel="noopener" href="http://jybox.net/bbs)%EF%BC%8C%E8%BF%99%E9%87%8C%E7%9C%9F%E7%9A%84%E6%98%AF%E5%8F%AA%E8%AE%B0%E7%94%9F%E6%B4%BB">http://jybox.net/bbs)，这里真的是只记生活</a></p>
-<p>博客的布局方面，力求简洁，内容为王。这个博客仅仅是我个人的东西，精英盒子管理组不要插手</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/google-plus-technology-overview">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/google-plus-technology-overview" itemprop="url">Web technologies behind Google+</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-07-02T18:59:19+08:00">
-                2011-07-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          What web technologies are behind Google+ website? This is a collection of links to posts explaining interesting features of this brand new network site.
+          <p>使用 xcode4 也有一段时间了，今天整理了一下 xcode4 的一些使用技巧，在这里分享给大家。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/google-plus-technology-overview">
+            <a class="btn" href="/2012/03/10/2012-03-10-xcode4-tips/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -1605,7 +590,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2011/06/27/2011-06-27#%E4%B8%AD%E8%80%83%E7%BB%93%E6%9D%9F%EF%BC%8C%E6%96%B0%E7%9A%84%E5%BC%80%E5%A7%8B/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/03/10/2012-03-10#%E5%BC%80%E5%AD%A6%E5%95%A6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -1624,7 +609,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2011/06/27/2011-06-27#%E4%B8%AD%E8%80%83%E7%BB%93%E6%9D%9F%EF%BC%8C%E6%96%B0%E7%9A%84%E5%BC%80%E5%A7%8B/" itemprop="url">中考结束，新的开始</a></h2>
+                <a class="post-title-link" href="/2012/03/10/2012-03-10#%E5%BC%80%E5%AD%A6%E5%95%A6/" itemprop="url">2012.3-开学啦</a></h2>
         
 
         <div class="post-meta">
@@ -1636,8 +621,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-06-27T00:00:00+08:00">
-                2011-06-27
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-03-10T00:00:00+08:00">
+                2012-03-10
               </time>
             
 
@@ -1688,597 +673,40 @@
         
           
             <blockquote>
-<p>本文写于2011.6.27, 我正在陆续把我以前的日志打上来.</p>
+<p>本来想用“2012.3-春暖花开”做题目的。因为经过两个月的假期，天气转暖，可以骑自行车了。而且开学头三天都是阳光明媚，爽歪歪啊。但最近几天，就没那么好过了，下雨、下雪、路上结冰。</p>
 </blockquote>
-<p>今天，中考算是完事了，初中的三年也算完事了</p>
-<p>中考，这三天所有的科目，我都自我感觉良好，至于具体怎么样，那就等十天后看成绩吧。考上十中是完全不成问题的，至少我这么认为。</p>
-<p>所有的题我都觉得很简单，尤其是数学、英语这两个对我压力最大的科目。数学比平时答得好一点点，英语实在是太简单了。也不知道是题真的简单，还是因为这次我用心答了。</p>
-<p>现在想起来，貌似我的答题卡涂的不是很细致，也不知道会不会影响什么 …</p>
-<p>考试的时候，以及考试之前。我是一点都不紧张 …</p>
-<p>可现在，考试结束了，我倒是紧张起来了，因为接下来的就不是我能控制的了。</p>
-<p>我现在总是觉得有什么放不下似得。</p>
-<p>我还是比较关心我的成绩的，现在能考上十中基本是定下来了，但我还是希望分数能尽可能高，这样以后我就有显摆的资本了(暗笑).</p>
-<p>我一直在网上找这次中考的试卷和答案，可是找不到。为啥就没人发现这商机呢？起码能连着一周3000IP，早知道我就应该找几个人和我一起背题、找答案。</p>
-<p>中考的前一天，我手贱的把硬盘都格式化了，没丢太多重要的东西，或者说我这段时间在准备考试，没有进行开发，所以没有重要的东西。</p>
-<p>这倒是一个真正的重新开始 ..所有的资料都没了。</p>
-<p>唯一一个丢了的，是我写的「记我不同寻常的初中三年」的原稿，虽然我已经上传到网上了，但其中有些错别字等等的，我都是只在原稿上修改了 ….看来恢复起来要一段时间啊。</p>
-<p>说到我写的文章。在这4个月的中考冲刺中，我的确是在笔记本(纸)上写了不少日志，有很多还没来得及打到网上，最近尽快吧。</p>
-<p>另外我决定以后在网站上公示我的项目的开发进度 …省着我偷懒。这段时间还是多亏了龙哥的监督，虽然我后期上线比较频繁，但是都是闲逛和聊天，没写代码什么的，对学习影响不大。</p>
-<p>近期的几个项目就是做新版本的网站系统，另外要给我爸的公司做网站，不过这事还没定下来。</p>
-<p>明天或者后天去图书馆借书，借点名著看(时间简史等)，再看看高中的数学书，然后借点PHP和Qt的，随便说一下，我以后准备用QT了，这样省着在Windows和Linux下要学两套东西。</p>
-<p>其实我要说的还有很多，先这些。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/prevent-iphone-navigation-bar-ajax-link-click">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/prevent-iphone-navigation-bar-ajax-link-click" itemprop="url">Avoid showing address bar on iPhone when loading ajax</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-06-11T18:28:08+08:00">
-                2011-06-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          Workaround to avoid showing the loading address bar when loading ajax content on iPhone.
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/prevent-iphone-navigation-bar-ajax-link-click">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2011/06/03/2011-06-03#%E5%9B%9E%E9%A1%BE%E5%88%9D%E4%B8%89%E8%BF%99%E4%B8%80%E5%B9%B4/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2011/06/03/2011-06-03#%E5%9B%9E%E9%A1%BE%E5%88%9D%E4%B8%89%E8%BF%99%E4%B8%80%E5%B9%B4/" itemprop="url">回顾初三这一年</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-06-03T00:00:00+08:00">
-                2011-06-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <blockquote>
-<p>本文写于 2011.6.3</p>
-</blockquote>
-<p>刚才在翻看小学时候的「成长纪实」，小学六年，换了三个班主任，六个评语，开头第一句都是夸我聪明，整齐得很。</p>
-<p>现在想起来，小学的时候还只是小孩子，一天天光顾着玩了，小学的功课我的确是没认真学，或者说是根本没学，成绩一直中等，六年级的时候，在 50 人的班级里排到了 39 名，也不知道老师是怎么发现（我聪明）的。</p>
-<p>小学六年我最大的收获是就是看了相当多在当时老师和家长认为的「闲书」，给了我现在的物理、化学、历史、地理、生物等科目相当大的帮助，其实数学我也看了不少，只是和现在学校教的不挨边。</p>
-<p>听说我的眼镜有 700 度的近视，别人的第一反应就是我电脑玩得太多了。但实际上我在没接触电脑的时候就有 400 多度的近视了，纯属小学的时候看书看的。</p>
-<p>由此可以总结出我的第一条学习方法，多看书，即使和目前学的内容没关系，因为往往在放松的情况下记忆更好。百科类的最好，小说没啥用，网络小说就更纯属娱乐了。</p>
-<p>这两年我做得似乎不是很好，除了《读者》就只看编程的书了，其他方面的书几乎没看。</p>
-<p>测智商什么的，我测过两三次（据说次数多了就不准了），按照结果，我的智商能在人群中排到前 2% 到 6%. 所以我一直也是这么要求自己的，在我优势比较大的物理和化学，每次遇到我想不出的难题，总是感到有很大的压力，害怕自己是不是在逐渐地失去这种优势。</p>
-<p>在物理和化学上，很多同学都认为我是理所当然的第一名（当然，事实也是如此），这就好像给我划了一个范围似得，让我自己也觉得不考到第一是不行的，这恐怕也是我一直保持第一的重要因素之一。</p>
-<p>在上初中以后，毕竟我如此传奇，在学习总还是有些「特权」的，每当到了一个新的集体，比如初二的那次转学，我都非常担心在新的班级里我还有优势么，如果不能上课睡觉、不能不写作业，这样的生活我这么过得下去 …</p>
-<p>在初三开始的时候，我给自己定下过这一年的目标：</p>
-<ul>
-<li>把 jybox.net 做完</li>
-<li>熟练 C++</li>
-<li>在中考中拿到一个不错的成绩</li>
-</ul>
-<p>第一个目标可以说是完美地实现了，这一年做了两个版本的网站，每一次都花了近五个月的时间，虽说仍有相当多不完美、不满意的地方，但显然要比一年前计划得好很多。</p>
-<p>第二个目标有点模糊，我认为我还没达到，指针和数据我已经了解得差不多了，也写了几个小程序。但面向对象的部分我虽有了解但没啥作品，更别提 GUI 程序了。</p>
-<p>第三个目标可以说是正在努力，上次考试年级 15 名的成绩我并不是很满意，因为按照前文的说法我应该达到 Top 6 才对，不过考虑到我平时不怎么听课，初一下学期还在家待了半年，这也还是可以接受的。</p>
-<p>客观来说，我应该只听了十分之一的课，其实也不奇怪，因为大多数同学也不过有一半时间在听课。</p>
-<p>想一想，我听的最多的课是语文和物理，听得最少是数学。语文是因为班主任是语文老师；物理则是因为讲的课太简单了，随便拣起一句就可以接着听。而无论是在雨田还是十二中，教过我的数学老师似乎都不太关心不爱听课的同学，再加上数学课大多数时间在讲习题，可能听了两三分钟都搞不清在讲什么。</p>
-<p>一直以来，往往越是大型的考试，我的成绩就会越好。给我印象最深刻的一次考试是雨田的入学考试，在那个补课班混了三个月之后我竟考出 119 分（满分 150），分数线是 108, 这次考试据说会淘汰四分之三的人，这意味着我达到了大概前 10% 的水平（我就不提柳杰文参加了三次这个考试都没过的事情了），从此我就觉得我大概不是平凡之辈。</p>
-<p>之所以越大的考试成绩越好，当然是因为我没尽全力来考试。我一直都是以最快速度答题，不检查试卷，然后抓紧时间睡觉。除非遇到我认为足够重要的考试才认真一些。起初月考的时候还算认真，后来因为初三的考试越来越多，干脆都不认真写了，就等中考最后一搏了。</p>
-<p>我现在算是有几科强项，作为弱项的英语也不算太弱。这还得得益于我在老师眼中「不听话」的形象，这使得我可以相当自由地分配在学校的时间，可以制定自己的计划，而不是按照老师的计划来走，毕竟老师的计划是面向所有同学的。</p>
-<p>基于以上的理论，在刚刚上初三的时候，除了班主任，几乎所有科目的老师都换了，在最初的一周里，我故意地把几乎所有老师都惹生气了。当然，我的目的是达到了，知道现在都可以自由地分配在课上的时间。</p>
-<p>说实话，我在十二中这两年几乎没交到什么朋友，只能说是认识了一些同学。我对「朋友」的标准要求也不高，也就是在离开了学校，还有可能继续保持联系的人，如此说来，真的是没交到什么朋友。</p>
-<p>从三月份，我把大部分精力都放在功课上以后，从三月份到五月中旬，时间似乎过得很快。而最近一段时间，我感觉时间过得好慢啊，心里很乱啊，这周竟然买了四本杂志来打发时间。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/bigpipe-in-asp-net-mvc-using-razor">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/bigpipe-in-asp-net-mvc-using-razor" itemprop="url">BigPipe in ASP.Net MVC using Razor</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-05-22T11:55:24+08:00">
-                2011-05-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          Razor to implement BigPipe using ASP.Net MVC. You can use the new view engine to early flush pagelets content and mimic this technique created by Facebook.
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/bigpipe-in-asp-net-mvc-using-razor">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2011/05/12/2011-05-12#%E5%88%9D%E4%B8%89%E5%AD%A6%E7%94%9F%E5%BA%A7%E8%B0%88%E4%BC%9A/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2011/05/12/2011-05-12#%E5%88%9D%E4%B8%89%E5%AD%A6%E7%94%9F%E5%BA%A7%E8%B0%88%E4%BC%9A/" itemprop="url">初三学生座谈会</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-05-12T00:00:00+08:00">
-                2011-05-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <blockquote>
-<p>下文写于 2011.5.12</p>
-</blockquote>
-<p>昨天下午，学校开了一个「初三学生座谈会」，按学校的安排分成了三个「层次」：年级前 30, 31 - 60, 以及其他人，我显然在第一个。</p>
-<p>给我们讲的应该是校长，主要讲了今年形势如何大好，今年的学生们如何努力，学校相比于之前有了多大的发展，相比于其他学校有如何的优势，今我一度怀疑是不是在忽悠我们。</p>
-<p>之后找了年组前几名同学讲话，然后还有同学提问，其实也没讲什么有价值或有趣的东西。</p>
-<p>一共持续了两节课还多，等我们这完事了，其他两个教室的人都已经走光了，也不知道他们都讲了什么。另外那个椅子实在是不舒服，螺丝松了，不是前倾就是后倾。</p>
 <blockquote>
-<p>下文写于 2011.5.10</p>
+<p>上个月在<a target="_blank" rel="noopener" href="http://jyprince.me/monthlog/381" title="2012.1-随便的一点点总结">2012.1-随便的一点点总结</a>中提到要每个月写一篇总结。没错这算是2012.2的总结和2012.3(也代表新学期)的展望。</p>
 </blockquote>
-<p>前几天，听马雪姣学姐描述的高中生活似乎太过于恐怖了，而 f4tb0y 形容得则好一些，我根本不想去高中，尤其是好的高中，我肯定适应不了那样的生活的。</p>
+<h2 id="2012-2的总结"><a href="#2012-2的总结" class="headerlink" title="2012.2的总结"></a>2012.2的总结</h2><ul>
+<li>零毫秒2.0服务器端的大致框架搭建好了，不过整个项目的进度依旧缓慢。稍后我另开一篇作下检讨.(这里:<a target="_blank" rel="noopener" href="http://jybox.net/bbs/read.php?tid-1011.html">http://jybox.net/bbs/read.php?tid-1011.html</a>)</li>
+<li>见证了一个新的论坛系统的诞生——whtsky的<a target="_blank" rel="noopener" href="http://jyprince.me/soft/pbb" title="铅版论坛(PBB)">铅版论坛(PBB)</a>.用共同完成已经不大恰当了，我当初写的那些代码已经被删改的差不多了。</li>
+<li>决定去卖虚拟主机 … 很小的投入，试试水。<a target="_blank" rel="noopener" href="http://what.jybox.net/">http://what.jybox.net/</a>.因为要配置安全的服务器，补了很多有关linux权限控制和安全方面的资料。</li>
+<li><a target="_blank" rel="noopener" href="http://jybox.net/bbs/read.php?tid-952.html">自己“删”出了一个超精简Qt-仅53MB</a>.</li>
+<li>从whtsky那里发现了一个灰常好用的前端库——鞋拔子(bootstrap).然后也调研了一下jQuery.</li>
+<li>今天刚刚发现了一个大牛制作的<a target="_blank" rel="noopener" href="http://jybox.net/bbs/read.php?tid-1008.html">Wine QQ2012 Beta1 For Ubuntu</a>.</li>
+<li>发现了一个叫比特币的神奇的东西，请自行百度。</li>
+<li>继续在玩星战前夜</li>
+</ul>
+<h2 id="2012-3的展望-也代表新学期"><a href="#2012-3的展望-也代表新学期" class="headerlink" title="2012.3的展望(也代表新学期)"></a>2012.3的展望(也代表新学期)</h2><ul>
+<li>把成绩往前提一提，否则我不写作业的神话可能就要破灭了，打算从数学、物理、化学入手。</li>
+</ul>
+<p>英语课我算是一节课都没听过，也是啥都没学到；语文也差不多，我们老师只讲文言文 …</p>
+<p>为毛数学书就是看不懂呢(正在看任意角三角函数),书上也不讲这些玩意有啥用，一通定义。也不知是我个人问题还是书写的有问题，我相信是后者，不然怎么有那么多参考书。</p>
+<p>今天还重新排了一下座位，把我往前调了几排，目前正好是在中间(之前是最后一排).估计这下上课睡觉的难度有点大了。不过也好，至少这下问功课上的问题方便多了，左右前后都是高人。</p>
+<ul>
+<li>零毫秒的进度</li>
+</ul>
+<p>按照计划(<a target="_blank" rel="noopener" href="http://jybox.net/bbs/read.php?tid-1011.html">http://jybox.net/bbs/read.php?tid-1011.html</a>),这个月要完成零毫秒2.0服务器端的主要部分，使其可以运行，并补完SB2.0协议的文档。整个零毫秒2.0将在2012.9.1之前彻底完成</p>
+<ul>
+<li>这个月抽空整顿一下零毫秒&#x2F;精英盒子的VPS</li>
+</ul>
+<p>为了折腾神马终端，补习了很多linux权限控制和安全方面的资料，打算用这些经验整顿一下零毫秒&#x2F;精英盒子的VPS.</p>
+<ul>
+<li>更新一下博客上的“<a target="_blank" rel="noopener" href="http://jyprince.me/about" title="关于我">关于我</a>”和“<a target="_blank" rel="noopener" href="http://jyprince.me/soft" title="我的作品">我的作品</a>”,很多信息都有点过时了。</li>
+<li>继续关注星战前夜和比特币。</li>
+<li>我前一阵说过打算在两三年之后写个网游 ….这段时间YY一下(好吧，这句话当我没说).</li>
+</ul>
 
           
         
@@ -2328,7 +756,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2011/03/25/2011-03-25#%E6%97%A5%E8%AE%B0/">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/boot-to-gecko-html5">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -2347,7 +775,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2011/03/25/2011-03-25#%E6%97%A5%E8%AE%B0/" itemprop="url">日记</a></h2>
+                <a class="post-title-link" href="/boot-to-gecko-html5" itemprop="url">HTML5 in Boot to Gecko</a></h2>
         
 
         <div class="post-meta">
@@ -2359,8 +787,144 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-03-25T00:00:00+08:00">
-                2011-03-25
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-03-04T16:14:43+08:00">
+                2012-03-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>I have just read <a target="_blank" rel="noopener" href="http://christianheilmann.com/2012/03/04/mobile-world-congress-boot-to-gecko-and-the-unknown-beast-called-html5/">Christian Heilmann’s post about Boot to Gecko</a> and I am very excited to see how HTML5 + JS + CSS3 stack can ever power a mobile phone user interface.</p>
+<p>These are good times for web development. It is moving from client side web development, to server side, then to mobile apps, and now as the top layer used to run all the applications of a typical phone. We need browsers and OS makers to push forward these technologies, implementing better Javascript engines, and making reality the latest HTML5 APIs.</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/boot-to-gecko-html5#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/03/01/2012-03-01#%E7%9F%A5%E8%AF%86%E7%9A%84%E4%B8%80%E8%88%AC%E6%80%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2012/03/01/2012-03-01#%E7%9F%A5%E8%AF%86%E7%9A%84%E4%B8%80%E8%88%AC%E6%80%A7/" itemprop="url">知识的一般性</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-03-01T00:00:00+08:00">
+                2012-03-01
               </time>
             
 
@@ -2410,20 +974,38 @@
         
         
           
-            <blockquote>
-<p>本文写于 2011.3.25</p>
+            <p>ps.标题瞎乱写的，勿深究.</p>
+<blockquote>
+<p>Carbon Copying列表(提到的人):Abreto ,Limit,Drift,浮生,迪迦OUTMAN</p>
 </blockquote>
-<p>现在是周五(2011.3.25)的晚上十点左右，闲的无聊，随便写写。觉得在电脑上写总是打不开思路，写的乱七八糟(本文为先写在纸上，而后输入到我的Blog)</p>
-<p>RT(如题)，刚刚闲的翻翻日记，又恰赶上班主任前几天提过这事，来写一写</p>
-<p>(老毛病又犯了)说些题外话，写下上面几段的时候，我竟发现，我写的字竟然这么漂亮(比我在答考试卷纸时刻意写的”好字”强多了)</p>
-<p>一共找到了我的七本日记，事实上远不止这些，估计起码有20本以上，可惜找不到了。我从幼儿园就开始写了，那时的日记很久前就找不到了。小学四年级以前一直都在写(日记本还在，只是实在没啥翻阅的价值)，都是那时候我妈非得让我写的。五、六年级，时断时续，还算有些看头，有些事现在想起来很有趣，又有些页中还夹着检讨书什么的。初一(在雨田的时候，我转学这期间实在复杂，以后另作说明)，那时老师要求每周两篇日记，因为要给老师看，内容太过于形式，没啥意义，以至于有些”太假的”后来被我撕掉了。而初二之后，有啥想法就都写在网上了，也称不上”日记”，因为大概一周才会写一篇，记的是一周的见闻和想法(写在QQ空间里，现在被我转成”私密日志”了)。数量不多，但长度和质量还是相当不错的。这时候学编程、建网站，技术和生活都混到一起了，很乱，没几个人看，或者说没几个人能看懂(懂技术的在生活中不认识我，而同学又不懂技术)。以后我力争在写日志的时候把技术和生活分开吧！</p>
-<p>接着看日记，五、六年级，有看头的也就两篇，一篇是2006.8.13去(沈阳)世博园时写的，有五、六百字，虽还是”流水账”，但还是有些纪念意义的。第二篇是2007.2.5，我爸、妈吵架，二百余字。考虑到我爸、妈也许在围观群众之中，我就不细说了。</p>
-<p>好多文章把日记说做”自己一个人的倾诉”，而我的日记则大多是写给别人看的(同学们，欢迎向我借阅我以前的日记哦)。我的日记主要两方面内容，一是流水账的方式记事，而是向别人推销自己的观点。没啥秘密之类的(这不代表我没有，只是不会写而已)，说到这”秘密”，有些事不能和家长说，又有些事不能和同学说，又有些不能和老师说。而在网络上，显然就没这么过顾虑，我感觉网络上的自己才更加真实。考虑到我的老师、家长也有可能出现在围观群众中，顺便说一下，这些”秘密”未必是坏事，只是不想说，没必要说，说了你也听不懂而已。</p>
-<p>小学的日记，只能说很幼稚，”用拼音代替”占了很大一部分。(这篇日志)写到这里，目测600字上下(向网上输入时注：已经1100字了)，用了40分钟，这要是在电脑上，600字也就是15分钟的事，我承认我很依赖电脑。前几天，我爸还说电脑用多了会提笔忘字。不过，很高兴的一件事，这日志写到这里，还没有一个我不会写的字。</p>
-<p>刚刚找日记的时候，还发现了几本我爸写的东西，之所以称呼为”写的东西”，是因为我实在分不清这是歌词，还是日记，还是手抄的《读者》上的文章。</p>
-<p>接着说班主任(貌似班主任她并不常常围观我的日志)建议大家写日记的事。内容就不详述了，无非是多写些日记才能提高作文成绩。</p>
-<p>估计想我这样从幼儿园写到现在的人不多吧？哈，又找到我与众不同的一点。语文作文一直让我头痛的很，每次发下卷纸第一件事就是看作文(题目&#x2F;要求)，但并非想老师说的”因为你没有想说的话”，相反是我想说的太多，对写出的东西要求也高(我才不写那种”假的很”的东西呢！)。但作文中可写的题材实在太少，有很多内容不能在作文中写。就好像如果作文要求写”日记”，我显然不能把这文章写上去。几乎每次语文考试，我都花近四分之一的时间去构思(注意是”构思”，而不是”写”)。比如上次的考试作文题目”分享”，我想说的很多，但无奈很多都不适合在考试中写，想了35分钟(记得很清楚)才想出一个不错的内容(通过”拼客”、”团购”来讲分享与节约资源和人际关系)，只是判卷老师的标准和我的标准差的很远啊(51&#x2F;60分)。我也说不清我写的作文是什么文体，应该都是议论文吧，反正我不会写记叙文，我写的叙事都是典型的流水账。</p>
-<p>还有不少想说的，但已经写了这么多，估计一篇文章写太长会没人看的，也因为我困得很了，先到这里。</p>
+<p>我们常说，算法，是能够解决一类问题的通用的、一般性的过程。知识大概也不过如此，我们学习不就是为了解决问题嘛。</p>
+<p>这一段时间和Abreto的意见分歧越来越大，其中一点：他最近一直在展示他在学校功课方面的战果；又在和两个小学生的聊天中，告诉人家应该模仿他的那种极端性的学习方法，例如用几个月时间自学完初中的所有课程。很显然，我说他前者是在炫耀装B,后者是在误导小朋友。</p>
+<p>时间再往前翻，Abreto拉我去参加高考(这货打算直接从初三跳到高三)——很显然我又和他吵了起来，我从来没对天朝的教育报有任何希望，这点上我和Limit,Drift,浮生倒是一致。</p>
+<p>我不否认很多课程确实是每个人都有必要了解的常识性知识(这是Abreto的论点之一),这也是我还没有极端到干脆不去上学的原因。但细想一想，学校的那些玩意，有多少是常识性只是，又有多少是用来应付考试的？一比九恐怕不过分吧？回到标题和第一段，便也是不具备一般性——只是用来应付考试的。</p>
+<p>人脑本来就有强大的自我调节能力，就像一个具备优先级的缓存机制。如果某些知识经常被用到，自然而然便会记住；而没必要记住的，早晚都会忘记。我之前也开玩笑似的说过，天朝这填鸭式的教育方式完全是反自然、反人类、反科学、反上帝的。(Limit插嘴道“我们老师说他不怕上帝。”).</p>
+<p>之前迪迦OUTMAN和我的谈话让我认识到，虽然这种教育体制百害而无一利，但它绝不能改。因为其他太多太多的人还是要依赖于这种体制。并不是每个人都像我和Abreto一样，心怀梦想，目标明确。其他大部分人没有勇气为自己的理想而奋斗，甚至他们根本没有一个理想，所以这种“初中—高中—拼高考—混大学”——随大流、可预料、万无一失的路线，才是他们和他们的家长所认可的，才能让他们在社会上能有个容身之所。</p>
+<p>所以，我并不希望我能够改变什么。Abreto,和许多像我们一样的朋友们。既然你们决定了与众不同，有自己的目标，就完全没有必要再去走那种并不适合你的常规路线，风险自然是有，但是掌控权在你的手中。</p>
+<p>Abreto不断地和我强调大学会为他提供各种别处得不到的资源。我反问“莫非是妹纸？”,他说是比如图书馆、实验室什么的。</p>
+<p>但我很质疑国内的情况会给你提供这么好的环境么？恐怕大家都在听家长说“高中拼三年，上了大学你爱干嘛干嘛”.(我姐好像高中三年连电视都没看过，每次来我家都和我抢电视).看吧，家长都是这态度，大学的领导和老师会是怎样？</p>
+<p>Abreto又说他有自制力，能够“出淤泥而不染”.好天真，你有自制力，但你能肯定老师会鸟你么？图书馆比得上网络？(当然遇见妹纸的可能性是很可观的).实验室？恐怕只会被叫兽利用去骗研究资金吧&#8230;ps..你搞编程要实验室干毛啊。</p>
+<p>既然你有自制力，大学和别处又有何分别？</p>
+<p>还有些想法，但相比上面显得不大成熟，先不写了&#8230;.</p>
+<blockquote>
+<p>以下写于 2012.3.4, 于 2015.8.19 合并</p>
+</blockquote>
+<p>请先看Abreto对<a target="_blank" rel="noopener" href="http://jyprince.me/note/397" title="知识的一般性">知识的一般性</a>一文的回复：<a target="_blank" rel="noopener" href="http://blog.abreto.net/blog/2012/03/no-title-20120231.html">http://blog.abreto.net/blog/2012/03/no-title-20120231.html</a></p>
+<p>我感觉Abreto所说的大部分都属于抬扛&#8230;所以我也不一一回复了..</p>
+<blockquote>
+<p>我：既然你有自制力，大学和别处又有何分别？</p>
+<p>Abreto：你去菜市场学习试试?.</p>
+</blockquote>
+<hr>
+<p>上一篇之中，我想形容一下Abreto现在的状态，但是一直都没找到合适的说法，现在算是找到了。</p>
+<p>应该说，因为Abreto在数学上是有一定天赋的(其他科目不大清楚),所以，为了证明自己的价值，也就是炫耀装B什么的，所以假装这很有用似的。</p>
+<p>也就是说，你已经不在意它有没有用，你注意到的是它能给你带来成就感。</p>
+<p>当然，从这种成就感中退出时有一定难度的，我承认我也有这么样一段的时间。</p>
+<hr>
+<p>再引一篇无名对<a target="_blank" rel="noopener" href="http://jyprince.me/note/397" title="知识的一般性">知识的一般性</a>的回复：<a target="_blank" rel="noopener" href="http://imgalaxy.sinaapp.com/mood/19.html">http://imgalaxy.sinaapp.com/mood/19.html</a></p>
 
           
         
@@ -2473,7 +1055,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/changing-job">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/02/29/2012-02-29-collaboration-with-git/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -2492,7 +1074,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/changing-job" itemprop="url">Changing job</a></h2>
+                <a class="post-title-link" href="/2012/02/29/2012-02-29-collaboration-with-git/" itemprop="url">用Git进行协同开发</a></h2>
         
 
         <div class="post-meta">
@@ -2504,8 +1086,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-02-12T10:21:14+08:00">
-                2011-02-12
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-02-29T19:08:00+08:00">
+                2012-02-29
               </time>
             
 
@@ -2514,6 +1096,29 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/shell/" itemprop="url" rel="index">
+                    <span itemprop="name">shell</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
           
 
           
@@ -2553,11 +1158,13 @@
 
       
         
-          <p>This week I change jobs, from <a target="_blank" rel="noopener" href="http://signumsoftware.com/en">Signum Software</a> to <a target="_blank" rel="noopener" href="http://www.tuenti.com/">Tuenti</a>.</p>
-<p>Working at Signum Software I have met a group of very professional people and I learnt a lot from them. It is a pleasure to work at a company that takes care of their own products, always trying to improve them. And for a developer it’s even better when that product is a complete framework that optimizes and makes your work easier.</p>
+          <h2 id="问题场景描述"><a href="#问题场景描述" class="headerlink" title="问题场景描述"></a>问题场景描述</h2><p>常常会遇到这样的协同场景：后台的同事和前端的同事需要共同开发一个新功能，而他们的代码相互依赖，所以需要不停地更新各自的代码进行联调。</p>
+<p>对于这种场景，最简单的方式就是，这 2 个同事坐到一起，然后把 svn 当作一个共享代码的中转站来共享开发中的代码。</p>
+<p>在这种方式下，大家各自写自己的代码，提交到 svn 上，然后用 svn up 获得对方的代码。在调试问题的时候，大家可能不停地更新代码，然后让对方用 svn up 来更新。最终，虽然开发能够顺利进行，但是 svn 上会积累大量调试中的代码历史。所以，这样把 svn 当作代码中转站是一个很山寨的行为。</p>
+<p>在开发 <a target="_blank" rel="noopener" href="http://note.youdao.com/">有道云笔记</a> 新的 <a target="_blank" rel="noopener" href="http://itunes.apple.com/cn/app/id483995181">iPad 版</a> 时，我和前端同事 zyc 尝试用 git 进行了协同开发。在这里把具体方案分享给大家，欢迎大家讨论。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/changing-job#more" rel="contents">
+            <a class="btn" href="/2012/02/29/2012-02-29-collaboration-with-git/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -2609,7 +1216,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/facebook-frontend-javascript">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/02/22/2012-02-22-use-gcd/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -2628,7 +1235,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/facebook-frontend-javascript" itemprop="url">Front End Tech Talk - Facebook</a></h2>
+                <a class="post-title-link" href="/2012/02/22/2012-02-22-use-gcd/" itemprop="url">使用GCD</a></h2>
         
 
         <div class="post-meta">
@@ -2640,8 +1247,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2011-01-30T17:29:22+08:00">
-                2011-01-30
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-02-22T20:44:00+08:00">
+                2012-02-22
               </time>
             
 
@@ -2650,6 +1257,29 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
           
 
           
@@ -2689,10 +1319,11 @@
 
       
         
-          Nice ideas taken from Facebook's Front End Tech Talk about implementing common interactions and patterns to reduce Javascript file size and use progressive enhancement.
+          <h2 id="什么是-GCD"><a href="#什么是-GCD" class="headerlink" title="什么是 GCD"></a>什么是 GCD</h2><p>Grand Central Dispatch (GCD) 是 Apple 开发的一个多核编程的解决方法。该方法在 Mac OS X 10.6 雪豹中首次推出，并随后被引入到了 iOS4.0 中。GCD 是一个替代诸如 NSThread, NSOperationQueue, NSInvocationOperation 等技术的很高效和强大的技术。</p>
+<p>GCD 和 block 的配合使用，可以方便地进行多线程编程。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/facebook-frontend-javascript">
+            <a class="btn" href="/2012/02/22/2012-02-22-use-gcd/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -2744,7 +1375,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/yahoo-tips-website-performance-flush-bottom">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/02/18/2012-02-18#%E5%B0%8F%E8%AF%B4%EF%BC%9A%E9%98%B4%E7%BC%98%E4%BC%9E/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -2763,7 +1394,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/yahoo-tips-website-performance-flush-bottom" itemprop="url">The not so good web performance tips</a></h2>
+                <a class="post-title-link" href="/2012/02/18/2012-02-18#%E5%B0%8F%E8%AF%B4%EF%BC%9A%E9%98%B4%E7%BC%98%E4%BC%9E/" itemprop="url">小说：阴缘伞</a></h2>
         
 
         <div class="post-meta">
@@ -2775,8 +1406,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2010-12-28T19:46:41+08:00">
-                2010-12-28
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-02-18T00:00:00+08:00">
+                2012-02-18
               </time>
             
 
@@ -2824,10 +1455,174 @@
 
       
         
-          <p>Yesterday I was reading <a target="_blank" rel="noopener" href="http://www.slideshare.net/nzakas/performance-yahoohomepage">Zakas’ Performance on the Yahoo! Homepage slideshare presentation</a>, and I got very surprised when I saw that Yahoo had realised that two of the wide accepted tips for improving website performance had not work so well for them.<br><img src="/assets/images/posts/yahoo-homepage.jpg" alt="Yahoo&#39;s Home page"></p>
+        
+          
+            <p>这算是一部悬疑&#x2F;推理类的小说，大概三十万字。<br>属于网络小说，但是也有实体书出版。</p>
+<p>我在大概一年前，在猫扑看过一次，今天突然想起来，又看了一遍。<br>算的上是一本好书，否则我也不会写在这里。</p>
+<p>内容上，是围绕着一个巨大的阴谋写起的，结局灰常出乎意料。逻辑上虽然有些漏洞，但总体上还是比较严谨的。<br>涉及和很多人和事，我看了两遍依旧迷迷糊糊的。<br>甚至一些主要人物的性别都没搞清楚 … 我就这毛病，有时候小说都看了半本了，还没搞清人物的性别。</p>
+<p>因为网络上的基本属于盗版，所以我就不贴链接了，额外友情提醒一下，末尾几章好像比较难找。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/02/16/2012-02-16-apply-daily-build-in-ios-project/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2012/02/16/2012-02-16-apply-daily-build-in-ios-project/" itemprop="url">给iOS工程增加Daily Build</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-02-16T19:27:00+08:00">
+                2012-02-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Daily Build 是一件非常有意义的事情，也是敏捷开发中关于 “持续集成” 的一个实践。Daily Build 对于开发来说有如下好处：</p>
+<ul>
+<li>保证了每次 check in 的代码可用，不会造成整个工程编译失败。</li>
+<li>进度跟进。产品经理可以每天看到最新的开发进度，并且试用产品，调整一些细节。很多时候，一个新功能，你真正用了一下才能有体会好或不好，所以 daily build 也给产品经理更多时间来调理他的设计。</li>
+<li>需求确认。产品经理可以确认开发的功能细节是他的预期。因为我们的开发比较紧凑，所以都没有传统的需求说明文档，所以 daily build 也给产品经理用于尽早确认开发的功能细节是他的预期，我就遇到一次产品经理发现开发出的一个功能细节和他的预期不一致，但是因为有 daily build，使得我可以尽早做修改，把修改的代价减小了。</li>
+<li>测试跟进。如果功能点是独立的话，测试同事完全可以根据 daily build 来进行一些早期的测试。越早的 Bug 反馈可以使得修改 bug 所需的时间越短。</li>
+</ul>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/yahoo-tips-website-performance-flush-bottom#more" rel="contents">
+            <a class="btn" href="/2012/02/16/2012-02-16-apply-daily-build-in-ios-project/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -2879,7 +1674,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/asp-net-mvc-async-controller">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/02/14/2012-02-14-nsstring-java-like-wrapper/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -2898,7 +1693,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/asp-net-mvc-async-controller" itemprop="url">AsyncController: Server-side parallelism</a></h2>
+                <a class="post-title-link" href="/2012/02/14/2012-02-14-nsstring-java-like-wrapper/" itemprop="url">给NSString增加Java风格的方法</a></h2>
         
 
         <div class="post-meta">
@@ -2910,8 +1705,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2010-12-24T16:28:37+08:00">
-                2010-12-24
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-02-14T17:17:00+08:00">
+                2012-02-14
               </time>
             
 
@@ -2920,6 +1715,29 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
           
 
           
@@ -2959,10 +1777,11 @@
 
       
         
-          <p>I usually face asynchronous WPO from the browser side, for instance making async requests to include Javascript files or AJAX-requesting any other content.</p>
+          <p>我实在受不了 NSString 冗长的方法调用了，每次写之前都要查文档。特别是那个去掉前后多余的空格的方法，长得离谱。与之对应的别的语言，拿 java 来说，对应的方法名叫 trim。拿 python 来说，对应的方法名叫 strip。但是 Objective-C 呢？是下面这段：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="keyword">self</span> stringByTrimmingCharactersInSet:[<span class="built_in">NSCharacterSet</span> whitespaceAndNewlineCharacterSet]];</span><br></pre></td></tr></table></figure>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/asp-net-mvc-async-controller#more" rel="contents">
+            <a class="btn" href="/2012/02/14/2012-02-14-nsstring-java-like-wrapper/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -3014,7 +1833,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/updates-on-bigpipe-using-asp-net-mvc">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/02/10/2012-02-10-setup-blog-based-on-github/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -3033,7 +1852,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/updates-on-bigpipe-using-asp-net-mvc" itemprop="url">Updates on BigPipe using ASP.NET MVC</a></h2>
+                <a class="post-title-link" href="/2012/02/10/2012-02-10-setup-blog-based-on-github/" itemprop="url">象写程序一样写博客：搭建基于github的博客</a></h2>
         
 
         <div class="post-meta">
@@ -3045,8 +1864,485 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2010-12-11T17:17:14+08:00">
-                2010-12-11
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-02-10T19:55:00+08:00">
+                2012-02-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/shell/" itemprop="url" rel="index">
+                    <span itemprop="name">shell</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <h2 id="2016-02-16-更新说明"><a href="#2016-02-16-更新说明" class="headerlink" title="2016.02.16 更新说明"></a>2016.02.16 更新说明</h2><p>本博客已经由 octopress 迁移到了 hexo，本文章的内容稍显陈旧。</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>github 真是无所不能。其 <a target="_blank" rel="noopener" href="http://pages.github.com/">Pages 功能</a> 支持上传 html，并且在页面中显示。于是有好事者做了一个基于 github 的博客管理工具：<a target="_blank" rel="noopener" href="http://octopress.org/">octopress</a>，基本原理是用 git 来管理你的文章，然后最终发布到 github 上成为一个独立博客站点。由于 github 支持 CNAME 域名指向，所以如果有独立域名的话，可以基于这些做出一个专业的博客站点出来。</p>
+<p>本博客就是完全基于此搭建起来的，在使用了 2 个月之后，我将原系统根据中国人的需求做了一些配置，去掉了 GFW 会挡住的 google font api，以及替换掉了速度超慢的国外的评论系统，也加上了分享到国内的微博的功能。现在把这些都总结出来，希望大家都可以方便地搭建基于 github 的博客来。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2012/02/10/2012-02-10-setup-blog-based-on-github/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/02/06/2012-02-06-new-methods-in-uiviewcontroller-of-ios5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2012/02/06/2012-02-06-new-methods-in-uiviewcontroller-of-ios5/" itemprop="url">iOS5中UIViewController的新方法</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-02-06T21:19:00+08:00">
+                2012-02-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在苹果的 WWDC2011 大会视频的<br><a target="_blank" rel="noopener" href="https://developer.apple.com/videos/wwdc/2011/?id=101">《Session 101 - What’s New in Cocoa》</a> 和<br><a target="_blank" rel="noopener" href="https://developer.apple.com/videos/wwdc/2011/?id=102">《Session 102 - Implementing UIViewController Containment》</a> 中介绍了苹果在 iOS5 中给 UIViewController 新增加的 5 方法以及一个属性:</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 方法</span></span><br><span class="line">addChildViewController: </span><br><span class="line">removeFromParentViewController:</span><br><span class="line">transitionFromViewController:toViewController:duration:options:animations:completion: </span><br><span class="line">willMoveToParentViewController: </span><br><span class="line">didMoveToParentViewController:</span><br><span class="line"><span class="comment">// 属性</span></span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>,<span class="keyword">readonly</span>) <span class="built_in">NSArray</span> *childViewControllers</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2012/02/06/2012-02-06-new-methods-in-uiviewcontroller-of-ios5/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/02/05/2012-02-05-mvc-in-ios-develop/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2012/02/05/2012-02-05-mvc-in-ios-develop/" itemprop="url">斯坦福大学 iOS 开发公开课总结</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-02-05T12:58:00+08:00">
+                2012-02-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>iPhone 开发相关的教程中最有名的，当数斯坦福大学发布的 “iPhone 开发公开课 “ 了。此公开课在以前叫做《iPhone 开发教程》，今年由于平板电脑的流行，所以也加入了 ipad 开发相关的课程。在 <a target="_blank" rel="noopener" href="http://v.163.com/special/opencourse/iPhonekaifa.html">网易公开课</a> 上，有 <a target="_blank" rel="noopener" href="http://v.163.com/special/opencourse/iPhonekaifa.html">该教程</a> 的 2010 年录象，并且前面 15 集带中文字幕文件，非常适合初学者学习。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2012/02/05/2012-02-05-mvc-in-ios-develop/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/02/05/2012-02-05#%E9%9A%8F%E4%BE%BF%E7%9A%84%E4%B8%80%E7%82%B9%E7%82%B9%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2012/02/05/2012-02-05#%E9%9A%8F%E4%BE%BF%E7%9A%84%E4%B8%80%E7%82%B9%E7%82%B9%E6%80%BB%E7%BB%93/" itemprop="url">随便的一点点总结</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-02-05T00:00:00+08:00">
+                2012-02-05
               </time>
             
 
@@ -3094,10 +2390,936 @@
 
       
         
-          <p>It’s been several weeks since I wrote <a href="/tutorial-how-to-implement-bigpipe-using-asp-net-mvc-part-1">a tutorial to implement BigPipe using C# and ASP.Net MVC</a>. And I have just read <a target="_blank" rel="noopener" href="http://velocity.oreilly.com.cn/index.php?func=session&amp;name=Facebook%E7%BD%91%E7%AB%99%E7%9A%84Ajax%E5%8C%96%E3%80%81%E7%BC%93%E5%AD%98%E5%92%8C%E6%B5%81%E6%B0%B4%E7%BA%BF">a PDF from a presentation at Velocity China</a> in which Changhao Jiang, from Facebook, explains some details about Bigpipe, as well as other techniques they use to improve Time to interact (both real and perceived), as well as data savings. These techniques (named Quickling and PageCache) are based on hijax and an intelligent update of specific content of the page instead of the whole page when data changes.</p>
+        
+          
+            <p>又是半夜，写点虾米好呢。不想写那种容易引争议的话题了，简单总结一下最近吧，也就是放假的这一个月</p>
+<p>这些天也取得了不少成就，例如：</p>
+<ul>
+<li>完成了零毫秒SB2.x协议的设计</li>
+<li>写了个<a target="_blank" rel="noopener" href="https://old-bbs.jybox.net/index.html_t914.html">零毫秒专用网络调试器</a></li>
+<li>认识了几个新朋友</li>
+<li>写了些小应用&#x2F;Demo,比如<a target="_blank" rel="noopener" href="http://jyprince.me/soft/verifycode/" title="比较简单的验证码识别Demo">比较简单的验证码识别Demo</a>、<a target="_blank" rel="noopener" href="http://jybox.net/:0">短网址</a>、<a target="_blank" rel="noopener" href="http://jybox.net/jyblog/soft/sql-demo/" title="QtSQL-Qt操作MySQL数据库">QtSQL-Qt操作MySQL数据库</a>、<a target="_blank" rel="noopener" href="http://jybox.net/jyblog/soft/udp-chat/" title="Udp数据包收发程序-QUdpSocket功能调研">Udp数据包收发程序-QUdpSocket功能调研</a></li>
+</ul>
+<p>网站方面，就在前天和昨天，和whtsky一起整顿了一下精英盒子的首页，总算是可以拿出去见人了。</p>
+<p>半个月前，我也修理了一下我的博客，评论功能好使了，不过话说到现在还一个新评论都木收到呢。</p>
+<p>而且因为大家都放假了，网站流量上升了不少。</p>
+<p>而且这几天，我终于把我的Ubuntu的网络问题搞好了：<a target="_blank" rel="noopener" href="http://jybox.net/bbs/read.php?tid-886.html">http://jybox.net/bbs/read.php?tid-886.html</a></p>
+<p>压力好像也好大：</p>
+<ul>
+<li>零毫秒2.0还木神马动静呢</li>
+<li>今天刚刚把零毫秒的文档平台改成Wiki,文档还没补充呢</li>
+<li>自己打算写些小项目：浏览器、打砖块、国际象棋Ai、更新<a target="_blank" rel="noopener" href="http://jyprince.me/soft/lightphp/" title="LightPHP(光进程)">LightPHP</a></li>
+<li>我的房间好像乱七八糟的，好久没彻底收拾过了</li>
+<li>昨天说要更换所有账户的密码，也没抽出空：<a target="_blank" rel="noopener" href="http://jybox.net/bbs/read.php?tid-916.html">http://jybox.net/bbs/read.php?tid-916.html</a></li>
+</ul>
+<p>就在一个礼拜前，发现了(还是墨阐推荐的)一个游戏：星战前夜(EVE),话说我真的是马上就喜欢上了，一种复杂、真实的世界。<br>在我的努力和abreto的指导下，成功将此游戏运行在Linux的wine模拟器上，不错，不错哦</p>
+<hr>
+<p>最后，好像经常抽抽空，写个总结和展望的日志会很有趣，打算以后每月一篇？</p>
+<p>ps.本文提到的三个人名可在友链表中找到</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/02/04/2012-02-04-use-git-to-manage-code-snippets/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2012/02/04/2012-02-04-use-git-to-manage-code-snippets/" itemprop="url">使用 Git 来管理 Xcode 中的代码片段</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-02-04T14:32:00+08:00">
+                2012-02-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <h3 id="代码片段介绍"><a href="#代码片段介绍" class="headerlink" title="代码片段介绍"></a>代码片段介绍</h3><p>xcode4 引入了一个新 feature: code snippets，在整个界面的右下角，可以通过快捷键：cmd + ctrl + opt + 2 调出来。code snippets 是一些代码的模版，对于一些常见的编程模式，xcode 都将这些代码抽象成模版放到 code snippet 中，使用的时候，只需要键入快捷键，就可以把模版的内容填到代码中。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/updates-on-bigpipe-using-asp-net-mvc#more" rel="contents">
+            <a class="btn" href="/2012/02/04/2012-02-04-use-git-to-manage-code-snippets/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/02/03/2012-02-03-talk-about-svn-and-git/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2012/02/03/2012-02-03-talk-about-svn-and-git/" itemprop="url">Git 的使用感受</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-02-03T21:08:00+08:00">
+                2012-02-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/shell/" itemprop="url" rel="index">
+                    <span itemprop="name">shell</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>从开始工作到现在，在公司里面一直用 svn 来做版本管理。大约半年前听说了 Git，因为 Git 的光辉相当耀眼，作者是 Linus Torvalds，被大量的开源软件采用，如 jQuery, Perl, Qt, ROR, YUI, GNOME 等，所以决定学一学。<br>比较庆幸的是，国内有一本较好的介绍 Git 的书：<a target="_blank" rel="noopener" href="http://www.amazon.cn/Git%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97-%E8%92%8B%E9%91%AB/dp/B0058FLC40/ref=sr_1_1?ie=UTF8&qid=1328277616&sr=8-1">《Git 权威指南》</a>。<br>我大概花了一个月的周末时间来学习它。在这里总结一下使用 Git 的感受，主要是和 SVN 来做一些比较，以便突出 Git 的特点。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2012/02/03/2012-02-03-talk-about-svn-and-git/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/02/02/2012-02-02#%E4%BA%92%E8%81%94%E7%BD%91%E6%8A%8A%E4%BA%BA%E5%8F%98%E5%82%BB%E4%BA%86%E4%B9%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2012/02/02/2012-02-02#%E4%BA%92%E8%81%94%E7%BD%91%E6%8A%8A%E4%BA%BA%E5%8F%98%E5%82%BB%E4%BA%86%E4%B9%88/" itemprop="url">互联网把人变傻了么</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-02-02T00:00:00+08:00">
+                2012-02-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>在QQ空间有这样的调侃文章，说八零后或者九零后神马都记不住，只会百度谷歌。<br>又有各种砖家站出来表示这是垮掉的一代，继续下去后果不堪设想，下面引某砖家的一段话：<br>“ 互联网本来是一场伟大的信息革命，是人类智能的跃进。但是，对大众而言，互联网似乎正在使人的能力退化。”<br>又有随风倒的跟帖者表示，如果继续下去，一旦失去互联网，人类将无法生存，这是灰常危险滴。</p>
+<p>可是，既然有网络这么好的东西，又为何要失去它呢，为毛不设想一下人类离开电会怎样呢。<br>细想一想，人类几乎所有重要的发明都是为了一个目的——交换信息。包括语言、文字、书籍、更快的交通工具、无线电、网络。<br>起初，人类所掌握的信息很少，口口相传即可。<br>而后，人类掌握的信息越来越多，便有了书，书是一次重大的革命，由此共享信息变得更加方便。<br>慢慢的，甚至书也无法满足人类的需要，于是又一次重大的革命——网络诞生了。信息共享变得空前的简单和迅速。<br>慢慢的，人的脑子里记忆得不再是知识本身，而是索引——在哪里可以找到它、如何找到它。其实这种趋势从书籍的出现就开始了，这也是必然现象。</p>
+<p>由于这样庞大的知识，已经不是个人能掌握的了，现在的世界有灰常细致的分工。<br>所以设想我们失去了XX是毫无意义的，哪怕离开了现在微不足道的一些东西，人类都会遭遇灾难。<br>纵使把几百人扔回古代，他们也造不出什么名堂，我们应该享受现有的科技成果，安心地去记忆“索引”吧，不要杞人忧天，给自己找不自在。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/02/01/2012-02-01-use-appledoc-to-generate-xcode-doc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2012/02/01/2012-02-01-use-appledoc-to-generate-xcode-doc/" itemprop="url">使用Objective-C的文档生成工具:appledoc</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-02-01T20:37:00+08:00">
+                2012-02-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>做项目的人多了，就需要文档了。今天开始尝试写一些项目文档。但是就源代码来说，文档最好和源码在一起，这样更新起来更加方便和顺手。象 Java 语言本身就自带 javadoc 命令，可以从源码中抽取文档。今天抽空调研了一下 objective-c 语言的类似工具。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2012/02/01/2012-02-01-use-appledoc-to-generate-xcode-doc/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/02/01/2012-02-01#%E9%AB%98%E4%B8%80%E4%B8%8A%E5%AD%A6%E6%9C%9F%E6%9C%9F%E6%9C%AB%E8%80%83%E8%AF%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2012/02/01/2012-02-01#%E9%AB%98%E4%B8%80%E4%B8%8A%E5%AD%A6%E6%9C%9F%E6%9C%9F%E6%9C%AB%E8%80%83%E8%AF%95/" itemprop="url">半个多月了：正视一下自己的期末考试</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-02-01T00:00:00+08:00">
+                2012-02-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>当然，首先要发的是成绩。如希望与上次的成绩做对比请看这里：<a target="_blank" rel="noopener" href="http://jyprince.me/2011/11/%e9%ab%98%e4%b8%80%e7%ac%ac%e4%b8%80%e6%ac%a1%e6%9c%88%e8%80%83%e6%88%90%e7%bb%a9%e4%bb%a5%e5%8f%8a%e5%88%86%e6%9e%90/" title="高一第一次月考成绩以及分析">高一第一次月考成绩以及分析</a></p>
+<ul>
+<li>语文75&#x2F;150,增长-2</li>
+<li>数学65&#x2F;150,增长-19</li>
+<li>英语31&#x2F;150,增长-20</li>
+<li>物理33&#x2F;100,增长-26</li>
+<li>化学60&#x2F;100,增长-23</li>
+<li>政治42&#x2F;100,增长12</li>
+<li>历史49&#x2F;100,增长-9</li>
+<li>地理59&#x2F;100,增长-11</li>
+<li>总分414&#x2F;950,增长-98</li>
+<li>班级排名第49,增长-23</li>
+<li>年组排名第346,增长-276</li>
+<li>另一个年组排名第301,增长-144</li>
+<li>全市第12609</li>
+</ul>
+<p>首先我觉得语文的作文真的写的很成功，当然，很显然老师不这么认为，作文题目和我的作文请参考<a target="_blank" rel="noopener" href="http://jyprince.me/2012/01/%e8%af%ad%e6%96%87%e6%9c%9f%e6%9c%ab%e8%80%83%e8%af%95%e7%9a%84%e4%b8%80%e7%af%87%e7%a5%9e%e4%bd%9c/" title="语文期末考试的一篇神作">语文期末考试的一篇神作</a></p>
+<p>数学&#8230;直到考试当天我还有一半的书一点都没看&#8230;.这个分数很正常</p>
+<p>英语我根本没答卷子，作文只写了两行。主要是一看到卷子就头晕，为了我的身体健康还是不要看的好。两个小时的时间，我一直在试图研究出一个能够有很高随机度、无规律、分布均匀的“由题号到选项的散列算法”，但是呢，又没电脑又没计算器，计算起来太麻烦，试了几个之后放弃了。</p>
+<p>化学我自以为算是考试这几科里学的最好的了，结果也差不多——唯一一个及格的。</p>
+<p>说实话，分数和名次的下降是在意料之中甚至计划之中的，我说这在几个月前就计划好了你信么？有日志为证(2011.11.7的)：<a target="_blank" rel="noopener" href="http://jyprince.me/2011/11/%e5%9b%bd%e5%ad%a6%e7%9f%a5%e8%af%86%e7%ab%9e%e8%b5%9b%e7%9a%84%e6%9c%ac%e8%ba%ab%e4%bb%a5%e5%8f%8a%e4%b8%80%e4%ba%9b%e8%83%a1%e6%80%9d%e4%b9%b1%e6%83%b3/" title="国学知识竞赛的本身以及一些胡思乱想">国学知识竞赛的本身以及一些胡思乱想</a><br>不过，确实下滑的有点多了，过头了。</p>
+<p>在疯子的眼里，整个世界都已经疯得无可救药了——其实我也不确定我这样是否是正确的。</p>
+<hr>
+<p>我还在考虑下学期如何扳回面子，虽然我在<a target="_blank" rel="noopener" href="http://jyprince.me/2011/11/%e5%9b%bd%e5%ad%a6%e7%9f%a5%e8%af%86%e7%ab%9e%e8%b5%9b%e7%9a%84%e6%9c%ac%e8%ba%ab%e4%bb%a5%e5%8f%8a%e4%b8%80%e4%ba%9b%e8%83%a1%e6%80%9d%e4%b9%b1%e6%83%b3/" title="国学知识竞赛的本身以及一些胡思乱想">国学知识竞赛的本身以及一些胡思乱想</a>已经强调过不要太在乎这些了，但是倒数几名的名次实在有点惨不忍睹。</p>
+<p>值得一提的是下学期的数学中有算法&#x2F;编程相关的内容，用的是Sci1ab,从来没听说过，但学起来也不过轻飘飘，半个小时足矣。</p>
+<p>但是话说回来，数学书中连函数都没涉及到，估计我会的那些知识也派不上什么用途了，算法我又不是灰常牛X.搞不好，这一章我照样挂。</p>
+<p>&nbsp;</p>
+<p>前几天，和mason闲聊，聊大学选什么专业，他说当然要是编程，C++绝对秒杀教授。我说他太天真了，就算我明知道出题老师的意图，我的固执一样会让我挂掉这课。</p>
+<p>例如我会指出void main是错误的，指出编译器应该自动添加return 0;,指出在同一表达式中进行多次自增&#x2F;自减是不明智的SB行为，还有很多&#8230;..</p>
+<p>就算掌握了真正的知识又有何用，考试该挂还挂。</p>
+<p>这几天看《时间简史》、《果壳中的宇宙》，我觉得这些才是每个人所必读的篇目，了解这个世界，它会带领你了解这个世界，会提出多种甚至互相冲突的假说，目的是引起你的思考，而不是灌注。它不会给你任何一个具体的公式，没错，你觉得你有必要去计算星球间的引力么？</p>
+<p>真不理解高中物理三年都用来学质点运动有毛用，而且要去背N多已经被否认了多年的假说。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/01/23/2012-01-23-use-javascript-to-import-pictures/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2012/01/23/2012-01-23-use-javascript-to-import-pictures/" itemprop="url">用javascript协助导入图片</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-01-23T23:10:00+08:00">
+                2012-01-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><p>先说说需求。春节回家见爸妈，老爸迷上了摄影。他把平时的照片都上传到了 <a target="_blank" rel="noopener" href="http://photo.chengdu.cn/">成都图片网</a>, 这个成都图片网专门有一个 “快拍成都” 的版块，用于大家将随手拍的生活中的图片分享上去。每天编辑还会选出一张最有特色的图片，刊登到《成都商报》上。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2012/01/23/2012-01-23-use-javascript-to-import-pictures/#more" rel="contents">
               Read more &raquo;
             </a>
           </div>
@@ -3140,7 +3362,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/77/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/77/">77</a><span class="page-number current">78</span><a class="page-number" href="/page/79/">79</a><a class="extend next" rel="next" href="/page/79/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/77/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/77/">77</a><span class="page-number current">78</span><a class="page-number" href="/page/79/">79</a><span class="space">&hellip;</span><a class="page-number" href="/page/82/">82</a><a class="extend next" rel="next" href="/page/79/">&gt;</a>
   </nav>
 
 
@@ -3186,7 +3408,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1579</span>
+                  <span class="site-state-item-count">1622</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3197,7 +3419,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">64</span>
+                  <span class="site-state-item-count">71</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
