@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="performance," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Learn about several ways of assessing the potential performance gains before implementing improvements. This will help building the case and prioritizing performance work.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to Estimate Web Performance Impact Before Making Fixes">
+<meta property="og:url" content="https://blog.feedscoin.com/assess-performance-impact">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="Learn about several ways of assessing the potential performance gains before implementing improvements. This will help building the case and prioritizing performance work.">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-03-13T23:15:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:11:20.000Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="performance">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/assess-performance-impact"/>
+
+
+
+
+
+  <title>How to Estimate Web Performance Impact Before Making Fixes | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/assess-performance-impact">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">How to Estimate Web Performance Impact Before Making Fixes</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-14T07:15:00+08:00">
+                2020-03-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  Learn about several ways of assessing the potential performance gains before implementing improvements. This will help building the case and prioritizing performance work.
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>Web Performance is important for user experience and business metrics. Estimating its impact is key to be able to prioritize it, yet it’s difficult to quantify its benefits until the work has been done.</p>
+<div style="position:relative;padding-bottom:39.65%;margin-bottom:1rem">
+<img
+    loading="lazy"
+    style="max-width:100%; border: 0;position:absolute;top:0;left:0"
+    sizes="(max-width: 768px) 100vw, 684px"
+    srcset="https://res.cloudinary.com/jmperez/image/upload/w_auto:100:400,f_auto/v1584188336/assess-performance-impact/performance-is-money.png 400w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:800,f_auto/v1584188336/assess-performance-impact/performance-is-money.png 800w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:1200,f_auto/v1584188336/assess-performance-impact/performance-is-money.png 1200w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:1400,f_auto/v1584188336/assess-performance-impact/performance-is-money.png 1400w"
+    src="https://res.cloudinary.com/jmperez/image/upload/w_auto:100:684,f_auto/v1584188336/assess-performance-impact/performance-is-money.png"
+    alt="" />
+</div>
+
+<p>We need to break this chicken-and-egg loop. This post explains several ways of assessing the potential performance gains with little effort and, more importantly, without actually implementing fixes.</p>
+<span id="more"></span>
+
+<h2 id="What-is-the-business-opportunity-for-web-performance-improvements"><a href="#What-is-the-business-opportunity-for-web-performance-improvements" class="headerlink" title="What is the business opportunity for web performance improvements?"></a>What is the business opportunity for web performance improvements?</h2><p>In the past I have been too naive thinking that every stakeholder would care as much as I do about web performance. <em>“Look, there are many case studies proving a correlation between loading time and business metrics!”</em> - I would repeat over and over. Previous results from other companies or websites, like <a target="_blank" rel="noopener" href="https://wpostats.com/">those published on WPO Stats</a>, are essential to start a conversation about the topic, but it’s not sufficient. <strong>How will that apply to my business?</strong></p>
+<p>I thought that the best way to prove the value would be to <a target="_blank" rel="noopener" href="https://web.dev/measure">audit performance using Lighthouse</a>, fix the issue with lowest effort&#x2F;highest impact, and measure. This can work if the audit shows potential improvements and the stakeholders agree to dedicate time and people to run the initial experiment.</p>
+<p>However, more often than not <strong>performance audits are not enough to move the needle</strong>. Yes, you can get an estimation of potential time savings, but can’t be translated directly into conversions or revenue, which are the metrics that the business cares about.</p>
+<p>During last months I have come across these low effort techniques to size the opportunity for web performance improvements linking performance metrics to business metrics:</p>
+<ol>
+<li><p><strong>Plotting Business Metrics vs Performance Metrics</strong>: How to track both performance metrics and business metrics and establish correlations between them.</p>
+</li>
+<li><p><strong>Measuring the Relative Mobile Conversion Rate</strong>: Identify performance issues by comparing the conversion rates on mobile and desktop.</p>
+</li>
+<li><p><strong>Using Test My Site from Think with Google</strong>: Gives you an estimation of potential revenue increase for your site when saving loading time.</p>
+</li>
+</ol>
+<h2 id="1-Plotting-Business-Metrics-vs-Performance-Metrics"><a href="#1-Plotting-Business-Metrics-vs-Performance-Metrics" class="headerlink" title="1. Plotting Business Metrics vs Performance Metrics"></a>1. Plotting Business Metrics vs Performance Metrics</h2><p>Think about what you are trying to drive on your existing site. Is it newsletter registrations? Leads? Purchases? When a user performs those actions, the user has converted. It’s important to track these conversion events, and you can do it in your own system or leveraging tools like Google Analytics or Facebook Analytics.</p>
+<p>Now the question is: <strong>how does user experience affect conversion rate?</strong> Assuming there are enough conversions, it is possible to cluster these conversions based on a performance metric. This is exactly what <a target="_blank" rel="noopener" href="https://twitter.com/cpclermont">CP Clermont</a> did at ALDO and <a target="_blank" rel="noopener" href="https://simplified.dev/performance/impact-of-web-performance">described in his post “The Impact of Web Performance”</a>.</p>
+<p>The idea is that <strong>if we can prove that users having a better web performance are converting more often, we can measure the impact of improving user’s experience in money terms</strong>. The best thing is that the effort is relatively low:</p>
+<ol>
+<li>Track the conversion event, which you might be doing already</li>
+<li>Add an event with a performance metric category. CP Clermont chose First Paint, Time to Interactive, Time to App Load (a custom metric for ALDO’s SPA), and Frames per Second. Then, he translated the metrics into 3 categories (good, average, and poor) and logged a custom dimension on Google Analytics.</li>
+<li>Plot business metrics vs performance metrics over time. For business metrics CP Clermont chose Conversion Rate and Revenue.</li>
+</ol>
+<figure>
+<div style="position:relative;padding-bottom:52.26244%;margin-bottom:1rem">
+<img
+    loading="lazy"
+    style="max-width:100%; border: 0;position:absolute;top:0;left:0"
+    sizes="(max-width: 768px) 100vw, 684px"
+    srcset="https://res.cloudinary.com/jmperez/image/upload/w_auto:100:400,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_simplified-first-paint-cr_obhsnn.png 400w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:800,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_simplified-first-paint-cr_obhsnn.png 800w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:1200,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_simplified-first-paint-cr_obhsnn.png 1200w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:1400,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_simplified-first-paint-cr_obhsnn.png 1400w"
+    src="https://res.cloudinary.com/jmperez/image/upload/w_auto:100:684,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_simplified-first-paint-cr_obhsnn.png"
+    alt="Plotting Conversion Rate for each First Paint Category (good, average, slow)" />
+</div>
+<figcaption>Plotting Conversion Rate for each First Paint Category (good, average, slow) (<a target="_blank" rel="noopener" href="https://simplified.dev/performance/impact-of-web-performance">source</a>)</figcaption>
+</figure>
+
+<p>One could wonder if users having a better performance and spending more because they are using better devices (ie the latest iPhone), which have better CPUs and their users have likely a higher purchase power.</p>
+<figure>
+<div style="position:relative;padding-bottom:40.8649%">
+<img
+    loading="lazy"
+    style="max-width:100%; border: 0;position:absolute;top:0;left:0"
+    sizes="(max-width: 768px) 100vw, 684px"
+    srcset="https://res.cloudinary.com/jmperez/image/upload/w_auto:100:400,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_simplified-iphone8-dollar-per-session_zdvrlm.png 400w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:800,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_simplified-iphone8-dollar-per-session_zdvrlm.png 800w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:1200,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_simplified-iphone8-dollar-per-session_zdvrlm.png 1200w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:1400,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_simplified-iphone8-dollar-per-session_zdvrlm.png 1400w"
+    src="https://res.cloudinary.com/jmperez/image/upload/w_auto:100:684,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_simplified-iphone8-dollar-per-session_zdvrlm.png"
+    alt="Plotting Revenue per session for a specific device (iPhone 8) depending on FPS after click" />
+</div>
+<figcaption>Plotting Revenue per session for a specific device (iPhone 8) depending on FPS after click (<a target="_blank" rel="noopener" href="https://simplified.dev/performance/impact-of-web-performance">source</a>)</figcaption>
+</figure>
+
+<p>Using Google Analytics you can see what type of device the user is using and plot results by specific models to get an answer.</p>
+<h2 id="2-Measuring-the-Relative-Mobile-Conversion-Rate"><a href="#2-Measuring-the-Relative-Mobile-Conversion-Rate" class="headerlink" title="2.Measuring the Relative Mobile Conversion Rate"></a>2.Measuring the Relative Mobile Conversion Rate</h2><p>Another easy way to spot performance issues and making a business case is to look at conversation rates. This is <a target="_blank" rel="noopener" href="https://www.blog.google/products/marketingplatform/analytics/mobile-challenge-and-how-measure-it/">what Google calls Relative Mobile Conversion Rate (Rel mCvR)</a>, which is calculated by dividing the mobile conversion rate with the desktop conversion rate.</p>
+<p>Take this example:</p>
+<table style="margin:0 auto 1rem">
+    <tr>
+        <td></td>
+        <th scope="col" style="font-weight:bold;text-align:right;padding:0.5em 1em">Mobile</th>
+        <th scope="col" style="font-weight:bold;text-align:right;padding:0.5em 1em">Desktop</th>
+    </tr>
+    <tr>
+        <th style="font-weight:bold;text-align:left;padding:0.5em 1em" scope="row">Conversion rate</th>
+        <td style="text-align:right;padding:0.5em 1em">1.79%</td>
+        <td style="text-align:right;padding:0.5em 1em">4.44%</td>
+    </tr>
+    <tr>
+        <th style="font-weight:bold;text-align:left;padding:0.5em 1em" scope="row">Rel mCvR</th>
+        <td style="font-weight:bold;text-align:right;padding:0.5em 1em" colspan="2">1.79% / 4.44% = 40%</td>
+    </tr>
+</table>
+
+<p>In this case the Rel mCvR is 40%.</p>
+<p>Google says that <strong>a good target for Rel mCvR is 70%</strong>, meaning that mobile conversion rates are 30% lower than desktop. The reason why Rel mCvR can be a good metric is that it is not influenced by changes in traffic (eg seasonality or promotional campaigns). The following diagram explains it in more detail:</p>
+<figure>
+<div style="position:relative;padding-bottom:50.1462%">
+<img
+    loading="lazy"
+    style="max-width:100%; border: 0;position:absolute;top:0;left:0"
+    sizes="(max-width: 768px) 100vw, 684px"
+    srcset="https://res.cloudinary.com/jmperez/image/upload/w_auto:100:400,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_rel-mcvr_jgbeqo.png 400w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:800,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_rel-mcvr_jgbeqo.png 800w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:1200,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_rel-mcvr_jgbeqo.png 1200w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:1400,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_rel-mcvr_jgbeqo.png 1400w"
+    src="https://res.cloudinary.com/jmperez/image/upload/w_auto:100:684,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_rel-mcvr_jgbeqo.png"
+    alt="Explanation of Relative mobile conversion rate and its components" />
+</div>
+<figcaption>Explanation of Relative mobile conversion rate and its components (<a target="_blank" rel="noopener" href="https://www.blog.google/products/marketingplatform/analytics/mobile-challenge-and-how-measure-it/">source</a>)</figcaption>
+</figure>
+
+<p>Note that Rel mCvR is influenced by UX too, since a bad UX on mobile will hurt mobile conversion rates. <strong>You should use <a target="_blank" rel="noopener" href="https://web.dev/measure">Lighthouse</a> or <a target="_blank" rel="noopener" href="https://www.webpagetest.org/">WebPageTest</a> to ensure that there are performance issues and speed is the main contributor in Rel mCvR, and not usability.</strong></p>
+<p>The key question is: <em>what’s the target Rel mCvR?</em> If we knew it we could assess the revenue that an increase in conversion rates would represent. For this we can use a similar approach to the first technique we described, clustering conversion rates based on performance metrics and calculating how many user could be “upgraded” to the following cluster (eg from slow to average experience and from average to fast).</p>
+<p><strong>Rel mCvR can also be used to calculate the incremental revenue achieved after making a performance fix</strong>. Measure what was the average Rel mCvR before and after the fix, and calculate what the revenue would have been if Rel mCvR hadn’t changed.<br>On <a target="_blank" rel="noopener" href="https://web.dev/value-of-speed/">their post “Value of Speed”</a> you can find more information about the methodology and framework to measure the revenue impact.</p>
+<h2 id="3-Using-Test-My-Site-from-Think-with-Google"><a href="#3-Using-Test-My-Site-from-Think-with-Google" class="headerlink" title="3. Using Test My Site from Think with Google"></a>3. Using Test My Site from Think with Google</h2><p>Google has <a target="_blank" rel="noopener" href="https://www.thinkwithgoogle.com/feature/testmysite/">a handy microsite called Test My Site</a> that gives you a snapshot about your site and calculates the potential increase in revenue when improving your site speed. I would describe as a “Lighthouse report for business people”.</p>
+<figure>
+<div style="position:relative;padding-bottom:63.743%">
+<a target="_blank" rel="noopener" href="https://www.thinkwithgoogle.com/feature/testmysite/"><img
+    loading="lazy"
+    style="max-width:100%; border: 0;position:absolute;top:0;left:0"
+    sizes="(max-width: 768px) 100vw, 684px"
+    srcset="https://res.cloudinary.com/jmperez/image/upload/w_auto:100:400,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_test-my-site_yxsqan.png 400w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:800,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_test-my-site_yxsqan.png 800w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:1200,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_test-my-site_yxsqan.png 1200w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:1400,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_test-my-site_yxsqan.png 1400w"
+    src="https://res.cloudinary.com/jmperez/image/upload/w_auto:100:684,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_test-my-site_yxsqan.png"
+    alt="Screenshot of Google's Test My Site page" /></a>
+</div>
+<figcaption>Screenshot of <a target="_blank" rel="noopener" href="https://www.thinkwithgoogle.com/feature/testmysite/">Google's Test My Site page</a></figcaption>
+</figure>
+
+<p>To calculate the potential increase in revenue you only need to provide your average monthly visitors, conversion rate, and average order value.</p>
+<figure>
+<div style="position:relative;padding-bottom:48.83%">
+<img
+    loading="lazy"
+    style="max-width:100%; border: 0;position:absolute;top:0;left:0"
+    sizes="(max-width: 768px) 100vw, 684px"
+    srcset="https://res.cloudinary.com/jmperez/image/upload/w_auto:100:400,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_test-my-site-potential-revenue_meu5vx.png 400w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:800,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_test-my-site-potential-revenue_meu5vx.png 800w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:1200,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_test-my-site-potential-revenue_meu5vx.png 1200w, https://res.cloudinary.com/jmperez/image/upload/w_auto:100:1400,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_test-my-site-potential-revenue_meu5vx.png 1400w"
+    src="https://res.cloudinary.com/jmperez/image/upload/w_auto:100:684,f_auto/v1584185288/assess-performance-impact/assess-performance-impact_test-my-site-potential-revenue_meu5vx.png"
+    alt="Calculating potential increase in annual revenue using Google's Test My Site" /></a>
+</div>
+<figcaption>Calculating potential increase in annual revenue using <a target="_blank" rel="noopener" href="https://www.thinkwithgoogle.com/feature/testmysite/">Google's Test My Site page</a></figcaption>
+</figure>
+
+<p>Behind the scenes it is powered by data from the Chrome User Experience report database or HTTP Archive, which contains performance metrics gathered from real users that have visited your site (if you are interested in this data I recommend checking <a target="_blank" rel="noopener" href="https://crux.run/">CRUX.RUN</a>). It also uses Lighthouse to calculate the potential savings in loading time.</p>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>Always complement your performance audits with assessment of expected revenue to understand the expected impact of the changes.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/performance/" rel="tag"># performance</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/03/09/angular-directive/" rel="next" title="Angular：使用[@Directive]自定义指令">
+                <i class="fa fa-chevron-left"></i> Angular：使用[@Directive]自定义指令
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/03/15/2020/short-domain-name-for-blog/" rel="prev" title="博客短域名 printem.pw 和 prin.studio">
+                博客短域名 printem.pw 和 prin.studio <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#What-is-the-business-opportunity-for-web-performance-improvements"><span class="nav-number">1.</span> <span class="nav-text">What is the business opportunity for web performance improvements?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Plotting-Business-Metrics-vs-Performance-Metrics"><span class="nav-number">2.</span> <span class="nav-text">1. Plotting Business Metrics vs Performance Metrics</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Measuring-the-Relative-Mobile-Conversion-Rate"><span class="nav-number">3.</span> <span class="nav-text">2.Measuring the Relative Mobile Conversion Rate</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Using-Test-My-Site-from-Think-with-Google"><span class="nav-number">4.</span> <span class="nav-text">3. Using Test My Site from Think with Google</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Conclusion"><span class="nav-number">5.</span> <span class="nav-text">Conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

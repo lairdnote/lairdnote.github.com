@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="系统设计," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="经过 用 PHP 玩转进程之一 — 基础 的回顾复习，我们已经掌握了进程的基础知识，现在可以尝试用 PHP 做一些简单的进程控制和管理，来加深我们对进程的理解。接下来，我将用多进程模型实现一个简单的 PHPServer，基于它你可以做任何事。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用PHP玩转进程之二 — 多进程PHPServer">
+<meta property="og:url" content="https://blog.feedscoin.com/2018/09/02/2018/09/process-php-multiprocess-server/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="经过 用 PHP 玩转进程之一 — 基础 的回顾复习，我们已经掌握了进程的基础知识，现在可以尝试用 PHP 做一些简单的进程控制和管理，来加深我们对进程的理解。接下来，我将用多进程模型实现一个简单的 PHPServer，基于它你可以做任何事。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://www.fanhaobai.com/2018/09/process-php-multiprocess-server/34f35d33-57b2-41d7-b738-f0c1c712102f.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2018/09/process-php-multiprocess-server/e0e86073-3093-4e5f-be20-b64510e61575.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2018/09/process-php-multiprocess-server/22ed9e46-971c-4983-8bf5-65d321585d42.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2018/09/process-php-multiprocess-server/ad804eb2-9300-4d34-ae63-3b820d81d4b1.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2018/09/process-php-multiprocess-server/8e65456f-8e08-4ae8-84f8-e6f2278410e4.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2018/09/process-php-multiprocess-server/db333298-5a10-4de3-b0b2-41088cafc77f.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2018/09/process-php-multiprocess-server/fc458e5f-fccc-477f-9e18-eada5d856289.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2018/09/process-php-multiprocess-server/4c5ec8d3-e56e-4367-8856-beaf23ee7602.png">
+<meta property="article:published_time" content="2018-09-02T08:10:53.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:29:51.000Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="系统设计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.fanhaobai.com/2018/09/process-php-multiprocess-server/34f35d33-57b2-41d7-b738-f0c1c712102f.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2018/09/02/2018/09/process-php-multiprocess-server/"/>
+
+
+
+
+
+  <title>用PHP玩转进程之二 — 多进程PHPServer | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2018/09/02/2018/09/process-php-multiprocess-server/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">用PHP玩转进程之二 — 多进程PHPServer</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-02T16:10:53+08:00">
+                2018-09-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80/PHP/" itemprop="url" rel="index">
+                    <span itemprop="name">PHP</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>经过 <a target="_blank" rel="noopener" href="https://www.fanhaobai.com/2018/08/process-php-basic-knowledge.html">用 PHP 玩转进程之一 — 基础</a> 的回顾复习，我们已经掌握了进程的基础知识，现在可以尝试用 PHP 做一些简单的进程控制和管理，来加深我们对进程的理解。接下来，我将用多进程模型实现一个简单的 PHPServer，基于它你可以做任何事。</p>
+<p><img src="//www.fanhaobai.com/2018/09/process-php-multiprocess-server/34f35d33-57b2-41d7-b738-f0c1c712102f.png" alt="预览图"><span id="more"></span></p>
+<p>PHPServer 完整的源代码，可前往 <a target="_blank" rel="noopener" href="https://github.com/fan-haobai/php-server">fan-haobai&#x2F;php-server</a> 获取。</p>
+<h2 id="总流程"><a href="#总流程" class="headerlink" title="总流程"></a>总流程</h2><p>该 PHPServer 的 Master 和 Worker 进程主要控制流程，如下图所示：</p>
+<p><img src="//www.fanhaobai.com/2018/09/process-php-multiprocess-server/e0e86073-3093-4e5f-be20-b64510e61575.png" alt="控制流程"></p>
+<p>其中，主要涉及 <strong>3 个对象</strong>，分别为 <a href="#">入口脚本</a>、<a href="#">Master 进程</a>、<a href="#">Worker 进程</a>。它们扮演的角色如下：</p>
+<ul>
+<li><a href="#">入口脚本</a>：主要实现 PHPServer 的启动、停止、重载功能，即触发 Master 进程<code>start</code>、<code>stop</code>、<code>reload</code>流程；</li>
+<li><a href="#">Master 进程</a>：负责创建并监控 Worker 进程。在启动阶段，会注册信号处理器，然后创建 Worker；在运行阶段，会持续监控 Worker 进程健康状态，并接受来自入口脚本的控制信号并作出响应；在停止阶段，会停止掉所有 Worker 进程；</li>
+<li><a href="#">Worker 进程</a>：负责执行业务逻辑。在被 Master 进程创建后，就处于持续运行阶段，会监听到来自 Master 进程的信号，以实现自我的停止；</li>
+</ul>
+<p>整个过程，又包括 <strong>4 个流程</strong>：</p>
+<ul>
+<li><a href="#">流程 ①</a> ：以守护态启动 PHPServer 时的主要流程。入口脚本会进行 <a href="#">daemonize</a>，也就是实现进程的守护态，此时会<code>fork</code>出一个 Master 进程；Master 进程先经过 <a href="#">保存 PID</a>、<a href="#">注册信号处理器</a> 操作，然后 <a href="#">创建 Worker</a> 会<code>fork</code>出多个 Worker 进程；</li>
+<li><a href="#">流程 ②</a> ：为 Master 进程持续监控的流程，过程中会捕获入口脚本发送来的信号。主要监控  Worker 进程健康状态，当 Worker 进程异常退出时，会尝试创建新的 Worker 进程以维持 Worker 进程数量；</li>
+<li><a href="#">流程 ③</a> ：为 Worker 进程持续运行的流程，过程中会捕获 Master 进程发送来的信号。流程 ① 中 Worker 进程被创建后，就会持续执行业务逻辑，并阻塞于此；</li>
+<li><a href="#">流程 ④</a> ：停止 PHPServer 的主要流程。入口脚本首先会向 Master 进程发送 SIGINT 信号，Master 进程捕获到该信号后，会向所有的 Worker 进程转发 SIGINT 信号（通知所有的 Worker 进程终止），等待所有 Worker 进程终止退出；</li>
+</ul>
+<blockquote>
+<p>在流程 ② 中，Worker 进程被 Master 进程<code>fork</code>出来后，就会 <a href="#">持续运行</a> 并阻塞于此，只有 Master 进程才会继续后续的流程。</p>
+</blockquote>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><p>启动流程见 <a href="#%E6%80%BB%E6%B5%81%E7%A8%8B">流程 ①</a>，主要包括 <a href="#%E5%AE%88%E6%8A%A4%E8%BF%9B%E7%A8%8B">守护进程</a>、<a href="#%E4%BF%9D%E5%AD%98PID">保存 PID</a>、<a href="#%E6%B3%A8%E5%86%8C%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86%E5%99%A8">注册信号处理器</a>、<a href="%E5%88%9B%E5%BB%BA%E5%A4%9A%E8%BF%9B%E7%A8%8BWorker">创建多进程 Worker</a> 这 4 部分。</p>
+<h4 id="守护进程"><a href="#守护进程" class="headerlink" title="守护进程"></a>守护进程</h4><p>首先，在入口脚本中<code>fork</code>一个子进程，然后该进程退出，并设置新的子进程为会话组长，此时的这个子进程就会脱离当前终端的控制。如下图所示：</p>
+<p><img src="//www.fanhaobai.com/2018/09/process-php-multiprocess-server/22ed9e46-971c-4983-8bf5-65d321585d42.png" alt="守护进程流程"></p>
+<p>这里使用了 2 次<code>fork</code>，所以最后<code>fork</code>的一个子进程才是 Master 进程，其实一次<code>fork</code>也是可以的。代码如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">daemonize</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="title function_ invoke__">umask</span>(<span class="number">0</span>);</span><br><span class="line">    <span class="variable">$pid</span> = <span class="title function_ invoke__">pcntl_fork</span>();</span><br><span class="line">    <span class="keyword">if</span> (-<span class="number">1</span> === <span class="variable">$pid</span>) &#123;</span><br><span class="line">        <span class="keyword">exit</span>(<span class="string">&quot;process fork fail\n&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">elseif</span> (<span class="variable">$pid</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 将当前进程提升为会话leader</span></span><br><span class="line">    <span class="keyword">if</span> (-<span class="number">1</span> === <span class="title function_ invoke__">posix_setsid</span>()) &#123;</span><br><span class="line">        <span class="keyword">exit</span>(<span class="string">&quot;process setsid fail\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 再次fork以避免SVR4这种系统终端再一次获取到进程控制</span></span><br><span class="line">    <span class="variable">$pid</span> = <span class="title function_ invoke__">pcntl_fork</span>();</span><br><span class="line">    <span class="keyword">if</span> (-<span class="number">1</span> === <span class="variable">$pid</span>) &#123;</span><br><span class="line">        <span class="keyword">exit</span>(<span class="string">&quot;process fork fail\n&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">elseif</span> (<span class="number">0</span> !== <span class="variable">$pid</span>) &#123;</span><br><span class="line">        <span class="keyword">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>通常在启动时增加<code>-d</code>参数，表示进程将运行于守护态模式。</p>
+</blockquote>
+<p>当顺利成为一个守护进程后，Master 进程已经脱离了终端控制，所以有必要关闭标准输出和标准错误输出。如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">resetStdFd</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">global</span> <span class="variable">$STDERR</span>, <span class="variable">$STDOUT</span>;</span><br><span class="line">    <span class="comment">//重定向标准输出和错误输出</span></span><br><span class="line">    @<span class="title function_ invoke__">fclose</span>(STDOUT);</span><br><span class="line">    <span class="title function_ invoke__">fclose</span>(STDERR);</span><br><span class="line">    <span class="variable">$STDOUT</span> = <span class="title function_ invoke__">fopen</span>(<span class="built_in">static</span>::<span class="variable">$stdoutFile</span>, <span class="string">&#x27;a&#x27;</span>);</span><br><span class="line">    <span class="variable">$STDERR</span> = <span class="title function_ invoke__">fopen</span>(<span class="built_in">static</span>::<span class="variable">$stdoutFile</span>, <span class="string">&#x27;a&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="保存PID"><a href="#保存PID" class="headerlink" title="保存PID"></a>保存PID</h4><p>为了实现 PHPServer 的重载或停止，我们需要将 Master 进程的 PID 保存于 PID 文件中，如<code>php-server.pid</code>文件。代码如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">saveMasterPid</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 保存pid以实现重载和停止</span></span><br><span class="line">    <span class="built_in">static</span>::<span class="variable">$_masterPid</span> = <span class="title function_ invoke__">posix_getpid</span>();</span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">false</span> === <span class="title function_ invoke__">file_put_contents</span>(<span class="built_in">static</span>::<span class="variable">$pidFile</span>, <span class="built_in">static</span>::<span class="variable">$_masterPid</span>)) &#123;</span><br><span class="line">        <span class="keyword">exit</span>(<span class="string">&quot;can not save pid to&quot;</span> . <span class="built_in">static</span>::<span class="variable">$pidFile</span> . <span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;PHPServer start\t \033[32m [OK] \033[0m\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="注册信号处理器"><a href="#注册信号处理器" class="headerlink" title="注册信号处理器"></a>注册信号处理器</h4><p>因为守护进程一旦脱离了终端控制，就犹如一匹脱缰的野马，任由其奔腾可能会为所欲为，所以我们需要去驯服它。</p>
+<p>这里使用信号来实现进程间通信并控制进程的行为，注册信号处理器如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">installSignal</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="title function_ invoke__">pcntl_signal</span>(SIGINT, <span class="keyword">array</span>(<span class="string">&#x27;\PHPServer\Worker&#x27;</span>, <span class="string">&#x27;signalHandler&#x27;</span>), <span class="literal">false</span>);</span><br><span class="line">    <span class="title function_ invoke__">pcntl_signal</span>(SIGTERM, <span class="keyword">array</span>(<span class="string">&#x27;\PHPServer\Worker&#x27;</span>, <span class="string">&#x27;signalHandler&#x27;</span>), <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">    <span class="title function_ invoke__">pcntl_signal</span>(SIGUSR1, <span class="keyword">array</span>(<span class="string">&#x27;\PHPServer\Worker&#x27;</span>, <span class="string">&#x27;signalHandler&#x27;</span>), <span class="literal">false</span>);</span><br><span class="line">    <span class="title function_ invoke__">pcntl_signal</span>(SIGQUIT, <span class="keyword">array</span>(<span class="string">&#x27;\PHPServer\Worker&#x27;</span>, <span class="string">&#x27;signalHandler&#x27;</span>), <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 忽略信号</span></span><br><span class="line">    <span class="title function_ invoke__">pcntl_signal</span>(SIGUSR2, SIG_IGN, <span class="literal">false</span>);</span><br><span class="line">    <span class="title function_ invoke__">pcntl_signal</span>(SIGHUP,  SIG_IGN, <span class="literal">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">signalHandler</span>(<span class="params"><span class="variable">$signal</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">switch</span>(<span class="variable">$signal</span>) &#123;</span><br><span class="line">        <span class="keyword">case</span> SIGINT:</span><br><span class="line">        <span class="keyword">case</span> SIGTERM:</span><br><span class="line">            <span class="built_in">static</span>::<span class="title function_ invoke__">stop</span>();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> SIGQUIT:</span><br><span class="line">        <span class="keyword">case</span> SIGUSR1:</span><br><span class="line">            <span class="built_in">static</span>::<span class="title function_ invoke__">reload</span>();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>: <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中，SIGINT 和 SIGTERM 信号会触发<code>stop</code>操作，即终止所有进程；SIGQUIT 和 SIGUSR1 信号会触发<code>reload</code>操作，即重新加载所有 Worker 进程；此处忽略了 SIGUSR2 和 SIGHUP 信号，但是并未忽略 SIGKILL 信号，即所有进程都可以被强制<code>kill</code>掉。</p>
+<h4 id="创建多进程Worker"><a href="#创建多进程Worker" class="headerlink" title="创建多进程Worker"></a>创建多进程Worker</h4><p>Master 进程通过<code>fork</code>系统调用，就能创建多个 Worker 进程。实现代码，如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">forkOneWorker</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="variable">$pid</span> = <span class="title function_ invoke__">pcntl_fork</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 父进程</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$pid</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">static</span>::<span class="variable">$_workers</span>[] = <span class="variable">$pid</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">$pid</span> === <span class="number">0</span>) &#123; <span class="comment">// 子进程</span></span><br><span class="line">        <span class="built_in">static</span>::<span class="title function_ invoke__">setProcessTitle</span>(<span class="string">&#x27;PHPServer: worker&#x27;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 子进程会阻塞在这里</span></span><br><span class="line">        <span class="built_in">static</span>::<span class="title function_ invoke__">run</span>();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 子进程退出</span></span><br><span class="line">        <span class="keyword">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">\Exception</span>(<span class="string">&quot;fork one worker fail&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">forkWorkers</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(<span class="title function_ invoke__">count</span>(<span class="built_in">static</span>::<span class="variable">$_workers</span>) &lt; <span class="built_in">static</span>::<span class="variable">$workerCount</span>) &#123;</span><br><span class="line">        <span class="built_in">static</span>::<span class="title function_ invoke__">forkOneWorker</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Worker进程的持续运行"><a href="#Worker进程的持续运行" class="headerlink" title="Worker进程的持续运行"></a>Worker进程的持续运行</h3><p>Worker 进程的持续运行，见 <a href="#%E6%80%BB%E6%B5%81%E7%A8%8B">流程 ③</a> 。其内部调度流程，如下图：</p>
+<p><img src="//www.fanhaobai.com/2018/09/process-php-multiprocess-server/ad804eb2-9300-4d34-ae63-3b820d81d4b1.png" alt="Worker进程的持续运行"></p>
+<p>对于 Worker 进程，<code>run()</code>方法主要执行具体业务逻辑，当然 Worker 进程会被阻塞于此。对于 <a href="#">任务 ①</a> 这里简单地使用<code>while</code>来模拟调度，实际中应该使用事件（Select 等）驱动。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">run</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 模拟调度,实际用event实现</span></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="comment">// 捕获信号</span></span><br><span class="line">        <span class="title function_ invoke__">pcntl_signal_dispatch</span>();</span><br><span class="line"></span><br><span class="line">        <span class="title function_ invoke__">call_user_func</span>(function() &#123;</span><br><span class="line">            <span class="comment">// do something</span></span><br><span class="line">            <span class="title function_ invoke__">usleep</span>(<span class="number">200</span>);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>pcntl_signal_dispatch()</code>会在每次调度过程中，捕获信号并执行注册的信号处理器。</p>
+<h3 id="Master进程的持续监控"><a href="#Master进程的持续监控" class="headerlink" title="Master进程的持续监控"></a>Master进程的持续监控</h3><h4 id="调度流程"><a href="#调度流程" class="headerlink" title="调度流程"></a>调度流程</h4><p>Master 进程的持续监控，见 <a href="#%E6%80%BB%E6%B5%81%E7%A8%8B">流程 ②</a> 。其内部调度流程，如下图：</p>
+<p><img src="//www.fanhaobai.com/2018/09/process-php-multiprocess-server/8e65456f-8e08-4ae8-84f8-e6f2278410e4.png" alt="Master持续监控流程"></p>
+<p>对于 Master 进程的调度，这里也使用了<code>while</code>，但是引入了<code>wait</code>的系统调用，它会挂起当前进程，直到一个子进程退出或接收到一个信号。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">monitor</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="comment">// 这两处捕获触发信号,很重要</span></span><br><span class="line">        <span class="title function_ invoke__">pcntl_signal_dispatch</span>();</span><br><span class="line">        <span class="comment">// 挂起当前进程的执行直到一个子进程退出或接收到一个信号</span></span><br><span class="line">        <span class="variable">$status</span> = <span class="number">0</span>;</span><br><span class="line">        <span class="variable">$pid</span> = <span class="title function_ invoke__">pcntl_wait</span>(<span class="variable">$status</span>, WUNTRACED);</span><br><span class="line">        <span class="title function_ invoke__">pcntl_signal_dispatch</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$pid</span> &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// worker健康检查</span></span><br><span class="line">            <span class="built_in">static</span>::<span class="title function_ invoke__">checkWorkerAlive</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 其他你想监控的</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>第两次的<code>pcntl_signal_dispatch()</code>捕获信号，是由于<code>wait</code>挂起时间可能会很长，而这段时间可能恰恰会有信号，所以需要再次进行捕获。</p>
+</blockquote>
+<p>其中，PHPServer 的 <a href="#%E5%81%9C%E6%AD%A2">停止</a> 和 <a href="#%E9%87%8D%E8%BD%BD">重载</a> 操作是由信号触发，在信号处理器中完成具体操作；<a href="#Worker%E8%BF%9B%E7%A8%8B%E7%9A%84%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5">Worker 进程的健康检查</a> 会在每一次的调度过程中触发。</p>
+<h4 id="Worker进程的健康检查"><a href="#Worker进程的健康检查" class="headerlink" title="Worker进程的健康检查"></a>Worker进程的健康检查</h4><p>由于 Worker 进程执行繁重的业务逻辑，所以可能会异常崩溃。因此 Master 进程需要监控 Worker 进程健康状态，并尝试维持一定数量的 Worker 进程。健康检查流程，如下图：</p>
+<p><img src="//www.fanhaobai.com/2018/09/process-php-multiprocess-server/db333298-5a10-4de3-b0b2-41088cafc77f.png" alt="健康检查流程"></p>
+<p>代码实现，如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">checkWorkerAlive</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="variable">$allWorkerPid</span> = <span class="built_in">static</span>::<span class="title function_ invoke__">getAllWorkerPid</span>();</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="variable">$allWorkerPid</span> <span class="keyword">as</span> <span class="variable">$index</span> =&gt; <span class="variable">$pid</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">static</span>::<span class="title function_ invoke__">isAlive</span>(<span class="variable">$pid</span>)) &#123;</span><br><span class="line">            <span class="keyword">unset</span>(<span class="built_in">static</span>::<span class="variable">$_workers</span>[<span class="variable">$index</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">static</span>::<span class="title function_ invoke__">forkWorkers</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="停止"><a href="#停止" class="headerlink" title="停止"></a>停止</h4><p>Master 进程的持续监控，见 <a href="#%E6%80%BB%E6%B5%81%E7%A8%8B">流程 ④</a> 。其详细流程，如下图：</p>
+<p><img src="//www.fanhaobai.com/2018/09/process-php-multiprocess-server/fc458e5f-fccc-477f-9e18-eada5d856289.png" alt="停止流程"></p>
+<p>入口脚本给 Master 进程发送 SIGINT  信号，Master 进程捕获到该信号并执行 <a href="#%E6%B3%A8%E5%86%8C%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86%E5%99%A8">信号处理器</a>，调用<code>stop()</code>方法。如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">stop</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 主进程给所有子进程发送退出信号</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">static</span>::<span class="variable">$_masterPid</span> === <span class="title function_ invoke__">posix_getpid</span>()) &#123;</span><br><span class="line">        <span class="built_in">static</span>::<span class="title function_ invoke__">stopAllWorkers</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">is_file</span>(<span class="built_in">static</span>::<span class="variable">$pidFile</span>)) &#123;</span><br><span class="line">            @<span class="title function_ invoke__">unlink</span>(<span class="built_in">static</span>::<span class="variable">$pidFile</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">// 子进程退出</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 退出前可以做一些事</span></span><br><span class="line">        <span class="keyword">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>若是 Master 进程执行该方法，会先调用<code>stopAllWorkers()</code>方法，向所有的 Worker 进程发送 SIGINT 信号并等待所有 Worker  进程终止退出，再清除 PID 文件并退出。有一种特殊情况，Worker 进程退出超时时，Master 进程则会再次发送 SIGKILL 信号强制杀死所有 Worker 进程；</p>
+<p>由于 Master 进程会发送 SIGINT 信号给 Worker 进程，所以 Worker 进程也会执行该方法，并会直接退出。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">stopAllWorkers</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="variable">$allWorkerPid</span> = <span class="built_in">static</span>::<span class="title function_ invoke__">getAllWorkerPid</span>();</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="variable">$allWorkerPid</span> <span class="keyword">as</span> <span class="variable">$workerPid</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">posix_kill</span>(<span class="variable">$workerPid</span>, SIGINT);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 子进程退出异常,强制kill</span></span><br><span class="line">    <span class="title function_ invoke__">usleep</span>(<span class="number">1000</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">static</span>::<span class="title function_ invoke__">isAlive</span>(<span class="variable">$allWorkerPid</span>)) &#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="variable">$allWorkerPid</span> <span class="keyword">as</span> <span class="variable">$workerPid</span>) &#123;</span><br><span class="line">            <span class="built_in">static</span>::<span class="title function_ invoke__">forceKill</span>(<span class="variable">$workerPid</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 清空worker实例</span></span><br><span class="line">    <span class="built_in">static</span>::<span class="variable">$_workers</span> = <span class="keyword">array</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="重载"><a href="#重载" class="headerlink" title="重载"></a>重载</h4><p>代码发布后，往往都需要进行重新加载。其实，重载过程只需要重启所有 Worker 进程即可。流程如下图：</p>
+<p><img src="//www.fanhaobai.com/2018/09/process-php-multiprocess-server/4c5ec8d3-e56e-4367-8856-beaf23ee7602.png" alt="重载流程"></p>
+<p>整个过程共有 2 个流程，流程 ① 终止所有的 Worker 进程，流程 ② 为  <a href="#Worker%E8%BF%9B%E7%A8%8B%E7%9A%84%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5">Worker 进程的健康检查</a> 。其中流程 ① ，入口脚本给 Master 进程发送 SIGUSR1 信号，Master 进程捕获到该信号，执行信号处理器调用<code>reload()</code>方法，<code>reload()</code>方法调用<code>stopAllWorkers()</code>方法。如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="built_in">static</span> <span class="function"><span class="keyword">function</span> <span class="title">reload</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 停止所有worker即可,master会自动fork新worker</span></span><br><span class="line">    <span class="built_in">static</span>::<span class="title function_ invoke__">stopAllWorkers</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>reload()</code>方法只会在 Master 进程中执行，因为 SIGQUIT 和 SIGUSR1 信号不会发送给 Worker 进程。</p>
+</blockquote>
+<p>你可能会纳闷，为什么我们需要重启所有的 Worker 进程，而这里只是停止了所有的 Worker 进程？这是因为，在 Worker 进程终止退出后，由于 Master 进程对 <a href="#Worker%E8%BF%9B%E7%A8%8B%E7%9A%84%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5">Worker 进程的健康检查</a> 作用，会自动重新创建所有 Worker 进程。</p>
+<h2 id="运行效果"><a href="#运行效果" class="headerlink" title="运行效果"></a>运行效果</h2><p>到这里，我们已经完成了一个多进程 PHPServer。我们来体验一下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">php server.php</span> </span><br><span class="line">Usage: Commands [mode] </span><br><span class="line"></span><br><span class="line">Commands:</span><br><span class="line">start		Start worker.</span><br><span class="line">stop		Stop worker.</span><br><span class="line">reload		Reload codes.</span><br><span class="line"></span><br><span class="line">Options:</span><br><span class="line">-d		to start in DAEMON mode.</span><br><span class="line"></span><br><span class="line">Use &quot;--help&quot; for more information about a command.</span><br></pre></td></tr></table></figure>
+
+<p>首先，我们启动它：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">php server.php start -d</span></span><br><span class="line">PHPServer start	  [OK]</span><br></pre></td></tr></table></figure>
+
+<p>其次，查看进程树，如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">pstree -p</span></span><br><span class="line">init(1)-+-init(3)---bash(4)</span><br><span class="line">        |-php(1286)-+-php(1287)</span><br><span class="line">                    `-php(1288)</span><br></pre></td></tr></table></figure>
+
+<p>最后，我们把它停止：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">php server.php stop</span></span><br><span class="line">PHPServer stopping ...</span><br><span class="line">PHPServer stop success</span><br></pre></td></tr></table></figure>
+
+<p>现在，你是不是感觉进程控制其实很简单，并没有我们想象的那么复杂。(￣┰￣*)</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>我们已经实现了一个简易的多进程 <a target="_blank" rel="noopener" href="https://github.com/fan-haobai/php-server">PHPServer</a>，模拟了进程的管理与控制。需要说明的是，Master 进程可能偶尔也会异常地崩溃，为了避免这种情况的发生：</p>
+<p>首先，我们不应该给 Master 进程分配繁重的任务，它更适合做一些类似于调度和管理性质的工作；<br>其次，可以使用 <a target="_blank" rel="noopener" href="https://www.fanhaobai.com/2017/09/supervisor.html">Supervisor</a> 等工具来管理我们的程序，当 Master 进程异常崩溃时，可以再次尝试被拉起，避免 Master 进程异常退出的情况发生。</p>
+<p><strong>相关文章 <a href="#">»</a></strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.fanhaobai.com/2018/08/process-php-basic-knowledge.html">用PHP玩转进程之一 — 基础</a> <span>（2018-08-28）</span></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" rel="tag"># 系统设计</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/29/2018/add-notepad-plus-plus-to-context-menu/" rel="next" title="添加 Notepad++ 至右键菜单的几种方法">
+                <i class="fa fa-chevron-left"></i> 添加 Notepad++ 至右键菜单的几种方法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/05/%E6%BC%AB%E8%B0%88%E5%89%8D%E7%AB%AF%E8%BF%9B%E5%8C%96%E5%8F%B2%E4%B9%8B%E4%BB%8EForm%E8%A1%A8%E5%8D%95%E5%88%B0%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/" rel="prev" title="漫谈前端进化史之从 Form 表单到文件上传">
+                漫谈前端进化史之从 Form 表单到文件上传 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">总流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8"><span class="nav-number">2.1.</span> <span class="nav-text">启动</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%88%E6%8A%A4%E8%BF%9B%E7%A8%8B"><span class="nav-number">2.1.1.</span> <span class="nav-text">守护进程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%9D%E5%AD%98PID"><span class="nav-number">2.1.2.</span> <span class="nav-text">保存PID</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B3%A8%E5%86%8C%E4%BF%A1%E5%8F%B7%E5%A4%84%E7%90%86%E5%99%A8"><span class="nav-number">2.1.3.</span> <span class="nav-text">注册信号处理器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%A4%9A%E8%BF%9B%E7%A8%8BWorker"><span class="nav-number">2.1.4.</span> <span class="nav-text">创建多进程Worker</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Worker%E8%BF%9B%E7%A8%8B%E7%9A%84%E6%8C%81%E7%BB%AD%E8%BF%90%E8%A1%8C"><span class="nav-number">2.2.</span> <span class="nav-text">Worker进程的持续运行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Master%E8%BF%9B%E7%A8%8B%E7%9A%84%E6%8C%81%E7%BB%AD%E7%9B%91%E6%8E%A7"><span class="nav-number">2.3.</span> <span class="nav-text">Master进程的持续监控</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B0%83%E5%BA%A6%E6%B5%81%E7%A8%8B"><span class="nav-number">2.3.1.</span> <span class="nav-text">调度流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Worker%E8%BF%9B%E7%A8%8B%E7%9A%84%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5"><span class="nav-number">2.3.2.</span> <span class="nav-text">Worker进程的健康检查</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%81%9C%E6%AD%A2"><span class="nav-number">2.3.3.</span> <span class="nav-text">停止</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E8%BD%BD"><span class="nav-number">2.3.4.</span> <span class="nav-text">重载</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%95%88%E6%9E%9C"><span class="nav-number">3.</span> <span class="nav-text">运行效果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

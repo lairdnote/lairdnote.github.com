@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="数学,贝塞尔曲线,计算机图形," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="我特别喜欢和技术圈子里的这些朋友聊天，因为我觉得在这些人中间可以找到共同的话题，或许大家的经济状况都不宽裕，可是听着每一个人的故事都是一部奋斗史，没有人能随随便便成功，可是每一个人都在用一种近乎纯粹的信仰去努力实现，而不是随波逐流;说实话，这些村民生活在山区生活困顿不堪，可是每次到村里都很热心地招待我们，这让我在感受到他们的质朴时更加自责，我们所做的工作从本质上来讲根本没有什么意义，每次和这些队长">
+<meta property="og:type" content="article">
+<meta property="og:title" content="写给永远单纯的自己">
+<meta property="og:url" content="https://blog.feedscoin.com/2015/01/01/%E5%86%99%E7%BB%99%E6%B0%B8%E8%BF%9C%E5%8D%95%E7%BA%AF%E7%9A%84%E8%87%AA%E5%B7%B1/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="我特别喜欢和技术圈子里的这些朋友聊天，因为我觉得在这些人中间可以找到共同的话题，或许大家的经济状况都不宽裕，可是听着每一个人的故事都是一部奋斗史，没有人能随随便便成功，可是每一个人都在用一种近乎纯粹的信仰去努力实现，而不是随波逐流;说实话，这些村民生活在山区生活困顿不堪，可是每次到村里都很热心地招待我们，这让我在感受到他们的质朴时更加自责，我们所做的工作从本质上来讲根本没有什么意义，每次和这些队长">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2015-01-01T13:36:24.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.174Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="数学">
+<meta property="article:tag" content="贝塞尔曲线">
+<meta property="article:tag" content="计算机图形">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2015/01/01/写给永远单纯的自己/"/>
+
+
+
+
+
+  <title>写给永远单纯的自己 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/01/01/%E5%86%99%E7%BB%99%E6%B0%B8%E8%BF%9C%E5%8D%95%E7%BA%AF%E7%9A%84%E8%87%AA%E5%B7%B1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">写给永远单纯的自己</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-01-01T21:36:24+08:00">
+                2015-01-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%94%9F%E6%B4%BB%E6%84%9F%E6%82%9F/" itemprop="url" rel="index">
+                    <span itemprop="name">生活感悟</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  我特别喜欢和技术圈子里的这些朋友聊天，因为我觉得在这些人中间可以找到共同的话题，或许大家的经济状况都不宽裕，可是听着每一个人的故事都是一部奋斗史，没有人能随随便便成功，可是每一个人都在用一种近乎纯粹的信仰去努力实现，而不是随波逐流;说实话，这些村民生活在山区生活困顿不堪，可是每次到村里都很热心地招待我们，这让我在感受到他们的质朴时更加自责，我们所做的工作从本质上来讲根本没有什么意义，每次和这些队长交流，他们最关心的问题就是他们的土地会不会被收回去，可是他们视如生命的土地却往往只是国土局任意划定的一个范围;而明天毕业后的我同样会有这一天，我真的不想小河变成大楼，我真的不想单纯变成冷漠，许嵩的这首《秋千坠》很多人都没有用心地听，因此这首歌轻快的节奏只会让人记得那段重复的飘啊飘...以单纯的心去面对这个世界，可能会受到伤害
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>即将到来的是新的一天，我却不能在疲惫中很快入睡，听着耳边再熟悉不过的歌，即使不是大家都喜欢的那种慷慨激昂的曲调，然而在这安静得无从察觉一个人内心世界的夜晚，这样温婉柔和的小调反而更容易让人静下心来想些事情。今天新住的宾馆简约而整洁，最为重要的是终于有了一张属于自己的桌子。以前每次趴在床上画图斑，等到再站起来时背部便开始痛起来。偶尔盘腿坐在床上录数据，等到再站起来时脚已经麻了。这样做的一个坏处是每次都会把中性笔的墨水弄到床单上，虽然顾客是上帝，可是上帝不断地给人类制造麻烦，这样真的好吗？与此同时，开始意识到一个良好的姿势对于健康是多么的重要了。</p>
+<span id="more"></span>
+
+<p>此时此刻，床上已经堆满了各种各样的图纸，那些来自我上个星期处理过的内业。所谓内业就是在室内加班，如果公司上下一致通过，理论上是符合 SA8000 社会责任标准体系的，所以内业是可以借休息的名义来进行的。这两天想了很多的问题，从什么地方说起呢？我想我可以从这些地方来谈谈我的想法吧。</p>
+<p>首先是交流，我承认我是一个不喜欢说话的人。我不喜欢说话，从来不是因为我不敢而是因为我不愿意。我不喜欢看选秀节目、我不喜欢娱乐八卦、我不喜欢猎奇找刺激。我平时最为喜欢的是科技报道、技术博客和游戏资讯，因为此时此刻我站在科技和游戏的一个十字路口。我喜欢古香古色的传统文化，喜欢在书籍中寻找精神的依托，我就是这样一个传统而现代的人。可是这样一个时代注定是一个娱乐化的时代，当你打开电视，你会发现到处都是导师、到处都是明星、到处都是嘉宾，因为我们生活在一个每天都在造星的浮躁时代。我承认再这样一个时代充满了机会，可是当我们每一个人都缺乏耐心来专注于一件事情的时候，这样的机会对于我们又有什么意义呢？</p>
+<p>我今天早上看《我是演说家》这个节目，我觉得这是一个比较有品位的节目，如乐嘉所说，这个节目的收视率可能不会像其它的娱乐节目那样高，可它能让你的内心真正有所触动，因为讲故事的人可能是一个你素不相识的人，可是它讲的故事可能会是你身上正在发生的事情。我从来不怀疑语言的力量，从春秋战国的张仪、苏秦等纵横家到三国时期诸葛亮舌战群儒再到世界上著名的营销专家，语言可以说世界上最锋利的武器，可是当大家都在讨论时下最为流行的娱乐节目时，我忽然觉得自己实在没有开口的必要了。那次领导说我分不清书记和主任，因为我觉得人与人之间的交流应该是随着时间的推移而不断深入的，所谓慢工出细活，我觉得交朋友应该像喝茶一样慢慢地品，像喝酒一样交朋友只能交到酒肉朋友。我们为了赶上工作进度，可能一周会去三四个地方，因此和许多人都只是一面之缘，所以我觉得分不清主任和书记尚属情有可原。</p>
+<p>我每隔一段时间就会去我的博客看看，每次碰到问我问题的朋友我都很热心的回答，因为我觉得人与人之间真的存在某种特殊的联系。我特别喜欢和技术圈子里的这些朋友聊天，因为我觉得在这些人中间可以找到共同的话题，或许大家的经济状况都不宽裕，可是听着每一个人的故事都是一部奋斗史，没有人能随随便便成功，可是每一个人都在用一种近乎纯粹的信仰去努力实现，而不是随波逐流。或许这就是我喜欢这行的真正原因吧，每一天都充满新的挑战，每一天都是在不断创造，我就是喜欢这样的创造性工作，而不繁琐单调的机械重复。回到交流这个问题上，人是一种麻烦的动物，所以在和人打交道的这个问题上，我们把大量的时间浪费在了交流上。我承认团队间的交流十分重要，可是因为人的惰性和私欲，交流有时候会占用大量的时间成本，在这一点上计算机更值得人类学习，因为它忠诚可靠而且一视同仁。</p>
+<p>接下来是工作，我一直坚信伟大的工作和平庸的工作间的区别就是能否让工作的人感到自豪。我的理想并不伟大，我只想某天朋友们聚到一起时候，我惊讶地发现你们的手机或者智能设备上运行着我设计的应用程序或者游戏，然后我平静地告诉你这些都是我设计的，这时候轮到你们惊讶：天啊，它简直堪称完美！在舜土实习已经快一个月了，可是我并没有对自己的工作感到自豪过，即使我能将 10 个左右的自然村在一个下午全部做完，可是我依然感到这是一份平庸的工作。首先，为了追赶进度，将一个行政村集中到一天来做，相比土地确权工作两天一个自然村的进度，整体质量较为粗放。其次，将希望完全寄托在队长身上，队长如果不配合，工作很难开展，如果队长失去耐心，工作会变得更加艰难。说实话，这些村民生活在山区生活困顿不堪，可是每次到村里都很热心地招待我们，这让我在感受到他们的质朴时更加自责，我们所做的工作从本质上来讲根本没有什么意义，每次和这些队长交流，他们最关心的问题就是他们的土地会不会被收回去，可是他们视如生命的土地却往往只是国土局任意划定的一个范围。作为一个实习生，或许抱怨工作是不合适的，因为无论到任何一个企业，前 3~5 年所做的始终都是些基础而琐碎的东西，可是不管让员工做什么，都要让员工觉得他此刻的这份工作是有意义的，因为这关系到一个企业的品位。工作固然是为了挣钱，可是如果工作能带给人幸福感和自豪感，那么我相信对于工作和人都是会有好处的吧，因为兴趣才是最好的老师啊。</p>
+<p>今天搬到宾馆准备处理上周没处理完的事情，领导说明天要去的地方已经联系好了，可是公司的图纸还没有打印出来，他问我怎么处理，我就说跟人家实话实说吧，问题出在我们这边啊。然后他就说我傻，可是我觉得很多问题不是想掩盖就能掩盖的了的，就像我们所做的这个工作，一旦那些队长明白过来我们所做的事情的真正意图，那么整个结果就完全取决于对方，因为如果队长本身就告诉你错误的信息，那么你是无法辨别的。很多的技术公司都会形成自己公司内部的框架或者工具类，因为过度依赖第三方的组件很容易受到被动影响。或许乔布斯的专制和傲慢让很多苹果的员工和用户都曾受到伤害，可是他不过是使用了一个最基本的原则，要想不受制于别人，就必须掌控一切的主动权，所以苹果用自己的软件和自己的硬件打造了一个无可匹敌的强大壁垒。当然，逝者长已，可能苹果的产品中那些属于乔布斯个人标志的风格已经渐渐地淡出了我们的视野，可是我们依然会对这位智者表示无比崇高的敬意。</p>
+<p>回到我的工作，这是一个完全没有追求的工作，昨天下午坐在车上和一个刚认识的朋友，他问我为什么不去找个和开发相关的实习工作啊，突然沉默了好半天，最后只能含糊其辞地糊弄过去。记得上次回银川，和一个实习生一起到楼下的打印店裁剪图册，结果半路上问我是什么专业？结果环境科学再次被鄙视了啊，哈哈，我不知道这样是喜还是悲，总之工作还是喜欢的好。以前我爸说我不喜欢这不喜欢那的，我到底喜欢什么啊？那个时候我没有说什么。可是这一刻我想告诉他我喜欢的就是开发。</p>
+<p>最后要说的是做人，在同学的生日上，突然被人说我单纯，我不知道这该庆幸呢还是该感慨啊。今年的我 22 岁了，可我还是喜欢简简单单的生活。我不喜欢带着面具生活、我不喜欢口是心非、我不喜欢心机深重。我从来不觉得穿上大人的衣服、梳起大人的发型就能让你成熟起来，真正的成熟是要有责任、有担当。虽然不是每一个人都值得你敞开心扉去交往，可是做人坦诚、正直有什么不对吗？难道你希望每天面对人的时候都盘算着怎么玩弄那些可笑的伎俩吗？我承认在这个世界上有太多的事情我都还不懂，可我会努力去尝试着了解。我不喜欢抽烟、不喜欢喝酒，到现在不会划拳等那些酒场上应该会的东西。如果真想喝酒了，围炉小酌几杯便可以了，何必要让饮酒变成这样一件麻烦的事情呢？</p>
+<p>我承认人生在成长的过程中难免会变得世故圆滑，可是难道这就是我们变得不再单纯的理由吗？这个世界上有两样永远不会变的东西，一样是我们头顶灿烂的星空，一样是我们心中崇高的道德准则。我并不觉得成长就要放弃那些曾经坚持过的东西，如果这些东西注定有一天要丢弃掉，那么何苦要将这些观念从小就灌输给我们，一旦有一天当你发现以前坚守的东西都被自己推翻，而你变成了原来自己不喜欢的哪种人，这将无异于信仰的大厦的坍塌，人的成长竟然要以抛弃自己的过去为代价，这未免过于残酷了吧。我从来都不傻，我看得出每个人心中的想法，只是我不愿意那样做，不管这个社会再怎么变，我不会背叛自己，我只是想让自己在这个浮躁的时代里保持自己的这颗简简单单的心。</p>
+<p>众生虽苦，请诸恶莫作。我并不觉得自己比别人高贵多少，所以我始终像保留一份善良，不管是餐厅的服务员还是酒店的保洁员，每一个出来讨生活的人都不容易，所以多一份尊重比上帝的高傲更容易让人接受。而明天毕业后的我同样会有这一天，我真的不想小河变成大楼，我真的不想单纯变成冷漠，许嵩的这首《秋千坠》很多人都没有用心地听，因此这首歌轻快的节奏只会让人记得那段重复的飘啊飘…以单纯的心去面对这个世界，可能会受到伤害。可是事实上，任何伤害都不足摧毁你，伤害和磨练在你自省和反思过后，只能让你的阅历更丰富，看人更包容，生活更感恩。有人靠着阿谀奉承、靠着耍心机生活，可你不必这样，因为坦荡真诚同样是一种人生，在这个世界上能真正改变你的只有你自己，人出于本能对人存有戒备之心固然无可厚非，可是在保护好自我的情况下以坦荡真诚的胸襟去面对这个世界则更加难能可贵。因为我们不能生活给了你一个杯具就随波逐流，只有你和别人不一样，你才能将这个杯具变成洗具，这就是我想要的生活。最后送上杨绛先生的一段话与大家分享：</p>
+<blockquote>
+<p>一个人经过不同程度的锻炼，就获得不同程度的修养、不同程度的效益。好比香料，捣得愈碎，磨得愈细，香得愈浓烈。我们曾如此渴望命运的波澜，到最后才发现：人生最曼妙的风景，竟是内心的淡定与从容……我们曾如此期盼外界的认可，到最后才知道，世界是自己的，与他人毫无关系。</p>
+</blockquote>
+<p>已经凌晨三点了，可是写完这篇文字我很开心，这些话总是要经过些事情才能领悟出来，没有一个人能突然成长起来，我希望自己能一直单纯下去，单纯的人生不是痴傻无明，而是大智若愚，更好地爱这个父母送给我们的世界。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%95%B0%E5%AD%A6/" rel="tag"># 数学</a>
+          
+            <a href="/tags/%E8%B4%9D%E5%A1%9E%E5%B0%94%E6%9B%B2%E7%BA%BF/" rel="tag"># 贝塞尔曲线</a>
+          
+            <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2/" rel="tag"># 计算机图形</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/01/01/2015-01-01-2014-summary/" rel="next" title="2014年个人总结">
+                <i class="fa fa-chevron-left"></i> 2014年个人总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/01/05/2015/2015-01-05-programming-of-2014/" rel="prev" title="2014 年度小结（技术方面）">
+                2014 年度小结（技术方面） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

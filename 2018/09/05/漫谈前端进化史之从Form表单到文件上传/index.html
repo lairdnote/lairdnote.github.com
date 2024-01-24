@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="HTTP,Form,RFC," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="而从功能性角度来讲，把整个文件的内容全部放在请求体中，则会造成文件信息的不完整，因为此时文件名等信息是没有办法传输到服务器端的，所以，这样综合下来再看的话，HTTP 协议本身留给我们的选择的空间并不大，我们能够选择的就只有 multipart&#x2F;form-data 和 x-www-form-urlencode 这两种啦，下面着重来分析下这种数据加密方式;通过这个例子，我们很容易发现的一点是，当我们采">
+<meta property="og:type" content="article">
+<meta property="og:title" content="漫谈前端进化史之从 Form 表单到文件上传">
+<meta property="og:url" content="https://blog.feedscoin.com/2018/09/05/%E6%BC%AB%E8%B0%88%E5%89%8D%E7%AB%AF%E8%BF%9B%E5%8C%96%E5%8F%B2%E4%B9%8B%E4%BB%8EForm%E8%A1%A8%E5%8D%95%E5%88%B0%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="而从功能性角度来讲，把整个文件的内容全部放在请求体中，则会造成文件信息的不完整，因为此时文件名等信息是没有办法传输到服务器端的，所以，这样综合下来再看的话，HTTP 协议本身留给我们的选择的空间并不大，我们能够选择的就只有 multipart&#x2F;form-data 和 x-www-form-urlencode 这两种啦，下面着重来分析下这种数据加密方式;通过这个例子，我们很容易发现的一点是，当我们采">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fziy867pz8j20ig07laa5.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fziy5kad23j20if08k3z9.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fzixzg5fsdj20rv0dv75u.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fz05o9mcsoj20h606uq2s.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fz05ljreo8j20me08vt98.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fz05f46qf1j20rv0dvjso.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fz020zu3ooj20t90903zd.jpg">
+<meta property="article:published_time" content="2018-09-05T04:57:36.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.221Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="HTTP">
+<meta property="article:tag" content="Form">
+<meta property="article:tag" content="RFC">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fziy867pz8j20ig07laa5.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2018/09/05/漫谈前端进化史之从Form表单到文件上传/"/>
+
+
+
+
+
+  <title>漫谈前端进化史之从 Form 表单到文件上传 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2018/09/05/%E6%BC%AB%E8%B0%88%E5%89%8D%E7%AB%AF%E8%BF%9B%E5%8C%96%E5%8F%B2%E4%B9%8B%E4%BB%8EForm%E8%A1%A8%E5%8D%95%E5%88%B0%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">漫谈前端进化史之从 Form 表单到文件上传</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-05T12:57:36+08:00">
+                2018-09-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  而从功能性角度来讲，把整个文件的内容全部放在请求体中，则会造成文件信息的不完整，因为此时文件名等信息是没有办法传输到服务器端的，所以，这样综合下来再看的话，HTTP 协议本身留给我们的选择的空间并不大，我们能够选择的就只有 multipart/form-data 和 x-www-form-urlencode 这两种啦，下面着重来分析下这种数据加密方式;通过这个例子，我们很容易发现的一点是，当我们采用 type 为 file 的 Input 控件上传一个文件时，它会采用 multipart/form-data 来传递数据，报文中使用了和第二个示例类似的结构，即第一部分负责描述文件信息，譬如文件的名称、扩展名类型等等;当我们回顾 Form 表单中关于 HTTP 的部分，我们就会发现，HTTP 中具备上传文件可能性的方式只有两种，即 multipart/form-data 和 x-www-form-urlencode
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>Hi，大家好，欢迎大家关注我的博客，我是 Payne，我的博客地址是<a target="_blank" rel="noopener" href="https://qinyuanpei.github.io/">https://qinyuanpei.github.io</a>。今天这篇博客，我们来说说文件上传相关的内容。看到这里，大家一定觉得博主在技术上越来越没追求了吧，文件上传这种再简单不过的东西，真的值得博主你专门写篇博客吗？在介绍声明式 RESTful 客户端 WebApiClient 的这篇<a href=".">文章</a>中，博主曾经提到，HTTP 协议中对文件上传的支持，主要是通过 multipart&#x2F;form-data 来实现。因为这种方式是将文件视为一种特殊的键值对，所以对这种方式我本人不太喜欢。可作为标准的意义就是要忽略个人的情感因素，所以，在今天这篇文章中，博主更多的是想从 HTTP 协议(<strong>RFC2388</strong>)的角度来看待这个问题，即为什么它选择了 multipart&#x2F;form-data 来实现上传，以及伴随着前端技术的发展它经历了哪些变化。</p>
+<h1 id="从-Form-表单说起"><a href="#从-Form-表单说起" class="headerlink" title="从 Form 表单说起"></a>从 Form 表单说起</h1><p>圣经上开篇就点明主旨，“起初神创造天地。地是空虚混沌。渊面黑暗”。一切的一切，都要从神创造天地开始，神说，要有光，这世上便有了光。那么，对于 HTTP 协议我们要从哪里开始说起呢。HTTP 的全称是超文本传输协议，所以，它设计的初衷是传输超文本类型的数据。什么是超文本类型的数据呢？从现代网页的组成，我们就可以知道，它不单单是指文本类信息，同时指图片、音频、视频等等一切可能的信息形式。可神奇的地方就在于，HTTP 协议是基于文本的协议，这意味着我们在网页中的信息交换，是借助某种文本类型的通信协议。顺着这个思路，最早我们在网页中交换信息的方式是什么呢？我认为是 Form 表单。想想看，我们在 Form 表单中输入信息，然后通过一个按钮将数据提交到服务器，服务器会对我们的请求做出响应。事实上，直到今天，我们的前端依然在采用这一机制。所不同的是，我们今天用各种组件替代了 Form 表单。</p>
+<p>如果我们讲各种语言的”打印”理解为 Hello World，那么对前端而言最浅显的 Hello World 是什么呢？我个人以为是登录，想象一下，这是任何一个 Web 应用里都有的功能，我们输入用户名和密码以后，点击“登录”按钮就可以登录到系统。虽然，此时此刻的你我，都知道这是一个简单的 POST 请求，甚至对于用户名和密码这两个字段，我们有多种方法可以将其传递到服务器上。那么，各位是否知道，我们通过 Form 表单来登录时，这个过程中到底发生了什么呢？既然提到了登录，那么我们这里通过下面的例子来分析。</p>
+<p>如你所见，这是一个相当“简陋”的 Web 页面。对一名后端开发人员而言，精致的 Web 页面就是一段被套在华丽外壳里的代码(不知道这样会不会被前端网红们打死)。所以，排除了样式相关的 CSS，可以让我们更加专注于核心原理。同样地，我们编写了一个简单的 Web API，来处理前端发送来的 HTTP 请求，这不是本文的重点，我们假设它存在且可以工作就好。</p>
+<p><img src="https://ww1.sinaimg.cn/large/4c36074fly1fziy867pz8j20ig07laa5.jpg" alt="HTML结构/界面"></p>
+<p>这里已经说过，比起炫酷的 Web 页面和后端接口，我们这里更关心的是，登录时到底发生了什么。所以，大家都猜对了，通过 Chrome 自带的开发人员工具，我们可以捕捉到点击“登录”按钮时发出的 HTTP 请求，我们一起来看看它的报文内容是什么吧，相信大家都会有一种恍然大悟的感觉，让我们拭目以待吧！<br><img src="https://ww1.sinaimg.cn/large/4c36074fly1fziy5kad23j20if08k3z9.jpg" alt="encrypt为x-www-form-urlencode时的请求报文"></p>
+<p>通过这个报文内容，我们可以发现，“登录”实际上是一个 POST 请求，这是因为我们在 HTML 结构中声明了，Form 表单用什么样的方式去提交数据。而实际上呢，Form 表单默认的行为是 GET。我们同样会注意到报文中的 Content-Type 为 application&#x2F;x-www-form-urlencode，它的特点是采用类似 key1&#x3D;value1&amp;key2&#x3D;value2……的形式来提交数据，并且每一个 value 都会被编码。这样，我们就不得不提到 Form 表单的 encrypt 属性，它有三种基本取值：text&#x2F;plain、application&#x2F;x-www-form-urlencode 和 multipart&#x2F;form-data。其中，text&#x2F;plain 这种不必再说，因为它传递的是纯文本数据。而对于 multipart&#x2F;form-data 来说，它的特点是采用一系列的 boundary 来分割不同的值，如果我们将示例中 Form 表单的 encrypt 属性设为 multipart&#x2F;form-data，就会得到下面的报文内容，可以注意到，它和我们预期是一致的。<br><img src="https://ww1.sinaimg.cn/large/4c36074fly1fzixzg5fsdj20rv0dv75u.jpg" alt="encrypt为multipart/form-data时的请求报文"></p>
+<p>或许大家会说，现在我们用 AJAX 来请求 RESTful 风格的 API 时，不都是用 JSON 作为数据交换的格式吗？对于这一点，或许我们可以理解为，Form 表单是封装了有限的 3 种 Content-Type 的 XHR 对象，所以，Form 表单足以让我们一窥 AJAX 最初的样子。虽然，我们今天已经不再主张使用 jQuery，但是熟悉 jQuery 的朋友一定知道这一点，即 jQuery 中默认的 Content-Type 示例上是 application&#x2F;x-www-form-urlencoded。所以，即使我们今天有了全新的 Fetch API，可它依然脱离不了 HTTP 协议的范畴。可或许正因为如此，HTTP 中的文件上传多少像是某种妥协的产物。</p>
+<h1 id="神奇的-Input-控件"><a href="#神奇的-Input-控件" class="headerlink" title="神奇的 Input 控件"></a>神奇的 Input 控件</h1><p>OK，在本文的第一节，我们使用的是最简单的 Input 控件，即它的 type 属性为“text”。事实上，Input 控件是一个神奇的控件，因为不同的 type 会有不同的作用。例如，type 为 password 对应密码域；type 为 checkbox 对应复选；type 为 radio 对应单选域；type 为 button 对应按钮域等等……有很多朋友可能会问，你说的这个和这篇文章有什么关系吗？我想说的是，当然有关系而且关系密切，因为我们下面要提到的这种 Input 控件，和本文想要说明的 HTTP 上传，在本质上有着千丝万缕的联系。具体是什么样的联系呢？我们来一起看下面的这个例子。</p>
+<p><img src="https://ww1.sinaimg.cn/large/4c36074fly1fz05o9mcsoj20h606uq2s.jpg" alt="HTTP_Upload_06"></p>
+<p><img src="https://ww1.sinaimg.cn/large/4c36074fly1fz05ljreo8j20me08vt98.jpg" alt="HTTP_Upload_05"></p>
+<p>通过这个例子，我们很容易发现的一点是，当我们采用 type 为 file 的 Input 控件上传一个文件时，它会采用 multipart&#x2F;form-data 来传递数据，报文中使用了和第二个示例类似的结构，即第一部分负责描述文件信息，譬如文件的名称、扩展名类型等等；第二部分表示文件数据流，可以理解为二进制形式的内容。既然它采用 multipart&#x2F;form-data 来传递数据，那么这是否意味着，我们可以在这个结构中携带更多的信息呢？譬如，有时候我们需要将文件和用户提交的信息关联起来，这个时候就需要将这些信息一切提交到服务器端，如果我们将其拆分为两个 API 来实现，那么就需要去花精力维护这个关联的 id 啦。答案自然是可以的，只要把文件视为一种特殊的键值对即可。</p>
+<h1 id="HTTP-与文件上传"><a href="#HTTP-与文件上传" class="headerlink" title="HTTP 与文件上传"></a>HTTP 与文件上传</h1><p>好了，说了这多么内容，是时候来说说 HTTP 与文件上传啦！现在大家都知道了，HTTP 上传实际上是在 multipart&#x2F;form-data 基础上扩展而来的。早期人们在制定 HTTP 协议的时候，并没有想到用它来作为文件上传的协议，因为事实上 TPC&#x2F;IP 或者 FTP 都可以提供更好的上传支持。当我们回顾 Form 表单中关于 HTTP 的部分，我们就会发现，HTTP 中具备上传文件可能性的方式只有两种，即 multipart&#x2F;form-data 和 x-www-form-urlencode。这里为什么不考虑 text&#x2F;plain 呢？尽管从理论上来讲，它可以作为文件上传的一种方式，此时，它相当于把整个文件的内容全部放在请求体(body)中。从实用性角度来讲，text&#x2F;pain 在实际应用中并不多见，因为采用纯文本意味着客户端与服务端必须按照某种规则去解析报文。而从功能性角度来讲，把整个文件的内容全部放在请求体中，则会造成文件信息的不完整，因为此时文件名等信息是没有办法传输到服务器端的，所以，这样综合下来再看的话，HTTP 协议本身留给我们的选择的空间并不大，我们能够选择的就只有 multipart&#x2F;form-data 和 x-www-form-urlencode 这两种啦，下面着重来分析下这种数据加密方式。</p>
+<p><img src="https://ww1.sinaimg.cn/large/4c36074fly1fz05f46qf1j20rv0dvjso.jpg" alt="HTTP_Upload_07"></p>
+<p>对于 Content-Type 为 multipart&#x2F;form-data 而言，首先，它会在请求头部的 Content-Type 字段中，声明当前的内容类型为 multipart&#x2F;form-data，并指定一个名为 boundary 的随机字符串，它的含义是说，从现在开始，请求中的每一个“字段”都会用这个名为 boundary 的随机字符串进行分割。而对于每一个“字段”而言，它可以拥有部分子头部字段，一个最为常见的头部字段是 Content-Disposition，其取值为 form-data。除此之外，每一个“字段”可以在**Content-Disposition: form-data;**后追加若干个字段，譬如 name、filename 以及用以指定文件类型的 Content-Type(假如这个“字段”是一个文件的话)。HTTP 协议中还规定这里可以支持扩展字段。我们通过 type 为 file 的 Input 控件进行上传时，默认的 name 为 multipartfile，当服务器端接受到类似的字段时，就会根据报文对文件进行拼接，所以，对于 HTTP 上传来说，它可以支持多个文件并发上传，但并不直接支持断点续传。注意这里我说的是，不直接支持断点续传，实际上它可以通过请求头部中的 Range 字段来实现，当然这已经超出了这篇文章的范畴。</p>
+<p><img src="https://ww1.sinaimg.cn/large/4c36074fly1fz020zu3ooj20t90903zd.jpg" alt="HTTP_Upload_08"></p>
+<p>对于 Content-Type 为 x-www-form-urlencode 而言，它会将请求中的每一个字段以 key1&#x3D;value1&amp;key2&#x3D;value2……的形式串联起来，并对每一个 value 进行编程，这种传值方式我们一般称为 QueryString，而更为一般的场景是，我们在通过 GET 方式请求数据的时候，QueryString 是唯一的传参方式，不同之处是 GET 请求的参数是附加在 URL 上，而 POST 请求的参数是附加在 body 里。如果我们用这种方式来上传文件会怎么样呢？答案是，当我们试图将一个文件以 x-www-form-urlencode 方式进行传输时，文件流会被彻底忽略，它实际传输的是对应文件的名称。所以，从这个角度来讲，它不能用于文件的上传。事实上，它是被设计用来传输非二进制数据的，那么可能有人要问啦，那我如果有 JSON 来传输文件可不可以呢？理论上应该没有问题，曾经我们在一个项目中用 JSON 描述图片，当然这是经过 Base64 编码以后的图片。回过头来看 text&#x2F;plain，我们把 JSON 字符串直接放到 body 里可不可以呢？当然没有问题，因为问题全部转移到服务器端。所以，官方建议用它来作为调试的一种选择。</p>
+<p>现在，我们可以来总结下 Form 表单和 HTTP 协议间的关系啦！首先，Form 表单可以提交非二进制数据和二进制数据。非二进制数据，比如一般表单中提交的各种文本信息，用户名、密码这一类等等。二进制数据，主要指各种不同类型的文件等等。对于非二进制数据，可以通过 x-www-form-urlencode 或者 multipart&#x2F;form-data 两种编码方式来提交。对于二进制数据，只能通过 multipart&#x2F;form-data 这种方式来提交。所以，当我们需要混合提交二进制数据和非二进制数据的时候，我们就只有 multipart&#x2F;form-data 这一种选择啦！更一般的结论是，只要我们的 Form 表单里有一个 type 为 file 的 Input 控件，对应 POST 请求的 Content-Type 就会变为 multipart&#x2F;form-data。我不喜欢这种方式的原因之一，就是构造它的 HTTP 报文非常难受。如果用 HttpClient，痛苦会降低很多；而如果用 HttpWebRequest，我会感到绝望。当然，你此时已明白了这个原理，相信 Postman 可以帮到你的忙。</p>
+<h1 id="Form-表单消失以后"><a href="#Form-表单消失以后" class="headerlink" title="Form 表单消失以后"></a>Form 表单消失以后</h1><p>熟悉前端演变历程的朋友，应该对我下面要说的历史表示怀念。在很久很久以前，我们的网页三剑客分别是 Dreamwave、Fireworks 和 Flash。那个时候我们用 Dreamwave 制作的网页充斥着大量的 Form 表单，通过 JS 实现对数据的校验，就像这篇文章里描述的一样，我们做几个 type 为 submit 的按钮，就可以把数据提交到服务器端。按理说，这样子很没完美啊，我们可以提交用户输入的信息，可以上传用户选择的文件，何乐而不为呢？为什么大家要用 Div + CSS 淘汰 Form 表单呢？我认为主要有两点，传统的基于表格的布局无法满足现代 Web 程序的布局要求，RESTful 风格 Web API 的出现让开发者希望前后端交互可控。换言之，开发者希望通过 FormData 这样的对象，精细地控制整个请求的细节，而不是交给一个由浏览器发出的 POST 请求。所以，我们看到了前端文件上传的新思路。</p>
+<p>首先，最常见的方式，是通过监听 Input 控件的 onchange 方法，通过 files 属性即可获得当前用户选择的文件。我们知道，在大多数情况下，前端是无法和本地文件系统进行交互的。因此通过这种方式获得文件路径，实际上是一个指向本地数据的 blob，前端将文件相关的 type 和 size 组织到一个 FormData 对象的实际中，即可完成对文件的上传。其次，可以利用 HTML5 中的“拖拽”和“粘贴”，其核心依然是监听相关的事件，然后从中获取 File 对象或者 blob 对象的实例，一旦获得了这些实例，就可以将其添加到 FormData 中。到了这一步，接下来的就和第一种方法完全一样啦！最后，是类似百度出品的 WebUploader 这类 HTML5 和 Flash 混合的插件，主打兼容性，不过随着大家对 IE8 以下版本兼容问题的逐步放弃，这类产品的使用场景会越来越少，我们大概知道就可以啦！归根到底一句话，Form 表单和 FormData 对象，其实是可以相互转化的，Form 表单里每一个 Input 控件的 name，其实就是 FormData 里的 key 啦，到了这一步，我想 HTTP 上传就没有什么好神秘了的吧！</p>
+<h1 id="本文小结"><a href="#本文小结" class="headerlink" title="本文小结"></a>本文小结</h1><p>本文从 Form 表单说起，首先探讨了 Form 表单和 HTTP 之间的关系，即 Form 表单在提交数据的时候，背后的本质其实是一条 HTTP 请求，相对应地，Form 表单默认的请求方式是 GET，在第一个示例中，我们分别展示了使用 x-www-form-urlencode 和 multipart&#x2F;form-data 时请求报文实际的内容。接下来，我们提到了 HTML 中的 Input 控件，它可以通过指定不同的 type 达到不同的效果，作为第一个示例的延伸，我们尝试通过 Form 表单上传文件并重点关注其报文的结构。接下来，我们从协议的角度分析了为什么要选用 multipart&#x2F;form-data 来上传文件以及它的原理是什么。最后，我们从前端常见的文件上传方式入手，简要分析了 Form 表单和 FormData 对象间的内在联系，即 Form 表单和 FormData 对象，其实是可以相互转化的，Form 表单里每一个 Input 控件的 name，其实就是 FormData 里的 key。好啦，又是一个难以入眠的夜晚，这篇博客先写到这里，大家晚安！</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/HTTP/" rel="tag"># HTTP</a>
+          
+            <a href="/tags/Form/" rel="tag"># Form</a>
+          
+            <a href="/tags/RFC/" rel="tag"># RFC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/02/2018/09/process-php-multiprocess-server/" rel="next" title="用PHP玩转进程之二 — 多进程PHPServer">
+                <i class="fa fa-chevron-left"></i> 用PHP玩转进程之二 — 多进程PHPServer
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/08/2018/wsl-guide/" rel="prev" title="WSL 配置指北：打造 Windows 最强命令行">
+                WSL 配置指北：打造 Windows 最强命令行 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%8E-Form-%E8%A1%A8%E5%8D%95%E8%AF%B4%E8%B5%B7"><span class="nav-number">1.</span> <span class="nav-text">从 Form 表单说起</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%A5%9E%E5%A5%87%E7%9A%84-Input-%E6%8E%A7%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">神奇的 Input 控件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HTTP-%E4%B8%8E%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="nav-number">3.</span> <span class="nav-text">HTTP 与文件上传</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Form-%E8%A1%A8%E5%8D%95%E6%B6%88%E5%A4%B1%E4%BB%A5%E5%90%8E"><span class="nav-number">4.</span> <span class="nav-text">Form 表单消失以后</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E6%96%87%E5%B0%8F%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">本文小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

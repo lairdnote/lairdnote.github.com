@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Python,NLP,半泽直树,Gephi,ECharts," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="此时此刻，2020 年的最后一个月，不管过去这一年给我们留下了怎样的记忆，时间终究自顾自地往前走，留给我们的怀念已时日无多。如果要说 2020 年的年度日剧，我想《半泽直树》实至名归，这部在时隔七年后上映的续集，豆瓣评分高达 9.4 分，一度超越 2013 年第一部的 9.3 分，是当之无愧的现象级电视剧，期间甚至因为疫情原因而推迟播出，这不能不感谢为此付出辛勤努力的演职人员们。身为一个“打工人”">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 Python 抽取《半泽直树》原著小说人物关系">
+<meta property="og:url" content="https://blog.feedscoin.com/2020/12/08/%E4%BD%BF%E7%94%A8Python%E6%8A%BD%E5%8F%96%E3%80%8A%E5%8D%8A%E6%B3%BD%E7%9B%B4%E6%A0%91%E3%80%8B%E5%8E%9F%E8%91%97%E5%B0%8F%E8%AF%B4%E4%BA%BA%E7%89%A9%E5%85%B3%E7%B3%BB/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="此时此刻，2020 年的最后一个月，不管过去这一年给我们留下了怎样的记忆，时间终究自顾自地往前走，留给我们的怀念已时日无多。如果要说 2020 年的年度日剧，我想《半泽直树》实至名归，这部在时隔七年后上映的续集，豆瓣评分高达 9.4 分，一度超越 2013 年第一部的 9.3 分，是当之无愧的现象级电视剧，期间甚至因为疫情原因而推迟播出，这不能不感谢为此付出辛勤努力的演职人员们。身为一个“打工人”">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2020/12/09/4TV9CAoE6lksGMg.png">
+<meta property="og:image" content="https://i.loli.net/2020/12/09/V5pD6mJKCMsN4uS.png">
+<meta property="article:published_time" content="2020-12-08T14:49:47.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.167Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Python">
+<meta property="article:tag" content="NLP">
+<meta property="article:tag" content="半泽直树">
+<meta property="article:tag" content="Gephi">
+<meta property="article:tag" content="ECharts">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/12/09/4TV9CAoE6lksGMg.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2020/12/08/使用Python抽取《半泽直树》原著小说人物关系/"/>
+
+
+
+
+
+  <title>使用 Python 抽取《半泽直树》原著小说人物关系 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020/12/08/%E4%BD%BF%E7%94%A8Python%E6%8A%BD%E5%8F%96%E3%80%8A%E5%8D%8A%E6%B3%BD%E7%9B%B4%E6%A0%91%E3%80%8B%E5%8E%9F%E8%91%97%E5%B0%8F%E8%AF%B4%E4%BA%BA%E7%89%A9%E5%85%B3%E7%B3%BB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">使用 Python 抽取《半泽直树》原著小说人物关系</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-12-08T22:49:47+08:00">
+                2020-12-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90/" itemprop="url" rel="index">
+                    <span itemprop="name">数据分析</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>此时此刻，2020 年的最后一个月，不管过去这一年给我们留下了怎样的记忆，时间终究自顾自地往前走，留给我们的怀念已时日无多。如果要说 2020 年的年度日剧，我想《半泽直树》实至名归，这部在时隔七年后上映的续集，豆瓣评分高达 9.4 分，一度超越 2013 年第一部的 9.3 分，是当之无愧的现象级电视剧，期间甚至因为疫情原因而推迟播出，这不能不感谢为此付出辛勤努力的演职人员们。身为一个“打工人”，主角半泽直树那种百折不挠、恩怨分明的性格，难免会引起你我这种“社畜”们的共鸣，即使做不到“以牙还牙，加倍奉还”，至少可以活得像一个活生生的人。电视剧或许大家都看过了，那么，电视剧相对于原著小说有哪些改动呢？今天，就让我们使用 Python 来抽取半泽直树原著小说中的人物关系吧！</p>
+<h1 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h1><p>在开始今天的博客内容前，我们有一点准备工作要完成。考虑到小说人物关系抽取，属于自然语言处理(<strong>NLP</strong>)领域的内容，所以，除了准备好 Python 环境以外，我们需要提前准备相关的中文语料，在这里主要有：<a target="_blank" rel="noopener" href="https://github.com/qinyuanpei/graph-relation/blob/master/input/%E5%8D%8A%E6%B3%BD%E7%9B%B4%E6%A0%91.txt">半泽直树原著小说</a>、 <a target="_blank" rel="noopener" href="https://github.com/qinyuanpei/graph-relation/blob/master/input/%E4%BA%BA%E5%90%8D%E8%AF%8D%E5%85%B8.txt">半泽直树人名词典</a>、<a target="_blank" rel="noopener" href="https://github.com/qinyuanpei/graph-relation/blob/master/input/%E5%88%AB%E5%90%8D%E8%AF%8D%E5%85%B8.txt">半泽直树别名词典</a>、<a target="_blank" rel="noopener" href="https://github.com/qinyuanpei/graph-relation/blob/master/input/%E5%81%9C%E7%94%A8%E8%AF%8D%E8%AF%8D%E5%85%B8.txt">中文分词停用词表</a>。除此之外，我们需要安装<code>结巴分词</code>、<code>PyECharts</code>两个第三方库(<strong>注，可以通过 pip 直接安装</strong>)，以及用于展示人物关系的软件<code>Gephi</code>(<strong>注，这个软件依赖 Java 环境</strong>)。所以，你基本可以想到，我们会使用结巴分词对小说文本进行分词处理，而半泽直树人名列表则作为用户词典供结巴分词使用，经过一系列处理后，我们最终通过<code>Gephi</code>和<code>PyECharts</code>对结果进行可视化，通过分析人物间的关系，结合我们对电视剧剧情的掌握情况，我们就可以对本文所采用方法的效果进行评估，也许你认为两个人毫无联系，可最终他们以某种特殊的形式建立了联系，这就是我们要做这件事情的意义所在。本项目已托管在 <a target="_blank" rel="noopener" href="https://github.com/qinyuanpei/graph-relation">Github</a>上，供大家自由查阅。</p>
+<h1 id="原理说明"><a href="#原理说明" class="headerlink" title="原理说明"></a>原理说明</h1><p>这篇博客主要参考了 <a target="_blank" rel="noopener" href="https://www.shiyanlou.com/courses/677">Python 基于共现提取《釜山行》人物关系</a> 这个课程，该项目已在 Github 上开源，可以参考：<a target="_blank" rel="noopener" href="https://github.com/Forec/text-cooccurrence">https://github.com/Forec/text-cooccurrence</a>。这篇文章中提到了一种称之为“共现网络”的方法，它本质上是一种基于统计的信息提取方法。其基本原理是，当我们在阅读书籍或者观看影视作品时，在同一时间段内同时出现的人物，通常都会存在某种联系。所以，如果我们将小说中的每个人物都看作一个节点，将人物间的关系都看作一条连线，最终我们将会得到一个图(指数据结构中的<strong>Graph</strong>)。因为<code>Gephi</code>和<code>PyECharts</code>以及<code>NetworkX</code>都提供了针对<code>Graph</code>的可视化功能，因此，我们可以使用这种方法，对《半泽直树》原著小说中的人物关系进行抽取。当然，这种方法本身会存在一点局限性，这些我们会放在总结思考这部分来进行说明，而我们之所以需要准备人名词典，主要还是为了排除单纯的分词产生的干扰词汇的影响；准备别名词典，则是考虑到同一个人物，在不同的语境下会有不同的称谓。</p>
+<h1 id="过程实现"><a href="#过程实现" class="headerlink" title="过程实现"></a>过程实现</h1><p>这里，我们定义一个<code>RelationExtractor</code>类来实现小说人物关系的抽取。其中，<code>extract()</code>方法用于抽取制定小说文本中的人物关系，<code>exportGephi()</code>方法用于输出 Gephi 格式的节点和边信息， <code>exportECharts()</code>方法则可以使用<code>ECharts</code>对人物关系进行渲染和输出：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os, sys</span><br><span class="line"><span class="keyword">import</span> jieba, codecs, math</span><br><span class="line"><span class="keyword">import</span> jieba.posseg <span class="keyword">as</span> pseg</span><br><span class="line"><span class="keyword">from</span> pyecharts <span class="keyword">import</span> options <span class="keyword">as</span> opts</span><br><span class="line"><span class="keyword">from</span> pyecharts.charts <span class="keyword">import</span> Graph</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">RelationExtractor</span>:</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, fpStopWords, fpNameDicts, fpAliasNames</span>):</span><br><span class="line">        <span class="comment"># 人名词典</span></span><br><span class="line">        self.name_dicts = [line.strip().split(<span class="string">&#x27; &#x27;</span>)[<span class="number">0</span>] <span class="keyword">for</span> line <span class="keyword">in</span> <span class="built_in">open</span>(fpNameDicts,<span class="string">&#x27;rt&#x27;</span>,encoding=<span class="string">&#x27;utf-8&#x27;</span>).readlines()]</span><br><span class="line">        <span class="comment"># 停止词表</span></span><br><span class="line">        self.stop_words = [line.strip() <span class="keyword">for</span> line <span class="keyword">in</span> <span class="built_in">open</span>(fpStopWords,<span class="string">&#x27;rt&#x27;</span>,encoding=<span class="string">&#x27;utf-8&#x27;</span>).readlines()]</span><br><span class="line">        <span class="comment"># 别名词典</span></span><br><span class="line">        self.alias_names = <span class="built_in">dict</span>([(line.split(<span class="string">&#x27;,&#x27;</span>)[<span class="number">0</span>].strip(), line.split(<span class="string">&#x27;,&#x27;</span>)[<span class="number">1</span>].strip()) <span class="keyword">for</span> line <span class="keyword">in</span> <span class="built_in">open</span>(fpAliasNames,<span class="string">&#x27;rt&#x27;</span>,encoding=<span class="string">&#x27;utf-8&#x27;</span>).readlines()])</span><br><span class="line">        <span class="comment"># 加载词典</span></span><br><span class="line">        jieba.load_userdict(fpNameDicts)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 提取指定小说文本中的人物关系</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">extract</span>(<span class="params">self, fpText</span>):</span><br><span class="line">        <span class="comment"># 人物关系</span></span><br><span class="line">        relationships = &#123;&#125;</span><br><span class="line">        <span class="comment"># 人名频次</span></span><br><span class="line">        name_frequency = &#123;&#125;</span><br><span class="line">        <span class="comment"># 每个段落中的人名</span></span><br><span class="line">        name_in_paragraph = []</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 读取小说文本，统计人名出现的频次，以及每个段落中出现的人名</span></span><br><span class="line">        <span class="keyword">with</span> codecs.<span class="built_in">open</span>(fpText, <span class="string">&quot;r&quot;</span>, <span class="string">&quot;utf8&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            <span class="keyword">for</span> line <span class="keyword">in</span> f.readlines():</span><br><span class="line">                poss = pseg.cut(line)</span><br><span class="line">                name_in_paragraph.append([])</span><br><span class="line">                <span class="keyword">for</span> w <span class="keyword">in</span> poss:</span><br><span class="line">                    <span class="keyword">if</span> w.flag != <span class="string">&quot;nr&quot;</span> <span class="keyword">or</span> <span class="built_in">len</span>(w.word) &lt; <span class="number">2</span>:</span><br><span class="line">                        <span class="keyword">continue</span></span><br><span class="line">                    <span class="keyword">if</span> (w.word <span class="keyword">in</span> self.stop_words):</span><br><span class="line">                        <span class="keyword">continue</span></span><br><span class="line">                    <span class="keyword">if</span> (<span class="keyword">not</span> w.word <span class="keyword">in</span> self.name_dicts <span class="keyword">and</span> w.word != <span class="string">&#x27;半泽&#x27;</span>):</span><br><span class="line">                        <span class="keyword">continue</span></span><br><span class="line">                    <span class="comment"># 规范化人物姓名，例：半泽-&gt;半泽直树，大和田-&gt;大和田晓</span></span><br><span class="line">                    word = w.word</span><br><span class="line">                    <span class="keyword">if</span> (self.alias_names.get(word)):</span><br><span class="line">                        word = self.alias_names.get(word)  </span><br><span class="line">                    name_in_paragraph[-<span class="number">1</span>].append(word)</span><br><span class="line">                    <span class="keyword">if</span> name_frequency.get(word) <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">                        name_frequency[word] = <span class="number">0</span></span><br><span class="line">                        relationships[word] = &#123;&#125;</span><br><span class="line">                    name_frequency[word] += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 基于共现组织人物关系</span></span><br><span class="line">        <span class="keyword">for</span> paragraph <span class="keyword">in</span> name_in_paragraph:</span><br><span class="line">            <span class="keyword">for</span> name1 <span class="keyword">in</span> paragraph:</span><br><span class="line">                <span class="keyword">for</span> name2 <span class="keyword">in</span> paragraph:</span><br><span class="line">                    <span class="keyword">if</span> name1 == name2:</span><br><span class="line">                        <span class="keyword">continue</span></span><br><span class="line">                    <span class="keyword">if</span> relationships[name1].get(name2) <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">                        relationships[name1][name2] = <span class="number">1</span></span><br><span class="line">                    <span class="keyword">else</span>:</span><br><span class="line">                        relationships[name1][name2] += <span class="number">1</span> </span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 返回节点和边</span></span><br><span class="line">        <span class="keyword">return</span> name_frequency, relationships</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 输出Gephi格式的节点和边信息</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">exportGephi</span>(<span class="params">self, nodes, relationships</span>):</span><br><span class="line">        <span class="comment"># 输出节点</span></span><br><span class="line">        <span class="keyword">with</span> codecs.<span class="built_in">open</span>(<span class="string">&quot;./output/node.txt&quot;</span>, <span class="string">&quot;w&quot;</span>, <span class="string">&quot;gbk&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            f.write(<span class="string">&quot;Id Label Weight\r\n&quot;</span>)</span><br><span class="line">            <span class="keyword">for</span> name, freq <span class="keyword">in</span> nodes.items():</span><br><span class="line">                f.write(name + <span class="string">&quot; &quot;</span> + name + <span class="string">&quot; &quot;</span> + <span class="built_in">str</span>(freq) + <span class="string">&quot;\r\n&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 输出边</span></span><br><span class="line">        <span class="keyword">with</span> codecs.<span class="built_in">open</span>(<span class="string">&quot;./output/edge.txt&quot;</span>, <span class="string">&quot;w&quot;</span>, <span class="string">&quot;gbk&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            f.write(<span class="string">&quot;Source Target Weight\r\n&quot;</span>)</span><br><span class="line">            <span class="keyword">for</span> name, edges <span class="keyword">in</span> relationships.items():</span><br><span class="line">                <span class="keyword">for</span> v, w <span class="keyword">in</span> edges.items():</span><br><span class="line">                    <span class="keyword">if</span> w &gt; <span class="number">0</span>:</span><br><span class="line">                        f.write(name + <span class="string">&quot; &quot;</span> + v + <span class="string">&quot; &quot;</span> + <span class="built_in">str</span>(w) + <span class="string">&quot;\r\n&quot;</span>)   </span><br><span class="line"></span><br><span class="line">    <span class="comment"># 使用ECharts对人物关系进行渲染</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">exportECharts</span>(<span class="params">self, nodes, relationships</span>):</span><br><span class="line">        <span class="comment"># 总频次，用于数据的归一化</span></span><br><span class="line">        total = <span class="built_in">sum</span>(<span class="built_in">list</span>(<span class="built_in">map</span>(<span class="keyword">lambda</span> x:x[<span class="number">1</span>], nodes.items())))</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 输出节点</span></span><br><span class="line">        nodes_data = []</span><br><span class="line">        <span class="keyword">for</span> name, freq <span class="keyword">in</span> nodes.items():</span><br><span class="line">            nodes_data.append(opts.GraphNode(</span><br><span class="line">                name = name, </span><br><span class="line">                symbol_size = <span class="built_in">round</span>(freq / total * <span class="number">100</span>, <span class="number">2</span>), </span><br><span class="line">                value = freq,</span><br><span class="line">            )),</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 输出边</span></span><br><span class="line">        links_data = []</span><br><span class="line">        <span class="keyword">for</span> name, edges <span class="keyword">in</span> relationships.items():</span><br><span class="line">                <span class="keyword">for</span> v, w <span class="keyword">in</span> edges.items():</span><br><span class="line">                    <span class="keyword">if</span> w &gt; <span class="number">0</span>:</span><br><span class="line">                        links_data.append(opts.GraphLink(</span><br><span class="line">                            source = v, </span><br><span class="line">                            target = w, </span><br><span class="line">                            value = w</span><br><span class="line">                        ))</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 绘制Graph</span></span><br><span class="line">        c = (</span><br><span class="line">            Graph()</span><br><span class="line">            .add(</span><br><span class="line">                <span class="string">&quot;&quot;</span>,</span><br><span class="line">                nodes_data,</span><br><span class="line">                links_data,</span><br><span class="line">                gravity = <span class="number">0.2</span>,</span><br><span class="line">                repulsion = <span class="number">8000</span>,</span><br><span class="line">                is_draggable = <span class="literal">True</span>,</span><br><span class="line">                symbol = <span class="string">&#x27;circle&#x27;</span>,</span><br><span class="line">                linestyle_opts = opts.LineStyleOpts(</span><br><span class="line">                    curve = <span class="number">0.3</span>, </span><br><span class="line">                    width = <span class="number">0.5</span>, </span><br><span class="line">                    opacity = <span class="number">0.7</span></span><br><span class="line">                ),</span><br><span class="line">                edge_label = opts.LabelOpts(</span><br><span class="line">                    is_show = <span class="literal">False</span>, </span><br><span class="line">                    position = <span class="string">&quot;middle&quot;</span>, </span><br><span class="line">                    formatter = <span class="string">&quot;&#123;b&#125;-&gt;&#123;c&#125;&quot;</span></span><br><span class="line">                ),</span><br><span class="line">            )</span><br><span class="line">            .set_global_opts(</span><br><span class="line">                title_opts = opts.TitleOpts(title=<span class="string">&quot;半泽直树原著小说人物关系抽取&quot;</span>)</span><br><span class="line">            )</span><br><span class="line">            .render(<span class="string">&quot;./docs/半泽直树原著小说人物关系抽取.html&quot;</span>)</span><br><span class="line">        )</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>你可以注意到，在<code>input</code>目录中，博主已经准备好了中文语料。因此，我们可以通过下面的代码来完成任务关系抽取：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">extractor = RelationExtractor(<span class="string">&#x27;./input/停用词词典.txt&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;./input/人名词典.txt&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;./input/别名词典.txt&#x27;</span></span><br><span class="line">)</span><br><span class="line">nodes, relationships = extractor.extract(<span class="string">&#x27;./input/半泽直树.txt&#x27;</span>)</span><br><span class="line">extractor.exportGephi(nodes, relationships)</span><br><span class="line">extractor.exportECharts(nodes, relationships)</span><br></pre></td></tr></table></figure>
+<p>此时，我们可以分别在<code>output</code>目录和<code>docs</code>目录获得<code>Gephi</code>和<code>ECharts</code>相关的渲染结果。</p>
+<h1 id="结果展示"><a href="#结果展示" class="headerlink" title="结果展示"></a>结果展示</h1><p>这里，通过 Gephi 软件导入生成的节点和边信息，这两个信息默认情况下在<code>output</code>目录下。如果你熟悉这个软件的使用的话，你可以得到下面的结果：</p>
+<p><img src="https://i.loli.net/2020/12/09/4TV9CAoE6lksGMg.png" alt="使用Gephi渲染的小说人物关系图"></p>
+<p>作为对比，博主这里同时提供了使用 ECharts 渲染的小说人物关系图：</p>
+<p><img src="https://i.loli.net/2020/12/09/V5pD6mJKCMsN4uS.png" alt="使用ECharts渲染的小说人物关系图"></p>
+<p>或者，可以直接访问博主托管在 Github Pages 上的 <a target="_blank" rel="noopener" href="https://qinyuanpei.github.io/graph-relation/%E5%8D%8A%E6%B3%BD%E7%9B%B4%E6%A0%91%E5%8E%9F%E8%91%97%E5%B0%8F%E8%AF%B4%E4%BA%BA%E7%89%A9%E5%85%B3%E7%B3%BB%E6%8A%BD%E5%8F%96.html">在线版本</a> 。关于 Gephi 软件的使用，请参考： <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/86145943695a">Gephi 网络图极简教程</a>。关于 PyECharts 的使用，请参考： <a target="_blank" rel="noopener" href="https://pyecharts.org/#/">PyECharts</a>。</p>
+<h1 id="总结思考"><a href="#总结思考" class="headerlink" title="总结思考"></a>总结思考</h1><p>通过生成的人物关系图，可以发现下列规律：</p>
+<ul>
+<li>大多数人物间的关系是正确的，譬如<strong>东田-&gt;浅野匡-&gt;半泽</strong>这条线，对应的是第一季西大阪钢铁 5 亿贷款的事件，而<strong>箕部-&gt;白井-&gt;半泽</strong>这条线，显然对应的第二季议员利用“炼金术”敛财的事件。</li>
+<li>我们发现渡真利拥有仅次于半泽的“连线”数量，这符合他在剧中掌握大量信息来源、职场上八面玲珑的形象设定。相比之下，同样作为半泽好友的近藤和苅田，则没有这样强大的光环。</li>
+<li>关于大和田，我们都知道他在第二季属于编剧强行“加戏”，一定程度上是在顶替内藤部长的作用，大和田实际上并未参与第二季的剧情，这一点从图中人物节点的联系和大小可以看出。</li>
+<li>日本人似乎更喜欢使用姓氏，由于妻子要跟随丈夫的姓氏，剧中很多女性角色譬如半泽花、浅野利惠等似乎都不太好提取出来，除非是像白井、谷川、藤泽这些重要的剧情人物。</li>
+</ul>
+<p>考虑到，小说中同一个人的称呼通常会有很多种，与之相关联的领域被称为“中文指代消解问题”，使用姓氏作为关键字会造成“女性角色”的缺失，而这种基于“共现”的理论，无法解决 A 在 B 交谈的过程中提到 C 的问题，此时，C 和 A、C 和 B 可能并没有直接的联系，譬如图中的垣内，理论上与西大阪钢铁 5 亿贷款事件并无直接联系，因为剧情中参与融资的主要是新人中西，更不用说老员工角田居然“孤零零”的一个人，而主流的命名实体识别的理论基本都针对三元组，所以，在这里要心疼下角田这位老人。</p>
+<p>在目前的人物关系抽取案例中，这种情况称为“无效的人名实体共现句”，所以，更好的做法是，采用文本分类模型，结合依存句法去识别实体间的关系，比如同事关系、朋友关系或者亲属关系等等，它有一个非常专业的名词，称为命名实体识别(NER)，而这会让我们的这张图变得更加丰富。在这个方向上，我个人推荐使用哈工大的语言技术平台(LTP)作为进一步改进，因为它可以更好地识别人名。好了，以上就是这篇博客的全部内容啦，欢迎大家在博客下面留言，喜欢我的博客话，请一键三连，点赞收藏，谢谢大家！</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Python/" rel="tag"># Python</a>
+          
+            <a href="/tags/NLP/" rel="tag"># NLP</a>
+          
+            <a href="/tags/%E5%8D%8A%E6%B3%BD%E7%9B%B4%E6%A0%91/" rel="tag"># 半泽直树</a>
+          
+            <a href="/tags/Gephi/" rel="tag"># Gephi</a>
+          
+            <a href="/tags/ECharts/" rel="tag"># ECharts</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/12/05/%E5%8E%89%E5%AE%B3%E4%BA%86%EF%BC%81%E6%89%93%E5%B7%A5%E4%BA%BA%E7%94%A8Python%E5%88%86%E6%9E%90%E8%A5%BF%E5%AE%89%E5%B8%82%E8%81%8C%E4%BD%8D%E4%BF%A1%E6%81%AF/" rel="next" title="厉害了！打工人用 Python 分析西安市职位信息">
+                <i class="fa fa-chevron-left"></i> 厉害了！打工人用 Python 分析西安市职位信息
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/12/09/2020-12-09-good-strategy-bad-strategy/" rel="prev" title="做连贯性活动 - 读《好战略，坏战略》">
+                做连贯性活动 - 读《好战略，坏战略》 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="nav-number">1.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8E%9F%E7%90%86%E8%AF%B4%E6%98%8E"><span class="nav-number">2.</span> <span class="nav-text">原理说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%BF%87%E7%A8%8B%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">过程实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%93%E6%9E%9C%E5%B1%95%E7%A4%BA"><span class="nav-number">4.</span> <span class="nav-text">结果展示</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%E6%80%9D%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">总结思考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

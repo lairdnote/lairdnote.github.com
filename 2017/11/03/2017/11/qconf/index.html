@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="分布式," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="原文：从配置文件到分布式配置管理QConf  QConf 是奇虎 360 广泛使用的配置管理服务，现已开源 QConf Source Code，欢迎大家关注使用。本文从设计初衷，架构实现，使用情况及相关产品比较四个方面进行介绍。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式配置管理Qconf">
+<meta property="og:url" content="https://blog.feedscoin.com/2017/11/03/2017/11/qconf/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="原文：从配置文件到分布式配置管理QConf  QConf 是奇虎 360 广泛使用的配置管理服务，现已开源 QConf Source Code，欢迎大家关注使用。本文从设计初衷，架构实现，使用情况及相关产品比较四个方面进行介绍。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/11/qconf/d7fec4ae-e55a-11e7-80c1-9a214cf093ae.jpg">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/11/qconf/8bb7c9c6-c0e9-40d5-96c8-81b40613e9bc.jpg">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/11/qconf/d29ccf16-e559-11e7-80c1-9a214cf093ae.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/11/qconf/1a2c6f9e-e55a-11e7-80c1-9a214cf093ae.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/11/qconf/31cbf598-e55a-11e7-80c1-9a214cf093ae.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/11/qconf/5aade6d8-e55a-11e7-80c1-9a214cf093ae.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/11/qconf/b809d666-e55a-11e7-80c1-9a214cf093ae.jpg">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/11/qconf/d7fec4ae-e55a-11e7-80c1-9a214cf093ae.jpg">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/11/qconf/0cc54ae6-e55b-11e7-80c1-9a214cf093ae.jpg">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/11/qconf/2d146c96-e55b-11e7-80c1-9a214cf093ae.png">
+<meta property="article:published_time" content="2017-11-03T09:32:27.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:29:51.000Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="分布式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.fanhaobai.com/2017/11/qconf/d7fec4ae-e55a-11e7-80c1-9a214cf093ae.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2017/11/03/2017/11/qconf/"/>
+
+
+
+
+
+  <title>分布式配置管理Qconf | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2017/11/03/2017/11/qconf/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">分布式配置管理Qconf</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-11-03T17:32:27+08:00">
+                2017-11-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/" itemprop="url" rel="index">
+                    <span itemprop="name">分布式</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <blockquote>
+<p>原文：<a target="_blank" rel="noopener" href="http://catkang.github.io/2015/06/23/qconf.html">从配置文件到分布式配置管理QConf</a></p>
+</blockquote>
+<p>QConf 是奇虎 360 广泛使用的配置管理服务，现已开源 <a target="_blank" rel="noopener" href="https://github.com/Qihoo360/QConf">QConf Source Code</a>，欢迎大家关注使用。本文从设计初衷，架构实现，使用情况及相关产品比较四个方面进行介绍。</p>
+<p><img src="//www.fanhaobai.com/2017/11/qconf/d7fec4ae-e55a-11e7-80c1-9a214cf093ae.jpg"><span id="more"></span></p>
+<h2 id="设计初衷"><a href="#设计初衷" class="headerlink" title="设计初衷"></a>设计初衷</h2><p>在分布式环境中，出于负载、容错等种种原因，几乎所有的服务都需要在不同的机器节点上部署多个实例。同时，业务项目中总少不了各种类型的配置文件。这种情况下，有时仅仅是一个配置内容的修改，便需要重新进行代码提交 git，打包，分发上线的流程。当部署的机器有很多时，分发上线本身也是一个很繁杂的工作。而配置文件的修改频率又远远大于代码本身。追本溯源，我们认为所有的这些麻烦是由于我们对配置和代码在管理和发布过程中不加区分造成的。配置本身源于代码，是为了提高代码的灵活性而提取出来的一些经常变化的或需要定制的内容，而正是配置的这种天生的变化特征给我们带了很大的麻烦。因此，我们开发了分布式配置管理系统 QConf，并依托 QConf 在 360 内部提供了一整套配置管理服务，QConf 致力于将配置内容从代码中完全分离出来，及时可靠高效地提供配置访问和更新服务。</p>
+<h2 id="整体认识"><a href="#整体认识" class="headerlink" title="整体认识"></a>整体认识</h2><p>为了让大家对之后的内容有个直观的认识，先来介绍一下如果需要在自己的项目中使用 QConf 应该怎么做：</p>
+<ul>
+<li>首先，<strong>部署 QConf</strong>，QConf 采用 cmake 构建，依次执行如下命令。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cmake</span><br><span class="line">..</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>之后，通过 Zookeeper 客户端或 <strong>QConf 管理界面</strong> 在 Zookeeper 上建立自己的节点结构，节点完整路径作为 QConf 的 key 值，以 360 公司内部 QConf 管理界面为例：</li>
+</ul>
+<p><img src="//www.fanhaobai.com/2017/11/qconf/8bb7c9c6-c0e9-40d5-96c8-81b40613e9bc.jpg"></p>
+<ul>
+<li>最后，选择所需语言版本的 QConf 库，并在需要获得配置内容的代码位置，直接调用 Qconf 客户端接口，并放心每次取得的都是最新鲜出炉的配置内容。</li>
+</ul>
+<p>需要说明的是，使用 QConf 后已经没有所谓的配置文件的概念，你要做的就是在需要的地方获取正确的内容，QConf 认为，这才是你真正想要的。</p>
+<h2 id="架构介绍"><a href="#架构介绍" class="headerlink" title="架构介绍"></a>架构介绍</h2><p>了解了 QConf 的设计初衷和使用方式，相信大家已经对 QConf 有一个整体的认识并且对其实现有了大概的猜想。在介绍架构之前，还需要申明一下 QConf 对配置信息的定位，因为这个定位直接决定了其结构设计和组件选择。</p>
+<ul>
+<li>单条数据量小</li>
+<li>更新频繁（较代码而言）</li>
+<li>配置总数可能巨大，但单台机器关心配置数有限</li>
+<li>读多写少</li>
+</ul>
+<p>进入主题，开始介绍 QConf 的架构实现：</p>
+<p><img src="//www.fanhaobai.com/2017/11/qconf/d29ccf16-e559-11e7-80c1-9a214cf093ae.png"></p>
+<p>上图展示的是 QConf 的基本结构，从角色上划分主要包括 QConf 客户端，QConf 服务端和 QConf 管理端。</p>
+<h3 id="QConf服务端"><a href="#QConf服务端" class="headerlink" title="QConf服务端"></a>QConf服务端</h3><p>QConf 使用 ZooKeeper 集群作为服务端提供服务。众所周知，ZooKeeper 是一套分布式应用程序协调服务，根据上面提到的对配置内容的定位，我们认为可以将单条配置内容直接存储在 ZooKeeper 的一个 ZNode 上，并利用 ZooKeeper 的 Watch 监听功能实现配置变化时对客户端的及时通知。按照 ZooKeeper 的设计目标，其只提供最基础的功能，包括顺序一致，原子性，单一系统镜像，可靠性和及时性。另外 Zookeeper 还有如下特点：</p>
+<ul>
+<li>类文件系统的节点组织</li>
+<li>稳定，无单点问题</li>
+<li>订阅通知机制</li>
+</ul>
+<p>关于 Zookeeper，更多见 <a target="_blank" rel="noopener" href="https://zookeeper.apache.org/">https://zookeeper.apache.org/</a></p>
+<h3 id="QConf客户端"><a href="#QConf客户端" class="headerlink" title="QConf客户端"></a>QConf客户端</h3><p>但在接口方面，ZooKeeper 本身只提供了非常基本的操作，并且其客户端接口原始，所以我们需要在 QConf 的客户端部分 <strong>解决如下问题</strong>：</p>
+<ul>
+<li>降低与 ZooKeeper 的链接数原生的 ZooKeeper 客户端中，所有需要获取配置的进程都需要与 ZooKeeper 保持长连接，在生产环境中每个客户端机器可能都会有上百个进程需要访问数据，这对 ZooKeeper 的压力非常大而且也是不必要的。</li>
+<li>本地缓存当然我们不希望客户端进程每次需要数据都走网络获取，所以需要维护一份客户端缓存，仅在配置变化时更新。</li>
+<li>容错当进程退出、网络中断、机器重启等异常情况发生时，我们希望能尽可能的提供可靠的配置获取服务</li>
+<li>多语言版本接口目前提供的语言版本包括：c，php，java，python，go，lua，shell</li>
+<li>配置更新及时，可以秒级同步到所有客户端机器</li>
+<li>高效的配置读取，内存级的访问速度</li>
+</ul>
+<p>下面来看下 QConf 客户端的架构：</p>
+<p><img src="//www.fanhaobai.com/2017/11/qconf/1a2c6f9e-e55a-11e7-80c1-9a214cf093ae.png"></p>
+<p>可以看到 QConf 客户端主要有：agent、各种语言接口、连接他们的消息队列和共享内存。在 QConf 中，配置以 key-value 的形式存在，业务进程给出 key 获得对应 value，这与传统的配置文件方式是一致的。</p>
+<p>下面通过两个主要场景的数据流动来说明他们各自的功能和角色：</p>
+<ul>
+<li>业务进程请求数据</li>
+</ul>
+<p><img src="//www.fanhaobai.com/2017/11/qconf/31cbf598-e55a-11e7-80c1-9a214cf093ae.png"></p>
+<ol>
+<li>业务进程调用某一种语言的 QConf <strong>接口</strong>，从 <strong>共享内存</strong> 中查找需要的配置信息；</li>
+<li>如果存在，直接获取，否则会向 <strong>消息队列</strong> 中加入该配置 key；</li>
+<li><strong>agent</strong> 从 <strong>消息队列</strong> 中感知需要获取的配置 key；</li>
+<li><strong>agent</strong> 向 <strong>ZooKeeper</strong> 查询数据并注册监听；</li>
+<li><strong>agent</strong> 将获得的配置 value 序列化后放入 <strong>共享内存</strong>；</li>
+<li>业务进程从 <strong>共享内存</strong> 中获得最新值。</li>
+</ol>
+<ul>
+<li>配置信息更新</li>
+</ul>
+<p><img src="//www.fanhaobai.com/2017/11/qconf/5aade6d8-e55a-11e7-80c1-9a214cf093ae.png"></p>
+<ol>
+<li>**ZooKeeper **通知 <strong>agent</strong> 某配置项发生变化；</li>
+<li>**agent **从 **ZooKeeper **查询新值并更新 watcher；</li>
+<li>**agent **用新值更新 **共享内存 **中的该配置项。</li>
+</ol>
+<p>通过上面的说明，可以看出 QConf 的整体结构和流程非常简单。QConf 中各个组件或线程之间仅通过有限的中间数据结构通信，耦合性非常小，各自只负责自己的本职工作和一亩三分地，而不感知整体结构。下面通过几个点来详细介绍：</p>
+<ul>
+<li>无锁根据上文提到的配置信息的特征，我们认为在 QConf 客户端进行的是多进程并行读取的过程，对配置数据来说读操作远多于写操作。为了尽可能的提高读效率，整个 QConf 客户端在操作共享内存时采用的是无锁的操作，同时为了保证数据的正确，采取了如下两个措施：</li>
+<li>单点写，将写操作集中到单一线程，其他线程通过中间数据结构与之通信，写操作排队，用这种方法牺牲掉一些写效率。在 QConf 客户端，需要对共享内存进行写操作的场景有：</li>
+</ul>
+<ol>
+<li>用户进程通过消息队列发送的需获取 key；</li>
+<li>ZooKeeper 配置修改删除等触发 Watcher 通知，需更新；</li>
+<li>为了消除 watcher 丢失造成的不一致，需要定时对共享内存中的所有配置重新注册 watcher，此时可能会需要更新；</li>
+<li>发生 agent 重启、网络中断、ZooKeeper 会话过期等异常情况之后，需重新拉数据，此时可能需要更新。</li>
+</ol>
+<ul>
+<li>读验证，无锁的读写方式，会存在读到未写入完全数据的危险，但考虑到在绝对的读多写少环境中这种情况发生的概率较低，所以我们允许其发生，通过读操作时的验证来发现。共享内存数据在序列化时会带其 md5 值，业务进程从共享内存中读取时，利用预存的 md5 值验证是否正确读取。</li>
+<li>异常处理 QConf 中采取了一些处理来应对不可避免的异常情况</li>
+<li>采用父子进程 keepalive 的方式，应对 agent 进程异常退出的情况；</li>
+<li>维护一份落盘数据，应对断网情况下共享内存又被清空的状况；</li>
+<li>网络中断恢复后，对共享内存中所有数据进行检查，并重新注册 watcher；</li>
+<li>定时扫描共享内存；</li>
+<li>数据序列化 QConf 客户端中有多处需要将数据序列化通信或存储，包括共享内存，消息队列，落盘数据中的内容。采取如下协议：</li>
+</ul>
+<p><img src="//www.fanhaobai.com/2017/11/qconf/b809d666-e55a-11e7-80c1-9a214cf093ae.jpg"></p>
+<ul>
+<li>agent 任务通过上面的描述，大家应该大概了解了 agent 所做的一些事情，下面从 agent 的内部的线程分工的角度整理一下，如下图：</li>
+</ul>
+<p><img src="//www.fanhaobai.com/2017/11/qconf/d7fec4ae-e55a-11e7-80c1-9a214cf093ae.jpg"></p>
+<ul>
+<li>Send 线程：ZooKeeper 线程，处理网络数据包，进行协议包的解析与封装，并将 Zookeeper 的事件加入 WaitingEvent 队列等待处理；</li>
+<li>Event 线程：ZooKeeper 线程，依次获取 WaitingEvent 队列中的事件，并进行相应处理，这里我们关注节点删除、节点值修改、子节点变化、会话过期等事件。对特定的事件会进行相应的操作，以节点值修改为例，agent 会按上边提到的方式序列化该节点 key，并将其加入到 WaitingWriting 队列，等待 Main 线程处理；</li>
+<li>Msq 线程：之前讲数据流动场景的时候有提到，用户进程从共享内存中找不到对应配置后，会向消息队列中加入该配置，Msq 线程便是负责从消息队列中获取业务进程的取配置需求，并同样通过 WaitingWriting 队列发送给 Main 进程；</li>
+<li>Scan 线程：扫描共享内存中的所有配置，发现与 Zookeeper 不一致的情况时，将key值加入 WaitingWriting 队列。Scan 线程会在 ZooKeeper 重连或轮询期到达时进行上述操作；</li>
+<li>Main 线程：共享内存的唯一写入线程，从 Zookeeper 获得数据写入共享内存，维护共享内存中的内容；</li>
+<li>Trigger 线程：该线程负责一些周边逻辑的调用，包括：</li>
+</ul>
+<ol>
+<li>dump 操作：将共享内存的内容同步一份到本地，QConf 采用的 gdbm；</li>
+<li>feedback 操作：QConf 支持更新反馈的功能，可向用户指定 web 服务以一定的格式发送反馈；</li>
+<li>script 操作：在某些情况下，业务希望当配置变化时，做一些自定义的操作，QConf 支持配置变化时调用用户脚本，agent 按一种固定的约定在配置发生变化时调用对应的脚本。</li>
+</ol>
+<h3 id="QConf管理端"><a href="#QConf管理端" class="headerlink" title="QConf管理端"></a>QConf管理端</h3><p>管理端是业务修改配置的页面入口，利用数据库提供一些如批量导入，权限管理，版本控制等上层功能。由于公司内的一些业务耦合和需求定制，当前开源的 QConf 管理端这边提供了一个简易的页面，和一套下层的 c++ 接口，如下图：</p>
+<p><img src="//www.fanhaobai.com/2017/11/qconf/0cc54ae6-e55b-11e7-80c1-9a214cf093ae.jpg"></p>
+<p>之后计划进一步完善以及跟社区合作提供更友好的界面。</p>
+<p>QConf 的结构及实现大概就介绍到这，接下来…</p>
+<h2 id="One-More-Thing"><a href="#One-More-Thing" class="headerlink" title="One More Thing"></a>One More Thing</h2><p>QConf 除了存储配置的基本功能外，还在公司内提供了一套简单的服务发现功能，该功能允许业务在 QConf 上配置一组服务，QConf 会监控其服务的存活。当业务进程调用获取服务的接口时，会根据用户需求，返回全部可用服务，或某一可用服务。不同于普通配置：</p>
+<ul>
+<li>结构上多一个 Monitor 的角色，来监控所有服务的存活, 如下图：</li>
+</ul>
+<p><img src="//www.fanhaobai.com/2017/11/qconf/2d146c96-e55b-11e7-80c1-9a214cf093ae.png"></p>
+<ul>
+<li>提供对应的客户端接口，get_host 获取某一可用服务，get_allhost 获取所有可用服务</li>
+<li>管理端页面对应的展示方式及操作，尤其是对指定服务的添加删除，上线下线</li>
+</ul>
+<p>需要明确的是，目前 Monitor 事实上仅仅是通过查看服务端口的存活来判断的，在实际生产环境中，该功能多与实际服务提供者的监控结合，由服务提供者的监控调用 QConf 的相应接口实现服务的上下线。</p>
+<h2 id="使用方式及使用场景"><a href="#使用方式及使用场景" class="headerlink" title="使用方式及使用场景"></a>使用方式及使用场景</h2><p>目前 360 内部已经广泛的使用 QConf。覆盖云盘、大流程、系统部、dba、图搜、影视、地图、硬件、手机卫士、广告、好搜等大部分业务。部署国内外共 51 几个机房，客户端机器超两万台，稳定运行两年。</p>
+<p>使用的方式主要包括：</p>
+<ul>
+<li>简单配置公司内使用最广泛的用法，QConf 非常适合经常需要变动的配置使用，如开关信息、版本信息、推荐信息、超时时间等。</li>
+<li>服务方式这种方式多被服务提供者采用，如 dba，系统部等，采用上述的服务配置的方式，通过 QConf 向公司的所有业务提供存储，计算及 web 服务。</li>
+</ul>
+<p>QConf 因为其对配置信息的定位，使得整个结构非常简单，容易部署和使用。在 Github 可以找到完整代码，<a target="_blank" rel="noopener" href="https://github.com/Qihoo360/QConf">QConf Source Code</a> 欢迎关注。</p>
+<p><strong>相关文章 <a href="#">»</a></strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://www.cnblogs.com/zhangxh20/p/5464103.html">配置管理服务横向对比 </a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag"># 分布式</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/30/2017/10/internal-php-fpm/" rel="next" title="深入源码剖析PHP-FPM">
+                <i class="fa fa-chevron-left"></i> 深入源码剖析PHP-FPM
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/13/2017/11/synchronised-asynchronized-coroutine/" rel="prev" title="异步、并发、协程原理">
+                异步、并发、协程原理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E5%88%9D%E8%A1%B7"><span class="nav-number">1.</span> <span class="nav-text">设计初衷</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E8%AE%A4%E8%AF%86"><span class="nav-number">2.</span> <span class="nav-text">整体认识</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D"><span class="nav-number">3.</span> <span class="nav-text">架构介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#QConf%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="nav-number">3.1.</span> <span class="nav-text">QConf服务端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#QConf%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-number">3.2.</span> <span class="nav-text">QConf客户端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#QConf%E7%AE%A1%E7%90%86%E7%AB%AF"><span class="nav-number">3.3.</span> <span class="nav-text">QConf管理端</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#One-More-Thing"><span class="nav-number">4.</span> <span class="nav-text">One More Thing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F%E5%8F%8A%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">5.</span> <span class="nav-text">使用方式及使用场景</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

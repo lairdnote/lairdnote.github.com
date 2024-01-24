@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="CI," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="之前更新blog要这样：本地安装hexo环境，还需要敲几个命令：hexo clean &amp;&amp; hexo g &amp;&amp; hexo d，构建部署还有点浪费时间。其实每次更新blog的时候，只需要增删改几个Markdown文件。懒~干脆上CI吧。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Travis CI助力Blog持续输出">
+<meta property="og:url" content="https://blog.feedscoin.com/2018/01/29/Travis%20CI%E5%8A%A9%E5%8A%9BBlog%E6%8C%81%E7%BB%AD%E8%BE%93%E5%87%BA/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="之前更新blog要这样：本地安装hexo环境，还需要敲几个命令：hexo clean &amp;&amp; hexo g &amp;&amp; hexo d，构建部署还有点浪费时间。其实每次更新blog的时候，只需要增删改几个Markdown文件。懒~干脆上CI吧。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/palmerye/pictureBed/raw/master/blog/2403013470-5a708bdde14ce_articlex.jpeg?fromMac">
+<meta property="og:image" content="http://www.ruanyifeng.com/blogimg/asset/2017/bg2017121901.png">
+<meta property="og:image" content="https://github.com/palmerye/pictureBed/raw/master/travisCI/index.png">
+<meta property="og:image" content="https://github.com/palmerye/pictureBed/raw/master/travisCI/index2.png">
+<meta property="og:image" content="https://github.com/palmerye/pictureBed/raw/master/travisCI/index6.png">
+<meta property="og:image" content="https://github.com/palmerye/pictureBed/raw/master/travisCI/index3.png">
+<meta property="og:image" content="https://github.com/palmerye/pictureBed/raw/master/travisCI/index4.png">
+<meta property="og:image" content="https://github.com/palmerye/pictureBed/raw/master/travisCI/index5.png">
+<meta property="article:published_time" content="2018-01-28T16:00:13.000Z">
+<meta property="article:modified_time" content="2024-01-15T08:11:30.412Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="CI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/palmerye/pictureBed/raw/master/blog/2403013470-5a708bdde14ce_articlex.jpeg?fromMac">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2018/01/29/Travis CI助力Blog持续输出/"/>
+
+
+
+
+
+  <title>Travis CI助力Blog持续输出 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2018/01/29/Travis%20CI%E5%8A%A9%E5%8A%9BBlog%E6%8C%81%E7%BB%AD%E8%BE%93%E5%87%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Travis CI助力Blog持续输出</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-01-29T00:00:13+08:00">
+                2018-01-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <blockquote>
+<p>之前更新blog要这样：本地安装hexo环境，还需要敲几个命令：<code>hexo clean &amp;&amp; hexo g &amp;&amp; hexo d</code>，构建部署还有点浪费时间。其实每次更新blog的时候，只需要增删改几个Markdown文件。懒~干脆上CI吧。</p>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="CI-为何物"><a href="#CI-为何物" class="headerlink" title="CI 为何物"></a>CI 为何物</h2><blockquote>
+<p>CI（Continuous Integration）—— 持续集成。</p>
+</blockquote>
+<p>其实光从名字其实能大致知道CI做了什么事情。硬件领域有集成模块、集成电路，软件领域也有集成概念：项目构建、自动化测试、部署等等。我的理解，每个成熟的产品从零散到成型到出品（上线）的过程，就是集成（Integration）。那么CI做的事情，就是让这个工程自动化，持续进行（Continuous）。</p>
+<h3 id="好处："><a href="#好处：" class="headerlink" title="好处："></a>好处：</h3><ul>
+<li>快速发现错误</li>
+<li>保持分支与主干相对集中</li>
+</ul>
+<blockquote>
+<p>“持续集成并不能消除Bug，而是让它们非常容易发现和改正。” – Martin Fowler</p>
+</blockquote>
+<h3 id="流程："><a href="#流程：" class="headerlink" title="流程："></a>流程：</h3><blockquote>
+<p>其实应该将这几个概念揉在一起：持续集成、持续部署、持续交付、持续发布。</p>
+</blockquote>
+<p><img src="https://github.com/palmerye/pictureBed/raw/master/blog/2403013470-5a708bdde14ce_articlex.jpeg?fromMac"></p>
+<p>1.代码提交：commit<br>2.测试（第一轮）：hook相应的commit动作，自动化测试<br>3.构建：build，相当于是编译可用的代码<br>4.测试（第二轮）：包含单元测试和集成测试<br>5.部署：打包至生产环境<br>6.回滚：若最新版本发生异常，则回滚到上一版本</p>
+<h2 id="Travis-CI-又为何物"><a href="#Travis-CI-又为何物" class="headerlink" title="Travis CI 又为何物"></a>Travis CI 又为何物</h2><p><img src="http://www.ruanyifeng.com/blogimg/asset/2017/bg2017121901.png" alt="image"></p>
+<blockquote>
+<p>Travis CI: 在线托管的CI服务，最重要的事情，它对开源项目是免费的！！！（重要的感叹号加三个！！！）</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://travis-ci.org/">Travis CI</a> 官网上醒目的大字：<br>Test and Deploy with Confidence<br>Easily sync your <strong>GitHub</strong> projects with Travis CI and you’ll be testing your code in minutes!</p>
+<blockquote>
+<p>赤裸裸的表白，果然和Github是一对好基友。</p>
+</blockquote>
+<p>这意味着，我们在Github的 Public Repository都可以利用Travis CI 进行免费的持续集成，当然，Personal Repository也可以用它，不过挺贵的。之前用Github Pages 搭的<a target="_blank" rel="noopener" href="http://palmer.arkstack.cn/">Blog</a>刚好可以用Travis CI来持续构建，将偷懒进行到底吧！</p>
+<h2 id="只需几步，快速体验CI"><a href="#只需几步，快速体验CI" class="headerlink" title="只需几步，快速体验CI"></a>只需几步，快速体验CI</h2><h3 id="1-GitHub账号直接登录"><a href="#1-GitHub账号直接登录" class="headerlink" title="1.GitHub账号直接登录"></a>1.GitHub账号直接登录</h3><p>打开<a target="_blank" rel="noopener" href="https://travis-ci.org/">Travis CI</a> ,使用 GitHub 第三方授权登录，不要问为什么，好丽友，好基友。</p>
+<h3 id="2-打开Repo-CI配置"><a href="#2-打开Repo-CI配置" class="headerlink" title="2.打开Repo CI配置"></a>2.打开Repo CI配置</h3><p><img src="https://github.com/palmerye/pictureBed/raw/master/travisCI/index.png" alt="image"></p>
+<p>勾上你的blog repo (这里我勾上了<code>palmerye.github.io</code>)，点击小齿轮，进入配置页。</p>
+<p><img src="https://github.com/palmerye/pictureBed/raw/master/travisCI/index2.png" alt="image"></p>
+<p>打开最上方两个开关，其它默认就行了：<br><code>Build only if .travis.yml is present</code><br><code>Build pushed branches</code></p>
+<p>其实官方也有教程，只要三步：</p>
+<p><img src="https://github.com/palmerye/pictureBed/raw/master/travisCI/index6.png" alt="image"></p>
+<h3 id="3-添加-travis-yml"><a href="#3-添加-travis-yml" class="headerlink" title="3.添加 .travis.yml"></a>3.添加 .travis.yml</h3><blockquote>
+<p>划重点了!</p>
+</blockquote>
+<p>1.新建一个source分支，将原来本地的Hexo工程，gitignore外的那些目录，切到source分支。（最终我们只需要推这个分支到origin）</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// .gitignore</span></span><br><span class="line"></span><br><span class="line">.<span class="property">DS_Store</span></span><br><span class="line"><span class="title class_">Thumbs</span>.<span class="property">db</span></span><br><span class="line">db.<span class="property">json</span></span><br><span class="line">*.<span class="property">log</span></span><br><span class="line">node_modules/</span><br><span class="line">public/</span><br><span class="line">.<span class="property">deploy</span>*/</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://github.com/palmerye/pictureBed/raw/master/travisCI/index3.png" alt="image"></p>
+<p>2.为Travis CI 新建Token</p>
+<p>这一步很关键，为什么Travis有权限帮你推GitHub？所以你要给它钥匙，就是Token。</p>
+<p>在GitHub个人账户 <code>Setting/ Developer settings/ Personal access tokens</code>下，新建一个Token，然后在Travis CI配置中，Environment Variables，添加生成的Token。</p>
+<p><img src="https://github.com/palmerye/pictureBed/raw/master/travisCI/index4.png" alt="image"></p>
+<p>3.source分支下新建.travis.yml</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">language</span>: node_js</span><br><span class="line"><span class="attr">node_js</span>: stable</span><br><span class="line"><span class="attr">cache</span>:</span><br><span class="line">  <span class="attr">directories</span>:</span><br><span class="line">    - node_modules</span><br><span class="line"></span><br><span class="line"># <span class="attr">S</span>: <span class="title class_">Build</span> <span class="title class_">Lifecycle</span></span><br><span class="line"><span class="attr">install</span>:</span><br><span class="line">  - npm install</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#<span class="attr">before_script</span>:</span><br><span class="line"> # - npm install -g gulp</span><br><span class="line"></span><br><span class="line"><span class="attr">script</span>:</span><br><span class="line">  - hexo clean &amp;&amp; hexo g</span><br><span class="line"></span><br><span class="line"><span class="attr">after_script</span>:</span><br><span class="line">  - git clone <span class="attr">https</span>:<span class="comment">//$&#123;GH_REF&#125; .deploy_git</span></span><br><span class="line">  - cd .<span class="property">deploy_git</span></span><br><span class="line">  - git checkout master</span><br><span class="line">  - cd ../</span><br><span class="line">  - mv .<span class="property">deploy_git</span>/.<span class="property">git</span>/ ./public/</span><br><span class="line">  - cd ./public</span><br><span class="line">  - git init</span><br><span class="line">  - git config user.<span class="property">name</span> <span class="string">&quot;palmerye&quot;</span></span><br><span class="line">  - git config user.<span class="property">email</span> <span class="string">&quot;palmerye@gmail.com&quot;</span></span><br><span class="line">  - git add .</span><br><span class="line">  - git commit -m <span class="string">&quot;:memo:\ Update docs by CI&quot;</span></span><br><span class="line">  - git push --force --quiet <span class="string">&quot;https://$&#123;CI_TOKEN&#125;@$&#123;GH_REF&#125;&quot;</span> <span class="attr">master</span>:master <span class="comment">// CI_TOKEN为上一步在github上生成的Token。</span></span><br><span class="line"># <span class="attr">E</span>: <span class="title class_">Build</span> <span class="title class_">LifeCycle</span></span><br><span class="line"></span><br><span class="line"><span class="attr">branches</span>:</span><br><span class="line">  <span class="attr">only</span>:</span><br><span class="line">    - source</span><br><span class="line"><span class="attr">env</span>:</span><br><span class="line"> <span class="attr">global</span>:</span><br><span class="line">   - <span class="attr">GH_REF</span>: github.<span class="property">com</span>/palmerye/palmerye.<span class="property">github</span>.<span class="property">io</span>.<span class="property">git</span></span><br></pre></td></tr></table></figure>
+
+<p>其实看这个配置文件就大致能知道这个流程，在Travis 服务器上<code>install</code>相应的依赖，然后执行<code>hexo clean &amp;&amp; hexo g</code>等一系列之前需要在本地跑的命令，最后将生成的静态资源blog（在<code>./public</code>目录下），推到master分支。</p>
+<p>4.将source分支推到远端，Travis 监听到有动作就会跑上面我们配置的脚本。</p>
+<h2 id="可以愉快写Blog了"><a href="#可以愉快写Blog了" class="headerlink" title="可以愉快写Blog了"></a>可以愉快写Blog了</h2><p>现在，我们可以把本地那些hexo臃肿的依赖删了（这意味着，你在任意的电脑上都能快速更新blog了，不需要安装hexo依赖），每次只需要增删改<code>/source/_posts/</code>下的markdown文件就可以了，轻轻push一下，其他交给Travis CI吧，你可以在Travis &#x2F; Current<br>看到实时的构建状态，包括构建时间和成功与否。</p>
+<p>最后，为了提高Blog的档bi次ge，在readme加个build passing 标签吧。</p>
+<p><img src="https://github.com/palmerye/pictureBed/raw/master/travisCI/index5.png" alt="image"></p>
+<h2 id="最后的最后"><a href="#最后的最后" class="headerlink" title="最后的最后"></a>最后的最后</h2><p>其实前面只是最简单粗暴的用了Travis CI，它还有很多强大的功能，比如一些 Cron Jobs，都是比较傻瓜式的，有时间继续搞吧。干巴爹💪！继续写blog了。</p>
+<p>PS：<br>Blog in Github：<a target="_blank" rel="noopener" href="https://github.com/palmerye/palmerye.github.io/">https://github.com/palmerye/palmerye.github.io/</a></p>
+<hr>
+<p>参考：<br><a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2015/09/continuous-integration.html">持续集成是什么？– 阮大大</a><br><a target="_blank" rel="noopener" href="https://www.liaoxuefeng.com/article/0014631488240837e3633d3d180476cb684ba7c10fda6f6000">使用Travis进行持续集成 – 廖大大</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/CI/" rel="tag"># CI</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/23/%E6%B7%B1%E5%85%A5%E6%B5%85%E5%87%BA%E7%90%86%E8%A7%A3Python%E8%A3%85%E9%A5%B0%E5%99%A8/" rel="next" title="深入浅出理解 Python 装饰器">
+                <i class="fa fa-chevron-left"></i> 深入浅出理解 Python 装饰器
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/30/2018/01/2018-new-year-activity/" rel="prev" title="自如2018新年活动系统 — 抢红包">
+                自如2018新年活动系统 — 抢红包 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#CI-%E4%B8%BA%E4%BD%95%E7%89%A9"><span class="nav-number">1.</span> <span class="nav-text">CI 为何物</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A5%BD%E5%A4%84%EF%BC%9A"><span class="nav-number">1.1.</span> <span class="nav-text">好处：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B%EF%BC%9A"><span class="nav-number">1.2.</span> <span class="nav-text">流程：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Travis-CI-%E5%8F%88%E4%B8%BA%E4%BD%95%E7%89%A9"><span class="nav-number">2.</span> <span class="nav-text">Travis CI 又为何物</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AA%E9%9C%80%E5%87%A0%E6%AD%A5%EF%BC%8C%E5%BF%AB%E9%80%9F%E4%BD%93%E9%AA%8CCI"><span class="nav-number">3.</span> <span class="nav-text">只需几步，快速体验CI</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-GitHub%E8%B4%A6%E5%8F%B7%E7%9B%B4%E6%8E%A5%E7%99%BB%E5%BD%95"><span class="nav-number">3.1.</span> <span class="nav-text">1.GitHub账号直接登录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%89%93%E5%BC%80Repo-CI%E9%85%8D%E7%BD%AE"><span class="nav-number">3.2.</span> <span class="nav-text">2.打开Repo CI配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%B7%BB%E5%8A%A0-travis-yml"><span class="nav-number">3.3.</span> <span class="nav-text">3.添加 .travis.yml</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E4%BB%A5%E6%84%89%E5%BF%AB%E5%86%99Blog%E4%BA%86"><span class="nav-number">4.</span> <span class="nav-text">可以愉快写Blog了</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E5%90%8E%E7%9A%84%E6%9C%80%E5%90%8E"><span class="nav-number">5.</span> <span class="nav-text">最后的最后</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

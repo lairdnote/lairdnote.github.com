@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Redis,Node.js," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="这篇文章会带领大家实现一个基于 Redis 的分布式高可用定时任务系统，其中的 worker 以 Node.js 为例，但其实可以使用任何语言来实现。这篇文章不会给出完整的代码，更侧重于探索的过程。 高可用设计首先我们希望让 worker 是无状态的，这样会大幅减少对于 worker 的高可用需求，也不涉及到 worker 之间的数据同步或者选举。我们将所有的状态集中到 Redis 上，Redis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计基于 Redis 的定时任务系统（ZSET + Scripting）">
+<meta property="og:url" content="https://blog.feedscoin.com/2019/08/19/2019/2019-08-19-redis-cronjob-system/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="这篇文章会带领大家实现一个基于 Redis 的分布式高可用定时任务系统，其中的 worker 以 Node.js 为例，但其实可以使用任何语言来实现。这篇文章不会给出完整的代码，更侧重于探索的过程。 高可用设计首先我们希望让 worker 是无状态的，这样会大幅减少对于 worker 的高可用需求，也不涉及到 worker 之间的数据同步或者选举。我们将所有的状态集中到 Redis 上，Redis">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-08-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T06:51:52.216Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="Node.js">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2019/08/19/2019/2019-08-19-redis-cronjob-system/"/>
+
+
+
+
+
+  <title>设计基于 Redis 的定时任务系统（ZSET + Scripting） | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2019/08/19/2019/2019-08-19-redis-cronjob-system/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">设计基于 Redis 的定时任务系统（ZSET + Scripting）</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-19T00:00:00+08:00">
+                2019-08-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>这篇文章会带领大家实现一个基于 Redis 的分布式高可用定时任务系统，其中的 worker 以 Node.js 为例，但其实可以使用任何语言来实现。这篇文章不会给出完整的代码，更侧重于探索的过程。</p>
+<h2 id="高可用设计"><a href="#高可用设计" class="headerlink" title="高可用设计"></a>高可用设计</h2><p>首先我们希望让 worker 是无状态的，这样会大幅减少对于 worker 的高可用需求，也不涉及到 worker 之间的数据同步或者选举。我们将所有的状态集中到 Redis 上，Redis 可以用 Master-Slave + Sentinel 的方式达到一个相对较高的可用性。</p>
+<p><strong>为什么不使用选举 Master 的方式？</strong></p>
+<p>有一种很常见的做法是在单个实例上完成所有的工作，这样甚至连 Redis 都不需要了。但为了保证高可用，往往会同时启动多个实例，然后引入一个「选举」的过程来决定谁是那个完成所有工作的人（称为 master），在 master 失效后，则需要重新进行选举，选出另外一个 master。</p>
+<p>简单来说我觉得这种做法不够「分布式」，只有一个 master 在工作，其他实例只是热备而已，同时选举和对 master 失效的监测也是一个非常麻烦的事情。而在我们的方案中所有的 worker 都是平等的，都在执行任务，可以在任意时候创建或移除 worker。</p>
+<h2 id="核心循环"><a href="#核心循环" class="headerlink" title="核心循环"></a>核心循环</h2><p>对于一个定时任务系统来说，核心的工作是给定时任务们按时间排序，然后找到并等待下一个需要触发的任务。Redis 刚好为我们提供了 <a target="_blank" rel="noopener" href="https://redis.io/topics/data-types#sorted-sets">ZSET</a> 这种支持排序的集合类型，ZSET 中存储着若干个互不相同的 member（字符串或二进制数据），每个 member 有一个相关联的 score（数字），整个 ZSET 会按照 score 排序，基于这样的数据结构提供了若干操作。</p>
+<p>我们将定时任务的 ID 作为 member 放在一个叫 <code>cronjobs</code> 的 ZSET 里，使用下次触发时间作为 score 来排序，这样便得到了一个以下次触发时间排序的列表。</p>
+<p>我们可以这样向系统中添加任务：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redisClient.<span class="title function_">zadd</span>(<span class="string">&#x27;cronjobs&#x27;</span>, <span class="title function_">nextTriggerAt</span>(cronjobId), cronjobId)</span><br></pre></td></tr></table></figure>
+
+<p>用 <code>ZRANGE cronjobs 0 -1 WITHSCORES</code> 可以看到已添加的任务：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; ZRANGE cronjobs 0 -1 WITHSCORES</span><br><span class="line">1) &quot;2&quot;</span><br><span class="line">2) &quot;1565453967832&quot;</span><br><span class="line">3) &quot;1&quot;</span><br><span class="line">4) &quot;1565453998742&quot;</span><br></pre></td></tr></table></figure>
+
+<p>然后我们可以在 worker 中写一个无限循环，不断地检查这个 ZSET 中 score 最小（触发时间最早）的任务是否已经超过了当前时间，如果是的话就执行这个任务，并修改 ZSET 中的 score 为下次触发时间，Node.js 的代码如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> [cronjobId, triggerAt] = <span class="keyword">await</span> redisClient.<span class="title function_">zrange</span>(<span class="string">&#x27;cronjobs&#x27;</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="string">&#x27;WITHSCORES&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">parseInt</span>(triggerAt) &lt; <span class="title class_">Date</span>.<span class="title function_">now</span>()) &#123;</span><br><span class="line">    <span class="comment">// ZADD CH 会返回被修改 member 数量，只有当成功修改了 score 我们才会继续执行，否则说明这个任务已经被其他的 worker 执行了</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">await</span> redisClient.<span class="title function_">zadd</span>(<span class="string">&#x27;cronjobs&#x27;</span>, <span class="string">&#x27;CH&#x27;</span>, <span class="title function_">nextTriggerAt</span>(cronjobId), cronjobId)) &#123;</span><br><span class="line">      <span class="comment">// 异步地运行任务，避免「阻塞」核心循环</span></span><br><span class="line">      <span class="title function_">runJob</span>(cronjobId)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 等待下一个任务触发，如果距离下一个任务的触发少于 10 秒，则等待下一个任务执行，否则等待 10 秒后重试。</span></span><br><span class="line">    <span class="keyword">await</span> bluebird.<span class="title function_">delay</span>(triggerAt ? <span class="title class_">Math</span>.<span class="title function_">min</span>(<span class="built_in">parseInt</span>(triggerAt) - <span class="title class_">Date</span>.<span class="title function_">now</span>(), <span class="number">10000</span>) : <span class="number">10000</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的循环构成了这个定时任务系统最核心的部分，后面我们会逐渐地完善他。</p>
+<p><strong>为什么不用 Keyspace Notifications?</strong></p>
+<p>在社区中有很多文章推荐简单地使用 Keyspace Notifications 来实现「定时」，即为一个 key 设置一个过期时间，然后订阅这个 key 过期的事件。但这种方式主要的问题是 Redis 的 Pub&#x2F;Sub 并不保证送达，如果刚好在这个 key 过期时 worker 不在线，那么这一次触发就不会生效；如果刚好有多个 worker 在线，那么这一次触发的任务也可能被执行多次。</p>
+<p>而我们选择的基于 ZSET 的方式，需要 worker 主动修改 ZSET 中的下次触发时间，即使 worker 暂时不可用，在恢复时也会继续执行之前剩余的任务。</p>
+<p><strong>这样 Redis 就变成了系统的单点？</strong></p>
+<p>是这样的，这个系统中几乎全部的状态都存储于 Redis 上，可以说是系统中的单点。但相比于 worker，Redis（或其他的数据库）是一个更稳定、更标准化的组件。你可以用官方的 Master-Slave + Sentinel 方案来达到一个相对较高的可用性，你也可以使用由云服务厂商提供的托管 Redis 产品，避免自己来维护它。</p>
+<h2 id="继续完善"><a href="#继续完善" class="headerlink" title="继续完善"></a>继续完善</h2><h3 id="CRON-表达式"><a href="#CRON-表达式" class="headerlink" title="CRON 表达式"></a>CRON 表达式</h3><p>前面的代码中我们并没有实现 nextTriggerAt，你可以用 cron-parser 这样的库去解析 CRON 表达式，计算下次触发时间：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> cronParser = <span class="built_in">require</span>(<span class="string">&#x27;cron-parser&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">nextTriggerAt</span>(<span class="params">cronjobId</span>) &#123;</span><br><span class="line">  <span class="comment">// 从 Redis 或其他数据库中根据 cronjobId 拉取定时任务的详情</span></span><br><span class="line">  <span class="keyword">const</span> cronjobInfo = <span class="keyword">await</span> <span class="title function_">getCronjobInfo</span>(cronjobId)</span><br><span class="line">  <span class="keyword">return</span> cronParser.<span class="title function_">parseExpression</span>(cronjobInfo.<span class="property">cron</span>).<span class="title function_">next</span>().<span class="title function_">getTime</span>()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="中断任务处理"><a href="#中断任务处理" class="headerlink" title="中断任务处理"></a>中断任务处理</h3><p>如果一个 Worker 意外退出，那么当时正在被它处理的所有任务都会永久性地丢失。为了避免这种情况，我们将正在执行的任务也存储到 Redis 中（一个叫 <code>running</code> 的 ZSET）：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="keyword">await</span> redisClient.<span class="title function_">zadd</span>(<span class="string">&#x27;cronjobs&#x27;</span>, <span class="string">&#x27;CH&#x27;</span>, <span class="title function_">nextTriggerAt</span>(cronjobId), cronjobId)) &#123;</span><br><span class="line">    <span class="comment">// 为每个任务生成一个随机的 uuid 以便能单独地追踪每个任务，例如打印到日志中</span></span><br><span class="line">  <span class="keyword">await</span> redisClient.<span class="title function_">zadd</span>(<span class="string">&#x27;running&#x27;</span>, <span class="title class_">Date</span>.<span class="title function_">now</span>() + <span class="number">60000</span>, <span class="string">`<span class="subst">$&#123;cronjobId&#125;</span>:<span class="subst">$&#123;uuid.v4()&#125;</span>`</span>)</span><br><span class="line">  <span class="title function_">runJob</span>(cronjobId).<span class="title function_">finally</span>( <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// 在一个任务被完成时，我们还需要将它从 running 集合中取出</span></span><br><span class="line">    redisClient.<span class="title function_">zrem</span>(<span class="string">&#x27;running&#x27;</span>, uniqueId)</span><br><span class="line">  &#125;)</span><br><span class="line"> &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>如果你有一些为多实例应用编写代码的经验，那么可能会注意到这里存在一个竞态条件：对 cronjobs 和 running 的操作并不是原子的，可能会出现对 cronjobs 的操作成功了，随即 worker 意外退出，没有来得及写入 running 的情况。</p>
+<p>因为这里我们需要对 ZADD 的返回值做判断，所以不能简单地使用 Redis 的 Pipeline 功能，而是要用到 Lua Script：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">redisClient.<span class="title function_">defineCommand</span>(<span class="string">&#x27;startJob&#x27;</span>, &#123;</span><br><span class="line">  <span class="attr">lua</span>: <span class="string">`</span></span><br><span class="line"><span class="string">    local cronjobId = ARGV[1]</span></span><br><span class="line"><span class="string">    local jobName = ARGV[2]</span></span><br><span class="line"><span class="string">    local nextTriggerAt = tonumber(ARGV[3])</span></span><br><span class="line"><span class="string">    local timeoutAt = tonumber(ARGV[4])</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    local changed = redis.call(&#x27;ZADD&#x27;, &#x27;cronjobs&#x27;, &#x27;CH&#x27;, nextTriggerAt, cronjobId)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    if changed ~= 0 then</span></span><br><span class="line"><span class="string">      redis.call(&#x27;ZADD&#x27;, &#x27;running&#x27;, timeoutAt, jobName)</span></span><br><span class="line"><span class="string">    end</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    return changed</span></span><br><span class="line"><span class="string">  `</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>经过修改后的核心循环：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> jobName = <span class="string">`<span class="subst">$&#123;cronjobId&#125;</span>:<span class="subst">$&#123;uuid.v4()&#125;</span>`</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">await</span> redisClient.<span class="title function_">startJob</span>(cronjobId, jobName, <span class="title function_">nextTriggerAt</span>(cronjobId), <span class="title class_">Date</span>.<span class="title function_">now</span>() + <span class="number">60000</span>)) &#123;</span><br><span class="line">  <span class="title function_">runJob</span>(cronjobId).<span class="title function_">finally</span>( <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    redisClient.<span class="title function_">zrem</span>(<span class="string">&#x27;running&#x27;</span>, uniqueId)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后我们便可以添加另外一个循环，从 running 中拉取已经超时的任务进行重试或其他处理，这里不再给出具体的代码。</p>
+<p><strong>Lua Script</strong></p>
+<p>Lua Script 是 Redis 提供的一种类似事务能力，Redis 保证每个 Lua Script 都是串行执行的，中途不会有其他指令被执行，这提供了一种非常强的一致性保证。在实际的开发中，我们可以将需要一致性保证的逻辑写成 Lua Script。</p>
+<h3 id="平滑关闭"><a href="#平滑关闭" class="headerlink" title="平滑关闭"></a>平滑关闭</h3><p>我们不可避免地会对 worker 进程进行新版本的部署或其他维护，因此我们需要一种平滑的方式来关闭 worker 进程，让它继续执行已经收到的任务，但不去接受新的任务，在执行完当前的任务之后，主动退出。</p>
+<p>在 Unix 中最正统的方式是实现自定义的 SIGINT 处理器来实现这个功能，即由终端模拟器、进程管理器或容器平台向程序发送 SIGINT 信号，程序即开始进行退出前的清理工作，然后待清理工作结束后，程序主动退出。当然进程管理器也有可能等不及，再发送一个强制结束的 SIGKILL。</p>
+<p>所以我们需要将所有正在执行的任务注册到一个全局的 Promise 数组中，然后在受到 SIGINT 时停止接受新任务，并等待所有正在执行的任务完成后主动退出：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> runningJobs = []</span><br><span class="line"><span class="keyword">let</span> shuttingDown = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">process.<span class="title function_">on</span>(<span class="string">&#x27;SIGTERM&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  shuttingDown = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 等待 runningJobs 中所有的任务完成，无论成功还是失败</span></span><br><span class="line">  <span class="title class_">Promise</span>.<span class="title function_">all</span>(runningJobs.<span class="title function_">map</span>( <span class="function"><span class="params">p</span> =&gt;</span> p.<span class="title function_">catch</span>(<span class="function">() =&gt;</span> &#123;&#125;) )).<span class="title function_">then</span>( <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    process.<span class="title function_">exit</span>(<span class="number">0</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>修改核心循环，在开始任务时将 runJob 返回的 Promise 存入 runningJobs，然后在任务执行完时取出：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (shuttingDown) &#123;</span><br><span class="line">    <span class="keyword">break</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">await</span> redisClient.<span class="title function_">zadd</span>(<span class="string">&#x27;cronjobs&#x27;</span>, <span class="string">&#x27;CH&#x27;</span>, <span class="title function_">nextTriggerAt</span>(cronjobId), cronjobId)) &#123;</span><br><span class="line">    <span class="comment">// 异步地运行任务，避免「阻塞」核心循环</span></span><br><span class="line">    <span class="keyword">const</span> jobPromise = <span class="title function_">runJob</span>(cronjobId)</span><br><span class="line"></span><br><span class="line">    jobPromise.<span class="title function_">finally</span>( <span class="function">() =&gt;</span> &#123;</span><br><span class="line">      _.<span class="title function_">pull</span>(runningJobs, jobPromise)</span><br><span class="line">    ))</span><br><span class="line"></span><br><span class="line">    runningJobs.<span class="title function_">push</span>(jobPromise)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="容量的横向拓展"><a href="#容量的横向拓展" class="headerlink" title="容量的横向拓展"></a>容量的横向拓展</h3><p>目前这个定时任务系统中的 worker 是可以无限拓展的，但 Redis 却是整个系统中的瓶颈，每个 worker 都需要从 Redis 获取任务来执行。按照我们对于 Redis 通常  70k QPS 的估计，按每个任务需要执行 5 个命令计算，整个系统可以支持每秒 14k 次任务触发，对于绝大部分的场景其实完全够用了。</p>
+<p>如果要继续拓展的话，我的建议是根据业务上的一些区分（例如用户、任务类型）将队列分散到不同的 Key 上面（例如 <code>userA:cronjobs</code> 和 <code>userB:cornjobs</code>），这样便可以利用 Redis Cluster 的分片功能来进行扩展了。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>我们用 ZSET 将定时任务按照触发时间排序，然后使用一个无限循环来拉取需要触发的任务，实现了一个分布式定时任务系统的核心部分，读者可以在此基础上根据自己的需要做进一步扩展。</p>
+<p>本文甚至没有给出完整的代码，因此并不能直接地复制到你的项目中使用，更多地在于提出和讨论一种解决方案。社区中也有一些类似的开源组件可供选用，例如 <a target="_blank" rel="noopener" href="https://github.com/OptimalBits/bull">Bull</a> 是一个功能完整的任务队列，其中包括了定时任务功能，Bull 使用了和本文类似的 ZSET + Scripting 技术，使用 Redis 作为后端。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Redis/" rel="tag"># Redis</a>
+          
+            <a href="/tags/Node-js/" rel="tag"># Node.js</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/08/17/%E5%9C%A8WSL%E4%B8%AD%E4%BD%BF%E7%94%A8Linux%E6%A1%8C%E9%9D%A2%E7%8E%AF%E5%A2%83%E7%9A%84%E5%B0%9D%E8%AF%95%E4%B8%8E%E6%80%BB%E7%BB%93/" rel="next" title="在 WSL 中使用 Linux 桌面环境的尝试与总结">
+                <i class="fa fa-chevron-left"></i> 在 WSL 中使用 Linux 桌面环境的尝试与总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/post/f6ef2a76.html" rel="prev" title="《图解 HTTP》 学习笔记">
+                《图解 HTTP》 学习笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AB%98%E5%8F%AF%E7%94%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.</span> <span class="nav-text">高可用设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E5%BE%AA%E7%8E%AF"><span class="nav-number">2.</span> <span class="nav-text">核心循环</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%A7%E7%BB%AD%E5%AE%8C%E5%96%84"><span class="nav-number">3.</span> <span class="nav-text">继续完善</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CRON-%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">3.1.</span> <span class="nav-text">CRON 表达式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%AD%E6%96%AD%E4%BB%BB%E5%8A%A1%E5%A4%84%E7%90%86"><span class="nav-number">3.2.</span> <span class="nav-text">中断任务处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B3%E6%BB%91%E5%85%B3%E9%97%AD"><span class="nav-number">3.3.</span> <span class="nav-text">平滑关闭</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%B9%E9%87%8F%E7%9A%84%E6%A8%AA%E5%90%91%E6%8B%93%E5%B1%95"><span class="nav-number">3.4.</span> <span class="nav-text">容量的横向拓展</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

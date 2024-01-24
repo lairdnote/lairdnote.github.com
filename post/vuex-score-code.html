@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="前端,Vue,源码解析," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="版本说明本文是针对 vuex v3.6.2 版本的一次源码解析，主要是想研究以下几点：  vuex 的初始化过程 vuex 的数据状态如何存放 调用一个 mutation 时做了什么 mapState、mapActions 这些绑定函数的实现  一、初始化过程我们平时使用 vuex 的时候需要先通过 new 一个 Vuex.Store 来创建一个 store，下面我们就看看在构造一个 store">
+<meta property="og:type" content="article">
+<meta property="og:title" content="vuex 源码解析">
+<meta property="og:url" content="https://blog.feedscoin.com/post/vuex-score-code.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="版本说明本文是针对 vuex v3.6.2 版本的一次源码解析，主要是想研究以下几点：  vuex 的初始化过程 vuex 的数据状态如何存放 调用一个 mutation 时做了什么 mapState、mapActions 这些绑定函数的实现  一、初始化过程我们平时使用 vuex 的时候需要先通过 new 一个 Vuex.Store 来创建一个 store，下面我们就看看在构造一个 store">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-07-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:26:54.455Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="前端">
+<meta property="article:tag" content="Vue">
+<meta property="article:tag" content="源码解析">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/post/vuex-score-code.html"/>
+
+
+
+
+
+  <title>vuex 源码解析 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/vuex-score-code.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">vuex 源码解析</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-07-15T00:00:00+08:00">
+                2021-07-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <h2 id="版本说明"><a href="#版本说明" class="headerlink" title="版本说明"></a>版本说明</h2><p>本文是针对 vuex <a target="_blank" rel="noopener" href="https://github.com/vuejs/vuex/releases/tag/v3.6.2">v3.6.2</a> 版本的一次源码解析，主要是想研究以下几点：</p>
+<ol>
+<li>vuex 的初始化过程</li>
+<li>vuex 的数据状态如何存放</li>
+<li>调用一个 mutation 时做了什么</li>
+<li>mapState、mapActions 这些绑定函数的实现</li>
+</ol>
+<h2 id="一、初始化过程"><a href="#一、初始化过程" class="headerlink" title="一、初始化过程"></a>一、初始化过程</h2><p>我们平时使用 vuex 的时候需要先通过 new 一个 <code>Vuex.Store</code> 来创建一个 store，下面我们就看看在构造一个 store 时需要经过哪些操作，我们先来看看它的构造函数，它的源码在 <a target="_blank" rel="noopener" href="https://github1s.com/vuejs/vuex/blob/HEAD/src/store.js">src&#x2F;store.js</a>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="title class_">Vue</span> <span class="comment">// bind on install</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">Store</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">options = &#123;&#125;</span>) &#123;</span><br><span class="line">    <span class="comment">// Auto install if it is not done yet and `window` has `Vue`.</span></span><br><span class="line">    <span class="comment">// To allow users to avoid auto-installation in some cases,</span></span><br><span class="line">    <span class="comment">// this code should be placed here. See #731</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="title class_">Vue</span> &amp;&amp; <span class="keyword">typeof</span> <span class="variable language_">window</span> !== <span class="string">&#x27;undefined&#x27;</span> &amp;&amp; <span class="variable language_">window</span>.<span class="property">Vue</span>) &#123;</span><br><span class="line">      <span class="title function_">install</span>(<span class="variable language_">window</span>.<span class="property">Vue</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (__DEV__) &#123;</span><br><span class="line">      <span class="title function_">assert</span>(<span class="title class_">Vue</span>, <span class="string">`must call Vue.use(Vuex) before creating a store instance.`</span>)</span><br><span class="line">      <span class="title function_">assert</span>(</span><br><span class="line">        <span class="keyword">typeof</span> <span class="title class_">Promise</span> !== <span class="string">&#x27;undefined&#x27;</span>,</span><br><span class="line">        <span class="string">`vuex requires a Promise polyfill in this browser.`</span></span><br><span class="line">      )</span><br><span class="line">      <span class="title function_">assert</span>(</span><br><span class="line">        <span class="variable language_">this</span> <span class="keyword">instanceof</span> <span class="title class_">Store</span>,</span><br><span class="line">        <span class="string">`store must be called with the new operator.`</span></span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> &#123; plugins = [], strict = <span class="literal">false</span> &#125; = options</span><br><span class="line"></span><br><span class="line">    <span class="comment">// store internal state</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_committing</span> = <span class="literal">false</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_actions</span> = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_actionSubscribers</span> = []</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_mutations</span> = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_wrappedGetters</span> = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_modules</span> = <span class="keyword">new</span> <span class="title class_">ModuleCollection</span>(options)</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_modulesNamespaceMap</span> = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_subscribers</span> = []</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_watcherVM</span> = <span class="keyword">new</span> <span class="title class_">Vue</span>()</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_makeLocalGettersCache</span> = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// bind commit and dispatch to self</span></span><br><span class="line">    <span class="keyword">const</span> store = <span class="variable language_">this</span></span><br><span class="line">    <span class="keyword">const</span> &#123; dispatch, commit &#125; = <span class="variable language_">this</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">dispatch</span> = <span class="keyword">function</span> <span class="title function_">boundDispatch</span>(<span class="params">type, payload</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> dispatch.<span class="title function_">call</span>(store, type, payload)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">commit</span> = <span class="keyword">function</span> <span class="title function_">boundCommit</span>(<span class="params">type, payload, options</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> commit.<span class="title function_">call</span>(store, type, payload, options)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// strict mode</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">strict</span> = strict</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> state = <span class="variable language_">this</span>.<span class="property">_modules</span>.<span class="property">root</span>.<span class="property">state</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// init root module.</span></span><br><span class="line">    <span class="comment">// this also recursively registers all sub-modules</span></span><br><span class="line">    <span class="comment">// and collects all module getters inside this._wrappedGetters</span></span><br><span class="line">    <span class="title function_">installModule</span>(<span class="variable language_">this</span>, state, [], <span class="variable language_">this</span>.<span class="property">_modules</span>.<span class="property">root</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// initialize the store vm, which is responsible for the reactivity</span></span><br><span class="line">    <span class="comment">// (also registers _wrappedGetters as computed properties)</span></span><br><span class="line">    <span class="title function_">resetStoreVM</span>(<span class="variable language_">this</span>, state)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// apply plugins</span></span><br><span class="line">    plugins.<span class="title function_">forEach</span>(<span class="function">(<span class="params">plugin</span>) =&gt;</span> <span class="title function_">plugin</span>(<span class="variable language_">this</span>))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> useDevtools =</span><br><span class="line">      options.<span class="property">devtools</span> !== <span class="literal">undefined</span> ? options.<span class="property">devtools</span> : <span class="title class_">Vue</span>.<span class="property">config</span>.<span class="property">devtools</span></span><br><span class="line">    <span class="keyword">if</span> (useDevtools) &#123;</span><br><span class="line">      <span class="title function_">devtoolPlugin</span>(<span class="variable language_">this</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码不是很长，下面我们逐段分析一下这个构造函数中做了哪些操作。</p>
+<h3 id="1-自动安装"><a href="#1-自动安装" class="headerlink" title="1. 自动安装"></a>1. 自动安装</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="title class_">Vue</span> <span class="comment">// bind on install</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> <span class="title class_">Store</span> &#123;</span><br><span class="line">  <span class="title function_">constructor</span>(<span class="params">options = &#123;&#125;</span>) &#123;</span><br><span class="line">    <span class="comment">// Auto install if it is not done yet and `window` has `Vue`.</span></span><br><span class="line">    <span class="comment">// To allow users to avoid auto-installation in some cases,</span></span><br><span class="line">    <span class="comment">// this code should be placed here. See #731</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="title class_">Vue</span> &amp;&amp; <span class="keyword">typeof</span> <span class="variable language_">window</span> !== <span class="string">&#x27;undefined&#x27;</span> &amp;&amp; <span class="variable language_">window</span>.<span class="property">Vue</span>) &#123;</span><br><span class="line">      <span class="title function_">install</span>(<span class="variable language_">window</span>.<span class="property">Vue</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">function</span> <span class="title function_">install</span>(<span class="params">_Vue</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="title class_">Vue</span> &amp;&amp; _Vue === <span class="title class_">Vue</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (__DEV__) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">error</span>(</span><br><span class="line">        <span class="string">&#x27;[vuex] already installed. Vue.use(Vuex) should be called only once.&#x27;</span></span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="title class_">Vue</span> = _Vue</span><br><span class="line">  <span class="title function_">applyMixin</span>(<span class="title class_">Vue</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>new Store</code> 的时候如果还未安装，并且已经有全局引入 Vue 的情况下，就会自动安装，但如果已经安装，则无需再次安装。</p>
+<p>安装的时候会执行一下 <code>applyMixin</code> ，它的源码位在 <a target="_blank" rel="noopener" href="https://github1s.com/vuejs/vuex/blob/HEAD/src/mixin.js">src&#x2F;mixin.js</a>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">function</span> (<span class="params">Vue</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> version = <span class="title class_">Number</span>(<span class="title class_">Vue</span>.<span class="property">version</span>.<span class="title function_">split</span>(<span class="string">&#x27;.&#x27;</span>)[<span class="number">0</span>])</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (version &gt;= <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="title class_">Vue</span>.<span class="title function_">mixin</span>(&#123;</span><br><span class="line">      <span class="attr">beforeCreate</span>: vuexInit</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// override init and inject vuex init procedure</span></span><br><span class="line">    <span class="comment">// for 1.x backwards compatibility.</span></span><br><span class="line">    <span class="keyword">const</span> _init = <span class="title class_">Vue</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">_init</span></span><br><span class="line">    <span class="title class_">Vue</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">_init</span> = <span class="keyword">function</span> (<span class="params">options = &#123;&#125;</span>) &#123;</span><br><span class="line">      options.<span class="property">init</span> = options.<span class="property">init</span> ? [vuexInit].<span class="title function_">concat</span>(options.<span class="property">init</span>) : vuexInit</span><br><span class="line">      _init.<span class="title function_">call</span>(<span class="variable language_">this</span>, options)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Vuex init hook, injected into each instances init hooks list.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">vuexInit</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> options = <span class="variable language_">this</span>.<span class="property">$options</span></span><br><span class="line">    <span class="comment">// store injection</span></span><br><span class="line">    <span class="keyword">if</span> (options.<span class="property">store</span>) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">$store</span> =</span><br><span class="line">        <span class="keyword">typeof</span> options.<span class="property">store</span> === <span class="string">&#x27;function&#x27;</span> ? options.<span class="title function_">store</span>() : options.<span class="property">store</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (options.<span class="property">parent</span> &amp;&amp; options.<span class="property">parent</span>.<span class="property">$store</span>) &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">$store</span> = options.<span class="property">parent</span>.<span class="property">$store</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其实就是只做了一件事：将 store 挂载到 <code>$store</code> ，所以我们可以在 <code>vue</code> 组件中通过 <code>$store</code> 访问到 store。</p>
+<h3 id="2-异常检测"><a href="#2-异常检测" class="headerlink" title="2. 异常检测"></a>2. 异常检测</h3><p>如果是在开发环境的话，就会做一些检查：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (__DEV__) &#123;</span><br><span class="line">  <span class="title function_">assert</span>(<span class="title class_">Vue</span>, <span class="string">`must call Vue.use(Vuex) before creating a store instance.`</span>)</span><br><span class="line">  <span class="title function_">assert</span>(</span><br><span class="line">    <span class="keyword">typeof</span> <span class="title class_">Promise</span> !== <span class="string">&#x27;undefined&#x27;</span>,</span><br><span class="line">    <span class="string">`vuex requires a Promise polyfill in this browser.`</span></span><br><span class="line">  )</span><br><span class="line">  <span class="title function_">assert</span>(<span class="variable language_">this</span> <span class="keyword">instanceof</span> <span class="title class_">Store</span>, <span class="string">`store must be called with the new operator.`</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-初始化内部变量"><a href="#3-初始化内部变量" class="headerlink" title="3. 初始化内部变量"></a>3. 初始化内部变量</h3><p>然后定义了一系列内部变量，这些变量后面都会讲到的：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; plugins = [], strict = <span class="literal">false</span> &#125; = options</span><br><span class="line"></span><br><span class="line"><span class="comment">// store internal state</span></span><br><span class="line"><span class="variable language_">this</span>.<span class="property">_committing</span> = <span class="literal">false</span></span><br><span class="line"><span class="variable language_">this</span>.<span class="property">_actions</span> = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line"><span class="variable language_">this</span>.<span class="property">_actionSubscribers</span> = []</span><br><span class="line"><span class="variable language_">this</span>.<span class="property">_mutations</span> = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line"><span class="variable language_">this</span>.<span class="property">_wrappedGetters</span> = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line"><span class="variable language_">this</span>.<span class="property">_modules</span> = <span class="keyword">new</span> <span class="title class_">ModuleCollection</span>(options)</span><br><span class="line"><span class="variable language_">this</span>.<span class="property">_modulesNamespaceMap</span> = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line"><span class="variable language_">this</span>.<span class="property">_subscribers</span> = []</span><br><span class="line"><span class="variable language_">this</span>.<span class="property">_watcherVM</span> = <span class="keyword">new</span> <span class="title class_">Vue</span>()</span><br><span class="line"><span class="variable language_">this</span>.<span class="property">_makeLocalGettersCache</span> = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// bind commit and dispatch to self</span></span><br><span class="line"><span class="keyword">const</span> store = <span class="variable language_">this</span></span><br><span class="line"><span class="keyword">const</span> &#123; dispatch, commit &#125; = <span class="variable language_">this</span></span><br><span class="line"><span class="variable language_">this</span>.<span class="property">dispatch</span> = <span class="keyword">function</span> <span class="title function_">boundDispatch</span>(<span class="params">type, payload</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> dispatch.<span class="title function_">call</span>(store, type, payload)</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">this</span>.<span class="property">commit</span> = <span class="keyword">function</span> <span class="title function_">boundCommit</span>(<span class="params">type, payload, options</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> commit.<span class="title function_">call</span>(store, type, payload, options)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// strict mode</span></span><br><span class="line"><span class="variable language_">this</span>.<span class="property">strict</span> = strict</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> state = <span class="variable language_">this</span>.<span class="property">_modules</span>.<span class="property">root</span>.<span class="property">state</span></span><br></pre></td></tr></table></figure>
+
+<p>这里有几点比较值得关注的，下面来逐一讲讲。</p>
+<h4 id="3-1-构造-modules"><a href="#3-1-构造-modules" class="headerlink" title="3.1. 构造 modules"></a>3.1. 构造 modules</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="property">_modules</span> = <span class="keyword">new</span> <span class="title class_">ModuleCollection</span>(options)</span><br></pre></td></tr></table></figure>
+
+<p>它会通过 new 一个 ModuleCollection 并传入 options 得到 modules，ModuleCollection 内部会递归注册所有的子模块。</p>
+<p>最终返回一个类似如下的数据结构：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">runtime</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">state</span>: &#123;&#125;,</span><br><span class="line">    <span class="attr">_children</span>: &#123;</span><br><span class="line">        <span class="attr">subModule1</span>: <span class="title class_">Module</span> &#123;</span><br><span class="line">            <span class="attr">runtime</span>: <span class="literal">false</span>,</span><br><span class="line">            <span class="attr">_children</span>: &#123;</span><br><span class="line">                …&#125;,</span><br><span class="line">            <span class="attr">_rawModule</span>: &#123;</span><br><span class="line">                …&#125;,</span><br><span class="line">            <span class="attr">state</span>: &#123;</span><br><span class="line">                …&#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">subModule2</span>: <span class="title class_">Module</span> &#123;</span><br><span class="line">            <span class="attr">runtime</span>: <span class="literal">false</span>,</span><br><span class="line">            <span class="attr">_children</span>: &#123;</span><br><span class="line">                …&#125;,</span><br><span class="line">            <span class="attr">_rawModule</span>: &#123;</span><br><span class="line">                …&#125;,</span><br><span class="line">            <span class="attr">state</span>: &#123;</span><br><span class="line">                …&#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">_rawModule</span>: &#123;</span><br><span class="line">        <span class="attr">modules</span>: &#123;</span><br><span class="line">            <span class="attr">subModule1</span>: &#123;</span><br><span class="line">                <span class="attr">state</span>: &#123;</span><br><span class="line">                    …&#125;,</span><br><span class="line">                <span class="attr">mutations</span>: &#123;</span><br><span class="line">                    …&#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="attr">subModule2</span>: &#123;</span><br><span class="line">                <span class="attr">state</span>: &#123;</span><br><span class="line">                    …&#125;,</span><br><span class="line">                <span class="attr">mutations</span>: &#123;</span><br><span class="line">                    …&#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">namespaced</span>: <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>不过这里先不用太纠结，大概知道就好。</p>
+<h4 id="3-2-包装-dispatch-和-commit"><a href="#3-2-包装-dispatch-和-commit" class="headerlink" title="3.2. 包装 dispatch 和 commit"></a>3.2. 包装 dispatch 和 commit</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// bind commit and dispatch to self</span></span><br><span class="line"><span class="keyword">const</span> store = <span class="variable language_">this</span></span><br><span class="line"><span class="keyword">const</span> &#123; dispatch, commit &#125; = <span class="variable language_">this</span></span><br><span class="line"><span class="variable language_">this</span>.<span class="property">dispatch</span> = <span class="keyword">function</span> <span class="title function_">boundDispatch</span>(<span class="params">type, payload</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> dispatch.<span class="title function_">call</span>(store, type, payload)</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable language_">this</span>.<span class="property">commit</span> = <span class="keyword">function</span> <span class="title function_">boundCommit</span>(<span class="params">type, payload, options</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> commit.<span class="title function_">call</span>(store, type, payload, options)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里之所以要把 <code>dispatch</code> 和 <code>commit</code> 方法包装一下，是为了确保无论如何调用这两个方法， <code>this</code> 始终指向 store 实例。</p>
+<p>因为在 js 中，不管是有意或者无意，能够改变 <code>this</code> 指向的操作太多了，所以 <code>vuex</code> 考虑到了这一点。</p>
+<h3 id="4-初始化-module"><a href="#4-初始化-module" class="headerlink" title="4. 初始化 module"></a>4. 初始化 module</h3><p>接着就会使用前面得到的 <code>_module</code>   来初始化 module，传入的是 <code>_module.root</code> ：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// init root module.</span></span><br><span class="line"><span class="comment">// this also recursively registers all sub-modules</span></span><br><span class="line"><span class="comment">// and collects all module getters inside this._wrappedGetters</span></span><br><span class="line"><span class="title function_">installModule</span>(<span class="variable language_">this</span>, state, [], <span class="variable language_">this</span>.<span class="property">_modules</span>.<span class="property">root</span>)</span><br></pre></td></tr></table></figure>
+
+<p>同样它只需要传入 root 模块，方法内会去检测如果存在子模块则会递归调用去初始化所有子模块。</p>
+<p>下面是 <code>installModule</code> 的实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">installModule</span>(<span class="params">store, rootState, path, <span class="variable language_">module</span>, hot</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> isRoot = !path.<span class="property">length</span></span><br><span class="line">  <span class="keyword">const</span> namespace = store.<span class="property">_modules</span>.<span class="title function_">getNamespace</span>(path)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// register in namespace map</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="variable language_">module</span>.<span class="property">namespaced</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (store.<span class="property">_modulesNamespaceMap</span>[namespace] &amp;&amp; __DEV__) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">error</span>(</span><br><span class="line">        <span class="string">`[vuex] duplicate namespace <span class="subst">$&#123;namespace&#125;</span> for the namespaced module <span class="subst">$&#123;path.join(</span></span></span><br><span class="line"><span class="subst"><span class="string">          <span class="string">&#x27;/&#x27;</span></span></span></span><br><span class="line"><span class="subst"><span class="string">        )&#125;</span>`</span></span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line">    store.<span class="property">_modulesNamespaceMap</span>[namespace] = <span class="variable language_">module</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// set state</span></span><br><span class="line">  <span class="keyword">if</span> (!isRoot &amp;&amp; !hot) &#123;</span><br><span class="line">    <span class="keyword">const</span> parentState = <span class="title function_">getNestedState</span>(rootState, path.<span class="title function_">slice</span>(<span class="number">0</span>, -<span class="number">1</span>))</span><br><span class="line">    <span class="keyword">const</span> moduleName = path[path.<span class="property">length</span> - <span class="number">1</span>]</span><br><span class="line">    store.<span class="title function_">_withCommit</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (__DEV__) &#123;</span><br><span class="line">        <span class="keyword">if</span> (moduleName <span class="keyword">in</span> parentState) &#123;</span><br><span class="line">          <span class="variable language_">console</span>.<span class="title function_">warn</span>(</span><br><span class="line">            <span class="string">`[vuex] state field &quot;<span class="subst">$&#123;moduleName&#125;</span>&quot; was overridden by a module with the same name at &quot;<span class="subst">$&#123;path.join(</span></span></span><br><span class="line"><span class="subst"><span class="string">              <span class="string">&#x27;.&#x27;</span></span></span></span><br><span class="line"><span class="subst"><span class="string">            )&#125;</span>&quot;`</span></span><br><span class="line">          )</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="title class_">Vue</span>.<span class="title function_">set</span>(parentState, moduleName, <span class="variable language_">module</span>.<span class="property">state</span>)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> local = (<span class="variable language_">module</span>.<span class="property">context</span> = <span class="title function_">makeLocalContext</span>(store, namespace, path))</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">module</span>.<span class="title function_">forEachMutation</span>(<span class="function">(<span class="params">mutation, key</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> namespacedType = namespace + key</span><br><span class="line">    <span class="title function_">registerMutation</span>(store, namespacedType, mutation, local)</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">module</span>.<span class="title function_">forEachAction</span>(<span class="function">(<span class="params">action, key</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> type = action.<span class="property">root</span> ? key : namespace + key</span><br><span class="line">    <span class="keyword">const</span> handler = action.<span class="property">handler</span> || action</span><br><span class="line">    <span class="title function_">registerAction</span>(store, type, handler, local)</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">module</span>.<span class="title function_">forEachGetter</span>(<span class="function">(<span class="params">getter, key</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> namespacedType = namespace + key</span><br><span class="line">    <span class="title function_">registerGetter</span>(store, namespacedType, getter, local)</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">module</span>.<span class="title function_">forEachChild</span>(<span class="function">(<span class="params">child, key</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="title function_">installModule</span>(store, rootState, path.<span class="title function_">concat</span>(key), child, hot)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-1-初始化-root-模块"><a href="#4-1-初始化-root-模块" class="headerlink" title="4.1 初始化 root 模块"></a>4.1 初始化 root 模块</h4><p>由于这个方法是会递归调用的，我们先来看看它在初始化根模块时会执行的逻辑，首先它会调用 <code>makeLocalContext</code> 构造出属于当前模块的一个上下文，也就是我们平时在 <code>action</code> 中获取的那个 <code>ctx</code> 参数：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> local = (<span class="variable language_">module</span>.<span class="property">context</span> = <span class="title function_">makeLocalContext</span>(store, namespace, path))</span><br></pre></td></tr></table></figure>
+
+<p>接着会处理当前模块的 <code>mutations</code> 、 <code>actions</code> 、 <code>getters</code> ，以及如果有子模块的话就递归调用 <code>installModule</code> 对子模块进行相同的处理：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="title function_">forEachMutation</span>(<span class="keyword">function</span> (<span class="params">mutation, key</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> namespacedType = namespace + key</span><br><span class="line">  <span class="title function_">registerMutation</span>(store, namespacedType, mutation, local)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="title function_">forEachAction</span>(<span class="keyword">function</span> (<span class="params">action, key</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> type = action.<span class="property">root</span> ? key : namespace + key</span><br><span class="line">  <span class="keyword">var</span> handler = action.<span class="property">handler</span> || action</span><br><span class="line">  <span class="title function_">registerAction</span>(store, type, handler, local)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="title function_">forEachGetter</span>(<span class="keyword">function</span> (<span class="params">getter, key</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> namespacedType = namespace + key</span><br><span class="line">  <span class="title function_">registerGetter</span>(store, namespacedType, getter, local)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="title function_">forEachChild</span>(<span class="keyword">function</span> (<span class="params">child, key</span>) &#123;</span><br><span class="line">  <span class="title function_">installModule</span>(store, rootState, path.<span class="title function_">concat</span>(key), child, hot)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-2-初始化子模块"><a href="#4-2-初始化子模块" class="headerlink" title="4.2. 初始化子模块"></a>4.2. 初始化子模块</h4><p>而对于子模块，会额外执行一些其它逻辑：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// set state</span></span><br><span class="line"><span class="keyword">if</span> (!isRoot &amp;&amp; !hot) &#123;</span><br><span class="line">  <span class="keyword">var</span> parentState = <span class="title function_">getNestedState</span>(rootState, path.<span class="title function_">slice</span>(<span class="number">0</span>, -<span class="number">1</span>))</span><br><span class="line">  <span class="keyword">var</span> moduleName = path[path.<span class="property">length</span> - <span class="number">1</span>]</span><br><span class="line">  store.<span class="title function_">_withCommit</span>(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (process.<span class="property">env</span>.<span class="property">NODE_ENV</span> !== <span class="string">&#x27;production&#x27;</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (moduleName <span class="keyword">in</span> parentState) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">warn</span>(</span><br><span class="line">          <span class="string">&#x27;[vuex] state field &quot;&#x27;</span> +</span><br><span class="line">            moduleName +</span><br><span class="line">            <span class="string">&#x27;&quot; was overridden by a module with the same name at &quot;&#x27;</span> +</span><br><span class="line">            path.<span class="title function_">join</span>(<span class="string">&#x27;.&#x27;</span>) +</span><br><span class="line">            <span class="string">&#x27;&quot;&#x27;</span></span><br><span class="line">        )</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="title class_">Vue</span>.<span class="title function_">set</span>(parentState, moduleName, <span class="variable language_">module</span>.<span class="property">state</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里主要是将子模块的 <code>state</code> 设置到父模块的 <code>state</code> 中去，这也是为什么我们可以通过这种方式来获取子模块的 <code>state</code> ：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="variable language_">this</span>.<span class="property">$store</span>.<span class="property">state</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 输出</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="attr">subModule1</span>: &#123;</span><br><span class="line">        <span class="attr">count1</span>: <span class="number">0</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">subModule2</span>: &#123;</span><br><span class="line">        <span class="attr">count2</span>: <span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="4-3-初始化命名空间模块"><a href="#4-3-初始化命名空间模块" class="headerlink" title="4.3. 初始化命名空间模块"></a>4.3. 初始化命名空间模块</h4><p>对于使用命名空间的情况，在这基础上还会执行额外的操作：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> namespace = store.<span class="property">_modules</span>.<span class="title function_">getNamespace</span>(path);</span><br><span class="line"></span><br><span class="line"><span class="comment">// register in namespace map</span></span><br><span class="line"><span class="keyword">if</span> (<span class="variable language_">module</span>.<span class="property">namespaced</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (store.<span class="property">_modulesNamespaceMap</span>[namespace] &amp;&amp; (process.<span class="property">env</span>.<span class="property">NODE_ENV</span> !== <span class="string">&#x27;production&#x27;</span>)) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">error</span>((<span class="string">&quot;[vuex] duplicate namespace &quot;</span> + namespace + <span class="string">&quot; for the namespaced module &quot;</span> + (path.<span class="title function_">join</span>(<span class="string">&#x27;/&#x27;</span>)));</span><br><span class="line">        &#125;</span><br><span class="line">        store.<span class="property">_modulesNamespaceMap</span>[namespace] = <span class="variable language_">module</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先通过 <code>getNamespace</code> 拿到命名空间的名称，其实就是在模块名后面加一个 <code>/</code> ，比如： <code>subModule/</code> ，当然如果没有开启 <code>namespaced</code> ，拿到的其实是空字符串。然后将它作为 <code>key</code> 存入 <code>_modulesNamespaceMap</code> 中，有什么作用后面会讲到。</p>
+<h4 id="4-4-初始化-mutation、action、getter"><a href="#4-4-初始化-mutation、action、getter" class="headerlink" title="4.4. 初始化 mutation、action、getter"></a>4.4. 初始化 mutation、action、getter</h4><p>对于所有模块，初始化   <code>mutation</code> 、 <code>action</code> 、 <code>getter</code> 都是一样的。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="title function_">forEachMutation</span>(<span class="function">(<span class="params">mutation, key</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> namespacedType = namespace + key</span><br><span class="line">  <span class="title function_">registerMutation</span>(store, namespacedType, mutation, local)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>首先将每个 <code>mutation</code> 的 <code>key</code> 与当前模块的命名空间名称拼接在一起，然后调用 <code>registerMutation</code> 将整个 store、拼接后的 mutation key、mutation 方法、还有当前模块上下文传入，下面是 <code>registerMutation</code> 实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">registerMutation</span>(<span class="params">store, type, handler, local</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> entry = store.<span class="property">_mutations</span>[type] || (store.<span class="property">_mutations</span>[type] = [])</span><br><span class="line">  entry.<span class="title function_">push</span>(<span class="keyword">function</span> <span class="title function_">wrappedMutationHandler</span>(<span class="params">payload</span>) &#123;</span><br><span class="line">    handler.<span class="title function_">call</span>(store, local.<span class="property">state</span>, payload)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其实就是将这些 <code>mutation</code> 通通传入 store.__mutations 这个数组中，不过这里你可能会好奇为什么 <code>_mutations[type]</code> 是一个数组，这是因为可能会不同模块中（没开启命名空间的情况）存在多个同名的 mutation，这时候需要调用所有同名的 mutation，其实 action 也是这样的。</p>
+<p>这里的初始化仅仅只是包装一层使它们与命名空间的 key 关联在一起、以及在调用时自动传入一些模块上下文的参数而已。 同样的， <code>action</code> 和 <code>getter</code> 初始化过程都差不多，都是经过包装过存入 <code>_actions</code> 和 <code>_wrappedGetters</code> 中，当然由于 <code>action</code> 是支持异步的，所以需要额外处理一下 <code>Promise</code> 。</p>
+<h3 id="5-初始化-state"><a href="#5-初始化-state" class="headerlink" title="5. 初始化 state"></a>5. 初始化 state</h3><p>初始化完 module 以后就会处理 <code>state</code> 里的数据，使它变成响应式，同时处理前面经过包装的 <code>getter</code> ，使它变成类似于 <code>computed</code> 意义的东西：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// initialize the store vm, which is responsible for the reactivity</span></span><br><span class="line"><span class="comment">// (also registers _wrappedGetters as computed properties)</span></span><br><span class="line"><span class="title function_">resetStoreVM</span>(<span class="variable language_">this</span>, state)</span><br></pre></td></tr></table></figure>
+
+<p>下面是 <code>resetStoreVM</code> 的实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">resetStoreVM</span>(<span class="params">store, state, hot</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> oldVm = store.<span class="property">_vm</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// bind store public getters</span></span><br><span class="line">  store.<span class="property">getters</span> = &#123;&#125;</span><br><span class="line">  <span class="comment">// reset local getters cache</span></span><br><span class="line">  store.<span class="property">_makeLocalGettersCache</span> = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line">  <span class="keyword">const</span> wrappedGetters = store.<span class="property">_wrappedGetters</span></span><br><span class="line">  <span class="keyword">const</span> computed = &#123;&#125;</span><br><span class="line">  <span class="title function_">forEachValue</span>(wrappedGetters, <span class="function">(<span class="params">fn, key</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// use computed to leverage its lazy-caching mechanism</span></span><br><span class="line">    <span class="comment">// direct inline function use will lead to closure preserving oldVm.</span></span><br><span class="line">    <span class="comment">// using partial to return function with only arguments preserved in closure environment.</span></span><br><span class="line">    computed[key] = <span class="title function_">partial</span>(fn, store)</span><br><span class="line">    <span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(store.<span class="property">getters</span>, key, &#123;</span><br><span class="line">      <span class="attr">get</span>: <span class="function">() =&gt;</span> store.<span class="property">_vm</span>[key],</span><br><span class="line">      <span class="attr">enumerable</span>: <span class="literal">true</span> <span class="comment">// for local getters</span></span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// use a Vue instance to store the state tree</span></span><br><span class="line">  <span class="comment">// suppress warnings just in case the user has added</span></span><br><span class="line">  <span class="comment">// some funky global mixins</span></span><br><span class="line">  <span class="keyword">const</span> silent = <span class="title class_">Vue</span>.<span class="property">config</span>.<span class="property">silent</span></span><br><span class="line">  <span class="title class_">Vue</span>.<span class="property">config</span>.<span class="property">silent</span> = <span class="literal">true</span></span><br><span class="line">  store.<span class="property">_vm</span> = <span class="keyword">new</span> <span class="title class_">Vue</span>(&#123;</span><br><span class="line">    <span class="attr">data</span>: &#123;</span><br><span class="line">      <span class="attr">$$state</span>: state</span><br><span class="line">    &#125;,</span><br><span class="line">    computed</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="title class_">Vue</span>.<span class="property">config</span>.<span class="property">silent</span> = silent</span><br><span class="line"></span><br><span class="line">  <span class="comment">// enable strict mode for new vm</span></span><br><span class="line">  <span class="keyword">if</span> (store.<span class="property">strict</span>) &#123;</span><br><span class="line">    <span class="title function_">enableStrictMode</span>(store)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (oldVm) &#123;</span><br><span class="line">    <span class="keyword">if</span> (hot) &#123;</span><br><span class="line">      <span class="comment">// dispatch changes in all subscribed watchers</span></span><br><span class="line">      <span class="comment">// to force getter re-evaluation for hot reloading.</span></span><br><span class="line">      store.<span class="title function_">_withCommit</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">        oldVm.<span class="property">_data</span>.<span class="property">$$state</span> = <span class="literal">null</span></span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="title class_">Vue</span>.<span class="title function_">nextTick</span>(<span class="function">() =&gt;</span> oldVm.$destroy())</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-1-处理-state"><a href="#5-1-处理-state" class="headerlink" title="5.1. 处理 state"></a>5.1. 处理 state</h4><p>原来 <code>vuex</code> 是直接 new 一个 Vue 实例来实现状态响应式，不过这样做无可厚非，毕竟 <code>vuex</code> 本来就是 Vue 专用：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// silent 是取消 Vue 所有的日志与警告</span></span><br><span class="line"><span class="comment">// use a Vue instance to store the state tree</span></span><br><span class="line"><span class="comment">// suppress warnings just in case the user has added</span></span><br><span class="line"><span class="comment">// some funky global mixins</span></span><br><span class="line"><span class="keyword">const</span> silent = <span class="title class_">Vue</span>.<span class="property">config</span>.<span class="property">silent</span></span><br><span class="line"><span class="title class_">Vue</span>.<span class="property">config</span>.<span class="property">silent</span> = <span class="literal">true</span></span><br><span class="line">store.<span class="property">_vm</span> = <span class="keyword">new</span> <span class="title class_">Vue</span>(&#123;</span><br><span class="line">  <span class="attr">data</span>: &#123;</span><br><span class="line">    <span class="attr">$$state</span>: state</span><br><span class="line">  &#125;,</span><br><span class="line">  computed</span><br><span class="line">&#125;)</span><br><span class="line"><span class="title class_">Vue</span>.<span class="property">config</span>.<span class="property">silent</span> = silent</span><br></pre></td></tr></table></figure>
+
+<h4 id="5-2-处理-getters"><a href="#5-2-处理-getters" class="headerlink" title="5.2. 处理 getters"></a>5.2. 处理 getters</h4><p>而 <code>getter</code> 的本质就是一个 <code>computed</code> ：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// bind store public getters</span></span><br><span class="line">store.<span class="property">getters</span> = &#123;&#125;</span><br><span class="line"><span class="comment">// reset local getters cache</span></span><br><span class="line">store.<span class="property">_makeLocalGettersCache</span> = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>)</span><br><span class="line"><span class="keyword">const</span> wrappedGetters = store.<span class="property">_wrappedGetters</span></span><br><span class="line"><span class="keyword">const</span> computed = &#123;&#125;</span><br><span class="line"><span class="title function_">forEachValue</span>(wrappedGetters, <span class="function">(<span class="params">fn, key</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// use computed to leverage its lazy-caching mechanism</span></span><br><span class="line">  <span class="comment">// direct inline function use will lead to closure preserving oldVm.</span></span><br><span class="line">  <span class="comment">// using partial to return function with only arguments preserved in closure environment.</span></span><br><span class="line">  computed[key] = <span class="title function_">partial</span>(fn, store)</span><br><span class="line">  <span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(store.<span class="property">getters</span>, key, &#123;</span><br><span class="line">    <span class="attr">get</span>: <span class="function">() =&gt;</span> store.<span class="property">_vm</span>[key],</span><br><span class="line">    <span class="attr">enumerable</span>: <span class="literal">true</span> <span class="comment">// for local getters</span></span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-调用所有-plugin"><a href="#6-调用所有-plugin" class="headerlink" title="6. 调用所有 plugin"></a>6. 调用所有 plugin</h3><p>这个没什么好说的，就是把所有插件都调用一遍，传入 <code>this</code> ：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// apply plugins</span></span><br><span class="line">plugins.<span class="title function_">forEach</span>(<span class="function">(<span class="params">plugin</span>) =&gt;</span> <span class="title function_">plugin</span>(<span class="variable language_">this</span>))</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-devtools"><a href="#7-devtools" class="headerlink" title="7. devtools"></a>7. devtools</h3><p>最后是一些 vue devtools 相关的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> useDevtools =</span><br><span class="line">  options.<span class="property">devtools</span> !== <span class="literal">undefined</span> ? options.<span class="property">devtools</span> : <span class="title class_">Vue</span>.<span class="property">config</span>.<span class="property">devtools</span></span><br><span class="line"><span class="keyword">if</span> (useDevtools) &#123;</span><br><span class="line">  <span class="title function_">devtoolPlugin</span>(<span class="variable language_">this</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// src/plugins/devtool.js</span></span><br><span class="line"><span class="keyword">const</span> target =</span><br><span class="line">  <span class="keyword">typeof</span> <span class="variable language_">window</span> !== <span class="string">&#x27;undefined&#x27;</span></span><br><span class="line">    ? <span class="variable language_">window</span></span><br><span class="line">    : <span class="keyword">typeof</span> <span class="variable language_">global</span> !== <span class="string">&#x27;undefined&#x27;</span></span><br><span class="line">    ? <span class="variable language_">global</span></span><br><span class="line">    : &#123;&#125;</span><br><span class="line"><span class="keyword">const</span> devtoolHook = target.<span class="property">__VUE_DEVTOOLS_GLOBAL_HOOK__</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">function</span> <span class="title function_">devtoolPlugin</span>(<span class="params">store</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (!devtoolHook) <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">  store.<span class="property">_devtoolHook</span> = devtoolHook</span><br><span class="line"></span><br><span class="line">  devtoolHook.<span class="title function_">emit</span>(<span class="string">&#x27;vuex:init&#x27;</span>, store)</span><br><span class="line"></span><br><span class="line">  devtoolHook.<span class="title function_">on</span>(<span class="string">&#x27;vuex:travel-to-state&#x27;</span>, <span class="function">(<span class="params">targetState</span>) =&gt;</span> &#123;</span><br><span class="line">    store.<span class="title function_">replaceState</span>(targetState)</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  store.<span class="title function_">subscribe</span>(</span><br><span class="line">    <span class="function">(<span class="params">mutation, state</span>) =&gt;</span> &#123;</span><br><span class="line">      devtoolHook.<span class="title function_">emit</span>(<span class="string">&#x27;vuex:mutation&#x27;</span>, mutation, state)</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">prepend</span>: <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">  store.<span class="title function_">subscribeAction</span>(</span><br><span class="line">    <span class="function">(<span class="params">action, state</span>) =&gt;</span> &#123;</span><br><span class="line">      devtoolHook.<span class="title function_">emit</span>(<span class="string">&#x27;vuex:action&#x27;</span>, action, state)</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">prepend</span>: <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上就是初始化 vuex 的整个过程了，不过有些地方只是粗略讲了一下，下面针对各种细节再深入探讨。</p>
+<h2 id="二、调用-mutation-过程"><a href="#二、调用-mutation-过程" class="headerlink" title="二、调用 mutation 过程"></a>二、调用 mutation 过程</h2><p>下面讲讲调用某个  mutation 时会发生什么，比如我们使用如下代码调用：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="property">$store</span>.<span class="title function_">commit</span>(<span class="string">&#x27;subModule1/increment&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>首先会进入之前讲过的包装后的 <code>commit</code> ，它确保无论怎么调用 <code>this</code> 始终指向当前 store 实例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">this</span>.<span class="property">commit</span> = <span class="keyword">function</span> <span class="title function_">boundCommit</span>(<span class="params">type, payload, options</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> commit.<span class="title function_">call</span>(store, type, payload, options)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后会调用真正的 <code>commit</code> 方法：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">commit</span>(<span class="params">_type, _payload, _options</span>) &#123;</span><br><span class="line">    <span class="comment">// check object-style commit</span></span><br><span class="line">    <span class="keyword">const</span> &#123;</span><br><span class="line">        type,</span><br><span class="line">        payload,</span><br><span class="line">        options</span><br><span class="line">    &#125; = <span class="title function_">unifyObjectStyle</span>(</span><br><span class="line">        _type,</span><br><span class="line">        _payload,</span><br><span class="line">        _options</span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">const</span> mutation = &#123;</span><br><span class="line">        type,</span><br><span class="line">        payload</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> entry = <span class="variable language_">this</span>.<span class="property">_mutations</span>[type]</span><br><span class="line">    <span class="keyword">if</span> (!entry) &#123;</span><br><span class="line">        <span class="keyword">if</span> (__DEV__) &#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">`[vuex] unknown mutation type: <span class="subst">$&#123;type&#125;</span>`</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">_withCommit</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">        entry.<span class="title function_">forEach</span>(<span class="keyword">function</span> <span class="title function_">commitIterator</span>(<span class="params">handler</span>) &#123;</span><br><span class="line">            <span class="title function_">handler</span>(payload)</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_subscribers</span></span><br><span class="line">        .<span class="title function_">slice</span>() <span class="comment">// shallow copy to prevent iterator invalidation if subscriber synchronously calls unsubscribe</span></span><br><span class="line">        .<span class="title function_">forEach</span>(<span class="function">(<span class="params">sub</span>) =&gt;</span> <span class="title function_">sub</span>(mutation, <span class="variable language_">this</span>.<span class="property">state</span>))</span><br><span class="line">    <span class="keyword">if</span> (__DEV__ &amp;&amp; options &amp;&amp; options.<span class="property">silent</span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">warn</span>(</span><br><span class="line">            <span class="string">`[vuex] mutation type: <span class="subst">$&#123;type&#125;</span>. Silent option has been removed. `</span> +</span><br><span class="line">            <span class="string">&#x27;Use the filter functionality in the vue-devtools&#x27;</span></span><br><span class="line">        )</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>前面讲过可能会存在多个同名的 mutation，所以这里依次调用它们，但是为什么要先经过 <code>_withCommit</code> 方法呢？看它的实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">_withCommit</span>(<span class="params">fn</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> committing = <span class="variable language_">this</span>.<span class="property">_committing</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_committing</span> = <span class="literal">true</span></span><br><span class="line">    <span class="title function_">fn</span>()</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">_committing</span> = committing</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果开启了严格模式，它会监听 state 值的变更，只要不是通过 mutation 内部来修改 state 值就会报错：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">enableStrictMode</span>(<span class="params">store</span>) &#123;</span><br><span class="line">  store.<span class="property">_vm</span>.$watch(</span><br><span class="line">    <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="variable language_">this</span>.<span class="property">_data</span>.<span class="property">$$state</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="function">() =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (__DEV__) &#123;</span><br><span class="line">        <span class="title function_">assert</span>(</span><br><span class="line">          store.<span class="property">_committing</span>,</span><br><span class="line">          <span class="string">`do not mutate vuex store state outside mutation handlers.`</span></span><br><span class="line">        )</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">deep</span>: <span class="literal">true</span>,</span><br><span class="line">      <span class="attr">sync</span>: <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、mapState、mapActions-这些绑定函数的实现"><a href="#三、mapState、mapActions-这些绑定函数的实现" class="headerlink" title="三、mapState、mapActions 这些绑定函数的实现"></a>三、mapState、mapActions 这些绑定函数的实现</h2><p>先来看看这四个方法的定义，它们的源码都在 src&#x2F;helpers.js 中：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> mapState = <span class="title function_">normalizeNamespace</span>(<span class="function">(<span class="params">namespace, states</span>) =&gt;</span> &#123;&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> mapMutations = <span class="title function_">normalizeNamespace</span>(<span class="function">(<span class="params">namespace, mutations</span>) =&gt;</span> &#123;&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> mapGetters = <span class="title function_">normalizeNamespace</span>(<span class="function">(<span class="params">namespace, getters</span>) =&gt;</span> &#123;&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> mapActions = <span class="title function_">normalizeNamespace</span>(<span class="function">(<span class="params">namespace, actions</span>) =&gt;</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>它们都先经过一个叫 <code>normalizeNamespace</code> 的方法处理，顾名思义这个方法是解析命名空间的，我们知道 <code>mapXXX</code> 这些方法可以接受一个或者两个参数，正常情况下第一个参数为 state module 的命名空间，第二个参数则是需要获取的内容，但是也支持只传入第一个参数，则这时候命名空间为 root。</p>
+<p>所以这个方法的实现就简单了，只需要判断第一个参数是否为字符串，如果是的话则把它当成 map 处理，否则正常处理，并且在最后加上一个 <code>/</code> ，这个在前面初始化命名空间模块时就有提到。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">normalizeNamespace</span>(<span class="params">fn</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function">(<span class="params">namespace, map</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> namespace !== <span class="string">&#x27;string&#x27;</span>) &#123;</span><br><span class="line">      map = namespace</span><br><span class="line">      namespace = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (namespace.<span class="title function_">charAt</span>(namespace.<span class="property">length</span> - <span class="number">1</span>) !== <span class="string">&#x27;/&#x27;</span>) &#123;</span><br><span class="line">      namespace += <span class="string">&#x27;/&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="title function_">fn</span>(namespace, map)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其实这四个方法的实现都大同小异，这里就只记录 <code>mapState</code> 的实现：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> mapState = <span class="title function_">normalizeNamespace</span>(<span class="function">(<span class="params">namespace, states</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> res = &#123;&#125;</span><br><span class="line">  <span class="keyword">if</span> (__DEV__ &amp;&amp; !<span class="title function_">isValidMap</span>(states)) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">error</span>(</span><br><span class="line">      <span class="string">&#x27;[vuex] mapState: mapper parameter must be either an Array or an Object&#x27;</span></span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="title function_">normalizeMap</span>(states).<span class="title function_">forEach</span>(<span class="function">(<span class="params">&#123; key, val &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">    res[key] = <span class="keyword">function</span> <span class="title function_">mappedState</span>(<span class="params"></span>) &#123;</span><br><span class="line">      <span class="keyword">let</span> state = <span class="variable language_">this</span>.<span class="property">$store</span>.<span class="property">state</span></span><br><span class="line">      <span class="keyword">let</span> getters = <span class="variable language_">this</span>.<span class="property">$store</span>.<span class="property">getters</span></span><br><span class="line">      <span class="keyword">if</span> (namespace) &#123;</span><br><span class="line">        <span class="keyword">const</span> <span class="variable language_">module</span> = <span class="title function_">getModuleByNamespace</span>(<span class="variable language_">this</span>.<span class="property">$store</span>, <span class="string">&#x27;mapState&#x27;</span>, namespace)</span><br><span class="line">        <span class="keyword">if</span> (!<span class="variable language_">module</span>) &#123;</span><br><span class="line">          <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">        state = <span class="variable language_">module</span>.<span class="property">context</span>.<span class="property">state</span></span><br><span class="line">        getters = <span class="variable language_">module</span>.<span class="property">context</span>.<span class="property">getters</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">typeof</span> val === <span class="string">&#x27;function&#x27;</span></span><br><span class="line">        ? val.<span class="title function_">call</span>(<span class="variable language_">this</span>, state, getters)</span><br><span class="line">        : state[val]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// mark vuex getter for devtools</span></span><br><span class="line">    res[key].<span class="property">vuex</span> = <span class="literal">true</span></span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">return</span> res</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>其核心原理就是将传入的 <code>states</code> 进行序列化，然后在当前命名空间对应的模块中获取到这些值，其中还要判断一下是否为函数，是的话则调用该函数并且传入当前模块中的 <code>state</code> 和 <code>getters</code> ，将函数的返回存入对象中，最后返回。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://liyucang-git.github.io/2019/07/21/vuex%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">vuex 源码解析</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%89%8D%E7%AB%AF/" rel="tag"># 前端</a>
+          
+            <a href="/tags/Vue/" rel="tag"># Vue</a>
+          
+            <a href="/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/" rel="tag"># 源码解析</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/07/13/%E9%97%A8%E6%88%B7%E5%8F%AF%E8%A7%86%E5%8C%96%E6%90%AD%E5%BB%BA%E4%B8%8ELow%20Code%E5%AE%9E%E8%B7%B5/" rel="next" title="门户可视化搭建与Low Code实践">
+                <i class="fa fa-chevron-left"></i> 门户可视化搭建与Low Code实践
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/post/composition-api-score-code.html" rel="prev" title="composition-api 源码解析">
+                composition-api 源码解析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">版本说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%88%9D%E5%A7%8B%E5%8C%96%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">一、初始化过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%87%AA%E5%8A%A8%E5%AE%89%E8%A3%85"><span class="nav-number">2.1.</span> <span class="nav-text">1. 自动安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%BC%82%E5%B8%B8%E6%A3%80%E6%B5%8B"><span class="nav-number">2.2.</span> <span class="nav-text">2. 异常检测</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%88%9D%E5%A7%8B%E5%8C%96%E5%86%85%E9%83%A8%E5%8F%98%E9%87%8F"><span class="nav-number">2.3.</span> <span class="nav-text">3. 初始化内部变量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-1-%E6%9E%84%E9%80%A0-modules"><span class="nav-number">2.3.1.</span> <span class="nav-text">3.1. 构造 modules</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-%E5%8C%85%E8%A3%85-dispatch-%E5%92%8C-commit"><span class="nav-number">2.3.2.</span> <span class="nav-text">3.2. 包装 dispatch 和 commit</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%88%9D%E5%A7%8B%E5%8C%96-module"><span class="nav-number">2.4.</span> <span class="nav-text">4. 初始化 module</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#4-1-%E5%88%9D%E5%A7%8B%E5%8C%96-root-%E6%A8%A1%E5%9D%97"><span class="nav-number">2.4.1.</span> <span class="nav-text">4.1 初始化 root 模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-2-%E5%88%9D%E5%A7%8B%E5%8C%96%E5%AD%90%E6%A8%A1%E5%9D%97"><span class="nav-number">2.4.2.</span> <span class="nav-text">4.2. 初始化子模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-3-%E5%88%9D%E5%A7%8B%E5%8C%96%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4%E6%A8%A1%E5%9D%97"><span class="nav-number">2.4.3.</span> <span class="nav-text">4.3. 初始化命名空间模块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-4-%E5%88%9D%E5%A7%8B%E5%8C%96-mutation%E3%80%81action%E3%80%81getter"><span class="nav-number">2.4.4.</span> <span class="nav-text">4.4. 初始化 mutation、action、getter</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%88%9D%E5%A7%8B%E5%8C%96-state"><span class="nav-number">2.5.</span> <span class="nav-text">5. 初始化 state</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#5-1-%E5%A4%84%E7%90%86-state"><span class="nav-number">2.5.1.</span> <span class="nav-text">5.1. 处理 state</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-2-%E5%A4%84%E7%90%86-getters"><span class="nav-number">2.5.2.</span> <span class="nav-text">5.2. 处理 getters</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E8%B0%83%E7%94%A8%E6%89%80%E6%9C%89-plugin"><span class="nav-number">2.6.</span> <span class="nav-text">6. 调用所有 plugin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-devtools"><span class="nav-number">2.7.</span> <span class="nav-text">7. devtools</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E8%B0%83%E7%94%A8-mutation-%E8%BF%87%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">二、调用 mutation 过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81mapState%E3%80%81mapActions-%E8%BF%99%E4%BA%9B%E7%BB%91%E5%AE%9A%E5%87%BD%E6%95%B0%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">三、mapState、mapActions 这些绑定函数的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">5.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

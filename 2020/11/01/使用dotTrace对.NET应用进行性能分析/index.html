@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="dotTrace,JetBrain,性能,调优," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前几天，有位朋友问我，你平时都是怎么去排查一个程序的性能问题的啊。不要误会，这位朋友不是我啦，因为我真的有这样一位叫做 Toby 的朋友。说到性能问题，可能大家立马会想到类似并发数、吞吐量、响应时间、QPS、TPS等等这些指标，这些指标的确可以反映出一个系统性能的好坏。可随着我们的系统结构变得越来越复杂，要找到这样一个性能的“损耗点”，同样会变得越来越困难。在不同的人的眼中，对于性能好坏的评判标准">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 dotTrace 对 .NET 应用进行性能分析与优化">
+<meta property="og:url" content="https://blog.feedscoin.com/2020/11/01/%E4%BD%BF%E7%94%A8dotTrace%E5%AF%B9.NET%E5%BA%94%E7%94%A8%E8%BF%9B%E8%A1%8C%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="前几天，有位朋友问我，你平时都是怎么去排查一个程序的性能问题的啊。不要误会，这位朋友不是我啦，因为我真的有这样一位叫做 Toby 的朋友。说到性能问题，可能大家立马会想到类似并发数、吞吐量、响应时间、QPS、TPS等等这些指标，这些指标的确可以反映出一个系统性能的好坏。可随着我们的系统结构变得越来越复杂，要找到这样一个性能的“损耗点”，同样会变得越来越困难。在不同的人的眼中，对于性能好坏的评判标准">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2020/11/01/MJA1avuHhIOSnsZ.png">
+<meta property="og:image" content="https://i.loli.net/2020/11/01/FSvbD5wlE43CJxd.png">
+<meta property="og:image" content="https://i.loli.net/2020/11/01/NCO8flxrA7c69mB.png">
+<meta property="og:image" content="https://i.loli.net/2020/11/01/JMKZajbkWwGPT3v.png">
+<meta property="og:image" content="https://i.loli.net/2020/11/01/fWZ4dGENeUcoOI7.jpg">
+<meta property="og:image" content="https://i.loli.net/2020/11/02/wa7ok2LcGuVh9v1.png">
+<meta property="og:image" content="https://i.loli.net/2020/11/02/upfPZQkhNgTi6nH.png">
+<meta property="article:published_time" content="2020-11-01T04:19:02.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.169Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="dotTrace">
+<meta property="article:tag" content="JetBrain">
+<meta property="article:tag" content="性能">
+<meta property="article:tag" content="调优">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/11/01/MJA1avuHhIOSnsZ.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2020/11/01/使用dotTrace对.NET应用进行性能分析/"/>
+
+
+
+
+
+  <title>使用 dotTrace 对 .NET 应用进行性能分析与优化 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020/11/01/%E4%BD%BF%E7%94%A8dotTrace%E5%AF%B9.NET%E5%BA%94%E7%94%A8%E8%BF%9B%E8%A1%8C%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">使用 dotTrace 对 .NET 应用进行性能分析与优化</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-11-01T12:19:02+08:00">
+                2020-11-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>前几天，有位朋友问我，你平时都是怎么去排查一个程序的性能问题的啊。不要误会，这位朋友不是我啦，因为我真的有这样一位叫做 Toby 的朋友。说到性能问题，可能大家立马会想到类似<strong>并发数</strong>、<strong>吞吐量</strong>、<strong>响应时间</strong>、<strong>QPS</strong>、<strong>TPS</strong>等等这些指标，这些指标的确可以反映出一个系统性能的好坏。可随着我们的系统结构变得越来越复杂，要找到这样一个性能的“损耗点”，同样会变得越来越困难。在不同的人的眼中，对于性能好坏的评判标准是不一样的，譬如在前端眼中，页面打开速度的快慢代表着性能的好坏；而在后端眼中，并发数、吞吐量和响应时间代表着性能的好坏；而在 DBA 眼中，一条 SQL 语句的执行效率代表着性能的好坏。更不用说，现实世界中的程序要在硬件、网络的世界里来回穿梭了，所以，从 80%的功能堆积到 100%，是件非常容易的事情；而从 80%的性能优化到 85%，则不是件非常轻松的事情。想清楚这一点非常简单，因为我们的系统从来都不是简单的<code>1 + 1 = 2</code>。此时，我们需要一个性能分析工具，而今天给大家分享的是 <code>JetBrains</code> 出品的 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 。</p>
+<h1 id="快速开始-Quick-Start"><a href="#快速开始-Quick-Start" class="headerlink" title="快速开始(Quick Start)"></a>快速开始(Quick Start)</h1><p>安装软件的过程此处不表，这里建议大家同时安装 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 和  <a target="_blank" rel="noopener" href="https://www.jetbrains.com/dotmemory/">dotMemery</a>。因为这都是 <code>JetBrains</code> 全家桶中的软件，安装的时候选一下就可以了，可谓是举手之劳。安装好以后的界面是这样的，可以注意到，它可以对进程中的 .NET 应用、本机的 .NET 应用以及远程的 .NET 应用进行检测，因为这里写一个 .NET Core 应用来作为演示，所以，我们选择 <code>Profile Local App</code>：</p>
+<p><img src="https://i.loli.net/2020/11/01/MJA1avuHhIOSnsZ.png" alt="dotTrace主界面"></p>
+<p>在这里，我们准备了一个简单的控制台程序：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] args</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        CPUHack();</span><br><span class="line">        MemeryHack();</span><br><span class="line">    &#125;</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">MemeryHack</span>()</span> &#123;</span><br><span class="line">        Console.ReadLine();</span><br><span class="line">        <span class="keyword">var</span> bytes = GC.GetTotalAllocatedBytes();</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;AllocatedBytes: <span class="subst">&#123; bytes &#125;</span> bytes&quot;</span>);</span><br><span class="line">        <span class="keyword">var</span> list = <span class="keyword">new</span> List&lt;<span class="built_in">byte</span>[]&gt;();</span><br><span class="line">        <span class="keyword">try</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">              list.Add(<span class="keyword">new</span> <span class="built_in">byte</span>[<span class="number">85000</span>]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (OutOfMemoryException) &#123;</span><br><span class="line">            Console.WriteLine(<span class="keyword">nameof</span>(OutOfMemoryException));</span><br><span class="line">            Console.WriteLine(list.Count);</span><br><span class="line">            bytes = GC.GetTotalAllocatedBytes();</span><br><span class="line">            Console.WriteLine(<span class="string">$&quot;AllocatedBytes: <span class="subst">&#123; bytes &#125;</span> bytes&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Console.ReadLine();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">CPUHack</span>()</span> &#123;</span><br><span class="line">        Parallel.For(<span class="number">0</span>, Environment.ProcessorCount,</span><br><span class="line">            <span class="keyword">new</span> ParallelOptions() &#123;</span><br><span class="line">                MaxDegreeOfParallelism = Environment.ProcessorCount</span><br><span class="line">            &#125;,</span><br><span class="line">            i =&gt; &#123;</span><br><span class="line">              </span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，<code>CPUHack()</code>方法来自：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/weihanli/p/implement-full-cpu.html">打爆你的 CPU</a>; <code>MemeryHack()</code>方法来自：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/weihanli/p/implement-out-of-memory.html">通过代码实现 OutOfMemory</a>。顾名思义，我们将利用这两个方法来分别测试 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 和  <a target="_blank" rel="noopener" href="https://www.jetbrains.com/dotmemory/">dotMemery</a>。</p>
+<p><a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 目前支持以下平台：.NET、.NET Core、WPF、UWP(<strong>Universal Windows Platform</strong>)、ASP.NET、Windows 服务、WCF、Mono 和 Unity。可以注意到它有四种监测方式，即 Sampling、Tracing、Line by Line 以及 Timeline。按照界面上的描述，Sampling 适用于大多数场景下调用时间的精确测量、Tracing 适用于算法复杂度分析场景下调用次数的精确测量、Line by Line 适用于更高级别的使用场景，Timeline 适用于含多线程在内的数据处理的精确测量。所以，我们这里选择好一个可执行文件，然后选择 Sampling，再点击 “Run”：</p>
+<p><img src="https://i.loli.net/2020/11/01/FSvbD5wlE43CJxd.png" alt="对进行程序进行采样、生成快照"></p>
+<p>此时，我们会看到对应程序的的工具栏，我们可以点击 “Get Snapshot and Wait” 进行采样，每次采样会生成一个快照，默认情况下会自动打开生成的快照。我们还可以点击 “Start” 重新进行采样，直至采集到满意的样本为止，而在完成采样后，则可以点击 “Kill” 结束采样。下面来看看生成的快照：</p>
+<p><img src="https://i.loli.net/2020/11/01/NCO8flxrA7c69mB.png" alt="dotTrace性能快照"></p>
+<p>通过这两图，我们可以非常清晰的看到，最耗时的正是我们这里的<code>CPUHack()</code>方法，并且这里一共有四个线程，这是因为博主的计算机使用的是一款 4 核的 i3 处理器，并且在<a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a>中可以直接看到相关的代码片段，当然，这一切的前提是你没有对应用程序做过混淆处理，这样，我们就完成了一个简单的性能分析。类似地，我们启动<a target="_blank" rel="noopener" href="https://www.jetbrains.com/dotmemory/">dotMemery</a>。此时，可以得到下面的结果：</p>
+<p><img src="https://i.loli.net/2020/11/01/JMKZajbkWwGPT3v.png" alt="dotMemery内存分析"></p>
+<p>这里，我们通过<code>&lt;YourApp&gt;.runtimeconfig.json</code>文件，设定了 GC 堆的最大值是 1M，而每次向列表中添加超过 85K 的 byte 数组时，当前对象会被分配到大对象堆上。通过这张图我们可以很清楚的看到，整个曲线中蓝色区域的 LOH 占了绝对的比例，换言之，几乎所有的内存都是分配到大对象堆(<strong>LOH</strong>)上的。此外，有些小对象从 0 代升到了 1 代，在这个例子中，由于可分配的内存不足，最终引发了<code>OutOfMemoryException</code>。而这和我们看到的结果是相符合的：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;runtimeOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;tfm&quot;</span><span class="punctuation">:</span> <span class="string">&quot;netcoreapp3.1&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;framework&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Microsoft.NETCore.App&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;3.1.0&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;configProperties&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line"></span><br><span class="line">      <span class="attr">&quot;System.GC.HeapHardLimit&quot;</span><span class="punctuation">:</span> <span class="number">1048576</span></span><br><span class="line"></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="从-Dump-文件进行分析"><a href="#从-Dump-文件进行分析" class="headerlink" title="从 Dump 文件进行分析"></a>从 Dump 文件进行分析</h1><p>到此为止，关于 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 和  <a target="_blank" rel="noopener" href="https://www.jetbrains.com/dotmemory/">dotMemery</a> 的使用就基本上讲解完啦！可能这时候有些朋友会产生疑问，如果性能问题发生在生产环境怎么办啊。不错，这里我们调试的都是本地的程序，生产环境是没有机会让你这样去搞的。此时，我们可以借助内存转储文件(<strong>Dump</strong>)文件，它是进程的内存镜像，可以把程序的执行状态通过调试器保存在 Dump 文件中，试想一下，如果程序在前一秒崩溃了，而你在这一瞬间获得了当时程序的状态信息，相当于拿到了“故障”遗留在现场的“罪证”。在 Windows 系统中创建 Dump 文件是非常简单的，通过<code>任务管理器</code>-&gt;<code>创建转储文件</code>即可完成，我们继续使用上面提到的例子：</p>
+<p><img src="https://i.loli.net/2020/11/01/fWZ4dGENeUcoOI7.jpg" alt="创建Dump文件"></p>
+<p>其实，拿到 Dump 文件以后，分析它的工具非常多，比如常见的 WinDBG、DebugDiag 等等，这里我们可以直接使用 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/dotmemory/">dotMemery</a> ，因为它本身就支持 Dump 文件的导入，相比前面两种在使用上要更加友好一点。此时，导入这个 Dump 文件，我们就可以获得下面的结果：</p>
+<p><img src="https://i.loli.net/2020/11/02/wa7ok2LcGuVh9v1.png" alt="大对象堆分布情况"></p>
+<p><img src="https://i.loli.net/2020/11/02/upfPZQkhNgTi6nH.png" alt="一、二代GC分布情况"></p>
+<p>这和我们前面分析出的结论是一致的，即，几乎所有的内存都是分配到大对象堆(<strong>LOH</strong>)上的。除此以外，针对.NET Core，官方提供了<br><code>dotnet-dump</code>和<code>dotnet-gcdump</code>两个命令行工具，可以通过下面的命令安装：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dotnet tool install -g dotnet-dump</span><br><span class="line">dotnet tool install -g dotnet-gcdump</span><br></pre></td></tr></table></figure>
+<p>这两个命令同样可以对内存进行分析，关于更多的.NET Core 的诊断教程，请参考：<a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/event-counter-perf">https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/event-counter-perf</a>，这些细节都是针对.NET Core 的，可能不具有普适性，感兴趣的朋友可以自行前去了解。和大多数<code>JetBrains</code>的应用一样，这些程序都有 Visual Studio 的扩展程序，可以直接集成到 Visual Studio 中，这个同样看个人喜好，不再详细讲解。</p>
+<h1 id="本文小结"><a href="#本文小结" class="headerlink" title="本文小结"></a>本文小结</h1><p>结合一个简单的示例程序，本文简单地介绍了来自 <code>JetBrains</code> 的两款软件 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 和  <a target="_blank" rel="noopener" href="https://www.jetbrains.com/dotmemory/">dotMemery</a> 的基本使用，以及如何通过内存转储文件(Dump)对生产环境中的内存进行诊断。在以往的关于程序性能优化的经历中，我个人还使用过 <a target="_blank" rel="noopener" href="https://www.red-gate.com/products/dotnet-development/ants-performance-profiler/">ANTS-Performance-Profiler</a>  这个软件，但体验上感觉还是 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 和  <a target="_blank" rel="noopener" href="https://www.jetbrains.com/dotmemory/">dotMemery</a> 稍微好用一点，而对于更一般的代码角度的性能分析，我推荐一个轻量级的项目<a target="_blank" rel="noopener" href="https://miniprofiler.com/">MiniProfiler</a>，性能优化不能靠猜，可是从初中就开始学的“控制变量法”未尝不是一个不错的思路。刷 <a target="_blank" rel="noopener" href="https://leetcode-cn.com/u/qinyuanpei/">LeetCode</a> 的这段时间，一个最大的感悟就是，程序的性能，真的是一点一点的优化出来的，就拿最简单的排序来说，你真的要在上面提交很多次，才能渐渐地明白为什么说有些排序算法是“不稳定”的。也许，现在硬件水平越来越好，我们不必像前辈们一样“锱铢必较”，可这一切其实很都公平，你写代码的时候有多浪费，你玩游戏的时候就有多心疼，这里要特别表扬育碧对叛变这一作的优化。好了，这就是这篇博客的内容啦，谢谢大家，晚安！</p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://www.jetbrains.com/zh-cn/profiler/">https://www.jetbrains.com/zh-cn/profiler/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jetbrains.com/zh-cn/dotmemory">https://www.jetbrains.com/zh-cn/dotmemory</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/debug-linux-dumps">https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/debug-linux-dumps</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/debug-memory-leak">https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/debug-memory-leak</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/debug-highcpu?tabs=windows">https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/debug-highcpu?tabs=windows</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/dotTrace/" rel="tag"># dotTrace</a>
+          
+            <a href="/tags/JetBrain/" rel="tag"># JetBrain</a>
+          
+            <a href="/tags/%E6%80%A7%E8%83%BD/" rel="tag"># 性能</a>
+          
+            <a href="/tags/%E8%B0%83%E4%BC%98/" rel="tag"># 调优</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/10/31/2020-10-31-post07/" rel="next" title="如何对自己感到更满意一些？">
+                <i class="fa fa-chevron-left"></i> 如何对自己感到更满意一些？
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/11/02/2020-11-02-manage-work-book-summary/" rel="prev" title="埃森哲的工作法 - 《掌控工作》">
+                埃森哲的工作法 - 《掌控工作》 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B-Quick-Start"><span class="nav-number">1.</span> <span class="nav-text">快速开始(Quick Start)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%8E-Dump-%E6%96%87%E4%BB%B6%E8%BF%9B%E8%A1%8C%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">从 Dump 文件进行分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E6%96%87%E5%B0%8F%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">本文小结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">4.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

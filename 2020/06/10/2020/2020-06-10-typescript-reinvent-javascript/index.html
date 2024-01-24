@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="JavaScript," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="作为一个 Node.js 开发者，我很早便了解到了 TypeScript，但又因为我对 CoffeeScript 的喜爱，直到 2016 年才试用了一下 TypeScript，但当时对它的学习并不深入，直到最近又在工作中用 TypeScript 开发了两个后端项目，对 TypeScript 有了一些新的理解。 为 JavaScript 添加类型大家总会把 TypeScript 和其他语言去做对比，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TypeScript：重新发明一次 JavaScript">
+<meta property="og:url" content="https://blog.feedscoin.com/2020/06/10/2020/2020-06-10-typescript-reinvent-javascript/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="作为一个 Node.js 开发者，我很早便了解到了 TypeScript，但又因为我对 CoffeeScript 的喜爱，直到 2016 年才试用了一下 TypeScript，但当时对它的学习并不深入，直到最近又在工作中用 TypeScript 开发了两个后端项目，对 TypeScript 有了一些新的理解。 为 JavaScript 添加类型大家总会把 TypeScript 和其他语言去做对比，">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-06-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T06:51:52.218Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="JavaScript">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2020/06/10/2020/2020-06-10-typescript-reinvent-javascript/"/>
+
+
+
+
+
+  <title>TypeScript：重新发明一次 JavaScript | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020/06/10/2020/2020-06-10-typescript-reinvent-javascript/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">TypeScript：重新发明一次 JavaScript</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-06-10T00:00:00+08:00">
+                2020-06-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>作为一个 Node.js 开发者，我很早便了解到了 TypeScript，但又因为我对 CoffeeScript 的喜爱，直到 2016 年才试用了一下 TypeScript，但当时对它的学习并不深入，直到最近又在工作中用 TypeScript 开发了两个后端项目，对 TypeScript 有了一些新的理解。</p>
+<h2 id="为-JavaScript-添加类型"><a href="#为-JavaScript-添加类型" class="headerlink" title="为 JavaScript 添加类型"></a>为 JavaScript 添加类型</h2><p>大家总会把 TypeScript 和其他语言去做对比，说它是在模仿 Java 或 C#，我也曾一度相信了这种说法。但其实并非如此，<strong>TypeScript 的类型系统和工作机制是如此的独特，无法简单地描述成是在模仿哪一个语言，更像是在 JavaScript 的基础上重新发明了 JavaScript</strong>。</p>
+<p>究其根本，TypeScript 并不是一个全新的语言，它是在一个已有的语言 —— 还是一个非常灵活的动态类型语言上添加静态约束。在官方 Wiki 上的 <a target="_blank" rel="noopener" href="https://github.com/microsoft/TypeScript/wiki/TypeScript-Design-Goals">TypeScript Design Goals</a> 中有提到，TypeScript 并不是要从 JavaScript 中抽取出一个具有静态化语义的子集，而是要尽可能去支持之前社区中已有的编程范式，避免与常见的用法产生不兼容。</p>
+<p>这意味着 TypeScript 试图为 JavaScript 已有的大量十分「动态」的特性去提供静态语义。一般认为「静态类型」的标志是在编译时为变量确定类型，但 TypeScript 很特殊，因为 JavaScript 本身的动态性，TypeScript 中的类型更像是一种「约束」，它尊重已有的 JavaScript 设计范式，同时尽可能添加一点静态约束 —— 这种约束不会影响到代码的表达能力。或者说，TypeScript 会以 JavaScript 的表达能力为先、以 JavaScript 的运行时行为为先，而静态约束则次之。</p>
+<p>这样听起来 TypeScript 是不是很无聊呢，毕竟 Python 也有 Type Checking，JavaScript 之前也有 Flow。的确如此，但 <strong>TypeScript 的类型系统的表达能力和工具链的支持实在太强了，并不像其他一些静态类型标注仅能覆盖一些简单的情况，而是能够深刻地参与到整个开发过程中，提高开发效率</strong>。</p>
+<p>前面提到 TypeScript 并不想发明新的范式，而是要尽可能支持 JavaScript 已有的用法。因此虽然 TypeScript 有着强大的类型系统、大量的特性，但对于 JavaScript 开发者开说学习成本并不高，因为几乎每个特性都可以对应 JavaScript 社区中一种常见的范式。</p>
+<h2 id="基于属性的类型系统"><a href="#基于属性的类型系统" class="headerlink" title="基于属性的类型系统"></a>基于属性的类型系统</h2><p>在 JavaScript 中，对象（Object）是最常用的类型之一，我们会使用大量的对象字面量来组织数据，我们经常将很多不同的参数塞进一个对象，或者从一个函数中返回一个对象，对象中还可以再嵌套对象。可以说对象是 JavaScript 中最常用的数据容器，但并没有类型去约束它。</p>
+<p>例如 request 这个库会要求使用者将发起请求的所有参数一股脑地以一个对象的形式作为参数传入。这就是非常典型的 JavaScript 风格。再比如 JavaScript 中一个 Promise 对象只需有 then 和 catch 这两个实例方法就可以，而并不真的需要真的来自标准库中的 Promise 构造器，实际上也有很多第三方的 Promise 的实现，或一些返回类 Promise 对象的库（例如一些 ORM）。</p>
+<p>在 JavaScript 中我们通常只关注一个对象是否有我们需要的属性和方法，这种范式被称为「<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E9%B8%AD%E5%AD%90%E7%B1%BB%E5%9E%8B">鸭子类型</a>（Duck typing）」，就是说「<strong>当看到一只鸟走起来像鸭子、游泳起来像鸭子、叫起来也像鸭子，那么这只鸟就可以被称为鸭子</strong>」。</p>
+<p>所以 TypeScript 选择了一种基于属性的类型系统（Structural type system），这种类型系统不再关注一个变量被标称的类型（由哪一个构造器构造），而是 <strong>在进行类型检查时，将对象拆开，抽丝剥茧，逐个去比较组成这个对象的每一个不可细分的成员。如果一个对象有着一个类型所要求的所有属性或方法，那么就可以当作这个类型来使用</strong>。</p>
+<p>这就是 TypeScript 类型系统的核心 —— Interface（接口）：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">LabeledValue</span> &#123;</span><br><span class="line">  <span class="attr">label</span>: <span class="built_in">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>TypeScript 并不关心 Interface 本身的名字，与其说是「类型」，它更像是一种约束。一个对象只要有一个字符串类型的 label 属性，就可以说它满足了 LabeledValue 的约束。它可以是一个其他类的实例、可以是字面量、可以有额外的属性；只要它满足 LabeledValue 所要求的属性，就可以被赋值给这个类型的变量、传递给这个类型的参数。</p>
+<p>前面提到 Interface 实际上是一组属性或一组约束的集合，说到集合，当然就可以进行交集、并集之类的运算。例如 <code>type C = A &amp; B</code> 表示 C 需要同时满足类型 A 和类型 B 的约束，可以简单地实现类型的组合；而 <code>type C = A | B</code> 则表示 C 只需满足 A 和 B 任一类型的约束，可以实现联合类型（Union Type）。</p>
+<p>接下来我会挑选一些 TypeScript 具有代表性的一些特性进行介绍，它们之间环环相扣，十分精妙。</p>
+<h3 id="字符串魔法：字面量"><a href="#字符串魔法：字面量" class="headerlink" title="字符串魔法：字面量"></a>字符串魔法：字面量</h3><p>在 TypeScript 中，字面量也是一种类型：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">Name</span> = <span class="string">&#x27;ziting&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="attr">myName</span>: <span class="title class_">Name</span> = <span class="string">&#x27;ziting&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>在上面的代码中，Name 类型唯一合法的值就是 ziting 这个字符串 —— 这看起来毫无意义，但如果我们引入前面提到的集合运算（联合类型）呢？</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">Method</span> = <span class="string">&#x27;GET&#x27;</span> | <span class="string">&#x27;PUT&#x27;</span> | <span class="string">&#x27;DELETE&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Request</span> &#123;</span><br><span class="line">  <span class="attr">method</span>: <span class="title class_">Method</span></span><br><span class="line">  <span class="attr">url</span>: <span class="built_in">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码中我们约束了 Request 的 method 只能是 GET、PUT 和 DELETE 之一，这比单纯地约束它是一个字符串类型要更加准确。这是 JavaScript 开发者经常使用的一种模式 —— 用字符串来表示枚举类型，字符串更灵活也更具有可读性。</p>
+<p>在 lodash 之类的库中，JavaScript 开发者还非常喜欢使用字符串来传递属性名，在 JavaScript 中这很容易出错。而 TypeScript 则提供了专门的语法和内建的工具类型来实现对这些字符串字面量的计算，提供静态的类型检查：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Todo</span> &#123;</span><br><span class="line">  <span class="attr">title</span>: <span class="built_in">string</span></span><br><span class="line">  <span class="attr">description</span>: <span class="built_in">string</span></span><br><span class="line">  <span class="attr">completed</span>: <span class="built_in">boolean</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// keyof 将 interface 的所有属性名提取成一个新的联合类型</span></span><br><span class="line"><span class="keyword">type</span> <span class="title class_">KeyOfTodo</span> = keyof <span class="title class_">Todo</span> <span class="comment">// &#x27;title&#x27; | &#x27;description&#x27; | &#x27;completed&#x27;</span></span><br><span class="line"><span class="comment">// Pick 可以从一个 interface 中提取一组属性，生成新的类型</span></span><br><span class="line"><span class="keyword">type</span> <span class="title class_">TodoPreview</span> = <span class="title class_">Pick</span>&lt;<span class="title class_">Todo</span>, <span class="string">&#x27;title&#x27;</span> | <span class="string">&#x27;completed&#x27;</span>&gt; <span class="comment">// &#123;title: string, completed: boolean&#125;</span></span><br><span class="line"><span class="comment">// Extract 可以找到两个并集类型的交集，生成新的类型</span></span><br><span class="line"><span class="keyword">type</span> <span class="title class_">Inter</span> = <span class="title class_">Extract</span>&lt;keyof <span class="title class_">Todo</span>, <span class="string">&quot;title&quot;</span> | <span class="string">&quot;author&quot;</span>&gt; <span class="comment">// &quot;title&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>借助这些语法和后面提到的泛型能力，JavaScript 中各种以字符串的形式传递属性名、魔法般的对象处理，也都可以得到准确的类型检查。</p>
+<h3 id="类型元编程：泛型"><a href="#类型元编程：泛型" class="headerlink" title="类型元编程：泛型"></a>类型元编程：泛型</h3><p>泛型提供了一种将类型参数化的能力，在其他语言中最基本的用途是定义容器类型，使得工具函数可以不必知道被操作的变量的具体类型。JavaScript 中的数组或 Promise 在 TypeScript 中都会被表述为这样的泛型类型，例如 Promise.all 的类型定义可以写成：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> all&lt;T&gt;(<span class="attr">values</span>: <span class="title class_">Array</span>&lt;T | <span class="title class_">Promise</span>&lt;T&gt;&gt;): <span class="title class_">Promise</span>&lt;<span class="title class_">Array</span>&lt;T&gt;&gt;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到类型参数可以被用来构造更复杂的类型，进行集合运算或嵌套。</p>
+<p>默认情况下，因为类型参数可以是任意的类型，所以不能假定它有某些属性或方法，也就不能访问它的任何属性，只有添加了约束才能遵循这个约束去使用它，同时 TypeScript 会依照这个约束限制传入的类型：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Lengthwise</span> &#123;</span><br><span class="line">  <span class="attr">length</span>: <span class="built_in">number</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> logLength&lt;T <span class="keyword">extends</span> <span class="title class_">Lengthwise</span>&gt;(<span class="attr">arg</span>: T) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(arg.<span class="property">length</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>约束中也可以用到其他的类型参数或使用多个类型参数，在下面的代码中我们限制类型参数 K 必须是 obj 的一个属性名：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> getProperty&lt;T, K <span class="keyword">extends</span> keyof T&gt;(<span class="attr">obj</span>: T, <span class="attr">key</span>: K) &#123;</span><br><span class="line">  <span class="keyword">return</span> obj[key];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>除了在函数上使用泛型之外，我们还可以定义泛型类型：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="title class_">Partial</span>&lt;T&gt; = &#123;</span><br><span class="line">  [P <span class="keyword">in</span> keyof T]?: T[P];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当定义泛型类型时我们实际上是在定义一种处理类型的「函数」，使用泛型参数去生成新的类型，这也被称作「元编程」。例如 Partial 会遍历传入类型 T 的每一个属性，返回一个所有属性都可空的新类型：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">  <span class="attr">name</span>: <span class="built_in">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="attr">a</span>: <span class="title class_">Person</span> = &#123;&#125; <span class="comment">// 报错 Property &#x27;name&#x27; is missing in type &#x27;&#123;&#125;&#x27; but required in type &#x27;Person&#x27;.</span></span><br><span class="line"><span class="keyword">const</span> <span class="attr">b</span>: <span class="title class_">Partial</span>&lt;<span class="title class_">Person</span>&gt; = &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>前面我们提到的 Pick 和 Extract 都是这样的泛型类型。</p>
+<p>在此之外 TypeScript 甚至可以在定义泛型类型时进行条件判断和递归，这使得 TypeScript 的类型系统变成了 <a target="_blank" rel="noopener" href="https://github.com/microsoft/TypeScript/issues/14833">图灵完备的</a>，可以在编译阶段进行任何计算。</p>
+<p>你可能会怀疑这样复杂的类型真的有用么？其实这些特性更多地是提供给库开发者使用的，对于 JavaScript 社区中的 ORM、数据结构，或者是 lodash 这样的库来说，如此强大的类型系统是非常必要的，lodash 的 <a target="_blank" rel="noopener" href="https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/lodash">类型定义</a> 行数甚至是它本身代码的几十倍。</p>
+<h3 id="类型方程式：自动推导"><a href="#类型方程式：自动推导" class="headerlink" title="类型方程式：自动推导"></a>类型方程式：自动推导</h3><p>但其实我们并不一定要掌握这么复杂的类型系统，实际上前面介绍的高级特性在业务代码中都极少被用到。TypeScript 并不希望标注类型给开发者造成太大的负担，因此 TypeScript 会尽可能地进行类型推导，让开发者在大多数情况下不必手动标注类型。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> bool = <span class="literal">true</span> <span class="comment">// bool 是字面量类型 true</span></span><br><span class="line"><span class="keyword">let</span> num = <span class="number">1</span> <span class="comment">// num 是 number</span></span><br><span class="line"><span class="keyword">let</span> arr = [<span class="number">0</span>, <span class="number">1</span>, <span class="string">&#x27;str&#x27;</span>] <span class="comment">// arr 是 (number | string)[]</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> body = <span class="keyword">await</span> fs.<span class="title function_">readFile</span>() <span class="comment">// body 是 Buffer</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// cpuModels 是 string[]</span></span><br><span class="line"><span class="keyword">let</span> cpuModels = os.<span class="title function_">cpus</span>().<span class="title function_">map</span>( <span class="function"><span class="params">cpu</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// cpu 是 os.CpuInfo</span></span><br><span class="line">  <span class="keyword">return</span> cpu.<span class="property">model</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>类型推导同样可以用在泛型中，例如前面提到的 Promise.all 和 getProperty，我们在使用时都不必去管泛型参数：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 调用 Promise.all&lt;Buffer&gt;，files 的类型是 Promise&lt;Buffer[]&gt;</span></span><br><span class="line"><span class="keyword">const</span> files = <span class="title class_">Promise</span>.<span class="title function_">all</span>(paths.<span class="title function_">map</span>( <span class="function"><span class="params">path</span> =&gt;</span> fs.<span class="title function_">readFile</span>(path)))</span><br><span class="line"><span class="comment">// 调用 Promise.all&lt;number[]&gt;，numbers 的类型是 Promise&lt;number[]&gt;</span></span><br><span class="line"><span class="keyword">const</span> numbers = <span class="title class_">Promise</span>.<span class="title function_">all</span>([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用 getProperty&lt;&#123;a: number&#125;, &#x27;a&#x27;&gt;，a 的类型是 number</span></span><br><span class="line"><span class="keyword">const</span> a = <span class="title function_">getProperty</span>(&#123;<span class="attr">a</span>: <span class="number">2</span>&#125;, <span class="string">&#x27;a&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>前面提到泛型是在将类型参数化，引入一个未知数来代替实际的类型，所以说泛型对于 TypeScript 就像是一个方程式一样，只要你提供了能够解开这个方程的其他未知数，TypeScript 就可以推导出剩余的泛型类型。</p>
+<h3 id="价值十亿美金的错误"><a href="#价值十亿美金的错误" class="headerlink" title="价值十亿美金的错误"></a>价值十亿美金的错误</h3><p>在很多语言中访问空指针都会报出异常（在 JavaScript 中是从 null 或 undefined 上读取属性时），空指针异常被称为「<a target="_blank" rel="noopener" href="https://www.infoq.com/presentations/Null-References-The-Billion-Dollar-Mistake-Tony-Hoare/">价值十亿美元的错误</a>」。TypeScript 则为空值检查也提供了支持（需开启 strictNullChecks），虽然这依赖于类型定义的正确性，并没有运行时的保证，但依然可以提前在编译期发现大部分的错误，提高开发效率。</p>
+<p>TypeScript 中的类型是不可为空（undefined 或 null）的，对于可空的类型必须表示成和 undefined 或 null 的并集类型，这样当你试图从一个可能为 undefined 的变量上读取属性时，TypeScript 就会报错了。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">logDateValue1</span>(<span class="params">date: <span class="built_in">Date</span></span>) &#123; <span class="comment">// 不可空</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(date.<span class="title function_">valueOf</span>())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">logDateValue1</span>(<span class="keyword">new</span> <span class="title class_">Date</span>)</span><br><span class="line"><span class="title function_">logDateValue1</span>() <span class="comment">// 报错 An argument for &#x27;date&#x27; was not provided.</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">logDateValue2</span>(<span class="params">date: <span class="built_in">Date</span> | <span class="literal">undefined</span></span>) &#123; <span class="comment">// 可空</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(date.<span class="title function_">valueOf</span>()) <span class="comment">// 报错 Object is possibly &#x27;undefined&#x27;.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">logDateValue2</span>(<span class="keyword">new</span> <span class="title class_">Date</span>)</span><br><span class="line"><span class="title function_">logDateValue2</span>()</span><br></pre></td></tr></table></figure>
+
+<p>在这种情况下 TypeScript 会要求你先对这个值进行判断，排除其为 undefined 可能性。这就要说到 TypeScript 的另外一项特性 —— 其基于控制流的类型分析。例如在你使用 if 对变量进行非空判断后，在 if 之后的花括号中这个变量就会变成非空类型：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">print</span>(<span class="params">str: <span class="built_in">string</span> | <span class="literal">null</span></span>) &#123;</span><br><span class="line">  <span class="comment">// str 在这里的类型是 string | null</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(str.<span class="title function_">trim</span>()) <span class="comment">// 报错 Object is possibly &#x27;null&#x27;.</span></span><br><span class="line">  <span class="keyword">if</span> (str !== <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="comment">// str 在这里的类型是 string</span></span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(str.<span class="title function_">trim</span>())</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同样的类型分析也发生在使用 if、switch 等语句对并集类型进行判断时：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> <span class="title class_">Rectangle</span> &#123;</span><br><span class="line">  <span class="attr">kind</span>: <span class="string">&#x27;rectangle&#x27;</span></span><br><span class="line">  <span class="attr">width</span>: <span class="built_in">number</span></span><br><span class="line">  <span class="attr">height</span>: <span class="built_in">number</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Circle</span> &#123;</span><br><span class="line">  <span class="attr">kind</span>: <span class="string">&#x27;circle&#x27;</span></span><br><span class="line">  <span class="attr">radius</span>: <span class="built_in">number</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">area</span>(<span class="params">s: Rectangle | Circle</span>) &#123;</span><br><span class="line">  <span class="comment">// s 在这里的类型是 Rectangle | Circle</span></span><br><span class="line">  <span class="keyword">switch</span> (s.<span class="property">kind</span>) &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="string">&quot;rectangle&quot;</span>:</span><br><span class="line">      <span class="comment">// s 在这里的类型是 Rectangle</span></span><br><span class="line">      <span class="keyword">return</span> s.<span class="property">height</span> * s.<span class="property">width</span></span><br><span class="line">    <span class="keyword">case</span> <span class="string">&quot;circle&quot;</span>:</span><br><span class="line">      <span class="comment">// s 在这里的类型是 Circle</span></span><br><span class="line">      <span class="keyword">return</span> <span class="title class_">Math</span>.<span class="property">PI</span> * s.<span class="property">radius</span> ** <span class="number">2</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="仅仅工作在编译阶段"><a href="#仅仅工作在编译阶段" class="headerlink" title="仅仅工作在编译阶段"></a>仅仅工作在编译阶段</h2><p>TypeScript 最终仍然会编译到 JavaScript，再被 JavaScript 引擎（如 V8）执行，在生成出的代码中不会包含任何类型信息，TypeScript 也不会添加任何与运行时行为有关的功能。</p>
+<p>TypeScript 仅仅提供了类型检查，但它并没有去保证通过检查的代码一定是可以正确运行的。可能一个变量在 TypeScript 的类型声明中是一个数字，但并不能阻止它在运行时变成一个字符串 —— 可能是使用了强制类型转换或使用了其他非 TypeScript 的库且类型定义文件有误。</p>
+<p>在 TypeScript 中你可以将类型设置为 any 来绕过几乎所有检查，或者用 as 来强制「转换」类型，当然就像前面提到的那样，这里转换的仅仅是 TypeScript 在编译阶段的类型标注，并不会改变运行时的类型。虽然 TypeScript 设计上要去支持 JavaScript 的所有范式，但难免有一些极端的用例无法覆盖到，这时如何使用 any 就非常考验开发者的经验了。</p>
+<p>编程语言的类型系统总是需要在灵活和复杂、简单和死板之间做出权衡，TypeScript 则给出了一个完全不同的答案 —— 将编译期的检查和运行时的行为分别看待。这是 TypeScript 饱受争议的一点，有人认为这样非常没有安全感，即使通过了编译期检查在运行时依然有可能得到错误的类型，也有人认为 <strong>这是一个非常切合工程实际的选择 —— 你可以用 any  来跳过类型检查，添加一些过于复杂或无法实现的代码，虽然这破坏了类型安全，但确实又解决了问题</strong>。</p>
+<p>那么这种仅仅工作在编译阶段类型检查有意义么？我认为当然是有的，毕竟 JavaScript 已经提供了足够使用的运行时行为，而且要保持与 JavaScript 的互操作性。大家需要的只是 TypeScript 的类型检查来提高开发效率，除了编译阶段的检查来尽早发现错误以外，TypeScript 的类型信息也可以给编辑器（IDE）非常准确的补全建议。</p>
+<h2 id="与-JavaScript-代码一起工作"><a href="#与-JavaScript-代码一起工作" class="headerlink" title="与 JavaScript 代码一起工作"></a>与 JavaScript 代码一起工作</h2><p><strong>任何基于 JavaScript 的技术都要去解决和标准 JavaScript 代码的互操作性</strong> —— TypeScript 不可能创造出一个平行与 JavaScript 的世界，它必须依赖社区中已有的数十万的 JavaScript 包。</p>
+<p>因此 TypeScript 引入了一种类型描述文件，允许社区为 JavaScript 编写类型描述文件，来让用到它们的代码可以得到 TypeScript 的类型检查。</p>
+<p>描述文件的确是 TypeScript 开发中最大的痛点，毕竟只有当找全了定义文件之后，才会有流畅的开发体验。在开发的过程中不可避免地会用到一些特定领域的、小众的库，这时就必须要去考虑这个库是否有定义文件、定义文件的质量如何、是否需要自己为其编写定义文件。对于不涉及复杂泛型的库来说，写定义文件并不会花太多时间，你也只需要给自己用到的接口写定义，但终究是一个分心的点。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>TypeScript 有着先进的类型系统，而且这个先进并不是「学术」意义上的先进，而是「工程」意义上的先进，能够切实地提高开发效率，减轻动态类型的心理负担，提前发现错误。所以在此建议所有的 JavaScript 开发者都了解和尝试一下 TypeScript，对于 JavaScript 的开发者来说，TypeScript 的入门成本非常低。</p>
+<p>在 LeanCloud，控制台在最近的一次的重构中切换到了 TypeScript，提高了前端项目的工程化水平，让代码可以被长时间地维护下去。同时我们一部分既有的基于 Node.js 的后端项目也在切换到 TypeScript。</p>
+<p>LeanCloud 的一些内部工具和边缘服务也会优先考虑 TypeScript，较低的学习成本（谁没写过几行 JavaScript 呀！）、静态类型检查和优秀的 IDE 支持，极大地降低了新同事参与不熟悉或长时间无人维护的项目的门槛，提高大家改进内部工具的积极性。</p>
+<p>LeanCloud 的 JavaScript SDK、Node SDK 和 Play SDK 都添加了 TypeScript 的定义文件（并且打算在之后的版本中使用 TypeScript 改写），让使用 LeanCloud 的开发者可以在 TypeScript 中使用 SDK，即使不用 TypeScript，定义文件也可以帮助编辑器来改进代码补全和类型提示。</p>
+<p>如果你也希望一起来完善这些项目，可以了解一下在 LeanCloud 的 <a target="_blank" rel="noopener" href="https://www.leancloud.cn/jobs/">工作机会</a>。</p>
+<p>参考资料：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://mariusschulz.com/blog/series/typescript-evolution">TypeScript Evolution</a></li>
+<li><a target="_blank" rel="noopener" href="https://basarat.gitbook.io/typescript/">TypeScript Deep Dive</a>（<a target="_blank" rel="noopener" href="https://jkchao.github.io/typescript-book-chinese/">中文版</a>）</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Microsoft/TypeScript/wiki/TypeScript-Design-Goals">TypeScript Design Goals</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.typescriptlang.org/docs/handbook/">The TypeScript Handbook</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/64446259">浅谈 TypeScript 类型系统</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/85655537">TypeScript类型元编程：实现8位数的算术运算</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.yinwang.org/blog-cn/2015/11/21/programming-philosophy">编程的智慧</a>（正确处理 null 指针）</li>
+<li><a target="_blank" rel="noopener" href="https://www.lucidchart.com/techblog/2015/08/31/the-worst-mistake-of-computer-science/">The worst mistake of computer science</a>（<a target="_blank" rel="noopener" href="https://www.open-open.com/news/view/16166e1">中文版</a>）</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/06/08/%E5%8E%9F%E7%94%9FJavaScript%E5%AE%9E%E7%8E%B0Hexo%E5%8D%9A%E5%AE%A2%E6%8E%A8%E8%8D%90%E5%8A%9F%E8%83%BD/" rel="next" title="原生 JavaScript 实现 Hexo 博客推荐功能">
+                <i class="fa fa-chevron-left"></i> 原生 JavaScript 实现 Hexo 博客推荐功能
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/06/10/NET-Core%E5%8E%9F%E7%94%9FDI%E6%89%A9%E5%B1%95%E4%B9%8B%E5%9F%BA%E4%BA%8E%E5%90%8D%E7%A7%B0%E7%9A%84%E6%B3%A8%E5%85%A5%E5%AE%9E%E7%8E%B0/" rel="prev" title=".NET Core 原生 DI 扩展之基于名称的注入实现">
+                .NET Core 原生 DI 扩展之基于名称的注入实现 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA-JavaScript-%E6%B7%BB%E5%8A%A0%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">为 JavaScript 添加类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%B1%9E%E6%80%A7%E7%9A%84%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.</span> <span class="nav-text">基于属性的类型系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E9%AD%94%E6%B3%95%EF%BC%9A%E5%AD%97%E9%9D%A2%E9%87%8F"><span class="nav-number">2.1.</span> <span class="nav-text">字符串魔法：字面量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B%E5%85%83%E7%BC%96%E7%A8%8B%EF%BC%9A%E6%B3%9B%E5%9E%8B"><span class="nav-number">2.2.</span> <span class="nav-text">类型元编程：泛型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B%E6%96%B9%E7%A8%8B%E5%BC%8F%EF%BC%9A%E8%87%AA%E5%8A%A8%E6%8E%A8%E5%AF%BC"><span class="nav-number">2.3.</span> <span class="nav-text">类型方程式：自动推导</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%B7%E5%80%BC%E5%8D%81%E4%BA%BF%E7%BE%8E%E9%87%91%E7%9A%84%E9%94%99%E8%AF%AF"><span class="nav-number">2.4.</span> <span class="nav-text">价值十亿美金的错误</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%85%E4%BB%85%E5%B7%A5%E4%BD%9C%E5%9C%A8%E7%BC%96%E8%AF%91%E9%98%B6%E6%AE%B5"><span class="nav-number">3.</span> <span class="nav-text">仅仅工作在编译阶段</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8E-JavaScript-%E4%BB%A3%E7%A0%81%E4%B8%80%E8%B5%B7%E5%B7%A5%E4%BD%9C"><span class="nav-number">4.</span> <span class="nav-text">与 JavaScript 代码一起工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Liunx Python Rust Goalng DevOPS" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言今天参加了 Adobe 和 CSDN 组织的一个关于 PhoneGap 的开发讲座 ，而 PhoneGap 在 iOS 设备上的实现就是通过 UIWebView 控件来展示 html 内容，并且与 native 代码进行交互的。 正好我们在做有道云笔记的 iPad 版，因为我们也是使用 UIWebView 来展示笔记内容，所以也需要做 js 与 native 代码相互调用的事情。所以在这儿顺便">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于UIWebView的总结">
+<meta property="og:url" content="https://blog.feedscoin.com/2012/03/24/2012-03-24-talk-about-uiwebview-and-phonegap/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="前言今天参加了 Adobe 和 CSDN 组织的一个关于 PhoneGap 的开发讲座 ，而 PhoneGap 在 iOS 设备上的实现就是通过 UIWebView 控件来展示 html 内容，并且与 native 代码进行交互的。 正好我们在做有道云笔记的 iPad 版，因为我们也是使用 UIWebView 来展示笔记内容，所以也需要做 js 与 native 代码相互调用的事情。所以在这儿顺便">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/images/uiwebview-commonjs-folder.jpg">
+<meta property="article:published_time" content="2012-03-24T12:19:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:22:32.371Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Liunx Python Rust Goalng DevOPS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/images/uiwebview-commonjs-folder.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2012/03/24/2012-03-24-talk-about-uiwebview-and-phonegap/"/>
+
+
+
+
+
+  <title>关于UIWebView的总结 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012/03/24/2012-03-24-talk-about-uiwebview-and-phonegap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">关于UIWebView的总结</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-03-24T20:19:00+08:00">
+                2012-03-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天参加了 Adobe 和 CSDN 组织的一个关于 <a target="_blank" rel="noopener" href="http://hui.csdn.net/MeetingInfo.aspx?mid=99">PhoneGap 的开发讲座</a> ，而 PhoneGap 在 iOS 设备上的实现就是通过 UIWebView 控件来展示 html 内容，并且与 native 代码进行交互的。</p>
+<p>正好我们在做有道云笔记的 iPad 版，因为我们也是使用 UIWebView 来展示笔记内容，所以也需要做 js 与 native 代码相互调用的事情。所以在这儿顺便总结一下 UIWebView 在使用上的细节，以及谈谈我对 PhoneGap 的看法。</p>
+<span id="more"></span>
+
+<h2 id="机制"><a href="#机制" class="headerlink" title="机制"></a>机制</h2><p>首先我们需要让 UIWebView 加载本地 HTML。使用如下代码完成：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSString</span> * path = [[<span class="built_in">NSBundle</span> mainBundle] bundlePath];</span><br><span class="line"><span class="built_in">NSURL</span> * baseURL = [<span class="built_in">NSURL</span> fileURLWithPath:path];</span><br><span class="line"><span class="built_in">NSString</span> * htmlFile = [[<span class="built_in">NSBundle</span> mainBundle] pathForResource:<span class="string">@&quot;index&quot;</span> ofType:<span class="string">@&quot;html&quot;</span>];</span><br><span class="line"><span class="built_in">NSString</span> * htmlString = [<span class="built_in">NSString</span> stringWithContentsOfFile:htmlFile encoding:(<span class="built_in">NSUTF8StringEncoding</span>) error:<span class="literal">nil</span>];</span><br><span class="line">[<span class="keyword">self</span>.webView loadHTMLString:htmlString baseURL:baseURL];</span><br></pre></td></tr></table></figure>
+
+<p>接着，我们需要让 js 能够调用 native 端。iOS SDK 并没有原生提供 js 调用 native 代码的 API。但是 UIWebView 的一个 delegate 方法使我们可以做到让 js 需要调用时，通知 native。在 native 执行完相应调用后，可以用 stringByEvaluatingJavaScriptFromString 方法，将执行结果返回给 js。这样，就实现了 js 与 native 代码的相互调用。</p>
+<p>以下是 PhoneGap 相关调用的示例代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Objective-C 语言</span></span><br><span class="line">- (<span class="type">BOOL</span>)webView:(<span class="built_in">UIWebView</span> *)webView </span><br><span class="line">    shouldStartLoadWithRequest:(<span class="built_in">NSURLRequest</span> *)request </span><br><span class="line">    navigationType:(<span class="built_in">UIWebViewNavigationType</span>)navigationType &#123;</span><br><span class="line">       <span class="built_in">NSURL</span> * url = [request URL];</span><br><span class="line">       <span class="keyword">if</span> ([[url scheme] isEqualToString:<span class="string">@&quot;gap&quot;</span>]) &#123;</span><br><span class="line">            <span class="comment">// 在这里做 js 调 native 的事情</span></span><br><span class="line">            <span class="comment">// ....</span></span><br><span class="line">            <span class="comment">// 做完之后用如下方法调回 js</span></span><br><span class="line">            [webView stringByEvaluatingJavaScriptFromString:<span class="string">@&quot;alert(&#x27;done&#x27;)&quot;</span>];</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">NO</span>;</span><br><span class="line">        &#125;       </span><br><span class="line">        <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>具体让 js 通知 native 的方法是让 js 发起一次特殊的网络请求。这里，我们和 PhoneGap 都是使用加载一个隐藏的 iframe 来实现的，通过将 iframe 的 src 指定为一个特殊的 URL，实现在 delegate 方法中截获这次请求。</p>
+<p>以下是 PhoneGap 相关调用的示例代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">// Javascript 语言</span><br><span class="line">// 通知 iPhone UIWebView 加载 url 对应的资源</span><br><span class="line">// url 的格式为: gap:something</span><br><span class="line">function loadURL(url) &#123;</span><br><span class="line">    var iFrame;</span><br><span class="line">    iFrame = document.createElement(&quot;iframe&quot;);</span><br><span class="line">    iFrame.setAttribute(&quot;src&quot;, url);</span><br><span class="line">    iFrame.setAttribute(&quot;style&quot;, &quot;display:none;&quot;);</span><br><span class="line">    iFrame.setAttribute(&quot;height&quot;, &quot;0px&quot;);</span><br><span class="line">    iFrame.setAttribute(&quot;width&quot;, &quot;0px&quot;);</span><br><span class="line">    iFrame.setAttribute(&quot;frameborder&quot;, &quot;0&quot;);</span><br><span class="line">    document.body.appendChild(iFrame);</span><br><span class="line">    // 发起请求后这个 iFrame 就没用了，所以把它从 dom 上移除掉</span><br><span class="line">    iFrame.parentNode.removeChild(iFrame);</span><br><span class="line">    iFrame = null;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这里，可能有些人说，通过改 document.location 也可以达到相同的效果。关于这个，我和 zyc 专门试过，一般情况下，改 document.location 是可以，但是改 document.location 有一个很严重的问题，就是如果我们连续 2 个 js 调 native，连续 2 次改 document.location 的话，在 native 的 delegate 方法中，只能截获后面那次请求，前一次请求由于很快被替换掉，所以被忽略掉了。</p>
+<p>我也专门去 Github 上查找相关的开源代码，它们都是用过 iframe 来实现调用的，例如这个：<a target="_blank" rel="noopener" href="https://github.com/marcuswestin/WebViewJavascriptBridge">https://github.com/marcuswestin/WebViewJavascriptBridge</a></p>
+<p>关于这个，我也做了一个 Demo 来简单示例，地址如下：<a target="_blank" rel="noopener" href="https://github.com/tangqiaoboy/UIWebViewSample">https://github.com/tangqiaoboy/UIWebViewSample</a></p>
+<h2 id="参数的传递"><a href="#参数的传递" class="headerlink" title="参数的传递"></a>参数的传递</h2><p>以上的示例代码为了讲清楚机制，所以只是示例了最简单的相互调用。但实际上 js 和 native 相互调用时，常常需要传递参数。</p>
+<p>例如，有道云笔记 iPad 版用 UIWebView 显示笔记的内容，当用户点击了笔记中的附件，这个时候，js 需要通知 native 到后台下载这个笔记附件，同时通知 js 当前的下载进度。对于这个需求，js 层获得用户点击事件后，就需要把当前点击的附件的 ID 传递给 native，这样 native 才能知道下载哪个附件。</p>
+<p>参数传递最简单的方式是将参数作为 url 的一部分，放到 iFrame 的 src 里面。这样 UIWebView 通过截取分析 url 后面的内容即可获得参数。但是这样的问题是，该方法只能传递简单的参数信息，如果参数是一个很复杂的对象，那么这个 url 的编解码将会很复杂。对此，我们的有道云笔记和 PhoneGap 采用了不同的技术方案。</p>
+<ul>
+<li>我们的技术方案是将参数以 JSON 的形式传递，但是因为要附加在 url 之后，所以我们将 JSON 进行了 Base64 编码，以保证 url 中不会出现一些非法的字符。</li>
+<li>PhoneGap 的技术方案是，也是用 JSON 传递参数，但是将 JSON 放在 UIWebView 中的一个全局数组中，UIWebView 当需要读取参数时，通过读取这个全局数组来获得相应的参数。</li>
+</ul>
+<p>相比之下，应该说 PhoneGap 的方案更加全面，适用于多种场景。而我们的方案简洁高效，满足了我们自己产品的需求。</p>
+<h2 id="同步和异步"><a href="#同步和异步" class="headerlink" title="同步和异步"></a>同步和异步</h2><p>因为 iOS SDK 没有天生支持 js 和 native 相互调用，大家的技术方案都是自己实现的一套调用机制，所以这里面有同步异步的问题。细心的同学就能发现，js 调用 native 是通过插入一个 iframe，这个 iframe 插入完了就完了，执行的结果需要 native 另外用 stringByEvaluatingJavaScriptFromString 方法通知 js，所以这是一个异步的调用。</p>
+<p>而 stringByEvaluatingJavaScriptFromString 方法本身会直接返回一个 NSString 类型的执行结果，所以这显然是一个同步调用。</p>
+<p>所以 js call native 是异步，native call js 是同步。在处理一些逻辑的时候，不可避免需要考虑这个特点。</p>
+<p>这里顺便说一个 android，其实在 android 开发中，js 调 native 是同步的，但是 PhoneGap 为了将自己做成一个跨平台的框架，所以在 android 的 js call native 的 native 端，用 new Thread 新建了一个执行线程，这样把 android 的 js call native 也变成了异步调用。</p>
+<h2 id="UIWebView-的问题"><a href="#UIWebView-的问题" class="headerlink" title="UIWebView 的问题"></a>UIWebView 的问题</h2><h3 id="线程阻塞问题"><a href="#线程阻塞问题" class="headerlink" title="线程阻塞问题"></a>线程阻塞问题</h3><p>我们在开发中发现，当在 native 层调用 stringByEvaluatingJavaScriptFromString 方法时，可能由于 javascript 是单线程的原因，会阻塞原有 js 代码的执行。这里我们的解决办法是在 js 端用 defer 将 iframe 的插入延后执行。</p>
+<h3 id="主线程的问题"><a href="#主线程的问题" class="headerlink" title="主线程的问题"></a>主线程的问题</h3><p>UIWebView 的 stringByEvaluatingJavaScriptFromString 方法必须是主线程中执行，而主线程的执行时间过长就会 block UI 的更新。所以我们应该尽量让 stringByEvaluatingJavaScriptFromString 方法执行的时间短。</p>
+<p>有道云笔记在保存的时候，需要调用 js 获得笔记的完整 html 内容，这个时候如果笔记内容很复杂，就会执行很长一段时间，而因为这个操作必须是主线程执行，所以我们显示 “正在保存” 的 UIAlertView 完全无法正常显示，整个 UI 界面完全卡住了。在新的编辑器里，我们更新了获得 html 内容的代码，才将这个问题解决。</p>
+<h3 id="键盘控制"><a href="#键盘控制" class="headerlink" title="键盘控制"></a>键盘控制</h3><p>做 iOS 开发的都知道，当我们需要键盘显示在某个控件上时，可以调用 [obj becomeFirstResponder] 方法来让键盘出来，并且光标输入焦点出现在该控件上。</p>
+<p>但是这个方法对于 UIWebView 并不可用。也就是说，我们无法通过程序控制让光标输入焦点出现在 UIWebView 上。<br>关于这个问题，我在 stackoverflow 上专门 <a target="_blank" rel="noopener" href="http://stackoverflow.com/questions/9835956/show-keyboard-in-contenteditable-uiwebview-programmatically">问了一下</a>，还是没有得到很好的解决办法。</p>
+<h3 id="CommonJS-规范"><a href="#CommonJS-规范" class="headerlink" title="CommonJS 规范"></a>CommonJS 规范</h3><p>commonJS 是一个模块块加载的规范。而 AMD 是该规范的一个草案，CommonJS AMD 规范描述了模块化的定义，依赖关系，引用关系以及加载机制，其规范原文在 <a target="_blank" rel="noopener" href="http://wiki.commonjs.org/wiki/Modules/AsynchronousDefinition">这里</a> 。它被 requireJS，NodeJs，Dojo，jQuery 等开源框架广泛使用。<a target="_blank" rel="noopener" href="http://blog.csdn.net/dojotoolkit/article/details/6076668">这里</a> 还有一篇不错的中文介绍文章。</p>
+<p>AMD 规范需要用目录层级当作包层次，这一点就象 java 一样。之前我以为 iOS 打包后的 ipa 资源文件中不能有资源目录层级关系，今天在会上问了一下，原来是我自己弄错了。如果需要将目录层级带入 ipa 资源文件中，只需要将该目录拖入工程中，然后选择 “Create groups for any added folders”。如下图所示，这样目录层级能够打包到 ipa 文件中。</p>
+<img src="/images/uiwebview-commonjs-folder.jpg" class="">
+
+<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><p>在 iOS 设备中调试 javascript 是一件相当苦逼的事情，拿 pw 的话来说：“一下子回到了 ie6 时代”。当然，业界也有一些调试工具可以用的。</p>
+<p>我们在开发时主要采用的是 <a target="_blank" rel="noopener" href="http://phonegap.github.com/weinre/">weinre</a> 这个框架。用这个框架，可以做一些基本的调试工作，但是它现在功能还没有象 pc 上的 js 调试器那么强大，例如它不能下断点，另外如果有 js 执行错误，它也无法正确的将错误信息报出。它还有一些 bug，例如在 mac 机下，如果你同时连接了有线网和无线网，那么 weinre 将无法正确地连接到调试页面。</p>
+<p>但终究，它是现在业界现存的唯一相对可用的调试工具了。本次的 PhoneGap 讲座的第一位演讲者董龙飞有一篇博客很好地介绍了 weinre 的使用，地址是 <a target="_blank" rel="noopener" href="http://www.donglongfei.com/2012/03/debug-phonegap-app-using-weinre/">这里</a>，推荐感兴趣的同学看看。即使不用 PhoneGap，weinre 也能给你在移动设备上设计网页带来方便。</p>
+<p>（2013 年 10 月 22 日更新）：关于调试这一块儿，从 WWDC2012 开始，苹果已经支持用 safari 来连接 iPhone 模拟器里面的 UIWebView 进行调试了，所以调试上已经方便了很多。详细的教程可以查看: WWDC2012 Session 600《Debuging UIWebViews and Websites on iOS》</p>
+<h2 id="我对-PhoneGap-的看法"><a href="#我对-PhoneGap-的看法" class="headerlink" title="我对 PhoneGap 的看法"></a>我对 PhoneGap 的看法</h2><p>今天的大会上，2 位演讲者把 PhoneGap 吹得相当牛。但是其实真正用过的人才能知道，PhoneGap 还是有相当多的问题的。至少我知道在网易就有一个使用 PhoneGap 而失败的项目，所以我认为 PhoneGap 还是有它相当大的局限性的。</p>
+<p>我认为 PhoneGap 有以下 3 大问题：</p>
+<ol>
+<li><p>首先，PhoneGap 的编程语言其实是 javascript，这对于非前端工作者来说，其实学习起来和学习原生的 objective-C 或 Java 编程语言难度差不多，而且由于历史原因，javascript 语言本身的问题比其它语言都多。要想精通 javascript，相当不易。</p>
+</li>
+<li><p>然后，PhoneGap 的目标是方便地创建跨平台的应用。但是其实苹果和 google 都发布了自己的人机交互指南。有些情况下，苹果的程序和 android 程序有着不同的交互原则的。象有道云笔记的 <a target="_blank" rel="noopener" href="http://itunes.apple.com/us/app/id450748070?ls=1&mt=8">iPhone 版</a> 和 <a target="_blank" rel="noopener" href="http://m.note.youdao.com/noteproxy/download?todo=download&platform=android&keyfrom=note.web">android 版</a>，就有着完全不同的界面和交互。使用 PhoneGap 就意味着你的程序在 UI 和交互上，既不象原生的 iphone 程序，又不象原生的 android 程序。</p>
+</li>
+<li><p>最后，性能问题。Javascript 终究无法和原生的程序比运行效率，这一点在当你要做一些动画效果的时候，就能显现得很明显。</p>
+</li>
+</ol>
+<p>当然，PhoneGap 的优势也很明显，如果你是做图书类，查询类，小工具类应用的话，这些应用 UI 交互不复杂，也不占用很高的 cpu 资源，PhoneGap 将很好地发挥出它的优势。对于这类应用：</p>
+<ol>
+<li><p>你只需要编写一次，则可以同时完成 iOS, android, windows phone 等版本的开发。</p>
+</li>
+<li><p>如果改动不大，只是内容升级，那它升级时只需要更新相应的 js 文件，而不需要提交审核，而一般正常提交苹果的 app store 审核的话，常常需要一周时间。</p>
+</li>
+</ol>
+<p>所以 PhoneGap 不是万能的，但也不是没有用，它有它擅长的领域，一切都看你是否合理地使用它。</p>
+<p>最后，推荐 <a target="_blank" rel="noopener" href="http://www.phonegap.cn/">PhoneGap 中国网站</a> ，在这里，你可以找到为数不多的中文资料。</p>
+<h2 id="对-js-的感想"><a href="#对-js-的感想" class="headerlink" title="对 js 的感想"></a>对 js 的感想</h2><p>现在前端工程师相当牛逼啊。前端工程师不但可以写前端网页，还可以用 Flex 写桌面端程序，可以用 nodejs 写 server 端程序，可以用 PhoneGap 写移动端程序，这一切，都是基于 javascript 语言的，还有最新出的 windows 8，原生支持用 js 来写 Metro 程序，世界已经无法阻止前端工程师了。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2012/03/10/2012-03-10-xcode4-tips/" rel="next" title="Xcode4 使用技巧">
+                <i class="fa fa-chevron-left"></i> Xcode4 使用技巧
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2012/04/22/2012-04-22-use-fmdb/" rel="prev" title="在iOS开发中使用FMDB">
+                在iOS开发中使用FMDB <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E7%9A%84%E4%BC%A0%E9%80%92"><span class="nav-number">3.</span> <span class="nav-text">参数的传递</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E5%92%8C%E5%BC%82%E6%AD%A5"><span class="nav-number">4.</span> <span class="nav-text">同步和异步</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UIWebView-%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">5.</span> <span class="nav-text">UIWebView 的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E9%98%BB%E5%A1%9E%E9%97%AE%E9%A2%98"><span class="nav-number">5.1.</span> <span class="nav-text">线程阻塞问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E7%BA%BF%E7%A8%8B%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">5.2.</span> <span class="nav-text">主线程的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%94%AE%E7%9B%98%E6%8E%A7%E5%88%B6"><span class="nav-number">5.3.</span> <span class="nav-text">键盘控制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CommonJS-%E8%A7%84%E8%8C%83"><span class="nav-number">5.4.</span> <span class="nav-text">CommonJS 规范</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E8%AF%95"><span class="nav-number">6.</span> <span class="nav-text">调试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%91%E5%AF%B9-PhoneGap-%E7%9A%84%E7%9C%8B%E6%B3%95"><span class="nav-number">7.</span> <span class="nav-text">我对 PhoneGap 的看法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9-js-%E7%9A%84%E6%84%9F%E6%83%B3"><span class="nav-number">8.</span> <span class="nav-text">对 js 的感想</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
