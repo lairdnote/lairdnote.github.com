@@ -3679,6 +3679,197 @@
   
   
 
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/weekly-npm-packages-01.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/post/weekly-npm-packages-01.html" itemprop="url">每周轮子之 only-allow：统一规范团队包管理器</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-05-16T00:00:00+08:00">
+                2022-05-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><p>首先我们来提一个团队开发中很常见的需求：一般来说每个团队都会统一规定项目内只使用同一个包管理器，譬如 npm、yarn、pnpm 等，如果成员使用了不同的包管理器，则可能会因为 <em>lock file</em> 失效而导致项目无法正常运行，虽然这种情况一般都可以通过项目的上手文档来形容共识，但有没有更好的解决方案，比如在项目安装依赖时检测如果使用了不同的包管理器就抛出错误信息？</p>
+<p>当然是可以的，pnpm 就有一个包叫做 <a target="_blank" rel="noopener" href="https://www.npmjs.com/package/only-allow">only-allow</a> ，连 <a target="_blank" rel="noopener" href="https://github.com/vitejs/vite/blob/c7fc1d4a532eae7b519bd70c6eba701e23b0635a/package.json#L16">vite</a> 都在使用它，所以本周我们就从 0 到 1 实现这个工具，以此对它的工作原理一探究竟。</p>
+<h2 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h2><p>说干就干，我们先在 <a target="_blank" rel="noopener" href="https://docs.npmjs.com/cli/v8/using-npm/scripts#life-cycle-operation-order">npm 文档</a> 搜寻一番，发现有一个钩子叫做 <code>preinstall</code>：</p>
+<blockquote>
+<p>可以在运行 npm instal 之前执行某个命令，当 exit code 非 0 时终止运行</p>
+</blockquote>
+<p>所以第一步是在 <code>package.json</code> 中添加以下代码：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;preinstall&quot;</span><span class="punctuation">:</span> <span class="string">&quot;node check-npm.js&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>接下来的问题就是：我们如何知道用户使用了哪一个包管理器？</p>
+<p>我们知道 <code>process.env</code> 会包含当前脚本的运行环境，首先我们将它打印看看</p>
+<p>分别使用 <code>yarn</code> 和 <code>npm install</code> 后，发现了以下几个相关字段的区别：</p>
+<p>使用 <code>yarn</code> 安装：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  npm_config_registry<span class="punctuation">:</span> &#x27;https<span class="punctuation">:</span><span class="comment">//registry.yarnpkg.com&#x27;,</span></span><br><span class="line">  npm_execpath<span class="punctuation">:</span> &#x27;/usr/local/lib/node_modules/yarn/bin/yarn.js&#x27;<span class="punctuation">,</span></span><br><span class="line">  npm_config_user_agent<span class="punctuation">:</span> &#x27;yarn/<span class="number">1.22</span><span class="number">.11</span> npm/? node/v16<span class="number">.13</span><span class="number">.2</span> darwin arm64&#x27;<span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>使用 <code>npm</code> 安装：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  npm_config_metrics_registry<span class="punctuation">:</span> &#x27;https<span class="punctuation">:</span><span class="comment">//registry.npmjs.org/&#x27;,</span></span><br><span class="line">  npm_execpath<span class="punctuation">:</span> &#x27;/opt/homebrew/lib/node_modules/npm/bin/npm-cli.js&#x27;<span class="punctuation">,</span></span><br><span class="line">  npm_config_user_agent<span class="punctuation">:</span> &#x27;npm/<span class="number">8.5</span><span class="number">.5</span> node/v16<span class="number">.13</span><span class="number">.2</span> darwin arm64 workspaces/<span class="literal"><span class="keyword">false</span></span>&#x27;<span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>以下是三者的解释：</p>
+<ol>
+<li>npm_config_metrics_registry：npm 源，就是当我们安装 npm 包会从这个服务器上获取，可以通过 <code>npm config set registry</code> 或者     等工具进行配置。</li>
+<li>npm_execpath：当前 npm 包管理器的执行目录，这个路径会根据你安装的方式而不同。</li>
+<li>npm_config_user_agent：由包管理器设置的 UA，每个包管理器都不一样，比如 npm  <a target="_blank" rel="noopener" href="https://github.com/npm/cli/blob/8a49e3ab6499c6196c5d7a0f6dad3b345944b992/lib/utils/config/definitions.js#L2190">lib&#x2F;utils&#x2F;config&#x2F;definitions.js#L2190</a>，因此我们可以使用这个信息来判断客户端。</li>
+</ol>
+<p>因此我们可以通过 <code>process.env.npm_config_user_agent</code> 获取当前用户使用的包管理器，那么接下来的工作很简单了。</p>
+<p>我们先写一个最 Low 的解决方案：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> wantedPM = <span class="string">&#x27;yarn&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> usedPM = process.<span class="property">env</span>.<span class="property">npm_config_user_agent</span>.<span class="title function_">split</span>(<span class="string">&#x27;/&#x27;</span>)[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (usedPM !== wantedPM) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">`You are using <span class="subst">$&#123;usedPM&#125;</span> but wanted <span class="subst">$&#123;wantedPM&#125;</span>`</span>)</span><br><span class="line"></span><br><span class="line">  process.<span class="title function_">exit</span>(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>至此，我们的核心功能就已经实现了，还不赶紧发到 GitHub 开源一波坐等 stars？</p>
+<p>别急，我们来思考下这段代码存在哪些不足：</p>
+<ol>
+<li>应该由用户指定可以使用哪一个包管理器。</li>
+<li>这段代码的健壮性如何？</li>
+</ol>
+<p>那我们再修改一波，首先是接收用户传递参数，指定使用的包管理器：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;preinstall&quot;</span><span class="punctuation">:</span> <span class="string">&quot;node check-npm.js yarn&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后改为通过接收参数：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="addition">+ const argv = process.argv.slice(2)</span></span><br><span class="line"></span><br><span class="line"><span class="addition">+ const wantedPM = argv[0]</span></span><br><span class="line"><span class="deletion">- const wantedPM = &#x27;yarn&#x27;</span></span><br><span class="line"></span><br><span class="line">const usedPM = process.env.npm_config_user_agent.split(&#x27;/&#x27;)[0]</span><br><span class="line"></span><br><span class="line">if (usedPM !== wantedPM) &#123;</span><br><span class="line">  console.error(`You are using $&#123;usedPM&#125; but wanted $&#123;wantedPM&#125;`)</span><br><span class="line"></span><br><span class="line">  process.exit(1)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>还有第二个问题，这段代码的健壮性如何？譬如以下情况：</p>
+<ol>
+<li>用户不传或乱传参数怎么办？</li>
+<li>如果以后有新需求：除了要限制包管理器，还要限制到具体某个版本怎么办？</li>
+</ol>
+<p>所以，我们再调整一波代码，检测传入的参数：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="variable constant_">PACKAGE_MANAGER_LIST</span> = [<span class="string">&#x27;npm&#x27;</span>, <span class="string">&#x27;yarn&#x27;</span>, <span class="string">&#x27;pnpm&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> argv = process.<span class="property">argv</span>.<span class="title function_">slice</span>(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (argv.<span class="property">length</span> === <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> name = <span class="variable constant_">PACKAGE_MANAGER_LIST</span>.<span class="title function_">join</span>(<span class="string">&#x27;|&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Please specify the wanted package manager: only-allow &lt;<span class="subst">$&#123;name&#125;</span>&gt;`</span>)</span><br><span class="line"></span><br><span class="line">  process.<span class="title function_">exit</span>(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> wantedPM = argv[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!<span class="variable constant_">PACKAGE_MANAGER_LIST</span>.<span class="title function_">includes</span>(wantedPM)) &#123;</span><br><span class="line">  <span class="keyword">const</span> name = <span class="variable constant_">PACKAGE_MANAGER_LIST</span>.<span class="title function_">join</span>(<span class="string">&#x27;,&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(</span><br><span class="line">    <span class="string">`&quot;<span class="subst">$&#123;wantedPM&#125;</span>&quot; is not a valid package manager. Available package managers are: <span class="subst">$&#123;name&#125;</span>.`</span></span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">  process.<span class="title function_">exit</span>(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后，我们将获取 UA 的代码抽离出来，并使其可以获取版本，以便后续扩展：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">getPackageManagerByUserAgent</span>(<span class="params">userAgent</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (!userAgent) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">`&#x27;userAgent&#x27; arguments required`</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> spec = userAgent.<span class="title function_">split</span>(<span class="string">&#x27; &#x27;</span>)[<span class="number">0</span>]</span><br><span class="line">  <span class="keyword">const</span> [name, version] = spec.<span class="title function_">split</span>(<span class="string">&#x27;/&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    name,</span><br><span class="line">    version</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>完整代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="variable constant_">PACKAGE_MANAGER_LIST</span> = [<span class="string">&#x27;npm&#x27;</span>, <span class="string">&#x27;yarn&#x27;</span>, <span class="string">&#x27;pnpm&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> argv = process.<span class="property">argv</span>.<span class="title function_">slice</span>(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (argv.<span class="property">length</span> === <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> name = <span class="variable constant_">PACKAGE_MANAGER_LIST</span>.<span class="title function_">join</span>(<span class="string">&#x27;|&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Please specify the wanted package manager: only-allow &lt;<span class="subst">$&#123;name&#125;</span>&gt;`</span>)</span><br><span class="line"></span><br><span class="line">  process.<span class="title function_">exit</span>(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> wantedPM = argv[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!<span class="variable constant_">PACKAGE_MANAGER_LIST</span>.<span class="title function_">includes</span>(wantedPM)) &#123;</span><br><span class="line">  <span class="keyword">const</span> name = <span class="variable constant_">PACKAGE_MANAGER_LIST</span>.<span class="title function_">join</span>(<span class="string">&#x27;,&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(</span><br><span class="line">    <span class="string">`&quot;<span class="subst">$&#123;wantedPM&#125;</span>&quot; is not a valid package manager. Available package managers are: <span class="subst">$&#123;name&#125;</span>.`</span></span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">  process.<span class="title function_">exit</span>(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> usedPM = <span class="title function_">getPackageManagerByUserAgent</span>(</span><br><span class="line">  process.<span class="property">env</span>.<span class="property">npm_config_user_agent</span></span><br><span class="line">).<span class="property">name</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (usedPM !== wantedPM) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">`You are using <span class="subst">$&#123;usedPM&#125;</span> but wanted <span class="subst">$&#123;wantedPM&#125;</span>`</span>)</span><br><span class="line"></span><br><span class="line">  process.<span class="title function_">exit</span>(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getPackageManagerByUserAgent</span>(<span class="params">userAgent</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (!userAgent) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">`&#x27;userAgent&#x27; arguments required`</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> spec = userAgent.<span class="title function_">split</span>(<span class="string">&#x27; &#x27;</span>)[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> [name, version] = spec.<span class="title function_">split</span>(<span class="string">&#x27;/&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    name,</span><br><span class="line">    version</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>很好，现在我们已经将这个 npm 包的功能给实现了：<a target="_blank" rel="noopener" href="https://www.npmjs.com/package/only-allow">only-allow</a>，可以看下它的源码：<a target="_blank" rel="noopener" href="https://github.com/pnpm/only-allow/blob/master/bin.js">bin.js</a>。</p>
+<p><strong>不过发现了一个问题：</strong>上面提到过 <code>preinstall</code>  钩子会在安装依赖时触发，但是经验证，npm 和 yarn 调用 <code>preinstall</code> 的时机不一样，npm 仅会在 <code>npm install</code> 时运行，而 <code>npm install &lt;pkg-name&gt;</code> 则不会，但 yarn 则会在 <code>yarn</code> 和 <code>yarn add &lt;pkg-name&gt;</code> 时都运行，所以如果想用这种方式限制 npm 使用者，可能无法达到预期，该问题在 2021 年<a target="_blank" rel="noopener" href="https://github.com/npm/rfcs/issues/325">就有人提出</a>，但目前仍未有解决方案出现。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
   <article class="post post-type-weekly" itemscope itemtype="http://schema.org/Article">
   
   
@@ -3861,197 +4052,6 @@
 <li><p><a target="_blank" rel="noopener" href="https://coverview.vercel.app/">Coverview</a>：生成文章题图的工具</p>
 </li>
 </ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/weekly-npm-packages-01.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/post/weekly-npm-packages-01.html" itemprop="url">每周轮子之 only-allow：统一规范团队包管理器</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-05-16T00:00:00+08:00">
-                2022-05-16
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><p>首先我们来提一个团队开发中很常见的需求：一般来说每个团队都会统一规定项目内只使用同一个包管理器，譬如 npm、yarn、pnpm 等，如果成员使用了不同的包管理器，则可能会因为 <em>lock file</em> 失效而导致项目无法正常运行，虽然这种情况一般都可以通过项目的上手文档来形容共识，但有没有更好的解决方案，比如在项目安装依赖时检测如果使用了不同的包管理器就抛出错误信息？</p>
-<p>当然是可以的，pnpm 就有一个包叫做 <a target="_blank" rel="noopener" href="https://www.npmjs.com/package/only-allow">only-allow</a> ，连 <a target="_blank" rel="noopener" href="https://github.com/vitejs/vite/blob/c7fc1d4a532eae7b519bd70c6eba701e23b0635a/package.json#L16">vite</a> 都在使用它，所以本周我们就从 0 到 1 实现这个工具，以此对它的工作原理一探究竟。</p>
-<h2 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h2><p>说干就干，我们先在 <a target="_blank" rel="noopener" href="https://docs.npmjs.com/cli/v8/using-npm/scripts#life-cycle-operation-order">npm 文档</a> 搜寻一番，发现有一个钩子叫做 <code>preinstall</code>：</p>
-<blockquote>
-<p>可以在运行 npm instal 之前执行某个命令，当 exit code 非 0 时终止运行</p>
-</blockquote>
-<p>所以第一步是在 <code>package.json</code> 中添加以下代码：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;preinstall&quot;</span><span class="punctuation">:</span> <span class="string">&quot;node check-npm.js&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>接下来的问题就是：我们如何知道用户使用了哪一个包管理器？</p>
-<p>我们知道 <code>process.env</code> 会包含当前脚本的运行环境，首先我们将它打印看看</p>
-<p>分别使用 <code>yarn</code> 和 <code>npm install</code> 后，发现了以下几个相关字段的区别：</p>
-<p>使用 <code>yarn</code> 安装：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  npm_config_registry<span class="punctuation">:</span> &#x27;https<span class="punctuation">:</span><span class="comment">//registry.yarnpkg.com&#x27;,</span></span><br><span class="line">  npm_execpath<span class="punctuation">:</span> &#x27;/usr/local/lib/node_modules/yarn/bin/yarn.js&#x27;<span class="punctuation">,</span></span><br><span class="line">  npm_config_user_agent<span class="punctuation">:</span> &#x27;yarn/<span class="number">1.22</span><span class="number">.11</span> npm/? node/v16<span class="number">.13</span><span class="number">.2</span> darwin arm64&#x27;<span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>使用 <code>npm</code> 安装：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  npm_config_metrics_registry<span class="punctuation">:</span> &#x27;https<span class="punctuation">:</span><span class="comment">//registry.npmjs.org/&#x27;,</span></span><br><span class="line">  npm_execpath<span class="punctuation">:</span> &#x27;/opt/homebrew/lib/node_modules/npm/bin/npm-cli.js&#x27;<span class="punctuation">,</span></span><br><span class="line">  npm_config_user_agent<span class="punctuation">:</span> &#x27;npm/<span class="number">8.5</span><span class="number">.5</span> node/v16<span class="number">.13</span><span class="number">.2</span> darwin arm64 workspaces/<span class="literal"><span class="keyword">false</span></span>&#x27;<span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>以下是三者的解释：</p>
-<ol>
-<li>npm_config_metrics_registry：npm 源，就是当我们安装 npm 包会从这个服务器上获取，可以通过 <code>npm config set registry</code> 或者     等工具进行配置。</li>
-<li>npm_execpath：当前 npm 包管理器的执行目录，这个路径会根据你安装的方式而不同。</li>
-<li>npm_config_user_agent：由包管理器设置的 UA，每个包管理器都不一样，比如 npm  <a target="_blank" rel="noopener" href="https://github.com/npm/cli/blob/8a49e3ab6499c6196c5d7a0f6dad3b345944b992/lib/utils/config/definitions.js#L2190">lib&#x2F;utils&#x2F;config&#x2F;definitions.js#L2190</a>，因此我们可以使用这个信息来判断客户端。</li>
-</ol>
-<p>因此我们可以通过 <code>process.env.npm_config_user_agent</code> 获取当前用户使用的包管理器，那么接下来的工作很简单了。</p>
-<p>我们先写一个最 Low 的解决方案：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> wantedPM = <span class="string">&#x27;yarn&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> usedPM = process.<span class="property">env</span>.<span class="property">npm_config_user_agent</span>.<span class="title function_">split</span>(<span class="string">&#x27;/&#x27;</span>)[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (usedPM !== wantedPM) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">`You are using <span class="subst">$&#123;usedPM&#125;</span> but wanted <span class="subst">$&#123;wantedPM&#125;</span>`</span>)</span><br><span class="line"></span><br><span class="line">  process.<span class="title function_">exit</span>(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>至此，我们的核心功能就已经实现了，还不赶紧发到 GitHub 开源一波坐等 stars？</p>
-<p>别急，我们来思考下这段代码存在哪些不足：</p>
-<ol>
-<li>应该由用户指定可以使用哪一个包管理器。</li>
-<li>这段代码的健壮性如何？</li>
-</ol>
-<p>那我们再修改一波，首先是接收用户传递参数，指定使用的包管理器：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;preinstall&quot;</span><span class="punctuation">:</span> <span class="string">&quot;node check-npm.js yarn&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>然后改为通过接收参数：</p>
-<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="addition">+ const argv = process.argv.slice(2)</span></span><br><span class="line"></span><br><span class="line"><span class="addition">+ const wantedPM = argv[0]</span></span><br><span class="line"><span class="deletion">- const wantedPM = &#x27;yarn&#x27;</span></span><br><span class="line"></span><br><span class="line">const usedPM = process.env.npm_config_user_agent.split(&#x27;/&#x27;)[0]</span><br><span class="line"></span><br><span class="line">if (usedPM !== wantedPM) &#123;</span><br><span class="line">  console.error(`You are using $&#123;usedPM&#125; but wanted $&#123;wantedPM&#125;`)</span><br><span class="line"></span><br><span class="line">  process.exit(1)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-<p>还有第二个问题，这段代码的健壮性如何？譬如以下情况：</p>
-<ol>
-<li>用户不传或乱传参数怎么办？</li>
-<li>如果以后有新需求：除了要限制包管理器，还要限制到具体某个版本怎么办？</li>
-</ol>
-<p>所以，我们再调整一波代码，检测传入的参数：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="variable constant_">PACKAGE_MANAGER_LIST</span> = [<span class="string">&#x27;npm&#x27;</span>, <span class="string">&#x27;yarn&#x27;</span>, <span class="string">&#x27;pnpm&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> argv = process.<span class="property">argv</span>.<span class="title function_">slice</span>(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (argv.<span class="property">length</span> === <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> name = <span class="variable constant_">PACKAGE_MANAGER_LIST</span>.<span class="title function_">join</span>(<span class="string">&#x27;|&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Please specify the wanted package manager: only-allow &lt;<span class="subst">$&#123;name&#125;</span>&gt;`</span>)</span><br><span class="line"></span><br><span class="line">  process.<span class="title function_">exit</span>(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> wantedPM = argv[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!<span class="variable constant_">PACKAGE_MANAGER_LIST</span>.<span class="title function_">includes</span>(wantedPM)) &#123;</span><br><span class="line">  <span class="keyword">const</span> name = <span class="variable constant_">PACKAGE_MANAGER_LIST</span>.<span class="title function_">join</span>(<span class="string">&#x27;,&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(</span><br><span class="line">    <span class="string">`&quot;<span class="subst">$&#123;wantedPM&#125;</span>&quot; is not a valid package manager. Available package managers are: <span class="subst">$&#123;name&#125;</span>.`</span></span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">  process.<span class="title function_">exit</span>(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后，我们将获取 UA 的代码抽离出来，并使其可以获取版本，以便后续扩展：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">getPackageManagerByUserAgent</span>(<span class="params">userAgent</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (!userAgent) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">`&#x27;userAgent&#x27; arguments required`</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> spec = userAgent.<span class="title function_">split</span>(<span class="string">&#x27; &#x27;</span>)[<span class="number">0</span>]</span><br><span class="line">  <span class="keyword">const</span> [name, version] = spec.<span class="title function_">split</span>(<span class="string">&#x27;/&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    name,</span><br><span class="line">    version</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>完整代码：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="variable constant_">PACKAGE_MANAGER_LIST</span> = [<span class="string">&#x27;npm&#x27;</span>, <span class="string">&#x27;yarn&#x27;</span>, <span class="string">&#x27;pnpm&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> argv = process.<span class="property">argv</span>.<span class="title function_">slice</span>(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (argv.<span class="property">length</span> === <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> name = <span class="variable constant_">PACKAGE_MANAGER_LIST</span>.<span class="title function_">join</span>(<span class="string">&#x27;|&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Please specify the wanted package manager: only-allow &lt;<span class="subst">$&#123;name&#125;</span>&gt;`</span>)</span><br><span class="line"></span><br><span class="line">  process.<span class="title function_">exit</span>(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> wantedPM = argv[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!<span class="variable constant_">PACKAGE_MANAGER_LIST</span>.<span class="title function_">includes</span>(wantedPM)) &#123;</span><br><span class="line">  <span class="keyword">const</span> name = <span class="variable constant_">PACKAGE_MANAGER_LIST</span>.<span class="title function_">join</span>(<span class="string">&#x27;,&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(</span><br><span class="line">    <span class="string">`&quot;<span class="subst">$&#123;wantedPM&#125;</span>&quot; is not a valid package manager. Available package managers are: <span class="subst">$&#123;name&#125;</span>.`</span></span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">  process.<span class="title function_">exit</span>(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> usedPM = <span class="title function_">getPackageManagerByUserAgent</span>(</span><br><span class="line">  process.<span class="property">env</span>.<span class="property">npm_config_user_agent</span></span><br><span class="line">).<span class="property">name</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (usedPM !== wantedPM) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">error</span>(<span class="string">`You are using <span class="subst">$&#123;usedPM&#125;</span> but wanted <span class="subst">$&#123;wantedPM&#125;</span>`</span>)</span><br><span class="line"></span><br><span class="line">  process.<span class="title function_">exit</span>(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getPackageManagerByUserAgent</span>(<span class="params">userAgent</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (!userAgent) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">`&#x27;userAgent&#x27; arguments required`</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> spec = userAgent.<span class="title function_">split</span>(<span class="string">&#x27; &#x27;</span>)[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> [name, version] = spec.<span class="title function_">split</span>(<span class="string">&#x27;/&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    name,</span><br><span class="line">    version</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>很好，现在我们已经将这个 npm 包的功能给实现了：<a target="_blank" rel="noopener" href="https://www.npmjs.com/package/only-allow">only-allow</a>，可以看下它的源码：<a target="_blank" rel="noopener" href="https://github.com/pnpm/only-allow/blob/master/bin.js">bin.js</a>。</p>
-<p><strong>不过发现了一个问题：</strong>上面提到过 <code>preinstall</code>  钩子会在安装依赖时触发，但是经验证，npm 和 yarn 调用 <code>preinstall</code> 的时机不一样，npm 仅会在 <code>npm install</code> 时运行，而 <code>npm install &lt;pkg-name&gt;</code> 则不会，但 yarn 则会在 <code>yarn</code> 和 <code>yarn add &lt;pkg-name&gt;</code> 时都运行，所以如果想用这种方式限制 npm 使用者，可能无法达到预期，该问题在 2021 年<a target="_blank" rel="noopener" href="https://github.com/npm/rfcs/issues/325">就有人提出</a>，但目前仍未有解决方案出现。</p>
 
           
         
@@ -4501,7 +4501,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-count">889</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
