@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="GitHub,快捷指令," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Hello 各位好。 今天想和各位分享一个有意思的小项目——用快捷指令 App 和 GitHub，自动记录每天的起床时间。   这个项目源于之前介绍过的 running_page 作者 @yihong0618 的另外一个项目「早起记录」，它可以实现的效果如下：   每天起床关闭闹钟后，触发快捷指令 App 运行程序，在 GitHub issue 下面会生成一段话，包含今天的气温、起床时间（具体到秒">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GitHub 搭配快捷指令，自动记录每天的起床时间">
+<meta property="og:url" content="https://blog.feedscoin.com/2021-12-26-githubshortcut">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="Hello 各位好。 今天想和各位分享一个有意思的小项目——用快捷指令 App 和 GitHub，自动记录每天的起床时间。   这个项目源于之前介绍过的 running_page 作者 @yihong0618 的另外一个项目「早起记录」，它可以实现的效果如下：   每天起床关闭闹钟后，触发快捷指令 App 运行程序，在 GitHub issue 下面会生成一段话，包含今天的气温、起床时间（具体到秒">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405091835253.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405106317511.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405112684921.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405113468011.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405116523398.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405118489432.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405115411040.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405120509132.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16327915810978.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405123026874.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405124726993.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405125338000.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405151424900.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/qrcodea--a1-1.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/imga97db46ccffe1.jpeg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/img4ae19a6d29391.jpeg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png">
+<meta property="article:published_time" content="2021-12-26T14:03:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:59:41.968Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="GitHub">
+<meta property="article:tag" content="快捷指令">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405091835253.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2021-12-26-githubshortcut"/>
+
+
+
+
+
+  <title>GitHub 搭配快捷指令，自动记录每天的起床时间 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2021-12-26-githubshortcut">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">GitHub 搭配快捷指令，自动记录每天的起床时间</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-12-26T22:03:00+08:00">
+                2021-12-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>Hello 各位好。</p>
+<p>今天想和各位分享一个有意思的小项目——用快捷指令 App 和 GitHub，自动记录每天的起床时间。  </p>
+<p>这个项目源于之前介绍过的 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzAxMjY0NTY5OA==&mid=2649917925&idx=1&sn=08dc018b0d3e65be81c1b5bc8572ce18&chksm=83a88dc8b4df04dee5b2716977fc1dba3b56a4a6952a164198d6c448335a8b4c288568b4a23c&token=1842935800&lang=zh_CN#rd">running_page</a> 作者 @yihong0618 的另外一个项目「早起记录」，它可以实现的效果如下：  </p>
+<p>每天起床关闭闹钟后，触发快捷指令 App 运行程序，在 GitHub issue 下面会生成一段话，包含<strong>今天的气温、起床时间（具体到秒）、随机的一句诗</strong>。     </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405091835253.jpg"></p>
+<p>我觉得这个小项目挺有意思的，不仅可以记录每天起床的时间，还能体会到自动化程序在我们日常生活中的应用。 </p>
+<p>在项目作者 @yihong0618 老师的指导下，我也顺利了弄出了相同的程序，从此就可以记录我这只懒猪🐷的起床时间啦：    </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405106317511.jpg"></p>
+<p>原作者 @yihong 0618 项目地址：<br><em><a target="_blank" rel="noopener" href="https://github.com/yihong0618/2021/blob/main/get_up.py">https://github.com/yihong0618/2021/blob/main/get_up.py</a></em>      </p>
+<p>我的起床时间项目地址：<br><em><a target="_blank" rel="noopener" href="https://github.com/phh95/get_up">https://github.com/phh95/get_up</a></em>   </p>
+<p>下面是实现自动记录起床时间的过程：  </p>
+<h2 id="创建一个-GitHub-仓库"><a href="#创建一个-GitHub-仓库" class="headerlink" title="创建一个 GitHub 仓库"></a>创建一个 GitHub 仓库</h2><p>在 GitHub 上创建一个仓库，名字可以随意取，这里我将仓库取名为 get_up。   </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405112684921.jpg"></p>
+<h2 id="复制代码"><a href="#复制代码" class="headerlink" title="复制代码"></a>复制代码</h2><p>从我的 get_up 仓库中复制 3 个文件，分别是：   </p>
+<ul>
+<li>.github&#x2F;workflows 路径下的 <code>get_up.yml</code> 文件</li>
+<li><code>get_up.py</code> 文件</li>
+<li><code>requirements.txt</code> 文件</li>
+</ul>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405113468011.jpg"></p>
+<h2 id="修改代码"><a href="#修改代码" class="headerlink" title="修改代码"></a>修改代码</h2><p>打开复制的 <code>get_up.py</code> 文件，定位到第 11 行代码，你可以修改中间的「懒猪🐷起床啦，赶紧去跑步，上班不迟到。」，这里的语句，决定了最终在 issue 中生成的内容，你可以将它改为你喜欢的内容。   </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405116523398.jpg"></p>
+<p>定位到第 50 行代码，如果你每天起床的时间早于 6 点，那就需要将 6 更改为更小的数字，例如 4 或 5，这样程序才会正常运行。   </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405118489432.jpg"></p>
+<h2 id="创建-issue"><a href="#创建-issue" class="headerlink" title="创建 issue"></a>创建 issue</h2><p>点击切换到 issues 选项卡，接着点击页面右侧的绿色按钮 <strong>New issue</strong>，创建一个 issue。   </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405115411040.jpg"></p>
+<p>创建 issue 时，需要填入 issue 标题和内容，填入的内容可参考下图👇：   </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405120509132.jpg"></p>
+<h2 id="获取-Token"><a href="#获取-Token" class="headerlink" title="获取 Token"></a>获取 Token</h2><p>首先打开网页 <code>https://github.com/settings/tokens</code>，点击右上角的 Generate new token，生成一个新的 Token。  </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16327915810978.jpg"></p>
+<p>生成 Token 时，有两个注意点，将 Token 的<strong>有效期 Expiration</strong> 设置为 <strong>No expiration</strong>(长期有效)，<strong>勾选下面的所有复选框</strong>，将所有权限都打开。    </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405123026874.jpg"></p>
+<p>生成的 Token，是一长串英文和数字混合的字符串，点击右侧的复制按钮，复制到剪贴板。  </p>
+<p><strong>注意：这个 Token 后面还要用到，最好将 Token 保存到本地的 txt 或 word 文件中。</strong>  </p>
+<p>打开仓库的 Settings 页面，左侧切换到 Secrets 选项卡，点击右上角的 <strong>New repository secret</strong>。  </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405124726993.jpg"></p>
+<p>在打开的页面中，Name 输入 <strong>G_T</strong>，Value 粘贴刚复制到剪贴板的 Token。     </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405125338000.jpg"></p>
+<h2 id="获取-GitHub-Actions-ID"><a href="#获取-GitHub-Actions-ID" class="headerlink" title="获取 GitHub Actions ID"></a>获取 GitHub Actions ID</h2><p>打开电脑的<strong>终端</strong>（Windows 系统上叫做<strong>cmd</strong> 或者 <strong>Powershell</strong>），在终端中粘贴下方的语句。   </p>
+<p><code>curl https://api.github.com/repos/替换成你的GitHubId/这里替换成GitHub仓库名称/actions/workflows -H &quot;Authorization: token 这里的中文替换成GitHub仓库的Token&quot;</code></p>
+<p>粘贴之前，这个语句有 3 处需要替换：  </p>
+<ul>
+<li>你的 GitHub ID</li>
+<li>你的 GitHub 仓库名称  </li>
+<li>你在前面操作中获得的 Token</li>
+</ul>
+<p>粘贴修改好的语句，按下 Enter 键，下方会返回 ID，这个 ID 可以复制到本地的 txt 或者 word 中，等下会用到。  </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/16405151424900.jpg"></p>
+<h2 id="在手机上添加快捷指令"><a href="#在手机上添加快捷指令" class="headerlink" title="在手机上添加快捷指令"></a>在手机上添加快捷指令</h2><p>前面说到，让程序自动运行的触发条件是，关闭手机闹钟。  </p>
+<p>因此，我们还需要在手机上进行配置，如果你的手机是 iPhone，可以使用快捷指令 App，如果是安卓手机，可以使用 tasker。</p>
+<p>关于 tasker 的配置，可以参考下面的文章：</p>
+<p><a target="_blank" rel="noopener" href="https://chenzaichun.github.io/post/2021-09-21-github-action-trigger-by-curl-tasker/">https://chenzaichun.github.io/post/2021-09-21-github-action-trigger-by-curl-tasker/</a>    </p>
+<p>下面介绍 iPhone 上快捷指令 App 的配置： </p>
+<p>扫描下方的二维码，将快捷指令添加到 App 中。  </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/qrcodea--a1-1.jpg" alt="QRcode_A — a1 -1-"></p>
+<p>除了扫描二维码，还可以将下面的链接复制到 Safari 浏览器打开。   </p>
+<p>二维码 ➡️ 链接：<a target="_blank" rel="noopener" href="https://www.icloud.com/shortcuts/703420fd5f2247a089a849f7849282c5">https://www.icloud.com/shortcuts/703420fd5f2247a089a849f7849282c5</a>  </p>
+<p>添加快捷指令「早起时间 分享版」后，点击快捷指令右上角的三个小点点，进入快捷指令的配置页面。  </p>
+<p>我们需要配置 4 个值： </p>
+<ul>
+<li>GitHub_Name：填入你的 GitHub ID </li>
+<li>Rep_Name：填入你创建的仓库名  </li>
+<li>GitHub_Token：填入前面获取的 Token</li>
+<li>Action_ID：填入前面从终端获得的 ID</li>
+</ul>
+<p>配置好 4 个参数后，回到「所有快捷指令」的页面，点击快捷指令「早起时间 分享版」，程序就会自动运行。     </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/imga97db46ccffe1.jpeg" alt="IMG_A97DB46CCFFE-1"></p>
+<p>稍等一小会，回到 GitHub 仓库的 issue 选项卡，在评论区就能见到程序运行后的结果。   </p>
+<p>如果想让快捷指令在每次关闭闹钟后自动运行，可以切换到快捷指令的「<strong>自动化</strong>」页面，研究刚添加的快捷指令，在自动化里面创建一个同样的命令。  </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/12/26/img4ae19a6d29391.jpeg" alt="IMG_4AE19A6D2939-1"></p>
+<h2 id="欢迎关注"><a href="#欢迎关注" class="headerlink" title="欢迎关注"></a>欢迎关注</h2><p>以上，就是本次想和你分享的内容，希望能够对你有一点帮助。     </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png" alt="公众号：效率工具指南">      </p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/GitHub/" rel="tag"># GitHub</a>
+          
+            <a href="/tags/%E5%BF%AB%E6%8D%B7%E6%8C%87%E4%BB%A4/" rel="tag"># 快捷指令</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021-12-17-ipadapps" rel="next" title="iPad 上非常棒的 6 个应用">
+                <i class="fa fa-chevron-left"></i> iPad 上非常棒的 6 个应用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/%E6%B5%85%E8%AE%AE%E9%9D%9E%E5%85%B8%E5%9E%8B-Web-%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B8%8B%E7%9A%84%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81" rel="prev" title="浅议非典型 Web 应用场景下的身份认证">
+                浅议非典型 Web 应用场景下的身份认证 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA-GitHub-%E4%BB%93%E5%BA%93"><span class="nav-number">1.</span> <span class="nav-text">创建一个 GitHub 仓库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%8D%E5%88%B6%E4%BB%A3%E7%A0%81"><span class="nav-number">2.</span> <span class="nav-text">复制代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E4%BB%A3%E7%A0%81"><span class="nav-number">3.</span> <span class="nav-text">修改代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA-issue"><span class="nav-number">4.</span> <span class="nav-text">创建 issue</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96-Token"><span class="nav-number">5.</span> <span class="nav-text">获取 Token</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96-GitHub-Actions-ID"><span class="nav-number">6.</span> <span class="nav-text">获取 GitHub Actions ID</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E6%89%8B%E6%9C%BA%E4%B8%8A%E6%B7%BB%E5%8A%A0%E5%BF%AB%E6%8D%B7%E6%8C%87%E4%BB%A4"><span class="nav-number">7.</span> <span class="nav-text">在手机上添加快捷指令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AC%A2%E8%BF%8E%E5%85%B3%E6%B3%A8"><span class="nav-number">8.</span> <span class="nav-text">欢迎关注</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

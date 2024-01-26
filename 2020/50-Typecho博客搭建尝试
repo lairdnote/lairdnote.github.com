@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="blog,服务器," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="拥有一台自己的服务器之后就尝试搞一个动态博客了，毕竟有后台管理会方便很多。看到 Typecho 原生支持 Markdown，而且有一个很漂亮、功能强大的主题 Handsome，就决定尝试将我的 Hexo 博客迁移到 Typecho  Handsome 了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Typecho 博客搭建尝试">
+<meta property="og:url" content="https://blog.feedscoin.com/2020/50-Typecho%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E5%B0%9D%E8%AF%95">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="拥有一台自己的服务器之后就尝试搞一个动态博客了，毕竟有后台管理会方便很多。看到 Typecho 原生支持 Markdown，而且有一个很漂亮、功能强大的主题 Handsome，就决定尝试将我的 Hexo 博客迁移到 Typecho  Handsome 了。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cos.pinlyu.com/posts/2020/50-wechat_server.webp#600x">
+<meta property="article:published_time" content="2020-04-30T09:00:00.000Z">
+<meta property="article:modified_time" content="2020-10-27T11:00:00.000Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="blog">
+<meta property="article:tag" content="服务器">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cos.pinlyu.com/posts/2020/50-wechat_server.webp#600x">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2020/50-Typecho博客搭建尝试"/>
+
+
+
+
+
+  <title>Typecho 博客搭建尝试 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020/50-Typecho%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E5%B0%9D%E8%AF%95">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Typecho 博客搭建尝试</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-04-30T17:00:00+08:00">
+                2020-04-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index">
+                    <span itemprop="name">笔记</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>拥有一台自己的服务器之后就尝试搞一个动态博客了，毕竟有后台管理会方便很多。看到 Typecho 原生支持 Markdown，而且有一个很漂亮、功能强大的主题 Handsome，就决定尝试将我的 Hexo 博客迁移到 Typecho  Handsome 了。</p>
+<span id="more"></span>
+
+<h2 id="1-Typecho-的个性化"><a href="#1-Typecho-的个性化" class="headerlink" title="1. Typecho 的个性化"></a>1. Typecho 的个性化</h2><h3 id="1-1-自定义样式"><a href="#1-1-自定义样式" class="headerlink" title="1.1 自定义样式"></a>1.1 自定义样式</h3><p>主要的自定义工作我都通过加入自定义 CSS 和 JS 文件来完成了，具体代码可以参考我的 GitHub 项目 <a target="_blank" rel="noopener" href="https://github.com/leirock/Typecho-Assets">Typecho-Assets</a> 和 <a target="_blank" rel="noopener" href="https://github.com/leirock/Typecho-Plugin-BanbanStyle">BanbanStyle 插件</a>。其中包含了比如随机彩色标签云、中英文字符件自动添加空格（pangu.js）、macOS 风格代码框、今日诗词、看板娘组件等等。</p>
+<p>有几个样式或功能还需要一点点额外的配置：</p>
+<ul>
+<li><strong>删除首页中间标题</strong>：<code>/usr/themes/handsome/index.php</code> 删除以下代码</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;h1 <span class="class"><span class="keyword">class</span>=&quot;<span class="title">m</span>-<span class="title">n</span> <span class="title">font</span>-<span class="title">thin</span> <span class="title">text</span>-<span class="title">black</span> <span class="title">l</span>-<span class="title">h</span>&quot;&gt;&lt;?<span class="title">php</span> $<span class="title">this</span>-&gt;<span class="title">options</span>-&gt;<span class="title">title</span>(); ?&gt;&lt;/<span class="title">h1</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>添加今日诗词布局</strong>（需要配合 JS 文件加载今日诗词 SDK）：在上述标签下方找到以下代码</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">echo</span> <span class="string">&#x27;加载中……&#x27;</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&#x27;</span></span><br><span class="line"><span class="string">&lt;script&gt;</span></span><br><span class="line"><span class="string">  $.ajax(&#123;</span></span><br><span class="line"><span class="string">    type: \&#x27;Get\&#x27;,</span></span><br><span class="line"><span class="string">    url: \&#x27;https://v1.hitokoto.cn/\&#x27;,</span></span><br><span class="line"><span class="string">    success: function(data) &#123;</span></span><br><span class="line"><span class="string">      var hitokoto = data.hitokoto;</span></span><br><span class="line"><span class="string">      $(\&#x27;.indexWords\&#x27;).text(hitokoto);</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  &#125;);</span></span><br><span class="line"><span class="string">&lt;/script&gt;&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>替换为：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">echo</span> <span class="string">&#x27;</span></span><br><span class="line"><span class="string">&lt;div class=&quot;poem-wrap&quot;&gt;</span></span><br><span class="line"><span class="string">  &lt;span id=&quot;poem_sentence&quot;&gt;正在加载今日诗词....&lt;/span&gt;</span></span><br><span class="line"><span class="string">&lt;/div&gt;&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>文章结尾显示标签</strong>：<code>/usr/themes/handsomepost.php</code> 打赏模块结尾添加以下代码</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;!--生成当前文章标签--&gt;</span><br><span class="line">&lt;div id=<span class="string">&quot;tag_cloud-2&quot;</span> <span class="class"><span class="keyword">class</span>=&quot;<span class="title">post</span>-<span class="title">tags</span> <span class="title">tags</span> <span class="title">l</span>-<span class="title">h</span>-2<span class="title">x</span>&quot; <span class="title">style</span>=&quot;<span class="title">text</span>-<span class="title">align</span>:<span class="title">center</span>;<span class="title">margin</span>-<span class="title">top</span>:5<span class="title">px</span>;&quot;&gt;</span></span><br><span class="line"><span class="class">  &lt;<span class="title">style</span>&gt;.<span class="title">post</span>-<span class="title">tags</span> <span class="title">a</span></span>&#123;font-size:<span class="number">12</span>px!important;color:<span class="comment">#fff!important;&#125;&lt;/style&gt;</span></span><br><span class="line">  <span class="meta">&lt;?php</span> <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">tags</span>(<span class="string">&#x27; &#x27;</span>, <span class="literal">true</span>, <span class="string">&#x27;暂无标签&#x27;</span>); <span class="meta">?&gt;</span></span><br><span class="line">&lt;/div&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>页脚更改</strong>：修改 <code>/usr/themes/handsome/component/footer.php</code></li>
+</ul>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">  &lt;span class=&quot;pull-right hidden-xs text-ellipsis&quot;&gt;</span><br><span class="line">    &lt;?php $this-&gt;options-&gt;BottomInfo(); ?&gt;</span><br><span class="line"><span class="deletion">-    Powered by &lt;a target=&quot;_blank&quot; href=&quot;http://www.typecho.org&quot;&gt;Typecho&lt;/a&gt;&amp;nbsp;|&amp;nbsp;Theme by &lt;a target=&quot;_blank&quot;</span></span><br><span class="line"><span class="deletion">- href=&quot;https://www.ihewro.com/archives/489/&quot;&gt;handsome&lt;/a&gt;</span></span><br><span class="line">  &lt;/span&gt;</span><br><span class="line">  &lt;span class=&quot;text-ellipsis&quot;&gt;</span><br><span class="line"><span class="deletion">-    &amp;copy;&amp;nbsp;&lt;?php echo date(&quot;Y&quot;);?&gt; Copyright&amp;nbsp;</span></span><br><span class="line">    &lt;?php $this-&gt;options-&gt;BottomleftInfo(); ?&gt;</span><br><span class="line">  &lt;/span&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然后就可以直接在主题的“开发者设置”里添加需要的内容了，不会受到原本页脚内容的局限。</p>
+<ul>
+<li><strong>自定义翻译</strong>：修改 <code>/usr/themes/handsome/lang/</code> 文件夹的内容。</li>
+</ul>
+<h3 id="1-2-PJAX-回调函数"><a href="#1-2-PJAX-回调函数" class="headerlink" title="1.2 PJAX 回调函数"></a>1.2 PJAX 回调函数</h3><p>如果开启了 PJAX，一些每次刷新页面都要执行的脚本需要加入回调。目前我根据自定义的 JS 文件设置了以下回调函数。其中最后一条是因为开启了图片延迟加载后，相册页缩略图无法显示。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// pangu.js</span></span><br><span class="line">pangu.<span class="title function_">spacingPage</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// colorful tag cloud</span></span><br><span class="line"><span class="title function_">colorful_tags</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// macOS 代码框</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="title class_">Prism</span> !== <span class="string">&#x27;undefined&#x27;</span>) &#123;</span><br><span class="line">    <span class="title class_">Prism</span>.<span class="title function_">highlightAll</span>(<span class="literal">true</span>,<span class="literal">null</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 今日诗词</span></span><br><span class="line"><span class="keyword">if</span> ($(<span class="string">&quot;div&quot;</span>).<span class="title function_">hasClass</span>(<span class="string">&quot;poem-wrap&quot;</span>)) &#123;</span><br><span class="line">    <span class="title function_">get_poem</span>()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 相册缩略图</span></span><br><span class="line">$(<span class="string">&quot;.album-thumb img&quot;</span>).<span class="title function_">lazyload</span>(&#123;</span><br><span class="line">    <span class="attr">effect</span>: <span class="string">&quot;fadeIn&quot;</span>,</span><br><span class="line">    <span class="attr">threshold</span>: <span class="string">&quot;200&quot;</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-3-FancyBox-缩略图"><a href="#1-3-FancyBox-缩略图" class="headerlink" title="1.3 FancyBox 缩略图"></a>1.3 FancyBox 缩略图</h3><p>就如在用 Hexo 时候进行的修改一样，我希望在使用 FancyBox 时候预览的缩略图是小图，点开后可以加载原图，这样就需要修改 <code>/usr/themes/handsome/assets/js/core.min.js</code> 文件。因为是经过压缩后的版本，所以先恢复回有缩进的版本，然后修改 <code>seFancyBox</code> 函数的定义。</p>
+<p>找到 <code>seFancyBox</code> 函数最后一句，在这一句之前添加一句命令，以适配我自己设置的腾讯云对象存储剪裁后缀，如 <code>#500x</code>：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="addition">+ g = g.replace(/![0-9]&#123;3,&#125;x/,&quot;&quot;);</span></span><br><span class="line">  j += i, &quot;undefined&quot; !== f ? b.prop(&quot;outerHTML&quot;, &#x27;&lt;a class=&quot;light-link img-blur&quot; data-fancybox=&quot;gallery&quot; style=&quot;background-image: url(&#x27; + g + &#x27;)&quot; no-pjax data-type=&quot;image&quot; data-caption=&quot;&#x27; + c + &#x27;&quot; href=&quot;&#x27; + g + &#x27;&quot;&gt;&#x27; + j + &quot;&lt;/a&gt;&quot;) : b.prop(&quot;outerHTML&quot;, &#x27;&lt;a class=&quot;light-link&quot; data-fancybox=&quot;gallery&quot; no-pjax data-type=&quot;image&quot; data-caption=&quot;&#x27; + c + &#x27;&quot; href=&quot;&#x27; + g + &#x27;&quot;&gt;&#x27; + j + &quot;&lt;/a&gt;&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>然后再对 <code>core.min.js</code> 文件进行压缩保存即可。</p>
+<h2 id="2-Valine-评论迁移到-Typecho"><a href="#2-Valine-评论迁移到-Typecho" class="headerlink" title="2. Valine 评论迁移到 Typecho"></a>2. Valine 评论迁移到 Typecho</h2><p>之前是使用 Valine 搭配 LeanCloud 的评论系统，要迁移到 Typecho 还是蛮复杂的，毕竟没有现成的工具，而且评论的 id 和文章的 id 与 Typecho 格式也不一致。目前是参考一个 <a target="_blank" rel="noopener" href="https://veltlion.github.io/valine-to-wxr/">Valine 转 Wordpress 评论的脚本</a>，自己修改了代码。脚本需要先安装 <code>jq</code> 这个 JSON 文件处理包，然后可以实现 JSON 转为 SQL 文件。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/usr/bin/env bash</span></span><br><span class="line"><span class="comment"># by @leirock</span></span><br><span class="line"><span class="comment"># Valine to Typecho</span></span><br><span class="line"><span class="comment"># 2020-04-22</span></span><br><span class="line"></span><br><span class="line">comfile=<span class="string">&quot;<span class="variable">$1</span>&quot;</span></span><br><span class="line"></span><br><span class="line">line=$(grep comment <span class="variable">$comfile</span> |<span class="built_in">wc</span> -l)</span><br><span class="line">author_mail=<span class="string">&quot;这里填写自己的邮箱地址&quot;</span></span><br><span class="line">author_url=<span class="string">&quot;这里填写自己的博客链接&quot;</span></span><br><span class="line"><span class="comment">#author_ip=&quot;这里填写自己的ip&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">comment</span></span>() &#123;</span><br><span class="line">    <span class="keyword">for</span> ((i=<span class="number">0</span>; i&lt;<span class="variable">$line</span>; i++)); <span class="keyword">do</span></span><br><span class="line">        <span class="built_in">let</span> j=<span class="variable">$i</span>+1</span><br><span class="line">        <span class="built_in">printf</span> <span class="string">&quot;第 <span class="variable">$j</span> 条评论\n&quot;</span></span><br><span class="line">        coid=$(jq -r <span class="string">&quot;.results[<span class="variable">$i</span>].objectId&quot;</span> <span class="variable">$comfile</span>)</span><br><span class="line">        cid=$(jq -r <span class="string">&quot;.results[<span class="variable">$i</span>].url&quot;</span> <span class="variable">$comfile</span>)</span><br><span class="line">        cid=<span class="string">&#x27;[&#x27;</span><span class="variable">$cid</span><span class="string">&#x27;]&#x27;</span></span><br><span class="line">        author=$(jq -r <span class="string">&quot;.results[<span class="variable">$i</span>].nick&quot;</span> <span class="variable">$comfile</span>)</span><br><span class="line">        mail=$(jq -r <span class="string">&quot;.results[<span class="variable">$i</span>].mail&quot;</span> <span class="variable">$comfile</span>)</span><br><span class="line">        url=$(jq -r <span class="string">&quot;.results[<span class="variable">$i</span>].link&quot;</span> <span class="variable">$comfile</span> | sed <span class="string">&#x27;s/^null$//&#x27;</span>)</span><br><span class="line">        ip=$(jq -r <span class="string">&quot;.results[<span class="variable">$i</span>].ip&quot;</span> <span class="variable">$comfile</span> | sed <span class="string">&#x27;s/^null$//&#x27;</span>)</span><br><span class="line">        dateYMD=$(jq -r <span class="string">&quot;.results[<span class="variable">$i</span>].createdAt&quot;</span> <span class="variable">$comfile</span> | sed <span class="string">&#x27;s/T/ /; s/\.[0-9]\&#123;3\&#125;Z//&#x27;</span>)</span><br><span class="line">        <span class="built_in">date</span>=$(<span class="built_in">date</span> -d <span class="string">&quot;<span class="variable">$dateYMD</span>&quot;</span> +%s)</span><br><span class="line">        parent=$(jq -r <span class="string">&quot;.results[<span class="variable">$i</span>].rid&quot;</span> <span class="variable">$comfile</span> | sed <span class="string">&#x27;s/^null$/0/&#x27;</span>)</span><br><span class="line">        text=$(jq -r <span class="string">&quot;.results[<span class="variable">$i</span>].comment&quot;</span> <span class="variable">$comfile</span>)</span><br><span class="line">        agent=$(jq -r <span class="string">&quot;.results[<span class="variable">$i</span>].ua&quot;</span> <span class="variable">$comfile</span>)</span><br><span class="line">        <span class="keyword">if</span> [[ <span class="variable">$mail</span> == <span class="variable">$author_mail</span> ]]; <span class="keyword">then</span></span><br><span class="line">            authorId=1</span><br><span class="line">            ownerId=1</span><br><span class="line">            url=<span class="variable">$author_url</span></span><br><span class="line"><span class="comment">#           ip=$author_ip</span></span><br><span class="line">        <span class="keyword">else</span> </span><br><span class="line">            authorId=0</span><br><span class="line">            ownerId=0</span><br><span class="line">        <span class="keyword">fi</span></span><br><span class="line">        <span class="keyword">if</span> [[ <span class="variable">$j</span> == <span class="variable">$line</span> ]]; <span class="keyword">then</span></span><br><span class="line">            <span class="built_in">echo</span>  <span class="string">&quot;(<span class="variable">$coid</span>, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;<span class="variable">$cid</span>&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, <span class="variable">$date</span>, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;<span class="variable">$author</span>&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, <span class="variable">$authorId</span>, <span class="variable">$ownerId</span>, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;<span class="variable">$mail</span>&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;<span class="variable">$url</span>&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;<span class="variable">$ip</span>&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;<span class="variable">$agent</span>&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;<span class="variable">$text</span>&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;comment&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;approved&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, <span class="variable">$parent</span>);&quot;</span>&gt;&gt;<span class="variable">$comfile</span>.sql</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="built_in">echo</span>  <span class="string">&quot;(<span class="variable">$coid</span>, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;<span class="variable">$cid</span>&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, <span class="variable">$date</span>, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;<span class="variable">$author</span>&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, <span class="variable">$authorId</span>, <span class="variable">$ownerId</span>, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;<span class="variable">$mail</span>&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;<span class="variable">$url</span>&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;<span class="variable">$ip</span>&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;<span class="variable">$agent</span>&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;<span class="variable">$text</span>&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;comment&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, &quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;approved&quot;</span><span class="string">&quot;&#x27;&quot;</span><span class="string">&quot;, <span class="variable">$parent</span>),&quot;</span>&gt;&gt;<span class="variable">$comfile</span>.sql</span><br><span class="line">        <span class="keyword">fi</span></span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">touch</span> <span class="variable">$comfile</span>.sql</span><br><span class="line"><span class="built_in">echo</span>  <span class="string">&quot;INSERT INTO \`typecho_comments\` (\`coid\`, \`cid\`, \`created\`, \`author\`, \`authorId\`, \`ownerId\`, \`mail\`, \`url\`, \`ip\`, \`agent\`, \`text\`, \`type\`, \`status\`, \`parent\`) VALUES&quot;</span>&gt;&gt;<span class="variable">$comfile</span>.sql</span><br><span class="line">comment</span><br><span class="line"><span class="built_in">echo</span> <span class="keyword">done</span>!</span><br></pre></td></tr></table></figure>
+
+<p>保存该文件命名为 <code>valine2typecho.sh</code>，重命名 LeanCloud 导出的 Valine 评论文件为 <code>comment.json</code>，然后在这两个文件所在目录执行以下命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh valine2typecho.sh comment.json</span><br></pre></td></tr></table></figure>
+
+<p>之后可能需要一些手工调整（所以评论数少的话可以用）：例如调整评论的 <code>coid</code>、文章的 <code>cid</code>，修正一些 SQL 可能不支持的格式（比如部分字符要转义），一些 html 标签要在后台评论设置中添加支持，修改部分评论的 <code>parent</code> 值以匹配相应上级评论等等，具体可以参考 MySQL 导出的数据库文件格式。</p>
+<p>导入评论后文章统计的评论数量可能不准确，可以先备份数据库，然后数据库中执行以下语句：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> typecho_contents t1 <span class="keyword">SET</span> t1.commentsNum <span class="operator">=</span> (<span class="keyword">select</span> <span class="built_in">count</span>(<span class="operator">*</span>) <span class="keyword">from</span> typecho_comments t2 <span class="keyword">where</span> t2.cid <span class="operator">=</span> t1.cid)</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-插件介绍"><a href="#3-插件介绍" class="headerlink" title="3. 插件介绍"></a>3. 插件介绍</h2><table>
+<thead>
+<tr>
+<th>插件</th>
+<th>介绍</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/JoyChou93/CommentToMail">CommentToMail</a></td>
+<td>评论邮件通知</td>
+</tr>
+<tr>
+<td>Handsome</td>
+<td>Handsome 主题配套插件</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/bayunjiang/typecho-sitemap">Sitemap</a></td>
+<td>自动生成网站地图</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/dishcheng/cosUploadV5">cosUploadV5</a></td>
+<td>上传文件、图片到腾讯云对象存储并提供链接</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/leirock/Typecho-Plugin-MemorialDay">MemorialDay</a></td>
+<td>自己开发的哀悼日开启全站黑白滤镜</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/YianAndCode/Comment2Wechat">Comment2Wechat</a></td>
+<td>评论推送至微信，依托 Server 酱实现</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/MoeLoli/Comment2Telegram">Comment2Telegram</a></td>
+<td>评论推送至 Telegram，支持回复评论、通过评论、垃圾评论和删除评论</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://github.com/DT27/EditorMD">EditorMD</a></td>
+<td>比原生更好用的 Markdown 编辑器（可以只使用编辑器功能）</td>
+</tr>
+</tbody></table>
+<h2 id="4-Handsome-主题时光机"><a href="#4-Handsome-主题时光机" class="headerlink" title="4. Handsome 主题时光机"></a>4. Handsome 主题时光机</h2><p>Handsome 主题内置了一个“时光机”功能，可以类似微博、微信朋友圈一样发布动态，而且支持通过微信公众号、Chrome 插件等多平台发布。同时，还可以在该页面上利用 RSS 订阅源把自己的微博和 Twitter 等平台的动态同步显示。</p>
+<h3 id="4-1-多平台发布动态"><a href="#4-1-多平台发布动态" class="headerlink" title="4.1 多平台发布动态"></a>4.1 多平台发布动态</h3><p>Handsome 开发者提供了一个微信公众号发布的渠道，但是这样需要用到别人的服务，而且后期如果要添加新的网站等都需要在该平台修改，不是很方便。既然有自己的服务器，还有自己的微信公众号，那就不如自己搭建一个。</p>
+<ol>
+<li><p>首先下载 <a target="_blank" rel="noopener" href="https://github.com/iLay1678/wechat_for_handsome">wechat_for_handsome</a> 项目到自己服务器目录，我们可以添加一个新的网站和域名来部署，同时需要创建一个对应的数据库。</p>
+</li>
+<li><p>在安装该服务前，我们需要先去微信公众号后台获取必要的设置参数。在微信公众号后台[开发]→[基本配置]获取 AppID 和 AppSecret。然后我们参照微信公众号的<a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Get_access_token.html">文档</a>，使用刚才获得的两个参数在 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/debug/cgi-bin/apiinfo?t=index&type=%E5%9F%BA%E7%A1%80%E6%94%AF%E6%8C%81&form=%E8%8E%B7%E5%8F%96access_token%E6%8E%A5%E5%8F%A3%20/token">微信公众平台接口调试工具</a> 获取 <code>access_token</code>。</p>
+</li>
+</ol>
+<p><img src="https://cos.pinlyu.com/posts/2020/50-wechat_server.webp#600x" alt="服务器配置"></p>
+<ol start="3">
+<li><p>接下来回到微信公众号后台[开发]→[基本配置]启用服务器配置。服务器地址（URL）填写为 <code>项目域名/server.php</code>；令牌（Token）就是第二步得到的 <code>access_token</code>；消息加解密密钥（EncodingAESKey）可以随机生成但是一定要记录，因为我们还需要在项目安装时候填写；消息加解密方式可以选择“安全模式”。因为还没有在服务器上安装，所以先不要提交，放一边，进入下一步。</p>
+</li>
+<li><p>回到之前添加的站点，访问 <code>项目域名/install.php</code> 进入安装步骤。依次输入要求的几个参数，这些我们都通过上面的几个步骤获得了，设置完毕后安装即可。这样就可以回到第三步的公众号服务器配置，提交验证。</p>
+</li>
+<li><p>然后向公众号发送“绑定”，点击链接填写相关信息进行绑定，绑定完毕就可以参考主题文档的说明发布动态了。如果没有反应，可能是刚刚验证完毕，稍微等一会儿就好。其中，时光机的 <code>cid</code> 可以在后台独立页面管理处获得，验证编码可以在主题设置处自行设置一个当作访问密码。</p>
+</li>
+<li><p>如果公众号启用了“服务器配置”后，自定义的菜单不见了，可以在功能插件设置处重新启用即可。Chrome 扩展发布动态的方法可以直接参考主题文档配置。</p>
+</li>
+</ol>
+<h3 id="4-2-添加-RSS-订阅源"><a href="#4-2-添加-RSS-订阅源" class="headerlink" title="4.2 添加 RSS 订阅源"></a>4.2 添加 RSS 订阅源</h3><p>时光机上要显示自己的微博或者 Twitter 的动态，可以借助 RSSHub 生成的订阅源。RSSHub 的部署可以参考我之前的文章，其中 Twitter 还需要去申请获得 API 相应的 key 才可以访问。</p>
+<p>当然，使用的时候不能直接填写这个订阅源，因为会被禁止跨域访问，这时候可以在该订阅源链接前面加上 <code>https://cors-anywhere.herokuapp.com/</code>。例如我们要订阅微博的 RSS 订阅源链接是 <code>https://rsshub.app/weibo/user/&#123;weibo_user_id&#125;</code>，那么为了方便跨域访问，可以在时光机设置时候填写：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://cors-anywhere.herokuapp.com/https://rsshub.app/weibo/user/&#123;weibo_user_id&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当然，可能通过访问 herokuapp.com 来获取订阅源速度比较慢，那就可以自行部署这个 <a target="_blank" rel="noopener" href="https://github.com/Rob--W/cors-anywhere">CORS Anywhere 服务</a>。方法也很简单，以使用宝塔面板为例，因为部署该项目使用的是 Nodejs 环境，需要先安装 Nodejs，方法可以参考我之前的文章。</p>
+<p>然后下载上述项目源码到需要部署的服务器目录，项目根目录下创建环境变量设置文件 <code>.env</code>，编辑文件添加环境变量（具体含义用法见该项目文档），例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PORT = 1400</span><br><span class="line">CORSANYWHERE_WHITELIST = https://pinlyu.com</span><br></pre></td></tr></table></figure>
+
+<p>之后安装所需要的依赖（以下命令二选一）:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm install</span><br><span class="line">npm install dotenv --save <span class="comment"># 调用环境变量文件需要的依赖</span></span><br></pre></td></tr></table></figure>
+
+<p>修改启动文件 <code>server.js</code>，在最开头加入以下内容，以便在最开始就引入环境变量文件的参数。保存后，可以手动启动 <code>node server.js</code>，或者用“PM2 管理器”启动该脚本即可。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Import .env</span></span><br><span class="line"><span class="keyword">let</span> dotenv = <span class="built_in">require</span>(<span class="string">&#x27;dotenv&#x27;</span>);</span><br><span class="line">dotenv.<span class="title function_">config</span>(<span class="string">&#x27;./env&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>最后，为服务设置反向代理，使得可以通过域名访问该服务。</p>
+<h2 id="5-访问速度与安全"><a href="#5-访问速度与安全" class="headerlink" title="5. 访问速度与安全"></a>5. 访问速度与安全</h2><h3 id="5-1-CDN"><a href="#5-1-CDN" class="headerlink" title="5.1 CDN"></a>5.1 CDN</h3><p>最开始是静态资源走腾讯云境内 CDN（存储在对象存储中），毕竟腾讯云每个月有 10G 免费境内 CDN 流量包可以使用。但是实际使用发现，如果只是使用境内 CDN 分发静态资源，海外访问的时候会有“云减速”的效果，但是如果开启全球加速，海外访问的流量费也是一笔钱。</p>
+<p>而如果选择 Cloudflare 的 CDN，似乎对境内访问有“云减速”的效果。如果是 DNS 双线解析，境内直接访问服务器，境外访问 Cloudflare 的 CDN（可以通过 Cloudflare Partner 面板实现 CNAME 接入）， 可以让海外访问走 CDN，不过感觉对境内一样是源站访问的话用 CDN 意义不算很大。而且，因为目前服务器和我同地域，访问延迟特别低，体验很好，加上 Cloudflare 的 CDN，纵使是境外也感觉有“云减速”的效果，似乎没有给我选择最近的节点或者是回源获取资源了吧。</p>
+<p>反正经过几番尝试，最后还是只选择了主题的静态文件直接放到 GitHub，借助 jsDelivr 的 CDN 进行分发。自定义的静态文件也放到了 GitHub，但主要是版本控制的目的，毕竟 jsDelivr 的 CDN 缓存刷新速度不是那么快的。我采用 GitHub Actions 同步到腾讯云对象存储中，直接用对象存储的链接进行访问，感觉这样并没有比采用加速域名走 CDN 慢。</p>
+<p>目前没有用 memcached 或者 redis 作内容缓存，其一是并没有很大的并发需求，其二是 Typecho 没有好用的插件（或多或少有一些问题）。</p>
+<h3 id="5-2-Google-BBR"><a href="#5-2-Google-BBR" class="headerlink" title="5.2 Google BBR"></a>5.2 Google BBR</h3><p>Google BBR 是一个 TCP 加速优化工具，可用于优化TCP连接，根据介绍开启可以加快访问的网速，这里参考了 <a target="_blank" rel="noopener" href="https://www.moerats.com/archives/297/">Rat 介绍的方法</a>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 修改系统变量</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;net.core.default_qdisc=fq&quot;</span> &gt;&gt; /etc/sysctl.conf</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;net.ipv4.tcp_congestion_control=bbr&quot;</span> &gt;&gt; /etc/sysctl.conf</span><br><span class="line"></span><br><span class="line"><span class="comment"># 保存生效开启 BBR</span></span><br><span class="line">sysctl -p</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看内核是否已开启 BBR</span></span><br><span class="line">sysctl net.ipv4.tcp_available_congestion_control</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 BBR 是否启动</span></span><br><span class="line">lsmod | grep bbr</span><br></pre></td></tr></table></figure>
+
+<p>显示以下即内核已开启 BBR：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># sysctl net.ipv4.tcp_available_congestion_control</span></span><br><span class="line">net.ipv4.tcp_available_congestion_control = bbr cubic reno</span><br></pre></td></tr></table></figure>
+
+<p>显示类似以下内容即 BBR 启动成功：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># lsmod | grep bbr</span></span><br><span class="line">tcp_bbr                20480  14</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-TLS-与-HSTS"><a href="#5-3-TLS-与-HSTS" class="headerlink" title="5.3 TLS 与 HSTS"></a>5.3 TLS 与 HSTS</h3><p>宝塔面板安装最新版本，Nginx 安装 1.17 版本的话，应该已经支持了 TLS 1.3 协议，可以在 <a target="_blank" rel="noopener" href="https://www.ssllabs.com/ssltest/">ssllabs.com</a> 或者 <a target="_blank" rel="noopener" href="https://myssl.com/">myssl.com</a> 测试一下自己的站点。为了在上述测试中实现 A 的评级，获得 SSL 证书后，我还在 Nginx 中禁用了 TLS 1.1 协议：删除服务器所有网站 Nginx 配置文件中的 <code>TLSv1.1</code>。</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="deletion">-ssl_protocols TLSv1.1 TLSv1.2 TLSv1.3;</span></span><br><span class="line"><span class="addition">+ssl_protocols TLSv1.2 TLSv1.3;</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/blog/" rel="tag"># blog</a>
+          
+            <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/" rel="tag"># 服务器</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/%E9%80%9A%E8%BF%87EF-Dapper%E6%89%A9%E5%B1%95%E5%AE%9E%E7%8E%B0%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AE%A1%E8%AE%A1%E5%8A%9F%E8%83%BD" rel="next" title="通过 EF/Dapper 扩展实现数据库审计功能">
+                <i class="fa fa-chevron-left"></i> 通过 EF/Dapper 扩展实现数据库审计功能
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/volatile" rel="prev" title="volatile 关键字，你真的理解吗？">
+                volatile 关键字，你真的理解吗？ <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Typecho-%E7%9A%84%E4%B8%AA%E6%80%A7%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">1. Typecho 的个性化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A0%B7%E5%BC%8F"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 自定义样式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-PJAX-%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 PJAX 回调函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-FancyBox-%E7%BC%A9%E7%95%A5%E5%9B%BE"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 FancyBox 缩略图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Valine-%E8%AF%84%E8%AE%BA%E8%BF%81%E7%A7%BB%E5%88%B0-Typecho"><span class="nav-number">2.</span> <span class="nav-text">2. Valine 评论迁移到 Typecho</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%8F%92%E4%BB%B6%E4%BB%8B%E7%BB%8D"><span class="nav-number">3.</span> <span class="nav-text">3. 插件介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-Handsome-%E4%B8%BB%E9%A2%98%E6%97%B6%E5%85%89%E6%9C%BA"><span class="nav-number">4.</span> <span class="nav-text">4. Handsome 主题时光机</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%A4%9A%E5%B9%B3%E5%8F%B0%E5%8F%91%E5%B8%83%E5%8A%A8%E6%80%81"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 多平台发布动态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E6%B7%BB%E5%8A%A0-RSS-%E8%AE%A2%E9%98%85%E6%BA%90"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 添加 RSS 订阅源</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E8%AE%BF%E9%97%AE%E9%80%9F%E5%BA%A6%E4%B8%8E%E5%AE%89%E5%85%A8"><span class="nav-number">5.</span> <span class="nav-text">5. 访问速度与安全</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-CDN"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 CDN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-Google-BBR"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 Google BBR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-TLS-%E4%B8%8E-HSTS"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 TLS 与 HSTS</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

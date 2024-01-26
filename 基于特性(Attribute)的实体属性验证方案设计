@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="C#,校验,特性," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="在这个例子中，bookstore节点由两个book节点组成，而每个book节点则由title、author、year和price四个节点组成，显然这些节点描述的是一种结构化的数据，而这些数据同时附加了相关描述性的信息，例如book节点有category信息，title节点有lang信息;显然，一个实体结构中将包含若干个不同的属性，所以在对一个实体结构进行验证的时候，会通过反射遍历每一个属性上的Va">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于特性(Attribute)的实体属性验证方案设计">
+<meta property="og:url" content="https://blog.feedscoin.com/%E5%9F%BA%E4%BA%8E%E7%89%B9%E6%80%A7(Attribute)%E7%9A%84%E5%AE%9E%E4%BD%93%E5%B1%9E%E6%80%A7%E9%AA%8C%E8%AF%81%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="在这个例子中，bookstore节点由两个book节点组成，而每个book节点则由title、author、year和price四个节点组成，显然这些节点描述的是一种结构化的数据，而这些数据同时附加了相关描述性的信息，例如book节点有category信息，title节点有lang信息;显然，一个实体结构中将包含若干个不同的属性，所以在对一个实体结构进行验证的时候，会通过反射遍历每一个属性上的Va">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fzix8rbidrj20ph0akdgz.jpg">
+<meta property="article:published_time" content="2017-08-21T06:25:41.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.206Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="C#">
+<meta property="article:tag" content="校验">
+<meta property="article:tag" content="特性">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fzix8rbidrj20ph0akdgz.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/基于特性(Attribute)的实体属性验证方案设计"/>
+
+
+
+
+
+  <title>基于特性(Attribute)的实体属性验证方案设计 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E5%9F%BA%E4%BA%8E%E7%89%B9%E6%80%A7(Attribute)%E7%9A%84%E5%AE%9E%E4%BD%93%E5%B1%9E%E6%80%A7%E9%AA%8C%E8%AF%81%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">基于特性(Attribute)的实体属性验证方案设计</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-08-21T14:25:41+08:00">
+                2017-08-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  在这个例子中，bookstore节点由两个book节点组成，而每个book节点则由title、author、year和price四个节点组成，显然这些节点描述的是一种结构化的数据，而这些数据同时附加了相关描述性的信息，例如book节点有category信息，title节点有lang信息;显然，一个实体结构中将包含若干个不同的属性，所以在对一个实体结构进行验证的时候，会通过反射遍历每一个属性上的ValidationAttribute并调用其Validate()方法，所以最终返回给调用者的应该是由一组ValidationResult组成的集合，为此我们设计了ValidationResultCollection这个类，该类实现了ICollection接口，在此基础上我们增加了一个Success属性，当集合中所有ValidationResult的Success属性为true时，该属性为true反之为false;所有校验相关的Attribute都派生自ValidationAttribute这个父类，其核心方法是Validate()方法，该方法被声明为一个虚方法，因此所有的子类都必须对这个方法进行重写，它将返回一个叫做ValidationResult的结构，这是一个非常简单的数据结构，它仅仅包含Success和Message两个属性，前者表示当前校验是否成功，后者表示验证失败时的错误信息
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>&emsp;&emsp;各位朋友，我是Payne，大家好，欢迎大家关注我的博客，我的博客地址是<a target="_blank" rel="noopener" href="https://qinyuanpei.github.io/">https://qinyuanpei.github.io</a>。在这篇文章中，我想和大家探讨下数据校验的相关问题，为什么我会对这个问题感兴趣呢？这其实是来自最近工作中相关需求场景，而这篇文章其实是我在去年就准备要写的一篇文章，这篇文章一直存放在草稿箱里没有发布出来，所以结合这段时间项目上的思考，对当初的设计方案进行了改进，所有就有了大家现在看到的这篇文章，我始终认为思考是一个持久的过程，就像我们对这个世界的理解，是会随着阅历的变化而变化的。我们知道现实通常都会很残酷，不会给我们太充裕的时间去重构。可是思考会是人生永远的功课，当你忙碌到无暇顾影自怜的时候，不妨尝试慢下来抬头看看前方的路，或许原本就是我们选择了错误的方向呢，因为有时候作出一个正确的选择，实在是要比埋头苦干要重要得多啊。</p>
+<p>&emsp;&emsp;好啦，既然我们提到了思考，那么我们来一起看一个实际项目中的业务场景，在某自动化项目中，用户会将大量数据以某种方式组织起来，然后藉由自动化工具将这些数据批量上传到一个系统中，该系统实际上是一个由各种表单组成的Web页面，并且这些Web表单中的控件都有着严格的验证规则，当数据无法满足这些验证规则时将无法上传，因此为了提高自动化工具上传的成功率，我们必须保证用户组织的这些数据是合法的，假设我们的用户是一个仅仅会使用Office三件套的普通人，他们可以想到的最好的方式是将这些数据录入到Excel中，而Excel中的数据有效性验证依附在单元格上，一旦验证规则发生变化，我们就不得不去维护这个Excel文件，这绝对不是一个软件工程师该做的事情好吗？我们当然是需要在提交数据前做验证啦，然而我看到Excel中100多列的字段时，我瞬间就不淡定了，这么多的字段难道我们要逐个写if-else吗？不，作为一个提倡少写if-else的程序员，我怎么可能会去做这种无聊的事情呢？下面隆重推出本文的主角——Attribute。</p>
+<h1 id="你的名字是？"><a href="#你的名字是？" class="headerlink" title="你的名字是？"></a>你的名字是？</h1><p>&emsp;&emsp;如你所见，本文的主角是Attribute，那么当它出现在你面前的时候，你是否会像《你的名字。》里的泷和三叶一样，互相问候对方一句：你的名字是？因为我们实在不知道应该叫它特性还是属性。可事实上这篇文章的标题暴露了这个问题的答案，这里我们应该叫它特性。好了，按照数学理论中的观点，任何问题都可以通过引入一个中间层来解决，现在我们有了一个新的问题，Attribute和Property到底有什么区别？虽然这两者都可以翻译为”属性”，可实际上它们表达的是两个不同层面上的概念，一般我们倾向于将Attribute理解为编程语言文法上的概念，而将Property理解为面向对象编程里的概念。</p>
+<h2 id="Attribute-特性"><a href="#Attribute-特性" class="headerlink" title="Attribute&#x2F;特性"></a>Attribute&#x2F;特性</h2><p>&emsp;&emsp;我们将Attribute称为特性，那么我们在什么地方会用到特性呢？两个个非常典型的例子是超文本标记语言(HTML)和可扩展标记语言(XML)。首先这两种标记语言都是结构化、描述性的标记语言。结构化表现在节点间可通过父子或者兄弟的关系来表示结构，描述性表现在每个节点都可以附加不同的描述来丰富节点。例如下面的XML文件中，我们使用了描述性的特性来提高元素间的辨识度，即特性为元素定义了更多的额外信息，而这些额外信息并不作为元素数据结构的一部分：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;bookstore&gt;</span><br><span class="line">&lt;book category=&quot;COOKING&quot;&gt;</span><br><span class="line">  &lt;title lang=&quot;en&quot;&gt;Everyday Italian&lt;/title&gt; </span><br><span class="line">  &lt;author&gt;Giada De Laurentiis&lt;/author&gt; </span><br><span class="line">  &lt;year&gt;2005&lt;/year&gt; </span><br><span class="line">  &lt;price&gt;30.00&lt;/price&gt; </span><br><span class="line">&lt;/book&gt;</span><br><span class="line">&lt;book category=&quot;CHILDREN&quot;&gt;</span><br><span class="line">  &lt;title lang=&quot;en&quot;&gt;Harry Potter&lt;/title&gt; </span><br><span class="line">  &lt;author&gt;J K. Rowling&lt;/author&gt; </span><br><span class="line">  &lt;year&gt;2005&lt;/year&gt; </span><br><span class="line">  &lt;price&gt;29.99&lt;/price&gt; </span><br><span class="line">&lt;/book&gt;</span><br><span class="line">&lt;/bookstore&gt;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;在这个例子中，bookstore节点由两个book节点组成，而每个book节点则由title、author、year和price四个节点组成，显然这些节点描述的是一种结构化的数据，而这些数据同时附加了相关描述性的信息，例如book节点有category信息，title节点有lang信息。在XML中最基本的一个内容单元我们称之为元素，即Element，而描述这些元素的最基本内容单元我们称之为特性。所以，这种在语言层面上进行描述而与实际抽象出的对象无关的概念就称为”特性”，人们认知和描述一个事物的方式会有所不同，所以在XML中会有这样一个历史遗留问题，我们应该使用Element还是Attribute，而产生这个问题的根源在于我们认识这个世界，是通过语言描述还是通过概念抽象。</p>
+<p>&emsp;&emsp;如果我们了解GUI相关技术的演进过程，就会发现历史总是如此的相似。为什么微软会在XML的基础上扩展出XAML这种专门为WPF而设计的界面设计语言呢？因为历史告诉我们GUI中的大量特性都应该使用声明式的、描述式的语法来实现，从苹果的Cocoa、微软的XAML、Qt的QML、Android的XML等无一不证明了这个观点，而采用过程式的MFC、WinForm、Swing等，我们常常需要为它们编写大量的交互性的逻辑代码，今天我们会发现前端领域的声明式编程、MVVM、组件化等技术点，其实都是这种思想的无限延伸，我们可以使用jQuery去直接操作DOM，但面向过程的命令式代码一定不如声明式容易理解。虽然在面向对象编程的世界里，我们最终还是需要将这些描述性的语法结构，转化为面向对象里的类和属性，可这已然是一种进步了不是吗？</p>
+<h2 id="Property-属性"><a href="#Property-属性" class="headerlink" title="Property&#x2F;属性"></a>Property&#x2F;属性</h2><p>&emsp;&emsp;我们认识这个世界的过程，恰恰折射出这两者截然不同的风格，从孩提时代理解的“天空是蓝色的”到学生时代认识到“大气是由氮气、氧气和稀有气体组成”，这种转变从本质上来看其实是因为我们认识世界的角度发生了变化。《西游降魔篇》里玄奘寻找五行山，第一次是风尘仆仆“看山是山”，第二次是由“镜花水月”启发“看山不是山”，第三次借“儿歌三百首”降伏孙悟空后“看山还是山”。面向对象编程(OOP)的一个重要思想是抽象，而抽象即是我们从描述性的语言中对事物属性进行构建的一个过程。例如现实生活中的汽车会有各种各样的数据信息：长度、宽度、高度、重量、速度等等，而与此同时汽车会有启动、刹车、减速、加速等等的行为，所以将事物的“数据”和“行为”提取出来进行抽象和模拟的过程，就是面向对象编程，我们在这个过程中可以注意到一点，所有的这一切都是针对对象而言的，所以Property是针对对象而言的。</p>
+<p>&emsp;&emsp;这里提到的一个重要概念是抽象，什么是抽象呢？我认为它恰好和具体相对的一个概念。所谓具体，即相由心生，你看到什么就是什么，与此同时通过一组描述性的语言将其描述出来，我以为这就是具体。例如”火辣辣的太阳挂在天上”，这是具体到太阳颜色和温度的一种描述；所谓抽象，即返璞归真，我们看到的并非世间阴晴圆缺的月亮，而是这浩瀚宇宙中国一颗遥远的行星，此时此刻我们将行星具备的特点概括出来，推而光之，我以为这就是抽象，所以对我们而言，属性是事物抽象后普遍具有的一种特征，它首先要达到一种抽象的层次，其次它要能表现出事物的特性，我更喜欢将Property称之为属性，它和我们在面向对象编程中的概念是完全统一的。</p>
+<h1 id="方案设计及其实现"><a href="#方案设计及其实现" class="headerlink" title="方案设计及其实现"></a>方案设计及其实现</h1><h2 id="设计目标"><a href="#设计目标" class="headerlink" title="设计目标"></a>设计目标</h2><ul>
+<li>免除配置开箱即用：无需任何配置文件，直接在实体上添加Attribute即可实现验证</li>
+<li>非侵入式验证设计：验证与否对实体结构无任何副作用，可以随时添加验证或卸载验证</li>
+<li>扩展灵活高度复用：可以自由派生自定义特性，通过泛型来支持不同实体类型的验证</li>
+</ul>
+<h2 id="设计思路"><a href="#设计思路" class="headerlink" title="设计思路"></a>设计思路</h2><p>&emsp;&emsp;所有校验相关的Attribute都派生自ValidationAttribute这个父类，其核心方法是Validate()方法，该方法被声明为一个虚方法，因此所有的子类都必须对这个方法进行重写，它将返回一个叫做ValidationResult的结构，这是一个非常简单的数据结构，它仅仅包含Success和Message两个属性，前者表示当前校验是否成功，后者表示验证失败时的错误信息。显然，一个实体结构中将包含若干个不同的属性，所以在对一个实体结构进行验证的时候，会通过反射遍历每一个属性上的ValidationAttribute并调用其Validate()方法，所以最终返回给调用者的应该是由一组ValidationResult组成的集合，为此我们设计了ValidationResultCollection这个类，该类实现了ICollection接口，在此基础上我们增加了一个Success属性，当集合中所有ValidationResult的Success属性为true时，该属性为true反之为false。我们将数据校验的入口类EntityValidation设计成了一个静态类，它提供了一个泛型方法Validate<T>()方法，所以对整体设计而言，它的灵活性和扩展性主要体现在：(1)通过派生自定义特性来增加验证规则；(2)通过泛型方法来支持不同类型的校验。下面给出UML类图供大家参考，最近刚刚开始学习UML，有不足之处请大家轻喷哈：</p>
+<p><img src="https://ww1.sinaimg.cn/large/4c36074fly1fzix8rbidrj20ph0akdgz.jpg" alt="UML类图"></p>
+<h2 id="技术要点"><a href="#技术要点" class="headerlink" title="技术要点"></a>技术要点</h2><p>&emsp;&emsp;首先，在.NET中特性的基类是Attribute，Attribute从表现形式上来讲类似Java中的注解，可以像标签一样添加在类、属性、字段和方法上，并在运行时期间产生各种不同的效果。例如[Serializable]标签表示一个实体类可以序列化，[NonSerializable]标签则可以指定某些属性或者字段在序列化的时候被忽略。而从本质上来讲，Attribute是一个类，通常我们会将派生类以Attribute结尾，而在具体使用的时候可以省略Attribute，所以[Serializable]标签其实是对应.NET中定义的SerializableAttribute这个类。在我们定义Attribute的时候，一个需要考虑的问题是Attribute的作用范围，在.NET中定义了AttributeUsageAttribute这个类，它可以是Class、Property、Field、Method等，所以Attribute本质上是在运行时期间为元素提供附加信息的一种机制，即Attribute可以添加元数据。我们知道元数据是(MetaData)实际上是程序集(Assembly)中的一部分，显然这一切都是在编译时期间定义好的，所以Attribute的一个重要特征是在运行时期间只读(Readonly)。Attribute必须依附在指定目标上，当当前目标与AttributeUsage定义不符时，将无法通过编译。Attribute的实例化依赖于目标实例的实例化，无法直接通过new完成实例化。通常我们需要配合反射来使用Attribute，在运行时期间做些有意义的事情，例如ORM中实体字段与数据库字段的绑定、Unity中配合AOP使用的ExceptionHnadler等等，都是非常典型的Attribute的应用。</p>
+<p>&emsp;&emsp;了解了Attribute是什么东西，接下来我们要考虑的就是如何访问Attribute，在.NET中主要有两种方式来获取Attribute，即通过Attribute类提供的静态方法获取Attribute和通过Attribute依附的对象实例的元数据来获取Attribute。下面我们来看一段简单的代码实例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public static T GetAttribute&lt;T&gt;(this PropertyInfo propertyInfo)</span><br><span class="line">&#123;</span><br><span class="line">  var attrs = propertyInfo.GetCustomAttributes(typeof(T), false);</span><br><span class="line">  if(attrs == null || attrs.Length&lt;=0) return null;</span><br><span class="line">  return atts[0] as T;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这段代码展示了如何通过反射访问附加在属性上的Attribute，事实上除了PropertyInfo以外，它还可以从任何支持附加Attribute的元素，例如MethodInfo、FieldInfo、ConstructorInfo等。Attribute类提供了类似的静态方法，第一个参数可以是这些元素中的任何一个，第二个参数和第三个参数和这里的示例代码一致，分别是返回的Attribute的类型，以及是否要搜索父类的Attribute，它的返回值类型为Attribute[]。在这个方案中，我们通过下面的方式来对实体属性进行验证：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">public static ValidationResultCollection Validate&lt;T&gt;(T entity)</span><br><span class="line">&#123;</span><br><span class="line">  var type = entity.GetType();</span><br><span class="line">  var properties = type.GetProperties();</span><br><span class="line">  var results = new ValidationResultsCollection();</span><br><span class="line">  foreach(var property in properties)</span><br><span class="line">  &#123;</span><br><span class="line">    var propertyValue = property.GetValue(entity,null);</span><br><span class="line">    var validationAttributes = property.GetCustomAttributes(typeof(ValudationAttribute),fasle);</span><br><span class="line">    if(propertyValue == null &amp;&amp; (validationAttributes == null || valudationAttributs.Length &lt;= 0)) continue</span><br><span class="line">    </span><br><span class="line">    //优先验证RequiredAttribute</span><br><span class="line">    var requiredAttributes = property.GetCustomAttributes(typeof(RequiredAttribute),false);</span><br><span class="line">    if(requiredAttributes.Length &gt; 0)</span><br><span class="line">    &#123;</span><br><span class="line">      var requiredResult = (requiredAttributes[0] as ValidationAttribute).Validate(propertyValue);</span><br><span class="line">      results.Add(requiredResult);</span><br><span class="line">      if(propertyValue == null) continue;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    //其次验证ValidationAttribute</span><br><span class="line">    foreach(var validationAttribute in validationAttributes)</span><br><span class="line">    &#123;</span><br><span class="line">      if(propertyValue != null &amp;&amp; !validationAttribute.GetType().Equals(typeof(RequiredAttribute)))</span><br><span class="line">      &#123;</span><br><span class="line">        var validationResult = (validateAttribute as ValidationAttribute).Validate(propertyValue);</span><br><span class="line">        results.Add(validationResult);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  return results;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;在这里我们注意到在对ValidationAttribute进行处理的时候，优先验证了RequiredAttribute，因为如果它验证失败意味着下面的验证都不需要了，所以当一个Property上附加了RequiredAttribute并且它的值为null的时候，我们将不会进行下面的验证，这是在设计过程中发现ValidationAttribute的优先级不同而做出的一个简单地调整。关于ValidationAttribute，我们提到这是所有自定义特性的基类，实际在使用中我们会有各种各样的派生类，我们这里以RegexAttribute为例来看看它具体怎么实现：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">public class RegexAttribute : ValidationAttribute</span><br><span class="line">&#123;</span><br><span class="line">  private string regexText;</span><br><span class="line">  private string defaultMessage = &quot;value is required to match a Regex rule &#123;$regex&#125;;</span><br><span class="line">  </span><br><span class="line">  public RegexAttribute(string regexText,string message = null)</span><br><span class="line">  &#123;</span><br><span class="line">    this.regexText = regexText;</span><br><span class="line">    this.message = message == null ? defaultMessage : message;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public VelidationResult Validate(object value)</span><br><span class="line">  &#123;</span><br><span class="line">  	var regex = new Regex(regexText);</span><br><span class="line">  	var match = regex.match(value.ToString());</span><br><span class="line">  	var success = match.Success;</span><br><span class="line">  	if(!success)</span><br><span class="line">  	&#123;</span><br><span class="line">      message = message.Replace(&quot;&#123;$regex&#125;&quot;,regexText);</span><br><span class="line">      return new ValidationResult()&#123;Success = success, Message = message&#125;;</span><br><span class="line">  	&#125;</span><br><span class="line">  	</span><br><span class="line">  	return new ValidationResult()&#123;Success = success&#125;;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;好了，以上就是整个校验设计中关键的技术点啦，我认为整体上没有多少难点，因为这是我在项目上造的一个简单的轮子，相比ASP.NET  MVC 中的校验要简单很多，相信大家可以根据这些内容轻松地实现一个自己的版本，虽然不主张”重复造轮子”，可博主在很多时候都是通过”造轮子”来学习的啊，哈哈。</p>
+<h1 id="数据校验示例"><a href="#数据校验示例" class="headerlink" title="数据校验示例"></a>数据校验示例</h1><p>&emsp;&emsp;下面我们来通过一个简单的示例来了解，如何在实际项目中使用这个验证方案：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class Foo</span><br><span class="line">&#123;</span><br><span class="line">  [Required]</span><br><span class="line">  [Regex(&quot;(\d+)&#123;3&#125;-(\d+)&#123;1&#125;-(\d+)&#123;6&#125;&quot;)]</span><br><span class="line">  public string CardNumber &#123;get; set;&#125;</span><br><span class="line">  </span><br><span class="line">  [Required]</span><br><span class="line">  [MaxLength(20,&quot;AccountNumber is required within 20 characters&quot;)]</span><br><span class="line">  public string AccountNumber &#123;get; set;&#125;</span><br><span class="line">  </span><br><span class="line">  [Values(&quot;FCY,DCP,ATM&quot;)]</span><br><span class="line">  public string TransactionType&#123;get；set;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这里使用了三种验证规则，Required表示该字段不可以为空，Regex表示字段值要匹配指定的正则表达式，MaxLength表示字段长度不能超过指定长度，Values表示字段允许的取值范围，在实际使用中我们可以通过派生定义更多的验证规则，每一种验证规则都可以设置一个验证失败的信息，例如当AccountNumber的长度超过20时，将会返回指定的错误信息。我们可以通过下面的代码来验证Foo这个实体中的属性：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">var foo = new Foo();</span><br><span class="line">foo.CardNumber = &quot;234-7-4567&quot;;</span><br><span class="line">foo.AccountNumber = &quot;12345678900&quot;;</span><br><span class="line">foo.TransactionType = &quot;DCP&quot;</span><br><span class="line"></span><br><span class="line">var results = EntityValidation.Validate&lt;Foo&gt;(foo);</span><br><span class="line">if(!result.Success) results.ToList().Foreach(r =&gt; </span><br><span class="line">&#123;</span><br><span class="line">  Console.WriteLine(r.Message);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>#本文小结<br>&emsp;&emsp;本文首先讲述了特性和属性两者在概念上的不同，即特性是编程语言文法上的概念，而属性是面向对象编程里的概念。接下来，我们针对.NET中的Attribute的表象和具象进行了讨论，Attribute从表象上看是和Java中的注解类似，可以像使用标签一样附加在类、方法、属性或者字段等元素上，而从具象上看Attribute提供了一种在运行时期间通过元数据访问附加信息的能力，Attribute是附加在类、方法、属性或者字段等元素上的一个类，需要继承自Attribute，它的实例化必须依赖这些附加对象的实例化，并且Attribute在运行时期间是Readonly的，Attribute通常需要配合反射来使用。在具备这些基础知识以后，我们开始和大家分享这个验证方案的设计思路及其技术要点，所谓抛砖引玉，本文的目的是想让大家借鉴这种思路，努力让业务代码更干净些，因为只有我们在乎这件事情，我们才会努力去将它做好。好了，今天这篇文章就是这样啦，谢谢大家关注！</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C/" rel="tag"># C#</a>
+          
+            <a href="/tags/%E6%A0%A1%E9%AA%8C/" rel="tag"># 校验</a>
+          
+            <a href="/tags/%E7%89%B9%E6%80%A7/" rel="tag"># 特性</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/id-card" rel="next" title="身份证的编码规则">
+                <i class="fa fa-chevron-left"></i> 身份证的编码规则
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/08/elasticsearch-advanced-search" rel="prev" title="Elasticsearch检索 — 聚合和LBS">
+                Elasticsearch检索 — 聚合和LBS <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%A0%E7%9A%84%E5%90%8D%E5%AD%97%E6%98%AF%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">你的名字是？</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Attribute-%E7%89%B9%E6%80%A7"><span class="nav-number">1.1.</span> <span class="nav-text">Attribute&#x2F;特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Property-%E5%B1%9E%E6%80%A7"><span class="nav-number">1.2.</span> <span class="nav-text">Property&#x2F;属性</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%B9%E6%A1%88%E8%AE%BE%E8%AE%A1%E5%8F%8A%E5%85%B6%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">方案设计及其实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E7%9B%AE%E6%A0%87"><span class="nav-number">2.1.</span> <span class="nav-text">设计目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%B7%AF"><span class="nav-number">2.2.</span> <span class="nav-text">设计思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E8%A6%81%E7%82%B9"><span class="nav-number">2.3.</span> <span class="nav-text">技术要点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%A0%A1%E9%AA%8C%E7%A4%BA%E4%BE%8B"><span class="nav-number">3.</span> <span class="nav-text">数据校验示例</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

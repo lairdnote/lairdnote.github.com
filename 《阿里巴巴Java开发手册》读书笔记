@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="笔记,Java,阿里," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="说明：表达是否最好用 0 和 1 来表示，我们用 Y 和 N 时经常会出现，开发人员忘记给模型赋值，导致进入到数据库里的数据出现错误数据，而领域模型里又不建议给字段默认值，可如果使用 unsigned tinyint 类型，它本身就自带默认值 0，这样就可以避免这种问题的出现;说明：建议全部使用小写，因为主流 SQL 教程的里关键字都采用大写，但在 PLSQL&#x2F;SQLyog 里编写 SQL 语句时">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《阿里巴巴 Java 开发手册》读书笔记">
+<meta property="og:url" content="https://blog.feedscoin.com/%E3%80%8A%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="说明：表达是否最好用 0 和 1 来表示，我们用 Y 和 N 时经常会出现，开发人员忘记给模型赋值，导致进入到数据库里的数据出现错误数据，而领域模型里又不建议给字段默认值，可如果使用 unsigned tinyint 类型，它本身就自带默认值 0，这样就可以避免这种问题的出现;说明：建议全部使用小写，因为主流 SQL 教程的里关键字都采用大写，但在 PLSQL&#x2F;SQLyog 里编写 SQL 语句时">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2019-03-20T04:49:37.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.147Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="笔记">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="阿里">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/《阿里巴巴Java开发手册》读书笔记"/>
+
+
+
+
+
+  <title>《阿里巴巴 Java 开发手册》读书笔记 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E3%80%8A%E9%98%BF%E9%87%8C%E5%B7%B4%E5%B7%B4Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C%E3%80%8B%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">《阿里巴巴 Java 开发手册》读书笔记</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-03-20T12:49:37+08:00">
+                2019-03-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  说明：表达是否最好用 0 和 1 来表示，我们用 Y 和 N 时经常会出现，开发人员忘记给模型赋值，导致进入到数据库里的数据出现错误数据，而领域模型里又不建议给字段默认值，可如果使用 unsigned tinyint 类型，它本身就自带默认值 0，这样就可以避免这种问题的出现;说明：建议全部使用小写，因为主流 SQL 教程的里关键字都采用大写，但在 PLSQL/SQLyog 里编写 SQL 语句时，字段会自动地变成小写，而且不区分大小写，为了避免人格分裂，建议所有字段都用小写;说明：英文不好可以去查，禁止使用纯拼音或者拼音缩写的命名方式，除了不能“望文生义”以外，对导致别人在调用接口的时候，向这种“丧心病狂”的编码风格妥协，这里不点名批评某 SAP 提供的 OA 接口，除了超级难用以外，每次都要花大量时间去对字段
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>最近利用闲暇时间从图书馆借了两三本书来“充电”，因为如果不及时摄取新的营养，感觉会越来越难有新的想法输出出来，尤其是像 ServerLess、组件化、分布式等等这样的场景慢慢开始接触，就势必无法再用从前的眼光去看待。大概去年的时候，阿里巴巴发布了「阿里巴巴开发手册」这本小册子，大概不到 100 页的样子，这次我就挑选了我觉得还不错的关键点，和大家简单分享一下，所以，这是一篇“典型”的读书笔记，下面的编号代表的是指定章节下的第几条规范，例如，1.1.2 表示的是第一章第一节中的第二条规范，欢迎大家一起讨论。</p>
+<h1 id="编程规范"><a href="#编程规范" class="headerlink" title="编程规范"></a>编程规范</h1><blockquote>
+<p>1.1.2 代码中的命名严禁使用拼音与英文混合的方式，不允许直接使用中文的方式，纯拼音命名方式更要避免采用。</p>
+</blockquote>
+<p>说明：英文不好可以去查，禁止使用纯拼音或者拼音缩写的命名方式，除了不能“望文生义”以外，对导致别人在调用接口的时候，向这种“丧心病狂”的编码风格妥协，这里不点名批评某 SAP 提供的 OA 接口，除了超级难用以外，每次都要花大量时间去对字段。</p>
+<blockquote>
+<p>1.4.3 相同参数类型，相同业务含义，才可以使用 Java 的可变参数，避免使用 Object，可变参数必须放置在参数列表最后。</p>
+</blockquote>
+<p>说明：例如一个接口同时支持单条更新或者批量更新，此时，完全就可以使用 param 关键字来声明相同的参数类型，而无须定义 InsertOne 和 InsertMany 两个方法。</p>
+<blockquote>
+<p>1.4.4 对外部正在使用或者二方库依赖的接口，不允许修改方法签名，以避免对接口调用方产生影响。若接口过时，必须加@Deprecated 注解，并清晰地说明采用的新接口或者新服务是什么。</p>
+</blockquote>
+<p>说明：对于过期的接口可以通过 Obsolete 特性来声明过期，这样在编译时期间可以告知使用者该接口已过期。对于 WebAPI 接口，除非有版本控制机制，否则一律不允许修改已上线的接口签名、参数和返回值。</p>
+<blockquote>
+<p>1.4.17 在循环体内，字符串的连接方式使用 StringBuilder 的 append 方法进行扩展。</p>
+</blockquote>
+<p>说明：这一点，在 C#中同样适用，因为字符串类型是 Immutable 的，对字符串进行拼接会产生大量的临时对象。</p>
+<blockquote>
+<p>1.5.7 不要在 foreach 循环内进行元素的 remove&#x2F;add 操作。remove 元素请使用 Iterator 方式，如果并发操作，需要对 Iterator 对象加锁。</p>
+</blockquote>
+<p>说明：因为 foreach 是基于迭代器(IEnumerator)的，在 foreach 循环内部修改集合，会导致 Current 和 MoveNext()发生混乱，早期的集合使用 SynRoot 来解决线程安全(内部原理是使用了 Interlocked 锁)，现在我们使用 CurrentBag 等线程安全的集合。</p>
+<blockquote>
+<p>1.6.1 获取单例对象需要保证线程安全，其中的方法同样要保证线程安全。</p>
+</blockquote>
+<p>说明：只要类型中有静态成员存在，就要考虑线程安全，因为静态成员隶属于类型而非类型的实例。</p>
+<blockquote>
+<p>1.6.5 SimpleDataFormat 是线程不安全的类，一般不要定义为 static 变量，如果定义为 static，必须加锁，或者使用 DateUntils 工具类。</p>
+</blockquote>
+<p>说明：无论所声明的静态成员是否线程安全，都应该考虑到在竞态条件下，可能会出现多个线程同时修改静态成员的风险，此时最好对其进行加锁。</p>
+<blockquote>
+<p>1.6.8 在并发修改同一条记录时，为避免更新丢失，需要加锁。要么在应用层加锁，要么在缓存层加锁，要么在数据库层使用乐观锁，使用 version 作为更新依据。</p>
+</blockquote>
+<p>说明：所谓“悲观锁”，是指认为数据一定会被篡改，此时，在一个作用域结束前对其进行加锁，典型的如 lock 关键字。而所谓“乐观锁”，是认为数据不一定会被篡改，此时，通过一个 version 来作为更新的依据。</p>
+<blockquote>
+<p>1.6.12 在并发场景下，通过双重检查锁(double-checkedlocking)实现延迟初始化的优化问题隐患，推荐解决方案中较为简单的一种(JDK5 及以上版本)，即目标属性声明为 volatile 型。</p>
+</blockquote>
+<blockquote>
+<p>1.7.4 在表达异常的分支时，尽量少用 if-else 方式。如果不得不使用 if……elseif…else 方式，请勿超过 3 层。</p>
+</blockquote>
+<p>说明：当条件不满足时可以直接 return，或者先判断不满足的条件，则剩余逻辑默认就是满足条件的分支，尽量避免使用 if……elseif……else 方式，同时保证分支里的代码足够简单，复杂的逻辑应考虑封装或者用 switch……case 甚至多态来重构。</p>
+<blockquote>
+<p>1.7.8 循环体的语句要考量性能，以下操作请尽量移至循环体外处理，如定义对象或变量、获取数据库连接，避免进行不必要的 try……catch 操作。</p>
+</blockquote>
+<p>说明：抛出一个异常是非常简单的，然而捕获一个异常需要付出一定的性能代价，因为它需要捕捉程序异常时的上下文信息，建议在进入循环内部合理检验，覆盖到每一种考虑到的情况，考虑不到的请让它向上抛出。</p>
+<blockquote>
+<p>2.1.2 对大段代码进行 try-catch，使得程序无法根据不同的异常做出正确的应激反应，不利于定位问题，这是一种不负责任的表现。</p>
+</blockquote>
+<p>说明：对大段代码进行 try-catch，或许可以保证应用程序不崩溃，但在程序异常的一瞬间，可能业务数据已经出错，此时再让程序继续运行下去，不仅无法快速定位出错原因，而且会对下一流程的业务产生“污染”。</p>
+<h1 id="异常日志"><a href="#异常日志" class="headerlink" title="异常日志"></a>异常日志</h1><blockquote>
+<p>2.1.2 捕捉异常是为了处理它，不要捕捉了却什么都不处理而抛弃之，如果不想处理它，请将该异常抛给它的调用者，然后由调用者在最外层业务中处理异常，并将其转化为用户可以理解的内容。</p>
+</blockquote>
+<p>说明：捕捉了异常一定要去处理它，如果单单是为了记录个错误日志，完全可以通过 AOP 来记录，底层抛出的异常不允许被“吞掉”，必须将其抛给它的调用者，异常最终需要转化为友好的界面提示。</p>
+<blockquote>
+<p>2.2.5 finally 块必须对资源对象、流对象进行关闭操作，如果有异常同样要做 try-catch 操作(JDK7 及以上版本可以使用 try-with-resource 方式)</p>
+</blockquote>
+<p>说明：因为 finally 块一定会在 return 前执行，所以，无论程序是否发生了异常，我们都可以在 finally 块中对资源对象、流对象、数据库连接等进行关闭或者释放，using 其实是 try……finally 的语法糖，它会自动地在 finally 块里调用 Dispose 方法(因为它要实现 IDispose 接口)。</p>
+<blockquote>
+<p>2.2.7 不能在 finally 块中使用 return。</p>
+</blockquote>
+<p>说明：这里涉及到一个 return 和 finally，尽管 return 可以提前“跳出”，但对 finally 来说，不管是否发生异常，它都会执行，在此之前 return 会把返回值写入内存，等 finally 块执行结束后，return 再“跳出”。C#中 finally 块中不允许写 return，否则会导致编译错误。通常，finally 块用来做清理相关的工作。</p>
+<h1 id="数据库"><a href="#数据库" class="headerlink" title="数据库"></a>数据库</h1><blockquote>
+<p>5.1.1 表达是否的概念时，必须使用 is_xxx 的命名方式，数据类型是 unsigned tinyint。其中，1 表示是，0 表示否。</p>
+</blockquote>
+<p>说明：表达是否最好用 0 和 1 来表示，我们用 Y 和 N 时经常会出现，开发人员忘记给模型赋值，导致进入到数据库里的数据出现错误数据，而领域模型里又不建议给字段默认值，可如果使用 unsigned tinyint 类型，它本身就自带默认值 0，这样就可以避免这种问题的出现。</p>
+<blockquote>
+<p>5.1.2 表名、字段名必须使用小写字母或数字，禁止出现数字开头，禁止两个下画线中间只出现数字。</p>
+</blockquote>
+<p>说明：建议全部使用小写，因为主流 SQL 教程的里关键字都采用大写，但在 PLSQL&#x2F;SQLyog 里编写 SQL 语句时，字段会自动地变成小写，而且不区分大小写，为了避免人格分裂，建议所有字段都用小写。我们表名用小写，表字段用大写，输出的 SQL 语句看起来特别奇怪。</p>
+<blockquote>
+<p>5.1.13 字段允许适当冗余，以提高查询性能，但必须考虑数据一致。冗余字段应遵循：</p>
+</blockquote>
+<ul>
+<li>不是频繁修改的字段</li>
+<li>不是 varchar 超长字段，更不能是 text 字段。</li>
+</ul>
+<p>说明：冗余字段是个好东西，但主表和扩展表间的一致性保证需要经过良好的设计，那种把相关表都放在一个事务里处理的做法，都声称是为了保证数据的一致性，可实际过程中依然会存在数据不一致的情况。</p>
+<blockquote>
+<p>5.1.15 当单表行数超过 500 万行活着单表容量超过 2G 时，才推荐进行分库分表。</p>
+</blockquote>
+<p>说明：多租户架构下，不同租户采用不同的库，是最简单的数据隔离方案，但缺点是增加了维护多个库的成本。如果要分库分表，最好从框架层面来“切库”，而不要让开发人员自行维护数据库的连接字符串。</p>
+<blockquote>
+<p>5.2.1 业务上具有唯一特性的字段，即使是多个字段的组合，也必须建成唯一索引。根据墨菲定律，只要没有唯一索引，必然会有脏数据产生，即使在应用层做了非常完善的检验控制。</p>
+</blockquote>
+<blockquote>
+<p>5.2.2 超过三个表禁止 join，需要 join 的字段，类型必须绝对一致；当多表关联查询时，保证被关联的字段需要有索引。</p>
+</blockquote>
+<p>说明：关系型数据库最值得炫耀的地方就是表多，超过三张表禁止 join，实际中根本不现实，所以，建议以业务场景为准，我就曾经 join 了 5 张表，大概客户就喜欢看这些东西吧！</p>
+<blockquote>
+<p>5.3.7 禁止使用存储过程，存储过程难以调试和扩展，更没有移植性。</p>
+</blockquote>
+<p>说明：存储过程和触发器是万恶之源，不同数据库下的 SQL 语句千姿百态，同样的业务逻辑，Oracle、MySQL 和 SQLServer 基本上是三种语法，更不用说$$、&#x2F;和@这种奇葩的东西了，查询语言就老老实实写查询，写业务了逻辑，SQL 真的不行，太垃圾，虽然做权限划分非常容易……</p>
+<blockquote>
+<p>5.3.9 in 操作能避免则避免，如实在避免不了，需要仔细评估 in 后面的集合元素数量，最好控制在 1000 之内。</p>
+</blockquote>
+<p>说明：这一点表示认同，我们经常遇到这样的情况，先筛选出 A 表符合条件的所有记录，然后根据 A 表中某一列(通常是外键)，通过 IN 操作来筛选出 B 表中符合条件的所有记录，这个时候，应该注意控制 IN 后面集合内元素的数目，总之不要太大……</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E7%AC%94%E8%AE%B0/" rel="tag"># 笔记</a>
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/%E9%98%BF%E9%87%8C/" rel="tag"># 阿里</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/pwas-on-desktop" rel="next" title="What PWAs for Desktop means for Users and Developers">
+                <i class="fa fa-chevron-left"></i> What PWAs for Desktop means for Users and Developers
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019-03-20-the-battle-of-dao" rel="prev" title="稻盛和夫的《成功的真谛》">
+                稻盛和夫的《成功的真谛》 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E7%A8%8B%E8%A7%84%E8%8C%83"><span class="nav-number">1.</span> <span class="nav-text">编程规范</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BC%82%E5%B8%B8%E6%97%A5%E5%BF%97"><span class="nav-number">2.</span> <span class="nav-text">异常日志</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">3.</span> <span class="nav-text">数据库</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

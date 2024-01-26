@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="工具," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Charles 是在 Mac 下常用的截取网络封包的工具（Win 环境也已支持），在移动端开发过程中，我们常需要截取网络包分析服务端的通讯协议。Charles 将自己设置成系统的网络访问代理服务器，不仅可以提供 SSL 代理，还支持流量的控制、支持重发网络请求、支持修改网络请求参数、支持网络响应截获并动态修改。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用Charles抓包">
+<meta property="og:url" content="https://blog.feedscoin.com/2017/07/charles">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="Charles 是在 Mac 下常用的截取网络封包的工具（Win 环境也已支持），在移动端开发过程中，我们常需要截取网络包分析服务端的通讯协议。Charles 将自己设置成系统的网络访问代理服务器，不仅可以提供 SSL 代理，还支持流量的控制、支持重发网络请求、支持修改网络请求参数、支持网络响应截获并动态修改。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/0dc3e6f6-250e-4172-af30-83b91cfddf76.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/0a6e7c09-6361-4e9f-9bc4-778bb7656bc4.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/4e97e097-b884-4db0-b07f-292a78a77544.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/647b22ba-8441-45db-8386-1c64b6ca520e.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/28fe758a-e2c2-48ab-8132-f26f438e79e0.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/bfd83ef1-1e78-4bbb-aa0d-50e4591ca04e.jpg">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/d40b7bd9-3b1d-4901-816a-dd706909c48b.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/7af98999-1276-478b-a443-b92b8986b788.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/255707e0-725c-4e8e-932a-34b870031e40.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/1bfe09f1-69a9-4b43-a39c-3d26e067d27a.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/d97cf8fa-5e7f-4c3e-905f-ec0ed12038dd.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/1fb741c8-4170-47fa-ad0f-1929ae7857fd.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/fab69a4a-17c1-4944-81c9-255ff33ff815.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/41bdb338-fcba-4d56-ac55-207aed5560b4.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/25753d81-3257-43b7-8f35-89436d888974.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/fe7c1302-4101-4882-ae0f-a3d395bdb960.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/dfa1e7c1-9072-4e33-836a-cdd62709af67.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/4ccdcd7b-0b54-43df-bf09-4887edf7800e.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/b037c6ae-8a8a-45fd-9a1f-b3628db8b8d6.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/c8e71602-2bde-4b7a-850f-bde0b0a17084.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/73350a4e-816d-4f91-91d5-2a6d1104c722.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/0fa6ff3f-c1f8-4179-b458-b21cc63e02c2.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/b0875e59-e049-4b62-93f7-02311d0d47e7.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/07/charles/d3193cee-783b-43c0-99c3-ac98ec52aaa6.png">
+<meta property="article:published_time" content="2017-07-22T01:58:18.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:29:51.000Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="工具">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.fanhaobai.com/2017/07/charles/0dc3e6f6-250e-4172-af30-83b91cfddf76.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2017/07/charles"/>
+
+
+
+
+
+  <title>使用Charles抓包 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2017/07/charles">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">使用Charles抓包</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-07-22T09:58:18+08:00">
+                2017-07-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index">
+                    <span itemprop="name">工具</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>Charles 是在 Mac 下常用的截取网络封包的工具（Win 环境也已支持），在移动端开发过程中，我们常需要截取网络包分析服务端的通讯协议。Charles 将自己设置成系统的网络访问代理服务器，不仅可以提供 SSL 代理，还支持流量的控制、支持重发网络请求、支持修改网络请求参数、支持网络响应截获并动态修改。<br><img src="//www.fanhaobai.com/2017/07/charles/0dc3e6f6-250e-4172-af30-83b91cfddf76.png"><span id="more"></span></p>
+<h3 id="安装Charles"><a href="#安装Charles" class="headerlink" title="安装Charles"></a>安装Charles</h3><p>从 Charles 的 <a target="_blank" rel="noopener" href="https://www.charlesproxy.com/download/">官方网站</a> 下载最新的安装包，下载晚完成安装即可。</p>
+<p>Charles 是付费软件，当然免费状态也可以使用。可以使用如下信息完成注册：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Registered Name: https://zhile.io</span><br><span class="line">License Key: 48891cf209c6d32bf4</span><br></pre></td></tr></table></figure>
+
+<p>如果注册失败，可以尝试 <a target="_blank" rel="noopener" href="http://charles.iiilab.com/">这种方法</a>。</p>
+<h3 id="设置成系统代理服务器"><a href="#设置成系统代理服务器" class="headerlink" title="设置成系统代理服务器"></a>设置成系统代理服务器</h3><p>由于 Charles 是通过将自己设置成代理服务器来完成封包截取的，所以第一步是需要将 Charles 设置成系统的代理服务器。</p>
+<p>启动 Charles 后，菜单中的 “Proxy” -&gt; “Windos Proxy（或者Mac OS X Proxy）”， 来将 Charles 设置成系统代理。如下所示：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/0a6e7c09-6361-4e9f-9bc4-778bb7656bc4.png"></p>
+<p>配置后，就可以在界面中看到截取的网络请求。但是，Chrome 和 Firefox 浏览器默认并不使用系统的代理服务器设置， 所以需要将 Chrome 和 Firefox 设置成使用系统的代理服务器，或者直接设置成地址<code>127.0.0.1：8888</code>。</p>
+<p>如果 Chrome 已安装了 Host Switch Plus 插件，则需要暂时关闭。</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/4e97e097-b884-4db0-b07f-292a78a77544.png"></p>
+<h3 id="过滤网络请求"><a href="#过滤网络请求" class="headerlink" title="过滤网络请求"></a>过滤网络请求</h3><p>一般情况下，我们只需要监听指定服务器上发送的请求，可以使用如下办法解决：</p>
+<ul>
+<li><p>方式1：在主界面 “Sequence” -&gt; “Filter” 栏位置输入需要过滤的关键字即可。例如输入<code>fanhaobai</code>，则过滤输出只包含 fanhaobai 信息的请求。</p>
+</li>
+<li><p>方式2：在 Charles 的菜单栏选择 “Proxy” -&gt; ”Recording Settings”，并选择 Include 栏，添加一条永久过滤规则，主要填入需要截取网站的协议、主机地址、端口号。</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/647b22ba-8441-45db-8386-1c64b6ca520e.png"></p>
+</li>
+<li><p>方式3：右击需要过滤的网络请求，选择 “Focus” 选项即可。</p>
+</li>
+</ul>
+<p>方式 1 和方式 3 可以快速地过滤临时性网络请求，使用方式 2 过滤永久性网络请求。</p>
+<h3 id="截取移动设备网络包"><a href="#截取移动设备网络包" class="headerlink" title="截取移动设备网络包"></a>截取移动设备网络包</h3><p>Charles 除了可以截取本地的网络包，作为代理服务器后，同样可以截取移动设备的网络请求包。</p>
+<h4 id="设置Charles"><a href="#设置Charles" class="headerlink" title="设置Charles"></a>设置Charles</h4><p>截取移动设备网络包时，需要先将 Charles 的代理功能打开。在 Charles 的菜单栏上选择 “Proxy” -&gt; ”Proxy Settings”，填入默认代理端口 8888，且勾选 “Enable transparent HTTP proxying” 就完成了设置。如下图所示：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/28fe758a-e2c2-48ab-8132-f26f438e79e0.png"></p>
+<h4 id="iPhone"><a href="#iPhone" class="headerlink" title="iPhone"></a>iPhone</h4><p>首先，通过 Charles 的顶部菜单的 “Help” -&gt; ”Local IP Address” 获取本地电脑的 IP 地址，例如我的本机电脑为<code>192.168.1.102</code>。</p>
+<p>在 iPhone 的 ”设置“ -&gt; ”无线局域网“ 中，对当前局域网连接设置 HTTP 代理（端口默认为 8888），如下图：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/bfd83ef1-1e78-4bbb-aa0d-50e4591ca04e.jpg"></p>
+<p>设置完成后，打开 iPhone 的任意程序，在 Charles 就可以弹出连接确认窗口，点击 ”Allow” 即可。</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/d40b7bd9-3b1d-4901-816a-dd706909c48b.png"></p>
+<h4 id="Android"><a href="#Android" class="headerlink" title="Android"></a>Android</h4><p>在 Android 上操作同 iPhone，只是某些系统设置方式不一致而已。</p>
+<h3 id="截取-Https-包"><a href="#截取-Https-包" class="headerlink" title="截取 Https 包"></a>截取 Https 包</h3><p>如果需要截取并分析 Https 协议信息，需要安装 Charles 的 CA 证书。</p>
+<h4 id="本地通信信息"><a href="#本地通信信息" class="headerlink" title="本地通信信息"></a>本地通信信息</h4><p>点击 Charles 的顶部菜单，选择 “Help” -&gt; “SSL Proxying” -&gt; “Install Charles Root Certificate”，即可完成证书的安装。如下图所示：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/7af98999-1276-478b-a443-b92b8986b788.png"></p>
+<p>建议将证书安装在 ”受信任的根证书颁发机构“ 存储区。</p>
+<p>特别说明，即使安装完证书后，Charles 默认是不会截取 Https 网络通讯的信息。对于需要截取分析站点 Https 请求，可以右击请求记录，选择 SSL proxy 即可，如图所示：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/255707e0-725c-4e8e-932a-34b870031e40.png"></p>
+<h4 id="移动设备的通信信息"><a href="#移动设备的通信信息" class="headerlink" title="移动设备的通信信息"></a>移动设备的通信信息</h4><p>如果在 iPhone 或 Android 机器上截取 Https 协议的通讯内容，需要手机上安装相应的证书。点击 Charles 的顶部菜单，选择 “Help” -&gt; “SSL Proxying” -&gt; “Install Charles Root Certificate on a Mobile Device or Remote Browser”，然后按照 Charles 的提示的安装教程安装即可。如下图所示：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/1bfe09f1-69a9-4b43-a39c-3d26e067d27a.png"></p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/d97cf8fa-5e7f-4c3e-905f-ec0ed12038dd.png"></p>
+<p>在上述 <a href="#">截取移动设备网络包</a> 为手机设置好代理后，手机浏览器中访问地址<code>http://chls.pro/ssl</code>，即可打开证书安装的界面。安装完证书后，就可以截取手机上的 Https 通讯内容了。注意，同样需要在要截取的网络请求上右击，选择 SSL proxy 菜单项。</p>
+<p>如果  SSL proxy 后出现如下错误：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/1fb741c8-4170-47fa-ad0f-1929ae7857fd.png"></p>
+<p>可将证书设置为信任即可，例如 iPhone 下 “设置” -&gt; “通用” -&gt; “关于本机” -&gt; “证书信任设置” 下：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/fab69a4a-17c1-4944-81c9-255ff33ff815.png"></p>
+<h3 id="模拟慢请求"><a href="#模拟慢请求" class="headerlink" title="模拟慢请求"></a>模拟慢请求</h3><p>在做 App 开发调试时，经常需要模拟慢请求或者高延迟网络，以测试应用在网络异常情况变现是否正常，而这使用 Charles 就轻松帮我们完成。</p>
+<p>在 Charles 的菜单上，选择 “Proxy” -&gt; ”Throttle Setting” 项，在弹出的窗口中，可以勾选上 “Enable Throttling”，并且可以设置 Throttle Preset 的类型。如下图所示：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/41bdb338-fcba-4d56-ac55-207aed5560b4.png"></p>
+<p>当然可以通过 “Only for selected hosts” 项，只模拟指定站点的慢请求。</p>
+<h3 id="修改请求内容"><a href="#修改请求内容" class="headerlink" title="修改请求内容"></a>修改请求内容</h3><p>有时为了调试服务端的接口，我们需要反复尝试不同参数的网络请求。Charles 可以方便地提供网络请求的修改和重发功能。只需在该网络请求上点击右键，选择 “Compose”，即可创建一个可编辑的网络请求。</p>
+<p>我们可以修改该请求的任何信息，包括 URL 地址、端口、参数等，之后点击 “Execute” 即可发送该修改后的网络请求。Charles 支持我们多次修改和发送该请求，这对于我们和服务器端调试接口非常方便，如下图所示：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/25753d81-3257-43b7-8f35-89436d888974.png"></p>
+<h3 id="修改响应内容"><a href="#修改响应内容" class="headerlink" title="修改响应内容"></a>修改响应内容</h3><p>有候为方便我们调试一些特殊情况，需要服务器返回一些特定的响应内容。例如数据为空或者数据异常的情况，部分耗时的网络请求超时的情况等。通常让服务端配合，构造相应的数据显得会比较麻烦，这个时候，使用 Charles 就可以满足我们的需求。</p>
+<p>根据不同的场景需求，Charles 提供了 Map 功能、 Rewrite 功能以及 Breakpoints 功能，都可以达到修改服务器返回内容的目的。这三者在功能上的差异是：</p>
+<ul>
+<li>Map 功能适合长期地将某一些请求重定向到另一个网络地址或本地文件。</li>
+<li>Rewrite 功能适合对网络请求进行一些正则替换。</li>
+<li>Breakpoints 功能适合做一些临时性的修改。</li>
+</ul>
+<h4 id="Map功能"><a href="#Map功能" class="headerlink" title="Map功能"></a>Map功能</h4><p>Charles 的 Map 功能分 Map Remote 和 Map Local 两种。Map Remote 是将指定的网络请求重定向到另一个网址请求地址，而 Map Local 是将指定的网络请求重定向到本地文件。在 Charles 的菜单中，选择 “Tools” -&gt; ”Map Remote” 或 “Map Local” ，即可进入到相应功能的设置页面。</p>
+<p>对于 Map Remote 功能（选中 Enable Map Remote），我们需要填写网络重定向的源地址和目的地址，对于其他非必需字段可以留空。下图是一个示例，我将测试环境<code>t.fanhaobai.com</code>的请求重定向到了生产环境<code>www.fanhaobai.com</code>。</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/fe7c1302-4101-4882-ae0f-a3d395bdb960.png"></p>
+<p>对于 Map Local 功能（选中 Enable Map Local），我们需要填写的重定向的源地址和本地的目标文件。对于有一些复杂的网络请求结果，我们可以先使用 Charles 提供的 “Save Response…” 功能，将请求结果保存到本地并稍加修改，成为我们的目标映射文件。</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/dfa1e7c1-9072-4e33-836a-cdd62709af67.png"></p>
+<h4 id="Rewrite功能"><a href="#Rewrite功能" class="headerlink" title="Rewrite功能"></a>Rewrite功能</h4><p>Rewrite 功能功能适合对某一类网络请求进行一些正则替换，以达到修改结果的目的。</p>
+<p>例如，将服务端返回的<code>www.fanhaobai.com</code>全部替换为<code>www.baidu.com</code>，如下：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/4ccdcd7b-0b54-43df-bf09-4887edf7800e.png"></p>
+<p>将响应中的<code>www.fanhaobai.com</code>全部替换为<code>www.baidu.com</code>。于是在 “Tools” -&gt; “Rewrite” 下配置如下的规则：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/b037c6ae-8a8a-45fd-9a1f-b3628db8b8d6.png"></p>
+<p>选中 “Enable Rewrite”  启用 Rewrite 功能 ，响应如下：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/c8e71602-2bde-4b7a-850f-bde0b0a17084.png"></p>
+<h4 id="Breakpoints功能"><a href="#Breakpoints功能" class="headerlink" title="Breakpoints功能"></a>Breakpoints功能</h4><p>上面提供的 Rewrite 功能最适合做批量和长期的替换，但是很多时候，我们只是想临时修改一次网络请求结果，这个时候，我们最好使用 Breakpoints 功能。</p>
+<p>在需要打断点的请求上右击并选择 “Breakpoints”，重新请求该地址，可以发现客户端被挂起，Charles 操作界面如下：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/73350a4e-816d-4f91-91d5-2a6d1104c722.png"></p>
+<p>此时可以修改请求信息，但这里只修改响应信息，故点击 “Execute” 后选择 “Edit Response” 项，修改 title 为<code>fanhaobai.com</code>，如下：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/0fa6ff3f-c1f8-4179-b458-b21cc63e02c2.png"></p>
+<p>继续点击 “Execute” ，可看见响应的 title 已经变为<code>fanhaobai.com</code>。</p>
+<h3 id="压力测试"><a href="#压力测试" class="headerlink" title="压力测试"></a>压力测试</h3><p>我们可以使用 Charles 的 Repeat 功能来简单地测试服务器的并发处理能力。在想压测的网络请求上右击，然后选择 “Repeat Advanced” 项，如下所示：</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/b0875e59-e049-4b62-93f7-02311d0d47e7.png"></p>
+<p>这样我们就可以在上图的对话框中，选择压测的并发线程数以及压测次数，确定之后，即可开始压力测试了。</p>
+<h3 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h3><p>Charles 的反向代理功能允许我们将本地的端口映射到远程的另一个端口上。</p>
+<p><img src="//www.fanhaobai.com/2017/07/charles/d3193cee-783b-43c0-99c3-ac98ec52aaa6.png"></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%B7%A5%E5%85%B7/" rel="tag"># 工具</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/array-reference" rel="next" title="从foreach方法引出的PHP内存分析">
+                <i class="fa fa-chevron-left"></i> 从foreach方法引出的PHP内存分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017-07-23-human-resource-machine-game" rel="prev" title="游戏化学习的典范 - 玩《Human Resource Machine》">
+                游戏化学习的典范 - 玩《Human Resource Machine》 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85Charles"><span class="nav-number">1.</span> <span class="nav-text">安装Charles</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E6%88%90%E7%B3%BB%E7%BB%9F%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">设置成系统代理服务器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%87%E6%BB%A4%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82"><span class="nav-number">3.</span> <span class="nav-text">过滤网络请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%AA%E5%8F%96%E7%A7%BB%E5%8A%A8%E8%AE%BE%E5%A4%87%E7%BD%91%E7%BB%9C%E5%8C%85"><span class="nav-number">4.</span> <span class="nav-text">截取移动设备网络包</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AECharles"><span class="nav-number">4.1.</span> <span class="nav-text">设置Charles</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#iPhone"><span class="nav-number">4.2.</span> <span class="nav-text">iPhone</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Android"><span class="nav-number">4.3.</span> <span class="nav-text">Android</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%88%AA%E5%8F%96-Https-%E5%8C%85"><span class="nav-number">5.</span> <span class="nav-text">截取 Https 包</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E9%80%9A%E4%BF%A1%E4%BF%A1%E6%81%AF"><span class="nav-number">5.1.</span> <span class="nav-text">本地通信信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A7%BB%E5%8A%A8%E8%AE%BE%E5%A4%87%E7%9A%84%E9%80%9A%E4%BF%A1%E4%BF%A1%E6%81%AF"><span class="nav-number">5.2.</span> <span class="nav-text">移动设备的通信信息</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E6%8B%9F%E6%85%A2%E8%AF%B7%E6%B1%82"><span class="nav-number">6.</span> <span class="nav-text">模拟慢请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E8%AF%B7%E6%B1%82%E5%86%85%E5%AE%B9"><span class="nav-number">7.</span> <span class="nav-text">修改请求内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E5%93%8D%E5%BA%94%E5%86%85%E5%AE%B9"><span class="nav-number">8.</span> <span class="nav-text">修改响应内容</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Map%E5%8A%9F%E8%83%BD"><span class="nav-number">8.1.</span> <span class="nav-text">Map功能</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Rewrite%E5%8A%9F%E8%83%BD"><span class="nav-number">8.2.</span> <span class="nav-text">Rewrite功能</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Breakpoints%E5%8A%9F%E8%83%BD"><span class="nav-number">8.3.</span> <span class="nav-text">Breakpoints功能</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95"><span class="nav-number">9.</span> <span class="nav-text">压力测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86"><span class="nav-number">10.</span> <span class="nav-text">反向代理</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

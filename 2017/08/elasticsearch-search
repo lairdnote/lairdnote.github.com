@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Elasticsearch," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="随着公司房源数据的急剧增多，现搜索引擎 Solr 的搜索效率和建立索引效率显著降低，而 Elasticsearch 是一个实时的分布式搜索和分析引擎，它是基于全文搜索引擎 Apache Lucene 之上，接入 Elasticsearch 是必然之选。本文是我学习使用 Elasticsearch 检索的笔记。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Elasticsearch检索实战">
+<meta property="og:url" content="https://blog.feedscoin.com/2017/08/elasticsearch-search">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="随着公司房源数据的急剧增多，现搜索引擎 Solr 的搜索效率和建立索引效率显著降低，而 Elasticsearch 是一个实时的分布式搜索和分析引擎，它是基于全文搜索引擎 Apache Lucene 之上，接入 Elasticsearch 是必然之选。本文是我学习使用 Elasticsearch 检索的笔记。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/08/elasticsearch-search/9a3accb9-0da1-47e4-ad58-428370464af6.jpg">
+<meta property="article:published_time" content="2017-08-09T15:38:30.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:29:51.000Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Elasticsearch">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.fanhaobai.com/2017/08/elasticsearch-search/9a3accb9-0da1-47e4-ad58-428370464af6.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2017/08/elasticsearch-search"/>
+
+
+
+
+
+  <title>Elasticsearch检索实战 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2017/08/elasticsearch-search">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Elasticsearch检索实战</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-08-09T23:38:30+08:00">
+                2017-08-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Lucene/" itemprop="url" rel="index">
+                    <span itemprop="name">Lucene</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>随着公司房源数据的急剧增多，现搜索引擎 Solr 的搜索效率和建立索引效率显著降低，而 <a target="_blank" rel="noopener" href="https://github.com/elastic/elasticsearch">Elasticsearch</a> 是一个实时的分布式搜索和分析引擎，它是基于全文搜索引擎 <a target="_blank" rel="noopener" href="https://lucene.apache.org/">Apache Lucene</a> 之上，接入 Elasticsearch 是必然之选。本文是我学习使用 Elasticsearch 检索的笔记。</p>
+<p><img src="//www.fanhaobai.com/2017/08/elasticsearch-search/9a3accb9-0da1-47e4-ad58-428370464af6.jpg"><span id="more"></span></p>
+<p>Elasticsearch 支持 RESTful API 方式检索，查询结果以 JSON 格式响应，文中示例数据见 <a target="_blank" rel="noopener" href="http://es.fanhaobai.com/">这里</a>。有关 Elasticsearch 详细使用说明，见  <a target="_blank" rel="noopener" href="https://elasticsearch.cn/book/elasticsearch_definitive_guide_2.x/">官方文档</a>。</p>
+<h2 id="Url"><a href="#Url" class="headerlink" title="Url"></a>Url</h2><p>检索 url 中需包含 <strong>索引名</strong>，<code>_search</code>为查询关键字。例如 <a target="_blank" rel="noopener" href="http://es.fanhaobai.com/rooms/_search">http://es.fanhaobai.com/rooms/_search</a> 的 rooms 为索引名，此时表示无任何条件检索，检索结果为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable constant_">GET</span> /rooms/_search</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">   <span class="string">&quot;took&quot;</span>: <span class="number">6</span>,</span><br><span class="line">   <span class="string">&quot;timed_out&quot;</span>: <span class="literal">false</span>,</span><br><span class="line">   <span class="string">&quot;_shards&quot;</span>: &#123; ... &#125;,</span><br><span class="line">   <span class="string">&quot;hits&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;total&quot;</span>: <span class="number">3</span>,</span><br><span class="line">      <span class="string">&quot;max_score&quot;</span>: <span class="number">1</span>,</span><br><span class="line">      <span class="string">&quot;hits&quot;</span>: [</span><br><span class="line">         &#123;</span><br><span class="line">            <span class="string">&quot;_index&quot;</span>: <span class="string">&quot;rooms&quot;</span>,</span><br><span class="line">            <span class="string">&quot;_type&quot;</span>: <span class="string">&quot;room_info&quot;</span>,</span><br><span class="line">            <span class="string">&quot;_id&quot;</span>: <span class="string">&quot;3&quot;</span>,</span><br><span class="line">            <span class="string">&quot;_score&quot;</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="string">&quot;_source&quot;</span>: &#123;</span><br><span class="line">               <span class="string">&quot;resblockId&quot;</span>: <span class="string">&quot;1111027377528&quot;</span>,</span><br><span class="line">               <span class="string">&quot;resblockName&quot;</span>: <span class="string">&quot;金隅丽港城&quot;</span>,</span><br><span class="line">               <span class="string">&quot;houseId&quot;</span>: <span class="number">1087599828743</span>,</span><br><span class="line">               <span class="string">&quot;cityCode&quot;</span>: <span class="number">110000</span>,</span><br><span class="line">               <span class="string">&quot;size&quot;</span>: <span class="number">10.5</span>,</span><br><span class="line">               <span class="string">&quot;bizcircleCode&quot;</span>: [ <span class="string">&quot;18335711&quot;</span> ],</span><br><span class="line">               <span class="string">&quot;bizcircleName&quot;</span>: [ <span class="string">&quot;望京&quot;</span> ],</span><br><span class="line">	       <span class="string">&quot;price&quot;</span>: <span class="number">2300</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;,</span><br><span class="line">         &#123;</span><br><span class="line">            ... ...</span><br><span class="line">            <span class="string">&quot;_source&quot;</span>: &#123;</span><br><span class="line">               <span class="string">&quot;resblockId&quot;</span>: <span class="string">&quot;1111047349969&quot;</span>,</span><br><span class="line">               <span class="string">&quot;resblockName&quot;</span>: <span class="string">&quot;融泽嘉园&quot;</span>,</span><br><span class="line">               <span class="string">&quot;houseId&quot;</span>: <span class="number">1087817932553</span>,</span><br><span class="line">               <span class="string">&quot;cityCode&quot;</span>: <span class="number">110000</span>,</span><br><span class="line">               <span class="string">&quot;size&quot;</span>: <span class="number">10.35</span>,</span><br><span class="line">               <span class="string">&quot;bizcircleCode&quot;</span>: [ <span class="string">&quot;611100314&quot;</span> ],</span><br><span class="line">               <span class="string">&quot;bizcircleName&quot;</span>: [ <span class="string">&quot;西二旗&quot;</span> ],</span><br><span class="line">               <span class="string">&quot;price&quot;</span>: <span class="number">2500</span></span><br><span class="line">            &#125;</span><br><span class="line">         &#125;,</span><br><span class="line">	 ... ...</span><br><span class="line">      ]</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：Elasticsearch 官方偏向于使用 GET 方式（能更好描述信息检索的行为），GET 方式可以携带请求体，但是由于不被广泛支持，所以 Elasticsearch 也支持 POST 请求。后续查询语言使用 POST 方式。</p>
+</blockquote>
+<p>当我们确定了需要检索文档的 url 后，就可以使用查询语法进行检索，Elasticsearch 支持以下 Query string（查询字符串）和 DSL（结构化）2 种检索语句。</p>
+<h2 id="检索语句"><a href="#检索语句" class="headerlink" title="检索语句"></a>检索语句</h2><h3 id="Query-string"><a href="#Query-string" class="headerlink" title="Query string"></a>Query string</h3><p>我们可以直接在 get 请求时的 url 后追加<code>q=</code>查询参数，这种方法常被称作 query string 搜索，因为我们像传递 url 参数一样去传递查询语句。例如查询小区 id 为 1111027374551 的房源信息：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable constant_">GET</span> /rooms/_search?q=<span class="attr">resblockId</span>:<span class="number">1111027374551</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//查询结果,无关信息已省略</span></span><br><span class="line">&#123;</span><br><span class="line">   <span class="string">&quot;hits&quot;</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">         <span class="string">&quot;_source&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;resblockId&quot;</span>: <span class="string">&quot;1111027374551&quot;</span>,</span><br><span class="line">            <span class="string">&quot;resblockName&quot;</span>: <span class="string">&quot;国风北京二期&quot;</span>,</span><br><span class="line">            ... ...</span><br><span class="line">         &#125;</span><br><span class="line">      &#125;</span><br><span class="line">   ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>虽然查询字符串便于查询特定的搜索，但是它也有局限性。</p>
+<h3 id="DSL"><a href="#DSL" class="headerlink" title="DSL"></a>DSL</h3><p>DSL 查询以 JSON 请求体的形式出现，它允许构建更加复杂、强大的查询。DSL 方式查询上述 query string 查询条件则为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable constant_">POST</span> /rooms/_search</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">   <span class="string">&quot;query&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;term&quot;</span>: &#123;</span><br><span class="line">         <span class="string">&quot;resblockId&quot;</span>: <span class="string">&quot;1111027374551&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>term 语句为过滤类型之一，后面再进行说明。使用 DSL 语句查询支持 <strong>filter</strong>（过滤器）、<strong>match</strong>（全文检索）等复杂检索场景。</p>
+<h2 id="基本检索"><a href="#基本检索" class="headerlink" title="基本检索"></a>基本检索</h2><p>Elasticsearch 支持为 2 种检索行为，它们都是使用 DSL 语句来表达检索条件，分别为 <strong>query</strong> （结构化查询）和 <strong>filter</strong>（结构化搜索）。</p>
+<p>说明：后续将使用 SQL 对比 DSL 语法进行搜索条件示例。</p>
+<h3 id="结构化查询"><a href="#结构化查询" class="headerlink" title="结构化查询"></a>结构化查询</h3><p>结构化查询支持全文检索，会对检索结果进行相关性计算。使用结构化查询，需要传递 query 参数：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="string">&quot;query&quot;</span>: your_query &#125;</span><br><span class="line"><span class="comment">//your_query为&#123;&#125;表示空查询</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注：后续查询中不再列出 query 参数，只列出 your_query（查询内容）。</p>
+</blockquote>
+<h4 id="match-all查询"><a href="#match-all查询" class="headerlink" title="match_all查询"></a>match_all查询</h4><p>match_all 查询简单的匹配所有文档。在没有指定查询方式时，它是默认的查询。查询所有房源信息：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- SQL表述</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> rooms</span><br></pre></td></tr></table></figure>
+
+<p>match_all 查询为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="string">&quot;match_all&quot;</span>: &#123;&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="match查询"><a href="#match查询" class="headerlink" title="match查询"></a>match查询</h4><p>match 查询为全文搜索，类似于 SQL 的 LIKE 查询。查询小区名中包含“嘉”的房源信息：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- SQL表述</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> rooms <span class="keyword">WHERE</span> resblockName <span class="keyword">LIKE</span> <span class="string">&#x27;%嘉%&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>match 查询为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="string">&quot;match&quot;</span>: &#123; <span class="string">&quot;resblockName&quot;</span>: <span class="string">&quot;嘉&quot;</span> &#125;&#125;</span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line"><span class="string">&quot;hits&quot;</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="string">&quot;_source&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;resblockId&quot;</span>: <span class="string">&quot;1111047349969&quot;</span>,</span><br><span class="line">            <span class="string">&quot;resblockName&quot;</span>: <span class="string">&quot;融泽嘉园&quot;</span>,</span><br><span class="line">            ... ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<h4 id="multi-match查询"><a href="#multi-match查询" class="headerlink" title="multi_match查询"></a>multi_match查询</h4><p>multi_match 查询可以在多个字段上执行相同的 match 查询：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;multi_match&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;query&quot;</span>:  <span class="string">&quot;京&quot;</span>,</span><br><span class="line">        <span class="string">&quot;fields&quot;</span>: [ <span class="string">&quot;resblockName&quot;</span>, <span class="string">&quot;bizcircleName&quot;</span> ]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="range查询"><a href="#range查询" class="headerlink" title="range查询"></a>range查询</h4><p>range 查询能检索出那些落在指定区间内的文档，类似于 SQL 的 BETWEEN 操作。range 查询被允许的操作符有：</p>
+<table>
+<thead>
+<tr>
+<th>操作符</th>
+<th>操作关系</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>gt</td>
+<td>大于</td>
+</tr>
+<tr>
+<td>gte</td>
+<td>大于等于</td>
+</tr>
+<tr>
+<td>lt</td>
+<td>小于</td>
+</tr>
+<tr>
+<td>lte</td>
+<td>小于等于</td>
+</tr>
+</tbody></table>
+<p>查询价格在 (2000, 2500] 的房源信息：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- SQL表述</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> rooms <span class="keyword">WHERE</span> price <span class="keyword">BETWEEN</span> <span class="number">2000</span> <span class="keyword">AND</span> <span class="number">2500</span> <span class="keyword">AND</span> price <span class="operator">!=</span> <span class="number">2000</span></span><br></pre></td></tr></table></figure>
+
+<p>range 查询为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;range&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;price&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;gt&quot;</span>: <span class="number">2000</span>,</span><br><span class="line">            <span class="string">&quot;lte&quot;</span>: <span class="number">2500</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="term查询"><a href="#term查询" class="headerlink" title="term查询"></a>term查询</h4><p>term 查询用于精确值匹配，可能是数字、时间、布尔。例如查询房屋 id 为 1087599828743 的房源信息：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- SQL表述</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> rooms <span class="keyword">WHERE</span> houseId <span class="operator">=</span> <span class="number">1087599828743</span></span><br></pre></td></tr></table></figure>
+
+<p>term 查询为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="string">&quot;term&quot;</span>: &#123; <span class="string">&quot;houseId&quot;</span>: <span class="number">1087599828743</span> &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="terms查询"><a href="#terms查询" class="headerlink" title="terms查询"></a>terms查询</h4><p>terms 查询同 term 查询，但它允许指定多值进行匹配，类似于 SQL 的 IN 操作。例如查询房屋 id 为 1087599828743 或者 1087817932342 的房源信息：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- SQL表述</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> rooms <span class="keyword">WHERE</span> houseId <span class="keyword">IN</span> (<span class="number">1087599828743</span>, <span class="number">1087817932342</span>)</span><br></pre></td></tr></table></figure>
+
+<p>terms 查询为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="string">&quot;terms&quot;</span>: &#123; <span class="string">&quot;houseId&quot;</span>: [ <span class="number">1087599828743</span>, <span class="number">1087817932342</span> ] &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>term 查询和 terms 查询都不分析输入的文本， 不会进行相关性计算。</p>
+</blockquote>
+<h4 id="exists查询和missing查询"><a href="#exists查询和missing查询" class="headerlink" title="exists查询和missing查询"></a>exists查询和missing查询</h4><p>exists 查询和 missing 查询被用于查找那些指定字段中有值和无值的文档，类似于 SQL 中的 IS NOT NULL 和 IS NULL 查询。查询价格有效的房源信息：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- SQL表述</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> rooms <span class="keyword">WHERE</span> price <span class="keyword">IS</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span></span><br></pre></td></tr></table></figure>
+<p>exists 查询为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="string">&quot;exists&quot;</span>: &#123; <span class="string">&quot;field&quot;</span>: <span class="string">&quot;price&quot;</span> &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="bool查询"><a href="#bool查询" class="headerlink" title="bool查询"></a>bool查询</h4><p>我们时常需要将多个条件的结构进行逻辑与和或操作，等同于 SQL 的 AND 和 OR，这时就应该使用 bool 子句合并多子句结果。 共有 3 种 bool 查询，分别为 must（AND）、must_not（NOT）、should（OR）。</p>
+<table>
+<thead>
+<tr>
+<th>操作符</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>must</td>
+<td>AND 关系，<strong>必须</strong> 匹配这些条件才能检索出来</td>
+</tr>
+<tr>
+<td>must_not</td>
+<td>NOT 关系，<strong>必须不</strong> 匹配这些条件才能检索出来</td>
+</tr>
+<tr>
+<td>should</td>
+<td>OR 关系，<strong>至少匹配一条</strong> 条件才能检索出来</td>
+</tr>
+<tr>
+<td>filter</td>
+<td><strong>必须</strong> 匹配，不参与评分</td>
+</tr>
+</tbody></table>
+<p>查询小区中包含“嘉”字或者房屋 id 为 1087599828743 的房源信息：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- SQL表述</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> rooms <span class="keyword">WHERE</span> (resblockName <span class="keyword">LIKE</span> <span class="string">&#x27;%嘉%&#x27;</span> <span class="keyword">OR</span> houseId <span class="operator">=</span> <span class="number">1087599828743</span>) <span class="keyword">AND</span> (cityCode <span class="operator">=</span> <span class="number">110000</span>)</span><br></pre></td></tr></table></figure>
+
+<p>bool 查询为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;bool&quot;</span>: &#123;</span><br><span class="line">     <span class="string">&quot;must&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;term&quot;</span>: &#123;<span class="string">&quot;cityCode&quot;</span>: <span class="number">110000</span> &#125;</span><br><span class="line">     &#125;,</span><br><span class="line">     <span class="string">&quot;should&quot;</span>: [</span><br><span class="line">        &#123; <span class="string">&quot;term&quot;</span>: &#123; <span class="string">&quot;houseId&quot;</span>: <span class="number">1087599828743</span> &#125;&#125;,</span><br><span class="line">        &#123; <span class="string">&quot;match&quot;</span>: &#123; <span class="string">&quot;resblockName&quot;</span>: <span class="string">&quot;嘉&quot;</span> &#125;&#125;</span><br><span class="line">     ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用 filter 语句来使得其子句不参与评分过程，减少评分可以有效地优化性能。重写前面的例子：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;bool&quot;</span>: &#123;</span><br><span class="line">     <span class="string">&quot;should&quot;</span>: [</span><br><span class="line">        &#123; <span class="string">&quot;match&quot;</span>: &#123; <span class="string">&quot;resblockName&quot;</span>: <span class="string">&quot;嘉&quot;</span> &#125;&#125;</span><br><span class="line">     ],</span><br><span class="line">     <span class="string">&quot;filter&quot;</span> : &#123;</span><br><span class="line">        <span class="string">&quot;bool&quot;</span>: &#123;</span><br><span class="line">           <span class="string">&quot;must&quot;</span>: &#123; <span class="string">&quot;term&quot;</span>: &#123; <span class="string">&quot;cityCode&quot;</span>: <span class="number">110000</span> &#125;&#125;,</span><br><span class="line">           <span class="string">&quot;should&quot;</span>: [</span><br><span class="line">              &#123; <span class="string">&quot;term&quot;</span>: &#123; <span class="string">&quot;houseId&quot;</span>: <span class="number">1087599828743</span> &#125;&#125;</span><br><span class="line">           ]</span><br><span class="line">        &#125;</span><br><span class="line">     &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>bool 查询可以相互的进行嵌套，已完成非常复杂的查询条件。</p>
+<h4 id="constant-score查询"><a href="#constant-score查询" class="headerlink" title="constant_score查询"></a>constant_score查询</h4><p>constant_score 查询将一个不变的常量评分应用于所有匹配的文档。它被经常用于你只需要执行一个 <strong>filter</strong>（过滤器）而没有其它查询（评分查询）的情况下。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;constant_score&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;filter&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;term&quot;</span>: &#123; <span class="string">&quot;houseId&quot;</span>: <span class="number">1087599828743</span> &#125; </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="结构化搜索"><a href="#结构化搜索" class="headerlink" title="结构化搜索"></a>结构化搜索</h3><p>结构化搜索的查询适合确定值数据（数字、日期、时间），这些类型数据都有明确的格式。结构化搜索结果始终是是或非，结构化搜索不关心文档的相关性或分数，它只是简单的包含或排除文档，由于结构化搜索使用到过滤器，在查询时需要传递 filter 参数，由于 DSL 语法查询必须以 query 开始，所以 filter 需要放置在 query 里，因此结构化查询的结构为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;query&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;constant_score&quot;</span>: &#123; </span><br><span class="line">            <span class="string">&quot;filter&quot;</span>: &#123;</span><br><span class="line">                <span class="comment">//your_filters</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注：后续搜索中不再列出 query 参数，只列出 your_filters（过滤内容）。</p>
+</blockquote>
+<p>结构化搜索一样存在很多过滤器 term、terms、range、exists、missing、bool，我们在结构化查询中都已经接触过了。</p>
+<h4 id="term搜索"><a href="#term搜索" class="headerlink" title="term搜索"></a>term搜索</h4><p>最为常用的 term 搜索用于查询精确值，可以用它处理数字（number）、布尔值（boolean）、日期（date）以及文本（text）。查询小区 id 为 1111027377528 的房源信息：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- SQL表述</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> rooms <span class="keyword">WHERE</span> resblockId <span class="operator">=</span> &quot;1111027377528&quot;</span><br></pre></td></tr></table></figure>
+
+<p>term 搜索为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="string">&quot;term&quot;</span>: &#123; <span class="string">&quot;resblockId&quot;</span>: <span class="string">&quot;1111027377528&quot;</span> &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>类似<code>XHDK-A-1293-#fJ3</code>这样的文本直接使用 term 查询时，可能无法获取到期望的结果。是因为 Elasticsearch 在建立索引时，会将该数据分析成 xhdk、a、1293、#fj3 字样，这并不是我们期望的，可以通过指定 not_analyzed 告诉 Elasticsearch 在建立索引时无需分析该字段值。</p>
+<h4 id="terms搜索"><a href="#terms搜索" class="headerlink" title="terms搜索"></a>terms搜索</h4><p>terms 搜索使用方式和 term 基本一致，而 terms 是搜索字段多值的情况。查询商圈 code 为 18335711 或者 611100314 的房源信息：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- SQL表述</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> rooms <span class="keyword">WHERE</span> bizcircleCode <span class="keyword">IN</span> (<span class="number">18335711</span>, <span class="number">611100314</span>)</span><br></pre></td></tr></table></figure>
+
+<p>terms搜索为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123; <span class="string">&quot;terms&quot;</span>: &#123; <span class="string">&quot;bizcircleCode&quot;</span>: [ <span class="string">&quot;18335711&quot;</span>, <span class="string">&quot;611100314&quot;</span> ] &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="range搜索"><a href="#range搜索" class="headerlink" title="range搜索"></a>range搜索</h4><p>在进行范围过滤查询时使用 range 搜索，支持数字、字母、日期的范围查询。查询面积在 [15, 25] 平米之间的房源信息：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- SQL表述</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> rooms <span class="keyword">WHERE</span> size <span class="keyword">BETWEEN</span> <span class="number">10</span> <span class="keyword">AND</span> <span class="number">25</span></span><br></pre></td></tr></table></figure>
+
+<p>range 搜索为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;range&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;size&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;gte&quot;</span>: <span class="number">10</span>,</span><br><span class="line">            <span class="string">&quot;lte&quot;</span>: <span class="number">25</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>range 搜索使用在日期上：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;range&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;date&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;gt&quot;</span>: <span class="string">&quot;2017-01-01 00:00:00&quot;</span>,</span><br><span class="line">            <span class="string">&quot;lt&quot;</span>: <span class="string">&quot;2017-01-07 00:00:00&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="exists和missing搜索"><a href="#exists和missing搜索" class="headerlink" title="exists和missing搜索"></a>exists和missing搜索</h4><p>exists 和 missing 搜索是针对某些字段值存在和缺失的查询。查询房屋面积存在的房源列表：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- SQL表述</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> rooms <span class="keyword">WHERE</span> size <span class="keyword">IS</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span></span><br></pre></td></tr></table></figure>
+
+<p>exists 搜索为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="string">&quot;exists&quot;</span>: &#123; <span class="string">&quot;field&quot;</span>: <span class="string">&quot;size&quot;</span> &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>missing 搜索刚好和 exists 搜索相反，但语法一致。</p>
+<h4 id="bool组合搜索"><a href="#bool组合搜索" class="headerlink" title="bool组合搜索"></a>bool组合搜索</h4><p>bool 过滤器是为了解决过滤多个值或字段的问题，它可以接受多个其他过滤器作为子过滤器，并将这些过滤器结合成各式各样的逻辑组合。</p>
+<p>bool 过滤器的组成部分，同 bool 查询一致：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="string">&quot;bool&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;must&quot;</span>:     [],</span><br><span class="line">      <span class="string">&quot;should&quot;</span>:   [],</span><br><span class="line">      <span class="string">&quot;must_not&quot;</span>: [],</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>类似于如下 SQL 查询条件：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> rooms <span class="keyword">WHERE</span> (bizcircleCode <span class="operator">=</span> <span class="number">18335711</span> <span class="keyword">AND</span> price <span class="keyword">BETWEEN</span> <span class="number">2000</span> <span class="keyword">AND</span> <span class="number">2500</span>) <span class="keyword">OR</span> (bizcircleCode <span class="operator">=</span> <span class="number">611100314</span> <span class="keyword">AND</span> price <span class="operator">&gt;=</span> <span class="number">2500</span>)</span><br></pre></td></tr></table></figure>
+
+<p>使用 bool 过滤器实现为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="string">&quot;bool&quot;</span>: &#123;</span><br><span class="line">       <span class="string">&quot;should&quot;</span>: [</span><br><span class="line">           &#123; </span><br><span class="line">              <span class="string">&quot;term&quot;</span>: &#123; <span class="string">&quot;bizcircleCode&quot;</span>: <span class="string">&quot;18335711&quot;</span> &#125;,</span><br><span class="line">              <span class="string">&quot;range&quot;</span>: &#123; <span class="string">&quot;price&quot;</span>: &#123; <span class="string">&quot;gte&quot;</span>: <span class="number">2000</span>, <span class="string">&quot;lte&quot;</span>: <span class="number">25000</span> &#125;&#125;</span><br><span class="line">           &#125;, </span><br><span class="line">           &#123; </span><br><span class="line">              <span class="string">&quot;term&quot;</span>: &#123; <span class="string">&quot;bizcircleCode&quot;</span>: <span class="string">&quot;611100314&quot;</span> &#125;,</span><br><span class="line">              <span class="string">&quot;range&quot;</span>: &#123; <span class="string">&quot;price&quot;</span>: &#123; <span class="string">&quot;gte&quot;</span>: <span class="number">2500</span> &#125;&#125;</span><br><span class="line">           &#125; </span><br><span class="line">       ]</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>区别</strong>：结构化查询会进行相关性计算，因此不会缓存检索结果；而结构化搜索会缓存搜索结果，因此具有较高的检索效率，在不需要全文搜索或者其它任何需要影响相关性得分的查询中建议只使用结构化搜索。当然，结构化查询和结构化搜索可以配合使用。</p>
+</blockquote>
+<h3 id="聚合"><a href="#聚合" class="headerlink" title="聚合"></a>聚合</h3><p> 该部分较复杂，已单独使用文章进行说明，见 <a target="_blank" rel="noopener" href="https://www.fanhaobai.com/2017/08/elasticsearch-advanced-search.html#%E8%81%9A%E5%90%88">Elasticsearch检索 — 聚合和LBS</a> 部分。</p>
+<h3 id="source子句"><a href="#source子句" class="headerlink" title="_source子句"></a>_source子句</h3><p>某些时候可能不需要返回文档的全部字段，这时就可以使用 _source 子句指定返回需要的字段。只返回需要的房源信息字段：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="string">&quot;_source&quot;</span>: [ <span class="string">&quot;cityCode&quot;</span>, <span class="string">&quot;houseId&quot;</span>, <span class="string">&quot;price&quot;</span>, <span class="string">&quot;resblockName&quot;</span> ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="sort子句"><a href="#sort子句" class="headerlink" title="sort子句"></a>sort子句</h3><h4 id="简单排序"><a href="#简单排序" class="headerlink" title="简单排序"></a>简单排序</h4><p>排序是使用比较多的推荐方式，在 Elasticsearch 中，默认会按照相关性进行排序，相关性得分由一个浮点数进行表示，并在搜索结果中通过<code>_score</code>参数返回（未参与相关性评分时分数为 1）， 默认是按<code>_score</code>降序排序。</p>
+<p>sort 方式有 desc、asc 两种。将房源查询结果按照价格升序排列：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="string">&quot;sort&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;price&quot;</span>: &#123; <span class="string">&quot;order&quot;</span>: <span class="string">&quot;asc&quot;</span> &#125;&#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="多级排序"><a href="#多级排序" class="headerlink" title="多级排序"></a>多级排序</h4><p>当存在多级排序的场景时，结果首先按第一个条件排序，仅当结果集的第一个 sort 值完全相同时才会按照第二个条件进行排序，以此类推。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="string">&quot;sort&quot;</span>: [</span><br><span class="line">      &#123; <span class="string">&quot;price&quot;</span>: &#123; <span class="string">&quot;order&quot;</span>: <span class="string">&quot;asc&quot;</span> &#125;&#125;,</span><br><span class="line">      &#123; <span class="string">&quot;_score&quot;</span>: &#123; <span class="string">&quot;order&quot;</span>: <span class="string">&quot;desc&quot;</span> &#125;&#125;  <span class="comment">//price一直时，按照相关性降序</span></span><br><span class="line">   ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="字段多指排序"><a href="#字段多指排序" class="headerlink" title="字段多指排序"></a>字段多指排序</h4><p>当字段值为 <strong>多值</strong> 及 <a href="#">字段多指排序</a>，Elasticsearch 会对于数字或日期类型将多值字段转为单值。转化有 min 、max 、avg、 sum 这 4 种模式。 </p>
+<p>例如，将房源查询结果按照商圈 code 升序排列：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="string">&quot;sort&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;bizcircleCode&quot;</span>: &#123;</span><br><span class="line">         <span class="string">&quot;order&quot;</span>: <span class="string">&quot;asc&quot;</span>,</span><br><span class="line">         <span class="string">&quot;mode&quot;</span>:  <span class="string">&quot;min&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="分页子句"><a href="#分页子句" class="headerlink" title="分页子句"></a>分页子句</h3><p>和 SQL 使用 LIMIT 关键字返回单 page 结果的方法相同，Elasticsearch 接受 from（初始结果数量）和 size（应该返回结果数量） 参数：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="string">&quot;size&quot;</span>: <span class="number">8</span>,</span><br><span class="line">   <span class="string">&quot;from&quot;</span>: <span class="number">1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="验证查询合法性"><a href="#验证查询合法性" class="headerlink" title="验证查询合法性"></a>验证查询合法性</h2><p>在实际应用中，查询可能变得非常的复杂，理解起来就有点困难了。不过可以使用<code>validate-query</code>API来验证查询合法性。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable constant_">GET</span> /room/_validate/query</span><br><span class="line">&#123;</span><br><span class="line">   <span class="string">&quot;query&quot;</span>: &#123; <span class="string">&quot;resblockName&quot;</span>: &#123; <span class="string">&quot;match&quot;</span>: <span class="string">&quot;嘉&quot;</span> &#125;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>合法的 query 返回信息：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   <span class="string">&quot;valid&quot;</span>:         <span class="literal">false</span>,</span><br><span class="line">   <span class="string">&quot;_shards&quot;</span>: &#123;</span><br><span class="line">      <span class="string">&quot;total&quot;</span>:       <span class="number">1</span>,</span><br><span class="line">      <span class="string">&quot;successful&quot;</span>:  <span class="number">1</span>,</span><br><span class="line">      <span class="string">&quot;failed&quot;</span>:      <span class="number">0</span></span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>别的业务线已经投入 Elasticsearch 使用有段时间了，找房业务线正由 Solr 切换为 Elasticsearch，各个系统有一个探索和磨合的过程。当然，Elasticsearch 我们已经服务化了，对 DSL 语法也进行了一些简化，同时支持了定制化业务。另外，使用 <a target="_blank" rel="noopener" href="https://github.com/NLPchina/elasticsearch-sql">elasticsearch-sql</a> 插件可以让 Elasticsearch 也支持 SQL 操作。  </p>
+<p><strong>相关文章 <a href="#">»</a></strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.fanhaobai.com/2017/08/elasticsearch-advanced-search.html">Elasticsearch检索 — 聚合和LBS</a> <span>（2017-08-21）</span></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"># Elasticsearch</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/minecraft-yggdrasil-api-third-party-implementation" rel="next" title="又是一种 Minecraft 外置登录解决方案：自行实现 Yggdrasil API">
+                <i class="fa fa-chevron-left"></i> 又是一种 Minecraft 外置登录解决方案：自行实现 Yggdrasil API
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/08/solr-install-push" rel="prev" title="Solr的使用 — 部署和数据推送">
+                Solr的使用 — 部署和数据推送 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Url"><span class="nav-number">1.</span> <span class="nav-text">Url</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A3%80%E7%B4%A2%E8%AF%AD%E5%8F%A5"><span class="nav-number">2.</span> <span class="nav-text">检索语句</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Query-string"><span class="nav-number">2.1.</span> <span class="nav-text">Query string</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DSL"><span class="nav-number">2.2.</span> <span class="nav-text">DSL</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A3%80%E7%B4%A2"><span class="nav-number">3.</span> <span class="nav-text">基本检索</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E5%8C%96%E6%9F%A5%E8%AF%A2"><span class="nav-number">3.1.</span> <span class="nav-text">结构化查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#match-all%E6%9F%A5%E8%AF%A2"><span class="nav-number">3.1.1.</span> <span class="nav-text">match_all查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#match%E6%9F%A5%E8%AF%A2"><span class="nav-number">3.1.2.</span> <span class="nav-text">match查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#multi-match%E6%9F%A5%E8%AF%A2"><span class="nav-number">3.1.3.</span> <span class="nav-text">multi_match查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#range%E6%9F%A5%E8%AF%A2"><span class="nav-number">3.1.4.</span> <span class="nav-text">range查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#term%E6%9F%A5%E8%AF%A2"><span class="nav-number">3.1.5.</span> <span class="nav-text">term查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#terms%E6%9F%A5%E8%AF%A2"><span class="nav-number">3.1.6.</span> <span class="nav-text">terms查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#exists%E6%9F%A5%E8%AF%A2%E5%92%8Cmissing%E6%9F%A5%E8%AF%A2"><span class="nav-number">3.1.7.</span> <span class="nav-text">exists查询和missing查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bool%E6%9F%A5%E8%AF%A2"><span class="nav-number">3.1.8.</span> <span class="nav-text">bool查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#constant-score%E6%9F%A5%E8%AF%A2"><span class="nav-number">3.1.9.</span> <span class="nav-text">constant_score查询</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E5%8C%96%E6%90%9C%E7%B4%A2"><span class="nav-number">3.2.</span> <span class="nav-text">结构化搜索</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#term%E6%90%9C%E7%B4%A2"><span class="nav-number">3.2.1.</span> <span class="nav-text">term搜索</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#terms%E6%90%9C%E7%B4%A2"><span class="nav-number">3.2.2.</span> <span class="nav-text">terms搜索</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#range%E6%90%9C%E7%B4%A2"><span class="nav-number">3.2.3.</span> <span class="nav-text">range搜索</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#exists%E5%92%8Cmissing%E6%90%9C%E7%B4%A2"><span class="nav-number">3.2.4.</span> <span class="nav-text">exists和missing搜索</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bool%E7%BB%84%E5%90%88%E6%90%9C%E7%B4%A2"><span class="nav-number">3.2.5.</span> <span class="nav-text">bool组合搜索</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%9A%E5%90%88"><span class="nav-number">3.3.</span> <span class="nav-text">聚合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#source%E5%AD%90%E5%8F%A5"><span class="nav-number">3.4.</span> <span class="nav-text">_source子句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sort%E5%AD%90%E5%8F%A5"><span class="nav-number">3.5.</span> <span class="nav-text">sort子句</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E6%8E%92%E5%BA%8F"><span class="nav-number">3.5.1.</span> <span class="nav-text">简单排序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E7%BA%A7%E6%8E%92%E5%BA%8F"><span class="nav-number">3.5.2.</span> <span class="nav-text">多级排序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%97%E6%AE%B5%E5%A4%9A%E6%8C%87%E6%8E%92%E5%BA%8F"><span class="nav-number">3.5.3.</span> <span class="nav-text">字段多指排序</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E9%A1%B5%E5%AD%90%E5%8F%A5"><span class="nav-number">3.6.</span> <span class="nav-text">分页子句</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E6%9F%A5%E8%AF%A2%E5%90%88%E6%B3%95%E6%80%A7"><span class="nav-number">4.</span> <span class="nav-text">验证查询合法性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E5%90%8E"><span class="nav-number">5.</span> <span class="nav-text">最后</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

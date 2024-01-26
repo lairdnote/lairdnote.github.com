@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content=".NET Core,Blazor,文件,WebAssembly," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="重构我的 独立博客 ，是博主今年的计划之一，这个基于 Hexo 的静态博客，最早搭建于2014年，可以说是比女朋友更亲密的存在，陪伴着博主走过了毕业、求职以及此刻的而立之年。其间虽然尝试过像 Jekyll 和 Hugo 这样的静态博客生成器，可是考虑到模板、插件等周边生态，这个想法一直被搁置下来。直到最近，突然涌现出通过 Blazor 重写博客的想法，尤其是它对于 WebAssembly 的支持，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="通过 EmbededFileProvider 实现 Blazor 的静态文件访问">
+<meta property="og:url" content="https://blog.feedscoin.com/%E9%80%9A%E8%BF%87%20EmbededFileProvider%20%E5%AE%9E%E7%8E%B0%20Blazor%20%E7%9A%84%E9%9D%99%E6%80%81%E6%96%87%E4%BB%B6%E8%AE%BF%E9%97%AE">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="重构我的 独立博客 ，是博主今年的计划之一，这个基于 Hexo 的静态博客，最早搭建于2014年，可以说是比女朋友更亲密的存在，陪伴着博主走过了毕业、求职以及此刻的而立之年。其间虽然尝试过像 Jekyll 和 Hugo 这样的静态博客生成器，可是考虑到模板、插件等周边生态，这个想法一直被搁置下来。直到最近，突然涌现出通过 Blazor 重写博客的想法，尤其是它对于 WebAssembly 的支持，">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/02/23/Zftpl5UFnmcLK49.png">
+<meta property="og:image" content="https://i.loli.net/2021/02/23/jgqxFTPt2OnHMyh.png">
+<meta property="og:image" content="https://i.loli.net/2021/02/23/wMED8k6SbqITpma.png">
+<meta property="article:published_time" content="2021-02-22T21:37:47.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.240Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content=".NET Core">
+<meta property="article:tag" content="Blazor">
+<meta property="article:tag" content="文件">
+<meta property="article:tag" content="WebAssembly">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/02/23/Zftpl5UFnmcLK49.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/通过 EmbededFileProvider 实现 Blazor 的静态文件访问"/>
+
+
+
+
+
+  <title>通过 EmbededFileProvider 实现 Blazor 的静态文件访问 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E9%80%9A%E8%BF%87%20EmbededFileProvider%20%E5%AE%9E%E7%8E%B0%20Blazor%20%E7%9A%84%E9%9D%99%E6%80%81%E6%96%87%E4%BB%B6%E8%AE%BF%E9%97%AE">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">通过 EmbededFileProvider 实现 Blazor 的静态文件访问</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-02-23T05:37:47+08:00">
+                2021-02-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>重构我的 <a target="_blank" rel="noopener" href="https://blog.yuanpei.me/">独立博客</a> ，是博主今年的计划之一，这个基于 <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> 的静态博客，最早搭建于2014年，可以说是比女朋友更亲密的存在，陪伴着博主走过了毕业、求职以及此刻的而立之年。其间虽然尝试过像 <a target="_blank" rel="noopener" href="https://jekyllrb.com/">Jekyll</a> 和 <a target="_blank" rel="noopener" href="https://www.gohugo.org/">Hugo</a> 这样的静态博客生成器，可是考虑到模板、插件等周边生态，这个想法一直被搁置下来。直到最近，突然涌现出通过 <a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/aspnet/core/blazor/?view=aspnetcore-3.1">Blazor</a> 重写博客的想法，尤其是它对于 <a target="_blank" rel="noopener" href="https://webassembly.org/">WebAssembly</a> 的支持，而类似 <a target="_blank" rel="noopener" href="https://cn.vuejs.org/">Vue</a> 和 <a target="_blank" rel="noopener" href="https://reactjs.org/">React</a>的组件化开发模式，在开发体验上有着同样不错的表现。所以，今天这篇博客就来聊聊在重写博客过程中的一点收获，即如何让 Blazor 访问本地的静态文件。</p>
+<h1 id="从内嵌资源说起"><a href="#从内嵌资源说起" class="headerlink" title="从内嵌资源说起"></a>从内嵌资源说起</h1><p>首先，我们要引入一个概念，即：内嵌资源。我们平时接触的更多的是本地文件系统，或者是 FTP 、对象存储这类运行在远程服务器上的文件系统，这些都是非内嵌资源，所以，内嵌资源主要是指那些没有目录层级的文件资源，因为它会在编译的时候“<strong>嵌入</strong>”到动态链接库(DLL)中。一个典型的例子是<code>Swagger</code>，它在<code>.NET Core</code>平台下的实现是<a target="_blank" rel="noopener" href="https://github.com/domaindrivendev/Swashbuckle.AspNetCore">Swashbuckle.AspNetCore</a>，它允许使用自定义的HTML页面。这里可以注意到，它使用到了<code>GetManifestResourceStream()</code>方法：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">app.UseSwaggerUI(c =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// requires file to be added as an embedded resource</span></span><br><span class="line">    c.IndexStream = () =&gt; GetType().Assembly</span><br><span class="line">        .GetManifestResourceStream(<span class="string">&quot;CustomUIIndex.Swagger.index.html&quot;</span>); </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>其实，这里使用的就是一个内嵌资源。关于内嵌资源，我们有两种方式来定义它：</p>
+<ul>
+<li>在 Visual Studio 中选中指定文件，在其属性窗口中选择生成操作为嵌入的资源：</li>
+</ul>
+<p><img src="https://i.loli.net/2021/02/23/Zftpl5UFnmcLK49.png" alt="如何定义一个文件资源为内嵌资源"></p>
+<ul>
+<li>在项目文件(<strong>.csproj</strong>)中修改对应<code>ItemGroup</code>节点，参考示例如下：</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Project</span> <span class="attr">Sdk</span>=<span class="string">&quot;Microsoft.NET.Sdk.Web&quot;</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- ... --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">ItemGroup</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">EmbeddedResource</span> <span class="attr">Include</span>=<span class="string">&quot;_config.yml&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">CopyToOutputDirectory</span>&gt;</span>Always<span class="tag">&lt;/<span class="name">CopyToOutputDirectory</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">EmbeddedResource</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">ItemGroup</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- ... --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">Project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这样，我们就完成了内嵌资源的定义。而定义内嵌资源，本质上还是为了在运行时期间去读取和使用，那么，自然而然地，我们不禁要问，该怎么读取这些内嵌资源呢？在<code>Assembly</code>类中，微软为我们提供了下列接口来处理内嵌资源：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">virtual</span> ManifestResourceInfo <span class="title">GetManifestResourceInfo</span>(<span class="params"><span class="built_in">string</span> resourceName</span>)</span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">virtual</span> <span class="built_in">string</span>[] <span class="title">GetManifestResourceNames</span>()</span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">virtual</span> Stream <span class="title">GetManifestResourceStream</span>(<span class="params">Type type, <span class="built_in">string</span> name</span>)</span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">virtual</span> Stream <span class="title">GetManifestResourceStream</span>(<span class="params"><span class="built_in">string</span> name</span>)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>GetManifestResourceNames()</code>方法用来返回所有内嵌资源的名称，<code>GetManifestResourceInfo()</code>方法用来返回指定内嵌资源的描述信息，<code>GetManifestResourceStream()</code>方法用来返回指定内嵌资源的文件流。为了方便大家理解，这里我们准备了一个简单的示例：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> assembly = Assembly.GetExecutingAssembly();</span><br><span class="line"><span class="keyword">var</span> resources = assembly.GetManifestResourceNames();</span><br><span class="line">resources.ToList().ForEach(x =&gt; Console.WriteLine(x));</span><br><span class="line"><span class="comment">//ConsoleApp.A.B.示例文档.txt</span></span><br><span class="line"><span class="comment">//ConsoleApp.A._config.yml</span></span><br><span class="line"><span class="keyword">var</span> fileInfo = assembly.GetManifestResourceInfo(resources[<span class="number">0</span>]);</span><br><span class="line"><span class="keyword">var</span> fileStream = assembly.GetManifestResourceStream(resources[<span class="number">0</span>]);</span><br></pre></td></tr></table></figure>
+
+<p>此时，我们会发现，内嵌资源都是使用类似<code>A.B.C.D</code>这样的形式来表示资源路径的，因为内嵌资源本身是没有目录层级的。现在，如果我们再回过头去看<code>Swagger</code>的示例，就不难理解为什么会有<code>CustomUIIndex.Swagger.index.html</code>这样一个奇怪的值，因为它对应着实际的物理文件路径，如下图所示，示例代码中输出的资源路径和实际的物理路径存在着对应关系：</p>
+<p><img src="https://i.loli.net/2021/02/23/jgqxFTPt2OnHMyh.png" alt="项目中的物理路径与内嵌资源路径对照"></p>
+<h1 id="EmbededFileProvider"><a href="#EmbededFileProvider" class="headerlink" title="EmbededFileProvider"></a>EmbededFileProvider</h1><p>OK，那么在了解了内嵌资源以后，接下来，我们需要关注的是<code>EmbededFileProvider</code>。需要说明的是，在<code>ASP.NET Core</code>中，微软是通过<code>IFileProvider</code>这个接口来解决文件读取问题的，典型的使用场景有静态文件中间件、Rozar模板引擎以及WWWRoot目录定位等等，通常情况下，我们使用<code>PhysicalFileProvider</code>更多一点，它和<code>EmbededFileProvider</code>一样，都实现了<code>IFileProvider</code>接口，所以，<code>ASP.NET Core</code>可以从不同的来源访问文件信息。</p>
+<p>显然，<code>EmbededFileProvider</code>正是为了内嵌资源而生，它在内部使用到了<code>Assembly</code>类中和内嵌资源相关的接口.所以，除了上面的方式，我们还可以通过下面的方式来访问内嵌资源，需要注意的是，使用<code>EmbededFileProvider</code>需要引用<code>Microsoft.Extensions.FileProviders.Embedded</code>，大家可以比较一下这两种方式地差异：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> assembly = Assembly.GetExecutingAssembly();</span><br><span class="line"><span class="keyword">var</span> provider = <span class="keyword">new</span> EmbeddedFileProvider(assembly);</span><br><span class="line"><span class="comment">//注意，这里写&quot;.&quot;或者&quot;&quot;都可以</span></span><br><span class="line"><span class="keyword">var</span> resouces = provider.GetDirectoryContents(<span class="string">&quot;.&quot;</span>).ToList();</span><br><span class="line"><span class="keyword">var</span> fileInfo = provider.GetFileInfo(resouces[<span class="number">0</span>]);</span><br><span class="line"><span class="keyword">var</span> fileStream = fileInfo.CreateReadStream();</span><br></pre></td></tr></table></figure>
+
+<p>除此以外，<code>IFileProvider</code>还有一个最重要的功能，即<code>Watch()</code>方法，它可以监听文件的变化，并返回一个<code>IChangeToken</code>。有没有一种似曾相识燕归来的感觉？没错，博主曾经在 <a target="_blank" rel="noopener" href="https://blog.yuanpei.me/posts/835719605/">基于选项模式实现.NET Core的配置热更新</a> 这篇文章中介绍过它，它是实现配置热更新的关键。事实上，<code>FileConfigurationSource</code>这个类中有一个<code>Provider</code>属性，而它对应的类型恰好是<code>IFileProvider</code>，这难道是巧合吗？不，仔细顺着这条线，我们大概就能明白微软的良苦用心，我们的配置文件自然是来自文件系统，而考虑到内嵌资源的存在，我们面对的文件系统其实是一个广义的文件系统，它可以是物理文件、内嵌文件、Glob、对象存储(<strong>OSS</strong>)等等</p>
+<h1 id="Blazor的奇妙缘分"><a href="#Blazor的奇妙缘分" class="headerlink" title="Blazor的奇妙缘分"></a>Blazor的奇妙缘分</h1><p>好了，千呼万唤始出来，现在终于要讨论 <a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/aspnet/core/blazor/?view=aspnetcore-3.1">Blazor</a> 这个话题啦！众所周知，静态博客生成器里主要存在着两种配置，即站点配置和主题配置，<a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> 里甚至还支持从特定文件夹里加载自定义的数据。所以，对于静态博客而言，它需要有从外部加载数据这个特性。我们知道，<a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/aspnet/core/blazor/?view=aspnetcore-3.1">Blazor</a> 分为服务器和客户端两个版本，两者的区别主要在于 <a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/aspnet/core/mvc/views/razor?view=aspnetcore-5.0">Rozar</a> 模板由谁来渲染，前者相当于服务端渲染(<strong>SSR</strong>) + <a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/aspnet/core/signalr/javascript-client?view=aspnetcore-5.0">SignalR</a>，而后者则是基于 <a target="_blank" rel="noopener" href="https://webassembly.org/">WebAssembly</a>，它可以直接在浏览器中加载。显然，后者更接近我们静态博客生成器的想法。由于 Hexo 使用 Yaml 作为配置语言，所以，为了读取原来 Hexo 博客的配置，参考 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/nianming/p/7097338.html">实现自己的.NET Core配置Provider之Yaml</a> 这篇博客实现了一个YamlConfigurationProvider。</p>
+<p>在使用的过程中，遇到的问题是，它无法识别配置文件的路径。原因很简单，经过编译的 Blazor 会被打包为 WebAssembly ，而 WebAssembly 在前端加载以后，原来的目录层级早已荡然无存。此时，基于物理文件的 <code>PhysicalFileProvider</code> 将无法工作。解决方案其实大家都能想到，换一种<code>IFileProvider</code>的实现就好了啊！至此，奇妙的缘分产生了：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title">YamlConfigurationProvider</span> : <span class="title">FileConfigurationProvider</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> FileConfigurationSource _source;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">YamlConfigurationProvider</span>(<span class="params">FileConfigurationSource source</span>) : <span class="title">base</span>(<span class="params">source</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _source = source;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">Load</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> path = _source.Path;</span><br><span class="line">        <span class="keyword">var</span> provider = _source.FileProvider;</span><br><span class="line">        <span class="keyword">using</span> (<span class="keyword">var</span> stream = provider.GetFileInfo(path).CreateReadStream())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//核心问题就是这个Stream的来源发生了变化</span></span><br><span class="line">            <span class="keyword">var</span> parser = <span class="keyword">new</span> YamlConfigurationFileParser();</span><br><span class="line">            Data = parser.Parse(stream);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>其实，<a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/aspnet/core/blazor/fundamentals/configuration?view=aspnetcore-3.1">官方文档</a>中提到过，Blazor 的配置文件默认从 WWWRoot 下的<code>appsettings.json</code>加载，所以，对于像JSON这类静态文件，可以注入HttpClient，以API的方式进行访问。例如，官方文档中推荐的加载配置文件的方式为：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> httpClient = <span class="keyword">new</span> HttpClient()</span><br><span class="line">&#123;</span><br><span class="line">    BaseAddress = <span class="keyword">new</span> Uri(builder.HostEnvironment.BaseAddress)</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">builder.Services.AddScoped(sp =&gt; httpClient);</span><br><span class="line"></span><br><span class="line"><span class="comment">//前方有语法糖，高甜:)</span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">var</span> response = <span class="keyword">await</span> http.GetAsync(<span class="string">&quot;cars.json&quot;</span>);</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">var</span> stream = <span class="keyword">await</span> response.Content.ReadAsStreamAsync();</span><br><span class="line"></span><br><span class="line">builder.Configuration.AddJsonStream(stream);</span><br></pre></td></tr></table></figure>
+
+<p>而经过我们这样改造以后，我们还可以这样加载配置：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">builder.Configuration.AddYamlFile(</span><br><span class="line">    provider:<span class="keyword">new</span> EmbeddedFileProvider(Assembly.GetExecutingAssembly()),</span><br><span class="line">    path: <span class="string">&quot;_config.yml&quot;</span>,</span><br><span class="line">    optional:<span class="literal">false</span>,</span><br><span class="line">    reloadOnChange:<span class="literal">true</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>一旦这些配置注入到 IoC 容器里，我们就可以纵享无所不在的依赖注入，这里以某个组件为例：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">@using Microsoft.Extensions.Configuration</span><br><span class="line">@inject IConfiguration Configuration</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;mdui-container-fluid&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;mdui-row DreamCat-content-header&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;mdui-container fade-scale in&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">h1</span> <span class="attr">class</span>=<span class="string">&quot;title&quot;</span>&gt;</span>@Configuration[&quot;title&quot;]<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">h5</span> <span class="attr">class</span>=<span class="string">&quot;subtitle&quot;</span>&gt;</span>@Configuration[&quot;subtitle&quot;]<span class="tag">&lt;/<span class="name">h5</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>同样地，对于组件内的数据，在大多数场景下，我们可以这样来处理，还是因为有无所不在的依赖注入：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">@page &quot;/&quot;</span><br><span class="line">@layout MainLayout</span><br><span class="line"></span><br><span class="line">@inject HttpClient httpClient</span><br><span class="line">@using BlazorBlog.Core.Domain.Blog;</span><br><span class="line">@using BlazorBlog.Web.Shared.Partials;</span><br><span class="line">@if (posts != null &amp;&amp; posts.Any())</span><br><span class="line">&#123;</span><br><span class="line">    foreach (var post in posts)</span><br><span class="line">    &#123;</span><br><span class="line">        //这是一个自定义组件</span><br><span class="line">        <span class="tag">&lt;<span class="name">PostItem</span> <span class="attr">Model</span>=<span class="string">post</span>&gt;</span><span class="tag">&lt;/<span class="name">PostItem</span>&gt;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@code</span><br><span class="line">&#123;</span><br><span class="line">    private List<span class="tag">&lt;<span class="name">Post</span>&gt;</span> posts &#123; get; set; &#125;</span><br><span class="line">    protected override async Task OnInitializedAsync()</span><br><span class="line">    &#123;</span><br><span class="line">        posts = await httpClient.GetFromJsonAsync&lt;List<span class="tag">&lt;<span class="name">Post</span>&gt;</span>&gt;(&quot;content.json&quot;);</span><br><span class="line">        await base.OnInitializedAsync();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里可以给大家展示下尚在开发中的静态博客：</p>
+<p><img src="https://i.loli.net/2021/02/23/wMED8k6SbqITpma.png" alt="基于 Balzor 的静态博客"></p>
+<p>理论上任何文件都可以这样做，主要是考虑到配置这种信息，用依赖注入会更好一点，这样每一个组件都可以使用这些配置，而如果是以 API 的形式集成，以目前 Blazor 打包以后加载的效果来看，页面会有比较大的“<strong>空白期</strong>”。我更加疑惑的是，如果 Blazor 打包后的体积过大，那么浏览器自带的存储空间是否够用呢？一句话总结的话， Blazor 是一个写起来非常舒服的框架，可未来是否会像当年的 Sliverlight 一样，这还要看大家对 WebAssembly 的接受程度，可谓是“<strong>路漫漫其修远兮</strong>”啊……</p>
+<h1 id="本文小结"><a href="#本文小结" class="headerlink" title="本文小结"></a>本文小结</h1><p>这篇博客，是博主由一个个“<strong>闪念</strong>”而串联起来的脑洞，作为一个实验性质的尝试，希望通过 Blazor 的客户端模式(<strong>WebAssembly</strong>) 实现一个静态博客，而在这个过程中，需要解决 Balzor 读取本地文件的问题，由此，我们引入了这篇博客的主题之一，即：<code>EmbededFileProvider</code>。顺着这条线索，我们梳理了内嵌的文件资源、<code>IFileProvider</code>接口、<code>FileConfigurationProvider</code>、<code>FileConfigurationSource</code>等等一系列看起来毫无关联的概念。事实上，“<strong>冥冥之中自有天意</strong>”，这一切怎么会毫无关联呢？我们最终从文件系统看到了配置系统，聊到了 Blazor 中的配置问题，这里我们熟悉的依赖注入、配置系统都得以延续下来。其实，单单就解决这个问题而言，完全不值得专门写一篇博客，<strong>可从一个点辐射到整个面的这种感悟，在人生的成长中更显得弥足珍贵，希望我们每一个人都能多多跳脱出自己的视角，去努力的看一看这个丰富多彩的世界，在多样性与多元化中去寻找整体上的统一，这是作为技术人员的我，一生都想去探索的哲学</strong>。好了，以上就是这篇博客的全部内容啦，欢迎大家在评论中留下你的想法或者建议，谢谢大家！</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/NET-Core/" rel="tag"># .NET Core</a>
+          
+            <a href="/tags/Blazor/" rel="tag"># Blazor</a>
+          
+            <a href="/tags/%E6%96%87%E4%BB%B6/" rel="tag"># 文件</a>
+          
+            <a href="/tags/WebAssembly/" rel="tag"># WebAssembly</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021-02-21-huawei-vs-apple" rel="next" title="华为手机 vs 苹果手机，我的一年评测对比报告">
+                <i class="fa fa-chevron-left"></i> 华为手机 vs 苹果手机，我的一年评测对比报告
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021-02-24-talk-about-btc" rel="prev" title="我对比特币的理解">
+                我对比特币的理解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%8E%E5%86%85%E5%B5%8C%E8%B5%84%E6%BA%90%E8%AF%B4%E8%B5%B7"><span class="nav-number">1.</span> <span class="nav-text">从内嵌资源说起</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#EmbededFileProvider"><span class="nav-number">2.</span> <span class="nav-text">EmbededFileProvider</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Blazor%E7%9A%84%E5%A5%87%E5%A6%99%E7%BC%98%E5%88%86"><span class="nav-number">3.</span> <span class="nav-text">Blazor的奇妙缘分</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E6%96%87%E5%B0%8F%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">本文小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

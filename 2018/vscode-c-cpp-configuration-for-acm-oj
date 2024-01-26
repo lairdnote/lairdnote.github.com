@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="VSCode,C++," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="大学入学也快一个月了，总的来说，我过得很开心，不枉我花费一年的时间 高考复读。具体哪里令人开心呢？我觉得最主要的是，比起初高中，大学的时间分配更为自由。 中学时代，学生的时间基本都被学校安排得死死的：早上什么时间必须到校，然后开始早读、上午五节课下午三节课、晚读、晚自习，最后在规定的时间离校（住宿生还要在规定的时间就寝），可以自由分配的时间少得可怜，在某些管理严格的学校甚至连人身自由都要被限制。虽">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 VS Code 搭建适用于 ACM 练习的 C&#x2F;C++ 开发环境">
+<meta property="og:url" content="https://blog.feedscoin.com/2018/vscode-c-cpp-configuration-for-acm-oj">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="大学入学也快一个月了，总的来说，我过得很开心，不枉我花费一年的时间 高考复读。具体哪里令人开心呢？我觉得最主要的是，比起初高中，大学的时间分配更为自由。 中学时代，学生的时间基本都被学校安排得死死的：早上什么时间必须到校，然后开始早读、上午五节课下午三节课、晚读、晚自习，最后在规定的时间离校（住宿生还要在规定的时间就寝），可以自由分配的时间少得可怜，在某些管理严格的学校甚至连人身自由都要被限制。虽">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://img.prin.studio/images/2018/10/02/cs-no-hair.jpg">
+<meta property="og:image" content="https://img.prin.studio/images/2018/10/02/installing-mingw-w64.png">
+<meta property="og:image" content="https://img.prin.studio/images/2018/10/02/ms-vscode-cpptools.png">
+<meta property="og:image" content="https://img.prin.studio/images/2018/10/02/vsc-code-runner.png">
+<meta property="og:image" content="https://img.prin.studio/images/2018/10/02/code-runner-demo.png">
+<meta property="og:image" content="https://img.prin.studio/images/2018/10/02/configue-launch-json.png">
+<meta property="og:image" content="https://img.prin.studio/images/2018/10/02/vsc-debugger-demo.png">
+<meta property="article:published_time" content="2018-10-02T10:17:00.000Z">
+<meta property="article:modified_time" content="2018-10-02T10:17:00.000Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="VSCode">
+<meta property="article:tag" content="C++">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.prin.studio/images/2018/10/02/cs-no-hair.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2018/vscode-c-cpp-configuration-for-acm-oj"/>
+
+
+
+
+
+  <title>使用 VS Code 搭建适用于 ACM 练习的 C/C++ 开发环境 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2018/vscode-c-cpp-configuration-for-acm-oj">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">使用 VS Code 搭建适用于 ACM 练习的 C/C++ 开发环境</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-02T18:17:00+08:00">
+                2018-10-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>大学入学也快一个月了，总的来说，我过得很开心，不枉我花费一年的时间 <a target="_blank" rel="noopener" href="https://prinsss.github.io/check-in-2018-07/">高考复读</a>。具体哪里令人开心呢？我觉得最主要的是，比起初高中，大学的时间分配更为自由。</p>
+<p><strong>中学时代，学生的时间基本都被学校安排得死死的</strong>：早上什么时间必须到校，然后开始早读、上午五节课下午三节课、晚读、晚自习，最后在规定的时间离校（住宿生还要在规定的时间就寝），可以自由分配的时间少得可怜，在某些管理严格的学校甚至连人身自由都要被限制。虽然学生们苦中作乐的摸鱼技巧也不容小觑，但考虑到升学的压力，如果在兴趣上分配的时间过多，很有可能就会像我去年一样落得个无法升学的尴尬境地。</p>
+<p><strong>而大学相对来说就没有那么多破规矩</strong>：有课就上，没课的话时间就随你安排，回寝室睡觉也好出门嗨皮也罢，突出一个爱干嘛干嘛。在这些闲暇时间里，有人选择加入社团以及各种各样的学生组织，有人寻欢作乐讴歌青春，有人一头扎进自己的兴趣爱好中，也有人选择当个快乐摸鱼侠无事一身轻。</p>
+<p>而我就比较硬核了，我选择参加可能让我基本告别头发的 ACM 程序设计竞赛（不）。</p>
+<span id="more"></span>
+
+<p><img src="https://img.prin.studio/images/2018/10/02/cs-no-hair.jpg" alt="cs-no-hair"></p>
+<p>好啦言归正传，今天我们的主题是在 VS Code 编辑器中搭建适用于 ACM 练习的 C&#x2F;C++ 开发环境。</p>
+<h2 id="0x01-需求分析"><a href="#0x01-需求分析" class="headerlink" title="0x01 需求分析"></a>0x01 需求分析</h2><p>在我们学校，大一新生想要参加 ACM 集训队，必须先在学校的 OJ (Online Judge) 平台上刷完 200 道入门程序题。可选的语言有 C、C++ 和 Java，经过 <a target="_blank" rel="noopener" href="https://twitter.com/i/status/1040451170962071552">一番权衡</a> 后，我选择使用 C 语言来完成这些题目。</p>
+<p>由于我之前基本上没有用过 C，所以上手第一步自然是搭建开发环境。</p>
+<p>关于开发环境，C 程序设计的课以及学校 ACM 的讨论群里推荐的一般都是 <a target="_blank" rel="noopener" href="http://www.programarts.com/cfree_ch/">C-Free</a>、<a target="_blank" rel="noopener" href="http://www.codeblocks.org/home">Code::Blocks</a>、<a target="_blank" rel="noopener" href="https://sourceforge.net/projects/orwelldevcpp/">Dev-C++</a> 这类适用于初学者入门的老牌 IDE，但是我不喜欢这些软件，<strong>因为它们太丑了</strong>（直球）。而如果直接用那些现代化的大型 IDE（Visual Studio、CLion 等）的话，大材小用且不说，光启动就要半天我可受不了。所以我选择继续用我最爱的代码编辑器 —— <a target="_blank" rel="noopener" href="https://code.visualstudio.com/">Visual Studio Code</a> 来搭建 C 语言（也适用于 C++）的开发环境。</p>
+<p>另外，鉴于 ACM 这类算法竞赛的特殊性，我们并不需要特别关注开发环境的工程相关特性（比如说依赖管理、代码导航、单元测试、代码重构等），所以我在这篇文章中介绍的开发环境配置基本不会涉及这些功能。如果想要用 C&#x2F;C++ 开发大型项目，那么还是出门左转乖乖用 IDE 吧。</p>
+<p>我对这个开发环境有如下需求：</p>
+<ul>
+<li><strong>好看</strong>（语法高亮、界面配色等）；</li>
+<li>运行速度快；</li>
+<li>智能提示、自动补全、语法检查；</li>
+<li>一键编译运行；</li>
+<li>断点调试、变量追踪等。</li>
+</ul>
+<p>得益于 VS Code 强大的扩展功能，这些特性通过简单的配置即可实现。</p>
+<h2 id="0x02-安装-C-C-编译器"><a href="#0x02-安装-C-C-编译器" class="headerlink" title="0x02 安装 C&#x2F;C++ 编译器"></a>0x02 安装 C&#x2F;C++ 编译器</h2><p>有点常识的选手都知道，程序源码想要运行，必须要经过编译、连接等各种步骤。你在 IDE 上按个按钮就能直接跑，<strong>只是因为 IDE 默默地帮你把这些活儿都干了</strong>（所以一直以来都有人呼吁让编程初学者不要使用 IDE，原因是这会让新手难以了解底层的细节，其实也不是没有道理）。现在，我们得自己来干这些活儿了。</p>
+<p>以下列出主流的 C&#x2F;C++ 编译器及其适用平台以供参考：</p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://gcc.gnu.org/"><strong>GCC</strong></a> (GNU Compiler Collection)</p>
+<p>相信大家或多或少都听说过 GCC 以及 GNU 工具链的鼎鼎大名。</p>
+<p><em>适用平台：GNU&#x2F;Linux, Windows (MinGW), Unix, macOS.</em></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="http://clang.llvm.org/"><strong>Clang</strong></a></p>
+<p>另一个流行的 C&#x2F;C++&#x2F;Objective C 编译器，使用 LLVM 后端。</p>
+<p><em>适用平台：GNU&#x2F;Linux, Windows, Unix, macOS.</em></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blogs.msdn.microsoft.com/vcblog/2017/03/07/msvc-the-best-choice-for-windows/"><strong>MSVC</strong></a> (Microsoft Visual C++ compiler and libraries toolset)</p>
+<p>微软官方出品的 C&#x2F;C++ 编译器，Visual Studio 中默认使用的就是这个。后来出了 standalone 版本，现在可以和其他一票 MSVC 工具集一起在 <a target="_blank" rel="noopener" href="https://aka.ms/buildtools">Visual Studio Build Tools</a> 中下载到。</p>
+<p><em>适用平台：Windows.</em></p>
+</li>
+</ul>
+<p>使用什么编译器看个人喜好与实际需求，如果不知道怎么选那就用 GCC，准没错。本文后续的配置也均基于 Windows 上的 GCC 进行，如果你打算使用其他编译器，配置也都是一个道理，自己改改就好了。</p>
+<p>想在 Windows 上使用 GCC，必须安装 <a target="_blank" rel="noopener" href="http://www.mingw.org/">MinGW</a>、<a target="_blank" rel="noopener" href="https://www.cygwin.com/">Cygwin</a> 或者 <a target="_blank" rel="noopener" href="http://tdm-gcc.tdragon.net/">TDM-GCC</a> 这类 GCC 移植版与配套环境。下文将以 <a target="_blank" rel="noopener" href="http://mingw-w64.org/">MinGW-w64</a> （简单来说就是 MinGW 的增强版，如果你想知道它俩之间的那些破事儿也可以自己去搜一搜）为例进行配置。</p>
+<blockquote>
+<p>当然，你也可以安装 <a target="_blank" rel="noopener" href="https://prinsss.github.io/wsl-guide/">WSL (Windows Subsystem for Linux)</a>，在 WSL 中安装 GCC，然后在 Windows 下 <a target="_blank" rel="noopener" href="https://github.com/Microsoft/vscode-cpptools/blob/master/Documentation/LanguageServer/Windows%20Subsystem%20for%20Linux.md">调用 WSL 中的 GCC 编译源码为 Linux 可执行程序</a> 并直接在 WSL 中运行。</p>
+<p><del>如果你愿意，你甚至可以在 WSL 中安装 mingw-w64 交叉编译工具集，然后在 Windows 上调用 WSL 中的 <code>x86_64-w64-mingw32-gcc</code> 交叉编译器在 WSL 中把源码交叉编译为 Windows 可执行程序，最后在 WSL 中运行 Windows 可执行程序……但是没事谁这么蛋疼呢？</del></p>
+</blockquote>
+<p>MinGW-w64 的安装过程我就不赘述了，在 <a target="_blank" rel="noopener" href="https://sourceforge.net/projects/mingw-w64/files/">这里</a> 下载安装包，一路点安装就完事儿了（便携版用户请注意将安装目录下的 <code>bin</code> 目录添加至 <code>PATH</code> 环境变量）。如果你需要，这里也有一个傻瓜教程：<a target="_blank" rel="noopener" href="http://rsreland.net/archives/1760">《⑨也懂系列：MinGW-w64 安装教程》著名 C&#x2F;C++ 编译器 GCC 的 Windows 版本</a>。</p>
+<p>安装过程中会要求你设置一些选项（这些同样适用于便携版的选择）：</p>
+<ul>
+<li><strong>Version</strong>：GCC 版本，没特殊要求就选最高；</li>
+<li><strong>Architecture</strong>：系统架构，64 位选 <code>x86_64</code>，32 位选 <code>i686</code>；</li>
+<li><strong>Threads</strong>：操作系统 API，拿不准的话就选 <code>win32</code>；</li>
+<li><strong>Exception</strong>：异常处理模型，<code>seh</code> 只支持 64 位系统，<code>sjlj</code> 兼容 32 位；</li>
+<li><strong>Build revision</strong>：修订版本，保持默认即可。</li>
+</ul>
+<p><img src="https://img.prin.studio/images/2018/10/02/installing-mingw-w64.png" alt="installing-mingw-w64"></p>
+<p>安装完后，在 <code>cmd.exe</code> 或者 PowerShell 中运行 <code>gcc --version</code> 命令，如果看到类似下面这样的输出，那么 MinGW-w64 就算安装完成了。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gcc.exe (x86_64-posix-seh-rev0, Built by MinGW-W64 project) 5.4.0</span><br><span class="line">Copyright (C) 2015 Free Software Foundation, Inc.</span><br><span class="line">This is free software; see the source for copying conditions.  There is NO</span><br><span class="line">warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.</span><br></pre></td></tr></table></figure>
+
+<h2 id="0x03-配置-VS-Code-扩展"><a href="#0x03-配置-VS-Code-扩展" class="headerlink" title="0x03 配置 VS Code 扩展"></a>0x03 配置 VS Code 扩展</h2><p>想要实现我们在第一节提出的需求，必不可少的就是 Microsoft 官方推出的 VS Code <a target="_blank" rel="noopener" href="https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools">C&#x2F;C++ 扩展</a>。这个扩展提供了针对 C&#x2F;C++ 的 IntelliSense 与调试等功能，搜索「C&#x2F;C++」即可直接安装。</p>
+<p><img src="https://img.prin.studio/images/2018/10/02/ms-vscode-cpptools.png" alt="ms-vscode-cpptools"></p>
+<p>安装完后，<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> 打开命令面板运行 <strong>C&#x2F;Cpp: Edit configurations</strong>，这会自动在当前打开的目录下创建 <code>.vscode/c_cpp_properties.json</code> 配置文件。由于下面的配置文件都是存储在当前文件夹下的 <code>.vscode</code> 目录中而非全局的，所以我推荐专门开一个工作区用于 C&#x2F;C++ 开发（废话）。</p>
+<p>生成的 <code>c_cpp_properties.json</code> 文件自带模板，你只需要修改其中的 <code>compilerPath</code> 为你的编译器可执行文件所在目录即可。如果你在上一步正确的安装步骤正确，VS Code 甚至可以自动检测你的编译器位置，无需任何修改。在我的机器上，这个文件的内容如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;configurations&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;MinGW&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;intelliSenseMode&quot;</span><span class="punctuation">:</span> <span class="string">&quot;gcc-x64&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;compilerPath&quot;</span><span class="punctuation">:</span> <span class="string">&quot;C:\\Portable\\mingw64\\bin\\gcc.exe&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;includePath&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">                <span class="string">&quot;$&#123;workspaceFolder&#125;/**&quot;</span></span><br><span class="line">            <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;defines&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;cStandard&quot;</span><span class="punctuation">:</span> <span class="string">&quot;c11&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;cppStandard&quot;</span><span class="punctuation">:</span> <span class="string">&quot;c++17&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;version&quot;</span><span class="punctuation">:</span> <span class="number">4</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>另外需要注意的是，网上不少教程都在 <code>includePath</code> 中添加了一大堆乱七八糟的目录，但是现在的 VS Code C&#x2F;C++ 扩展已经可以通过 <code>compilerPath</code> 自动推断头文件以及库文件所在的目录，所以无需手动配置。</p>
+<p>配置好此文件后，你就可以正常使用 IntelliSense 等功能了。</p>
+<h2 id="0x04-配置一键编译运行"><a href="#0x04-配置一键编译运行" class="headerlink" title="0x04 配置一键编译运行"></a>0x04 配置一键编译运行</h2><p>虽然我们可以写完源码后切换至终端手动运行命令来编译运行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ gcc A.c -o A.exe</span><br><span class="line">$ ./A.exe</span><br></pre></td></tr></table></figure>
+
+<p>但是这样未免也太麻烦，像我这种懒人，一键编译运行肯定是要搞一个的。</p>
+<p>正如标题中提到的，本文所配置的开发环境主要目的是用于 ACM 练习。这些练习题基本上在单文件内即可完成，很少会需要用到多个源文件，更别提 Makefile 之类的工程化构建了。所以针对这些单文件的编译运行，我们有两种方法。其中一种比较简单，另一种稍微复杂一些。</p>
+<p><strong>第一种，使用 Code Runner 扩展。</strong></p>
+<p>这个扩展非常强大，可以让你在 VS Code 中直接运行各种语言的代码。虽然它并不支持复杂的构建流程，但是对于我们这种「编译运行单文件」的需求，Code Runner 正好胜任，而且更为简单快捷。</p>
+<p><img src="https://img.prin.studio/images/2018/10/02/vsc-code-runner.png" alt="vsc-code-runner"></p>
+<p>扩展安装完成后，进入设置页面搜索 <code>code-runner</code>，可以看到这个扩展提供了很多配置项。这里我推荐各位将自定义的配置项 <strong>保存至工作区</strong>（别告诉我你用了这么久 VS Code 还不知道工作区是啥）而非全局，因为这个扩展也可以用于其他语言，最好不要让我们之后做出的一些专门针对 C&#x2F;C++ 的配置污染到全局作用域中。</p>
+<p>配置项有很多，各位可以根据自己的实际需求进行修改。以下是一些推荐修改的配置项：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 在终端中运行编译命令，否则我们无法与程序通过标准输入交互</span></span><br><span class="line">    <span class="string">&quot;code-runner.runInTerminal&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="comment">// 如果你全局设置中的默认终端是 WSL 之类的，那么可以在工作区设置中改回 PowerShell</span></span><br><span class="line">    <span class="string">&quot;terminal.integrated.shell.windows&quot;</span>: <span class="string">&quot;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe&quot;</span>,</span><br><span class="line">    <span class="comment">// 运行代码之前清除之前的输出</span></span><br><span class="line">    <span class="string">&quot;code-runner.clearPreviousOutput&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="comment">// 开启这个后在运行编译命令之前会自动 cd 至文件所在目录</span></span><br><span class="line">    <span class="string">&quot;code-runner.fileDirectoryAsCwd&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="comment">// 因为上面那个选项会自动 cd，所以我删除了默认编译命令中的 cd 语句</span></span><br><span class="line">    <span class="comment">// 同时我将编译结果的输出目录修改为了同目录下的 build 文件夹</span></span><br><span class="line">    <span class="comment">// 不然源码文件和编译结果混杂在一个目录中非常杂乱（尤其是刷题时）</span></span><br><span class="line">    <span class="comment">// 这里只保留了 C 和 C++ 的编译命令，有需要其他语言的请自行添加</span></span><br><span class="line">    <span class="string">&quot;code-runner.executorMap&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;c&quot;</span>: <span class="string">&quot;gcc $fileName -o build/$fileNameWithoutExt &amp;&amp; .\\build\\$fileNameWithoutExt&quot;</span>,</span><br><span class="line">        <span class="string">&quot;cpp&quot;</span>: <span class="string">&quot;g++ $fileName -o build/$fileNameWithoutExt &amp;&amp; .\\build\\$fileNameWithoutExt&quot;</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="comment">// 运行代码后切换焦点至终端，方便直接输入测试数据</span></span><br><span class="line">    <span class="string">&quot;code-runner.preserveFocus&quot;</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="comment">// 在运行代码之前保存文件</span></span><br><span class="line">    <span class="string">&quot;code-runner.saveFileBeforeRun&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>配置完成后，你可以通过 <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>N</kbd> 快捷键（可以自定义，我改成了 <kbd>F5</kbd>）或者右键菜单等方式编译运行当前编辑器中打开的文件，非常方便。效果如下：</p>
+<!-- 修改图片！ -->
+
+<p><img src="https://img.prin.studio/images/2018/10/02/code-runner-demo.png" alt="code-runner-demo"></p>
+<p><strong>除了使用 Code Runner，另一种在 VS Code 内执行编译的方法就是定义 Task。</strong></p>
+<p>因为 Code Runner 只适用于单文件的编译运行（这对于 ACM 刷题的练习基本上已经足够），但如果你的程序涉及更复杂的编译流程，或者你需要使用 Debugger，那么就必须定义一个 Task 来完成构建：</p>
+<ul>
+<li><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> 打开命令面板，运行 <strong>Tasks: Configure Task</strong>；</li>
+<li>选择「使用模板创建 tasks.json 文件」；</li>
+<li>选择「Others 运行任意外部命令的示例」。</li>
+</ul>
+<p>这会在 <code>.vscode</code> 目录中生成一个 <code>tasks.json</code> 文件（上面生成的那个 <code>c_cpp_properties.json</code> 配置文件也在这个目录里），将其内容修改为（注意，我这里给出的示例依然是适用于单文件的）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="comment">// See https://go.microsoft.com/fwlink/?LinkId=733558</span></span><br><span class="line">    <span class="comment">// for the documentation about the tasks.json format</span></span><br><span class="line">    <span class="string">&quot;version&quot;</span>: <span class="string">&quot;2.0.0&quot;</span>,</span><br><span class="line">    <span class="string">&quot;tasks&quot;</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">&quot;label&quot;</span>: <span class="string">&quot;compile&quot;</span>,</span><br><span class="line">            <span class="string">&quot;type&quot;</span>: <span class="string">&quot;shell&quot;</span>,</span><br><span class="line">            <span class="string">&quot;command&quot;</span>: <span class="string">&quot;gcc&quot;</span>,</span><br><span class="line">            <span class="string">&quot;args&quot;</span>: [</span><br><span class="line">                <span class="string">&quot;-g&quot;</span>,</span><br><span class="line">                <span class="string">&quot;\&quot;$&#123;file&#125;\&quot;&quot;</span>,</span><br><span class="line">                <span class="string">&quot;-o&quot;</span>,</span><br><span class="line">                <span class="string">&quot;\&quot;$&#123;fileDirname&#125;\\build\\$&#123;fileBasenameNoExtension&#125;\&quot;&quot;</span></span><br><span class="line">            ],</span><br><span class="line">            <span class="string">&quot;presentation&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;reveal&quot;</span>: <span class="string">&quot;always&quot;</span>,</span><br><span class="line">                <span class="string">&quot;panel&quot;</span>: <span class="string">&quot;shared&quot;</span>,</span><br><span class="line">                <span class="string">&quot;focus&quot;</span>: <span class="literal">false</span>,</span><br><span class="line">                <span class="string">&quot;echo&quot;</span>: <span class="literal">true</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">&quot;group&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;kind&quot;</span>: <span class="string">&quot;build&quot;</span>,</span><br><span class="line">                <span class="string">&quot;isDefault&quot;</span>: <span class="literal">true</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">&quot;problemMatcher&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;owner&quot;</span>: <span class="string">&quot;cpp&quot;</span>,</span><br><span class="line">                <span class="string">&quot;fileLocation&quot;</span>: <span class="string">&quot;absolute&quot;</span>,</span><br><span class="line">                <span class="string">&quot;pattern&quot;</span>: &#123;</span><br><span class="line">                    <span class="string">&quot;regexp&quot;</span>: <span class="string">&quot;^(.*):(\\d+):(\\d+):\\s+(error):\\s+(.*)$&quot;</span>,</span><br><span class="line">                    <span class="string">&quot;file&quot;</span>: <span class="number">1</span>,</span><br><span class="line">                    <span class="string">&quot;line&quot;</span>: <span class="number">2</span>,</span><br><span class="line">                    <span class="string">&quot;column&quot;</span>: <span class="number">3</span>,</span><br><span class="line">                    <span class="string">&quot;severity&quot;</span>: <span class="number">4</span>,</span><br><span class="line">                    <span class="string">&quot;message&quot;</span>: <span class="number">5</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们主要需要关注的就是 <code>command</code> 和 <code>args</code> 这两个配置项，相信大家都能看懂，我就不多解释了。如果你用的是 C++，将 <code>command</code> 中的 <code>gcc</code> 修改为 <code>g++</code> 即可。如果你想知道其他那些配置项是啥意思，也可以参考 VS Code 的官方文档：<a target="_blank" rel="noopener" href="https://code.visualstudio.com/docs/editor/tasks">Integrate with External Tools via Tasks</a>。</p>
+<p>配置完成后，我们就可以通过命令面板运行 <strong>Tasks: Run Build Task</strong> 或者 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> 快捷键运行刚才定义的 Task 执行构建（不过这只会执行编译命令，并不会运行编译后的程序）。</p>
+<h2 id="0x05-配置调试器"><a href="#0x05-配置调试器" class="headerlink" title="0x05 配置调试器"></a>0x05 配置调试器</h2><p>配置好了一键编译运行，我们还得配置一下调试器 (Debugger)。虽然我以前写 PHP 和 JavaScript 时都是不用调试器、<code>var_dump</code> <code>console.log</code> 一把梭的选手，但是这在写 C 时可行不通，所以还是乖乖用调试器吧。</p>
+<p>C&#x2F;C++ 的调试器也有很多，下面以我们之前安装的 MinGW-w64 中配套的 GDB 为例进行配置：</p>
+<ul>
+<li>在 VS Code 侧边栏切换至「调试」面板；</li>
+<li>点击面板上部的齿轮图标（配置或修复 <code>launch.json</code>）；</li>
+<li>在弹出的「选择环境」面板中选择 <code>C++ (GDB/LLDB)</code>。</li>
+</ul>
+<p><img src="https://img.prin.studio/images/2018/10/02/configue-launch-json.png" alt="configue-launch-json"></p>
+<p>这会在当前工作区的 <code>.vscode</code> 目录中新建一个 <code>launch.json</code> 文件，修改文件内容如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="comment">// Use IntelliSense to learn about possible attributes.</span></span><br><span class="line">    <span class="comment">// Hover to view descriptions of existing attributes.</span></span><br><span class="line">    <span class="comment">// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387</span></span><br><span class="line">    <span class="string">&quot;version&quot;</span>: <span class="string">&quot;0.2.0&quot;</span>,</span><br><span class="line">    <span class="string">&quot;configurations&quot;</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">&quot;name&quot;</span>: <span class="string">&quot;(gdb) Launch&quot;</span>,</span><br><span class="line">            <span class="string">&quot;type&quot;</span>: <span class="string">&quot;cppdbg&quot;</span>,</span><br><span class="line">            <span class="string">&quot;request&quot;</span>: <span class="string">&quot;launch&quot;</span>,</span><br><span class="line">            <span class="string">&quot;program&quot;</span>: <span class="string">&quot;$&#123;fileDirname&#125;/build/$&#123;fileBasenameNoExtension&#125;.exe&quot;</span>,</span><br><span class="line">            <span class="string">&quot;args&quot;</span>: [],</span><br><span class="line">            <span class="string">&quot;stopAtEntry&quot;</span>: <span class="literal">false</span>,</span><br><span class="line">            <span class="string">&quot;cwd&quot;</span>: <span class="string">&quot;$&#123;workspaceFolder&#125;&quot;</span>,</span><br><span class="line">            <span class="string">&quot;environment&quot;</span>: [],</span><br><span class="line">            <span class="string">&quot;externalConsole&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">            <span class="string">&quot;MIMode&quot;</span>: <span class="string">&quot;gdb&quot;</span>,</span><br><span class="line">            <span class="comment">// 这里填你 MinGW-w64 安装目录下的 gdb 路径</span></span><br><span class="line">            <span class="string">&quot;miDebuggerPath&quot;</span>: <span class="string">&quot;C:\\Portable\\mingw64\\bin\\gdb.exe&quot;</span>,</span><br><span class="line">            <span class="string">&quot;setupCommands&quot;</span>: [</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="string">&quot;description&quot;</span>: <span class="string">&quot;Enable pretty-printing for gdb&quot;</span>,</span><br><span class="line">                    <span class="string">&quot;text&quot;</span>: <span class="string">&quot;-enable-pretty-printing&quot;</span>,</span><br><span class="line">                    <span class="string">&quot;ignoreFailures&quot;</span>: <span class="literal">true</span></span><br><span class="line">                &#125;</span><br><span class="line">            ],</span><br><span class="line">            <span class="comment">// 这里要与你在 tasks.json 中配置的 label 一致</span></span><br><span class="line">            <span class="string">&quot;preLaunchTask&quot;</span>: <span class="string">&quot;compile&quot;</span>,</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中各配置项的作用可以参阅官方文档：<a target="_blank" rel="noopener" href="https://github.com/Microsoft/vscode-cpptools/blob/master/launch.md">Configuring launch.json for C&#x2F;C++ debugging</a>.</p>
+<p>配置正确后的调试效果图如下：</p>
+<p><img src="https://img.prin.studio/images/2018/10/02/vsc-debugger-demo.png" alt="vsc-debugger-demo"></p>
+<h2 id="0x06-后记"><a href="#0x06-后记" class="headerlink" title="0x06 后记"></a>0x06 后记</h2><p>至此，我们已经完成了对 VS Code C&#x2F;C++ 开发环境的配置。</p>
+<p>虽然真正用 C&#x2F;C++ 开发项目时还是用正儿八经的 IDE 比较好，但是如果只是用于 ACM 这类算法相关竞赛的刷题练习的话，用 VS Code 这类轻量级的代码编辑器还是非常舒适的。</p>
+<p>如果想了解更多使用 VS Code 开发 C&#x2F;C++ 的信息，这里有一些参考链接：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://code.visualstudio.com/docs/languages/cpp">C&#x2F;C++ for Visual Studio Code (Preview)</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/Microsoft/vscode-cpptools">Microsoft&#x2F;vscode-cpptools</a></li>
+<li><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000014800106">使用 Visual Studio Code 搭建 C&#x2F;C++ 开发和调试环境</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/8933ebdac814">使用 VSCode 搭建 C&#x2F;C++ 开发环境</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/VSCode/" rel="tag"># VSCode</a>
+          
+            <a href="/tags/C/" rel="tag"># C++</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/36-%E7%BB%B4%E6%B8%AF%E5%9B%BD%E5%BA%86%E7%83%9F%E8%8A%B1%E8%A1%A8%E6%BC%94" rel="next" title="维港国庆烟花表演">
+                <i class="fa fa-chevron-left"></i> 维港国庆烟花表演
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/new-nickname-prin" rel="prev" title="新的网络昵称：PRIN 🍮">
+                新的网络昵称：PRIN 🍮 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">0x01 需求分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E5%AE%89%E8%A3%85-C-C-%E7%BC%96%E8%AF%91%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">0x02 安装 C&#x2F;C++ 编译器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E9%85%8D%E7%BD%AE-VS-Code-%E6%89%A9%E5%B1%95"><span class="nav-number">3.</span> <span class="nav-text">0x03 配置 VS Code 扩展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E9%85%8D%E7%BD%AE%E4%B8%80%E9%94%AE%E7%BC%96%E8%AF%91%E8%BF%90%E8%A1%8C"><span class="nav-number">4.</span> <span class="nav-text">0x04 配置一键编译运行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E9%85%8D%E7%BD%AE%E8%B0%83%E8%AF%95%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">0x05 配置调试器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x06-%E5%90%8E%E8%AE%B0"><span class="nav-number">6.</span> <span class="nav-text">0x06 后记</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

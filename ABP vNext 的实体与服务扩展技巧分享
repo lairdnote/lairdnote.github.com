@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="ABP,扩展,实体,服务," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="使用 ABP vNext 有一个月左右啦，这中间最大的一个收获是：ABP vNext 的开发效率真的是非常好，只要你愿意取遵循它模块化、DDD 的设计思想。因为官方默认实现了身份、审计、权限、定时任务等等的模块，所以，ABP vNext 是一个开箱即用的解决方案。通过脚手架创建的项目，基本具备了一个专业项目该有的“五脏六腑”，而这可以让我们专注于业务原型的探索。例如，博主是尝试结合 Ant Des">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ABP vNext 的实体与服务扩展技巧分享">
+<meta property="og:url" content="https://blog.feedscoin.com/ABP%20vNext%20%E7%9A%84%E5%AE%9E%E4%BD%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E6%89%A9%E5%B1%95%E6%8A%80%E5%B7%A7%E5%88%86%E4%BA%AB">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="使用 ABP vNext 有一个月左右啦，这中间最大的一个收获是：ABP vNext 的开发效率真的是非常好，只要你愿意取遵循它模块化、DDD 的设计思想。因为官方默认实现了身份、审计、权限、定时任务等等的模块，所以，ABP vNext 是一个开箱即用的解决方案。通过脚手架创建的项目，基本具备了一个专业项目该有的“五脏六腑”，而这可以让我们专注于业务原型的探索。例如，博主是尝试结合 Ant Des">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/04/19/dtANSYQqyDz9blw.jpg">
+<meta property="og:image" content="https://i.loli.net/2021/04/19/WExbQrs61ltcqzy.png">
+<meta property="og:image" content="https://i.loli.net/2021/04/19/B6SO8Wk4EVh3Pcx.png">
+<meta property="article:published_time" content="2021-04-18T12:42:47.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.108Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="ABP">
+<meta property="article:tag" content="扩展">
+<meta property="article:tag" content="实体">
+<meta property="article:tag" content="服务">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/04/19/dtANSYQqyDz9blw.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/ABP vNext 的实体与服务扩展技巧分享"/>
+
+
+
+
+
+  <title>ABP vNext 的实体与服务扩展技巧分享 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/ABP%20vNext%20%E7%9A%84%E5%AE%9E%E4%BD%93%E4%B8%8E%E6%9C%8D%E5%8A%A1%E6%89%A9%E5%B1%95%E6%8A%80%E5%B7%A7%E5%88%86%E4%BA%AB">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">ABP vNext 的实体与服务扩展技巧分享</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-04-18T20:42:47+08:00">
+                2021-04-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>使用 <a target="_blank" rel="noopener" href="https://github.com/abpframework/abp">ABP vNext</a> 有一个月左右啦，这中间最大的一个收获是：ABP vNext 的开发效率真的是非常好，只要你愿意取遵循它模块化、DDD 的设计思想。因为官方默认实现了身份、审计、权限、定时任务等等的模块，所以，ABP vNext 是一个开箱即用的解决方案。通过脚手架创建的项目，基本具备了一个专业项目该有的“<strong>五脏六腑</strong>”，而这可以让我们专注于业务原型的探索。例如，博主是尝试结合 <a target="_blank" rel="noopener" href="https://www.antdv.com/docs/vue/introduce-cn/">Ant Design Vue</a> 来做一个通用的后台管理系统。话虽如此，我们在使用 ABP vNext 的过程中，还是希望可以针对性地对 ABP vNext 进行扩展，毕竟 ABP vNext 无法 100% 满足我们的使用要求。所以，在今天这篇博客中，我们就来说说 ABP vNext 中的扩展技巧，这里主要是指实体扩展和服务扩展这两个方面。我们经常在讲“<strong>开闭原则</strong>”，可扪心自问，我们每次修改代码的时候，是否真正做到了“<strong>对扩展开放，对修改关闭</strong>”呢？ 所以，在面对扩展这个话题时，我们不妨来一起看看 ABP vNext 中是如何实践“<strong>开闭原则</strong>”。</p>
+<h1 id="扩展实体"><a href="#扩展实体" class="headerlink" title="扩展实体"></a>扩展实体</h1><p>首先，我们要说的是扩展实体，什么是实体呢？这其实是领域驱动设计(<strong>DDD</strong>)中的概念，相信对于实体、聚合根和值对象，大家早就耳熟能详了。在 ABP vNext 中，实体对应的类型为<code>Entity</code>，聚合根对应的类型为<code>AggregateRoot</code>。所以，你可以片面地认为，只要继承自<code>Entity</code>基类的类都是实体。通常，实体都会有一个唯一的标识(<strong>Id</strong>)，所以，订单、商品或者是用户，都属于实体的范畴。不过，按照业务边界上的不同，它们会在核心域、支撑域和通用域三者间频繁切换。而对于大多数系统而言，用户都将是一个通用的域。在 ABP vNext 中，其用户信息由<code>AbpUsers</code>表承载，它在架构上定义了<code>IUser</code>接口，借助于EF Core的表映射支持，我们所使用的<code>AppUser</code>本质上是映射到了<code>AbpUsers</code>表中。针对实体的扩展，在面向数据库编程的业务系统中，一个最典型的问题就是，我怎么样可以给<code>AppUser</code>添加字段。所以，下面我们以<code>AppUser</code>为例，来展示如何对实体进行扩展。</p>
+<p><img src="https://i.loli.net/2021/04/19/dtANSYQqyDz9blw.jpg" alt="DDD 中的实体、聚合根与值对象"></p>
+<p>实际上，ABP vNext 中提供了2种方式，来解决实体扩展的问题，它们分别是：<strong>Extra Properties</strong> 和 <strong>基于 EF Core 的表映射</strong>。在 <a target="_blank" rel="noopener" href="https://docs.abp.io/zh-Hans/abp/latest/Customizing-Application-Modules-Extending-Entities">官方文档</a> 中，我们会得到更加详细的信息，这里简单介绍一下就好：</p>
+<h2 id="Extra-Properties"><a href="#Extra-Properties" class="headerlink" title="Extra Properties"></a>Extra Properties</h2><p>对于第1种方式，它要求我们必须实现<code>IHasExtraProperties</code>接口，这样我们就可以使用<code>GetProperty()</code>和<code>SetProperty()</code>两个方法，其原理是，将这些扩展字段以<code>JSON</code>格式存储在<code>ExtraProperties</code>这个字段上。如果使用<code>MongoDB</code>这样的非关系型数据库，则这些扩展字段可以单独存储。参考示例如下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 设置扩展字段</span></span><br><span class="line"><span class="keyword">var</span> user = <span class="keyword">await</span> _identityUserRepository.GetAsync(userId);</span><br><span class="line">user.SetProperty(<span class="string">&quot;Title&quot;</span>, <span class="string">&quot;起风了，唯有努力生存&quot;</span>);</span><br><span class="line"><span class="keyword">await</span> _identityUserRepository.UpdateAsync(user);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 读取扩展字段</span></span><br><span class="line"><span class="keyword">var</span> user = <span class="keyword">await</span> _identityUserRepository.GetAsync(userId);</span><br><span class="line"><span class="keyword">return</span> user.GetProperty&lt;<span class="built_in">string</span>&gt;(<span class="string">&quot;Title&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>可以想象得到，这种方式使用起来没有心智方面的困扰，主要问题是，这些扩展字段不利于关系型数据库的查询。其次，完全以字符串形式存在的键值对，难免存在数据类型的安全性问题。博主的上家公司，在面对这个问题时，采用的方案就是往数据库里加备用字段，从起初的5个，变成后来的10个，最后甚至变成20个，先不说这没完没了的加字段，代码中一直避不开的，其实是各种字符串的<strong>Parse</strong>&#x2F;<strong>Convert</strong>，所以，大家可以自己去体会这其中的痛苦。</p>
+<h2 id="基于-EF-Core-的表映射"><a href="#基于-EF-Core-的表映射" class="headerlink" title="基于 EF Core 的表映射"></a>基于 EF Core 的表映射</h2><p>对于第2种方式，主要指 EF Core 里的“<strong>表拆分</strong>”或者“<strong>表共享</strong>”，譬如，当我们希望单独创建一个实体<code>SysUser</code>来替代默认的<code>AppUser</code>时，这就是表拆分，因为同一张表中的数据，实际上是被<code>AppUser</code>和<code>SysUser</code>共享啦，或者，你可以将其理解为，EF Core配置两个不同的实体时，它们的<code>ToTable()</code>方法都指向了同一张表。这里唯一不同的是，ABP vNext 中提供了一部分方法用来处理问题，因为牵扯到数据库，所以，还是需要“迁移”。下面，我们以给<code>AppUser</code>扩展两个自定义字段为例：</p>
+<p>首先，我们给<code>AppUser</code>类增加两个新属性，<code>Avatar</code> 和 <code>Profile</code>:</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">AppUser</span> : <span class="title">FullAuditedAggregateRoot</span>&lt;<span class="title">Guid</span>&gt;, <span class="title">IUser</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">virtual</span> <span class="built_in">string</span> Profile &#123; <span class="keyword">get</span>; <span class="keyword">private</span> <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">virtual</span> <span class="built_in">string</span> Avatar &#123; <span class="keyword">get</span>; <span class="keyword">private</span> <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//  ...</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>接下来，按照 EF Core 的“<strong>套路</strong>”，我们需要配置下这两个新加的字段：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">builder.Entity&lt;AppUser&gt;(b =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// AbpUsers</span></span><br><span class="line">    <span class="comment">// Sharing the same table &quot;AbpUsers&quot; with the IdentityUser</span></span><br><span class="line">    b.ToTable(AbpIdentityDbProperties.DbTablePrefix + <span class="string">&quot;Users&quot;</span>); </span><br><span class="line"></span><br><span class="line">    b.ConfigureByConvention();</span><br><span class="line">    b.ConfigureAbpUser();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Profile</span></span><br><span class="line">    b.Property(x =&gt; x.Profile)</span><br><span class="line">      .HasMaxLength(AppUserConsts.MaxProfileLength)</span><br><span class="line">      .HasColumnName(<span class="string">&quot;Profile&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// Avatar</span></span><br><span class="line">    b.Property(x =&gt; x.Avatar)</span><br><span class="line">      .HasMaxLength(AppUserConsts.MaxAvatarLength)</span><br><span class="line">      .HasColumnName(<span class="string">&quot;Avatar&quot;</span>);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>接下来，通过<code>MapEfCoreProperty()</code>方法，将新字段映射到<code>IdentityUser</code>实体，你可以理解为，<code>AppUser</code>和<code>IdentityUser</code>同时映射到了<code>AbpUsers</code>这张表：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Avatar</span></span><br><span class="line">ObjectExtensionManager.Instance.MapEfCoreProperty&lt;IdentityUser, <span class="built_in">string</span>&gt;(</span><br><span class="line">    <span class="keyword">nameof</span>(AppUser.Avatar),</span><br><span class="line">    (entityBuilder, propertyBuilder) =&gt; &#123;</span><br><span class="line">    propertyBuilder.HasMaxLength(AppUserConsts.MaxAvatarLength);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Profile</span></span><br><span class="line">ObjectExtensionManager.Instance.MapEfCoreProperty&lt;IdentityUser, <span class="built_in">string</span>&gt;(</span><br><span class="line">      <span class="keyword">nameof</span>(AppUser.Profile),</span><br><span class="line">      (entityBuilder, propertyBuilder) =&gt; &#123;</span><br><span class="line">      propertyBuilder.HasMaxLength(AppUserConsts.MaxProfileLength);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>既然，连数据库实体都做了扩展，那么，数据传输对象(<strong>DTO</strong>)有什么理由拒绝呢？</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">ObjectExtensionManager.Instance</span><br><span class="line">    .AddOrUpdateProperty&lt;<span class="built_in">string</span>&gt;(</span><br><span class="line">        <span class="keyword">new</span>[]</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">typeof</span>(IdentityUserDto),</span><br><span class="line">            <span class="keyword">typeof</span>(IdentityUserCreateDto),</span><br><span class="line">            <span class="keyword">typeof</span>(IdentityUserUpdateDto),</span><br><span class="line">            <span class="keyword">typeof</span>(ProfileDto),</span><br><span class="line">            <span class="keyword">typeof</span>(UpdateProfileDto),</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">&quot;Avatar&quot;</span></span><br><span class="line">    )</span><br><span class="line">    .AddOrUpdateProperty&lt;<span class="built_in">string</span>&gt;(</span><br><span class="line">        <span class="keyword">new</span>[]</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">typeof</span>(IdentityUserDto),</span><br><span class="line">            <span class="keyword">typeof</span>(IdentityUserCreateDto),</span><br><span class="line">            <span class="keyword">typeof</span>(IdentityUserUpdateDto),</span><br><span class="line">            <span class="keyword">typeof</span>(ProfileDto),</span><br><span class="line">            <span class="keyword">typeof</span>(UpdateProfileDto)</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="string">&quot;Profile&quot;</span></span><br><span class="line">    );</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>经过这一系列的“<strong>套路</strong>”，此时，我们会发现，新的字段已经生效：</p>
+<p><img src="https://i.loli.net/2021/04/19/WExbQrs61ltcqzy.png" alt="ABP vNext 实体扩展效果展示"></p>
+<h1 id="扩展服务"><a href="#扩展服务" class="headerlink" title="扩展服务"></a>扩展服务</h1><p>在 ABP vNext 中，我们还可以对服务进行扩展，得益于依赖注入的深入人心，我们可以非常容易地实现或者替换某一个接口，这里则指 ABP vNext 中的应用服务(ApplicationService)，例如，CrudAppService类可以帮助我们快速实现枯燥的增删改查，而我们唯一要做的，则是定义好实体的主键(<strong>Primary Key</strong>)、定义好实体的数据传输对象(<strong>DTO</strong>)。当我们发现 ABP vNext 中内置的模块或者服务，无法满足我们的使用要求时，我们就可以考虑对原有服务进行替换，或者是注入新的应用服务来扩展原有服务，这就是服务的扩展。在 ABP vNext 中，我们可以使用下面两种方法来对一个服务进行替换：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 通过[Dependency]和[ExposeServices]实现服务替换</span></span><br><span class="line">[<span class="meta">Dependency(ReplaceServices = true)</span>]</span><br><span class="line">[<span class="meta">ExposeServices(typeof(IIdentityUserAppService))</span>]</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">YourIdentityUserAppService</span> : <span class="title">IIdentityUserAppService</span>, <span class="title">ITransientDependency</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过ReplaceService实现服务替换</span></span><br><span class="line">context.Services.Replace(</span><br><span class="line">    ServiceDescriptor.Transient&lt;IIdentityUserAppService, YourIdentityUserAppService&gt;()</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>这里，博主准备的一个示例是，默认的用户查询接口，其返回信息中只有用户相关的字段，我们希望在其中增加角色、组织单元等关联信息，此时。我们可以考虑实现下面的应用服务：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">IUserManageAppService</span></span><br><span class="line">&#123;</span><br><span class="line">    Task&lt;PagedResultDto&lt;UserDetailQueryDto&gt;&gt; GetUsersWithDetails(</span><br><span class="line">      GetIdentityUsersInput input</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先，我们定义了<code>IUserManageAppService</code>接口，它含有一个分页查询的方法<code>GetUsersWithDetails()</code>。接下来，我们来考虑如何实现这个接口。需要说明的是，在 ABP vNext 中，仓储模式的支持由通用仓储接口<code>IRepository&lt;TEntity, TKey&gt;</code>提供，ABP vNext 会在<code>AddDefaultRepositories()</code>方法中为每一个聚合根注入对应的仓储。同样地，你可以按照个人喜好为指定的实体注入对应的仓储。由于ABP vNext 同时支持 <code>EF Core</code>、<code>Dapper</code> 和 <code>MongoDB</code>，所以，我们还可以使用<code>EfCoreRepository</code>、<code>DapperRepository</code> 以及 <code>MongoDbRepository</code>，它们都是<code>IRepository</code>的具体实现类。在下面的例子中，我们使用的是<code>EfCoreRepository</code>这个类。</p>
+<p>事实上，这里注入的<code>EfCoreIdentityUserRepository</code>、<code>EfCoreIdentityRoleRepository</code> 以及 <code>EfCoreOrganizationUnitRepository</code>，都是<code>EfCoreRepository</code>的子类，这使得我们可以复用 ABP vNext 中关于身份标识的一切基础设施，来实现不同于官方的业务逻辑，而这就是我们所说的服务的扩展。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">Authorize(IdentityPermissions.Users.Default)</span>]</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">UserManageAppService</span> : <span class="title">ApplicationService</span>, <span class="title">IUserManageAppService</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> IdentityUserManager _userManager;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> IOptions&lt;IdentityOptions&gt; _identityOptions;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> EfCoreIdentityUserRepository _userRepository;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> EfCoreIdentityRoleRepository _roleRepository;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> EfCoreOrganizationUnitRepository _orgRepository;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">UserManageAppService</span>(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="function">        IdentityUserManager userManager,</span></span></span><br><span class="line"><span class="params"><span class="function">        EfCoreIdentityRoleRepository roleRepository,</span></span></span><br><span class="line"><span class="params"><span class="function">        EfCoreIdentityUserRepository userRepository,</span></span></span><br><span class="line"><span class="params"><span class="function">        EfCoreOrganizationUnitRepository orgRepository,</span></span></span><br><span class="line"><span class="params"><span class="function">        IOptions&lt;IdentityOptions&gt; identityOptions</span></span></span><br><span class="line"><span class="params"><span class="function">    </span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _userManager = userManager;</span><br><span class="line">        _orgRepository = orgRepository;</span><br><span class="line">        _userRepository = userRepository;</span><br><span class="line">        _roleRepository = roleRepository;</span><br><span class="line">        _identityOptions = identityOptions;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">Authorize(IdentityPermissions.Users.Default)</span>]</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">async</span> Task&lt;PagedResultDto&lt;UserDetailQueryDto&gt;&gt; GetUsersWithDetails(</span><br><span class="line">      GetIdentityUsersInput input</span><br><span class="line">    )</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//Users</span></span><br><span class="line">        <span class="keyword">var</span> total = <span class="keyword">await</span> _userRepository.GetCountAsync(input.Filter);</span><br><span class="line">        <span class="keyword">var</span> users = <span class="keyword">await</span> _userRepository.GetListAsync(</span><br><span class="line">          input.Sorting, </span><br><span class="line">          input.MaxResultCount, </span><br><span class="line">          input.SkipCount, </span><br><span class="line">          input.Filter, </span><br><span class="line">          includeDetails: <span class="literal">true</span></span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="comment">//Roles</span></span><br><span class="line">        <span class="keyword">var</span> roleIds = users</span><br><span class="line">          .SelectMany(x =&gt; x.Roles)</span><br><span class="line">          .Select(x =&gt; x.RoleId)</span><br><span class="line">          .Distinct()</span><br><span class="line">          .ToList();</span><br><span class="line">        <span class="keyword">var</span> roles = <span class="keyword">await</span> _roleRepository</span><br><span class="line">          .WhereIf(roleIds.Any(), x =&gt; roleIds.Contains(x.Id))</span><br><span class="line">          .ToListAsync();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//OrganizationUnits</span></span><br><span class="line">        <span class="keyword">var</span> orgIds = users</span><br><span class="line">          .SelectMany(x =&gt; x.OrganizationUnits)</span><br><span class="line">          .Select(x =&gt; x.OrganizationUnitId)</span><br><span class="line">          .Distinct()</span><br><span class="line">          .ToList();</span><br><span class="line">        <span class="keyword">var</span> orgs = <span class="keyword">await</span> _orgRepository</span><br><span class="line">          .WhereIf(orgIds.Any(), x =&gt; orgIds.Contains(x.Id))</span><br><span class="line">          .ToListAsync();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">var</span> items = ObjectMapper.Map&lt;List&lt;Volo.Abp.Identity.IdentityUser&gt;, List&lt;UserDetailQueryDto&gt;&gt;(users);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> item <span class="keyword">in</span> items)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">foreach</span> (<span class="keyword">var</span> role <span class="keyword">in</span> item.Roles)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">var</span> roleInfo = roles.FirstOrDefault(x =&gt; x.Id == role.RoleId);</span><br><span class="line">                <span class="keyword">if</span> (roleInfo != <span class="literal">null</span>)</span><br><span class="line">                    ObjectMapper.Map(roleInfo, role);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">foreach</span> (<span class="keyword">var</span> org <span class="keyword">in</span> item.OrganizationUnits)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">var</span> orgInfo = orgs.FirstOrDefault(x =&gt; x.Id == org.OrganizationUnitId);</span><br><span class="line">                <span class="keyword">if</span> (orgInfo != <span class="literal">null</span>)</span><br><span class="line">                    ObjectMapper.Map(orgInfo, org);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> PagedResultDto&lt;UserDetailQueryDto&gt;(total, items);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里做一点补充说明，应用服务，即<code>ApplicationService</code>类，它集成了诸如<code>ObjectMapper</code>、<code>LoggerFactory</code>、<code>GuidGenerator</code>、国际化、<code>AsyncExecuter</code>等等的特性，继承该类可以让我们更加得心应手地编写代码。曾经，博主写过一篇关于“<strong>动态API</strong>”的<a target="_blank" rel="noopener" href="https://blog.yuanpei.me/posts/4236649/">博客</a>，它可以为我们免去从 Service 到 Controller 的这一层封装，当时正是受到了ABP 框架的启发。当博主再次在 ABP vNext 中看到这个功能时，不免会感慨逝者如斯，而事实上，这个功能真的好用，真香！下面是经过改造以后的用户列表。考虑到，在上一篇博客里，博主已经同大家分享过分页查询方面的实现技巧，这里就不再展开讲啦！</p>
+<p><img src="https://i.loli.net/2021/04/19/B6SO8Wk4EVh3Pcx.png" alt="对“用户服务”进行扩展"></p>
+<h1 id="本文小结"><a href="#本文小结" class="headerlink" title="本文小结"></a>本文小结</h1><p>我们时常说，”<strong>对修改关闭，对扩展开放</strong>“，”<strong>单一职责</strong>“，可惜这些原则最多就出现在面试环节。当你接触了真实的代码，你会发现”<strong>修改</strong>“永远比”<strong>扩展</strong>“多，博主曾经就见到过，一个简单的方法因为频繁地”<strong>打补丁</strong>“，最后变得面目全非。其实，有时候并不是维护代码的人，不愿意去”<strong>扩展</strong>“，而是写出可”<strong>扩展</strong>“的代码会更困难一点，尤其是当所有人都不愿意去思考，一味地追求短平快，这无疑只会加速代码的腐烂。在这一点上，ABP vNext 提供了一种优秀的范例，这篇文章主要分享了 ABP vNext 中实体和服务的扩展技巧，<strong>实体扩展解决了如何为数据库表添加扩展字段的问题，服务扩展解决了如何为默认服务扩展功能的问题</strong>，尤其是后者，依赖注入在其中扮演着无比重要的角色。果然，这世上的事情，只有你真正在乎的时候，你才会愿意去承认，那些你曾经轻视过的东西，也许，它们是对的吧！好了，以上就是这篇博客的全部内容，欢迎大家在评论区留言，喜欢的话请记得点赞、收藏、一键三连。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ABP/" rel="tag"># ABP</a>
+          
+            <a href="/tags/%E6%89%A9%E5%B1%95/" rel="tag"># 扩展</a>
+          
+            <a href="/tags/%E5%AE%9E%E4%BD%93/" rel="tag"># 实体</a>
+          
+            <a href="/tags/%E6%9C%8D%E5%8A%A1/" rel="tag"># 服务</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021-4-17-mactips" rel="next" title="从 Window 换到 Mac，真没有想象中的那么难。">
+                <i class="fa fa-chevron-left"></i> 从 Window 换到 Mac，真没有想象中的那么难。
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021-04-18-the-supply-chain-of-huawei-book-summary" rel="prev" title="鼓励犯错 - 读《华为供应链管理》">
+                鼓励犯错 - 读《华为供应链管理》 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%A9%E5%B1%95%E5%AE%9E%E4%BD%93"><span class="nav-number">1.</span> <span class="nav-text">扩展实体</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Extra-Properties"><span class="nav-number">1.1.</span> <span class="nav-text">Extra Properties</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-EF-Core-%E7%9A%84%E8%A1%A8%E6%98%A0%E5%B0%84"><span class="nav-number">1.2.</span> <span class="nav-text">基于 EF Core 的表映射</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%A9%E5%B1%95%E6%9C%8D%E5%8A%A1"><span class="nav-number">2.</span> <span class="nav-text">扩展服务</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E6%96%87%E5%B0%8F%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">本文小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

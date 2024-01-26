@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="作为技术人员，Linux 系统可以说是我们使用最多的操作系统，但我们可能并不是很了解它。在这里我将自己日常遇到的 Linux 使用技巧记录下来，方便以后查询使用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux日常使用技巧集">
+<meta property="og:url" content="https://blog.feedscoin.com/2018/02/linux-skill">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="作为技术人员，Linux 系统可以说是我们使用最多的操作系统，但我们可能并不是很了解它。在这里我将自己日常遇到的 Linux 使用技巧记录下来，方便以后查询使用。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://www.fanhaobai.com/2018/02/linux-skill/2a82ad6b-ab25-409f-858c-22312826ac06.jpg">
+<meta property="og:image" content="https://www.fanhaobai.com/2018/02/linux-skill/7bb99049-49bd-427b-a338-3afff4268fb3.jpg">
+<meta property="article:published_time" content="2018-02-04T14:00:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:29:51.000Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.fanhaobai.com/2018/02/linux-skill/2a82ad6b-ab25-409f-858c-22312826ac06.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2018/02/linux-skill"/>
+
+
+
+
+
+  <title>Linux日常使用技巧集 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2018/02/linux-skill">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Linux日常使用技巧集</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-02-04T22:00:00+08:00">
+                2018-02-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>作为技术人员，Linux 系统可以说是我们使用最多的操作系统，但我们可能并不是很了解它。在这里我将自己日常遇到的 Linux 使用技巧记录下来，方便以后查询使用。</p>
+<p><img src="//www.fanhaobai.com/2018/02/linux-skill/2a82ad6b-ab25-409f-858c-22312826ac06.jpg" alt="预览图"><span id="more"></span></p>
+<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><ul>
+<li>统计 IP 连接数</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">netstat -ntu | awk <span class="string">&#x27;&#123;print $5&#125;&#x27;</span> | <span class="built_in">cut</span> -d: -f1 | <span class="built_in">sort</span> | <span class="built_in">uniq</span> -c | <span class="built_in">sort</span> -rn | <span class="built_in">head</span> -10</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="操作系统"><a href="#操作系统" class="headerlink" title="操作系统"></a>操作系统</h2><h3 id="查看系统版本"><a href="#查看系统版本" class="headerlink" title="查看系统版本"></a>查看系统版本</h3><p>在安装环境或者软件时，我们常常需要知道所在操作系统的版本信息，这里列举几种查看内核和发行版本信息的方法，更多见 <a target="_blank" rel="noopener" href="https://www.fanhaobai.com/2016/07/linux-version.html">查看 Linux 系统版本</a>。</p>
+<h4 id="内核版本"><a href="#内核版本" class="headerlink" title="内核版本"></a>内核版本</h4><ul>
+<li>uname命令</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">uname</span> -a</span></span><br><span class="line">Linux fhb-6.6 2.6.32-642.13.1.el6.i686</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>&#x2F;proc&#x2F;version文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cat</span> /proc/version</span> </span><br><span class="line">Linux version 2.6.32-642.13.1.el6.i686</span><br></pre></td></tr></table></figure>
+
+<h4 id="发行版本"><a href="#发行版本" class="headerlink" title="发行版本"></a>发行版本</h4><ul>
+<li>lsb_release命令</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">lsb_release -a</span></span><br><span class="line">LSB Version:	:base-4.0-ia32:base-4.0-noarch:core-4.0-ia32</span><br><span class="line">Distributor ID:	CentOS</span><br><span class="line">Release:	6.8</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>&#x2F;etc&#x2F;issue文件</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cat</span> /etc/redhat-release</span></span><br><span class="line">CentOS release 6.8 (Final)</span><br></pre></td></tr></table></figure>
+
+<h3 id="启用Swap分区"><a href="#启用Swap分区" class="headerlink" title="启用Swap分区"></a>启用Swap分区</h3><p>在遇到内存容量瓶颈时，我们就可以尝试启用 Swap 分区。使用文件（还可以磁盘分区）作为 Swap 分区时，具体步骤如下：</p>
+<p>1、 创建 Swap 分区的文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">bs*count为文件大小</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">dd</span> <span class="keyword">if</span>=/dev/zero of=/root/swapfile bs=1M count=1024</span></span><br></pre></td></tr></table></figure>
+
+<p>2、 格式化为交换分区文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">mkswap /root/swapfile</span></span><br></pre></td></tr></table></figure>
+
+<p>3、 启用交换分区</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">swapon /root/swapfile</span></span><br></pre></td></tr></table></figure>
+
+<p>4、 开机自启用 Swap 分区</p>
+<p>在<code>/etc/fstab</code>文件中添加如下内容：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/root/swapfile swap swap defaults 0 0</span><br></pre></td></tr></table></figure>
+
+<p>最后，查看系统的 Swap 分区信息：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">free -h</span></span><br><span class="line">       total   used    free   shared  buff/cache   available</span><br><span class="line">Mem:   1.7G    729M    252M   9.2M    714M         763M</span><br><span class="line">Swap:  1.0G    0B      1.0G</span><br></pre></td></tr></table></figure>
+
+<h3 id="免密码使用sudo"><a href="#免密码使用sudo" class="headerlink" title="免密码使用sudo"></a>免密码使用sudo</h3><p>以下两种需求：</p>
+<ol>
+<li>开发中经常会使用到 sudo 命令，为了避免频繁输入密码的麻烦；</li>
+<li>脚本中使用到 sudo 命令，怎么输入密码？；</li>
+</ol>
+<p>这些，都可以通过将用户加入 sudoers 来解决，当然情况 2 也可以使用<code>echo &quot;passwd&quot;|sudo -S cmd</code>，从标准输入读取密码。</p>
+<p>sudoers 配置文件为<code>/etc/sudoers</code>，sudo 命令操作权限配置内容如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 授权用户/组    主机名=（允许转换至的用户）   NOPASSWD:命令动作</span></span><br><span class="line">root ALL=(ALL) ALL</span><br></pre></td></tr></table></figure>
+
+<p><a href="#">授权格式</a> 说明：</p>
+<ul>
+<li>第一个字段为授权用户或组，例如 root；</li>
+<li>第二个字段为来源，() 中为允许转换至的用户，&#x3D; 左边为主机名；</li>
+<li>第三个字段为命令动作，多个命令以<code>,</code>号分割；</li>
+</ul>
+<p>因此，我的用户为<code>fhb</code>，授权步骤如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 执行visudo命令，操作的文件就是/etc/sudoers</span></span><br><span class="line">$ sudo visudo</span><br><span class="line"><span class="comment"># 2. 追加内容</span></span><br><span class="line">fhb ALL=(root) NOPASSWD: /usr/sbin/service,/usr/local/php/bin/php,/usr/bin/vim</span><br><span class="line"><span class="comment"># 3. Ctrl+O保存并按Enter</span></span><br></pre></td></tr></table></figure>
+
+<p>然后，使用<code>sudo service ssh restart</code>命令测试 OK。</p>
+<h3 id="Yum更新排除指定软件"><a href="#Yum更新排除指定软件" class="headerlink" title="Yum更新排除指定软件"></a>Yum更新排除指定软件</h3><p>有时候我们使用 yum 安装的软件，由于配置向后兼容性等问题，我们并不希望这些软件（filebeat 和 logstash）在使用<code>update</code>时，被不经意间被自动更新。这时，可以使用如下方法解决：</p>
+<ul>
+<li>临时</li>
+</ul>
+<p>通过<code>-x</code>或<code>--exclude</code>参数指定需要排除的包名称，多个包名称使用空格分隔。例如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">--exclude同样</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">yum -x filebeat logstash update</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>永久</li>
+</ul>
+<p>在 yum 配置文件<code>/etc/yum.conf</code>中，追加<code>exclude</code>配置项。例如：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 需排序的包名称</span></span><br><span class="line"><span class="attr">exclude</span>=filebeat logstash</span><br></pre></td></tr></table></figure>
+
+<p>再次使用<code>yum update</code>命令，就不会自动更新指定的软件包了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">yum update</span></span><br><span class="line">No Packages marked for Update</span><br></pre></td></tr></table></figure>
+
+<h2 id="ssh"><a href="#ssh" class="headerlink" title="ssh"></a>ssh</h2><h3 id="设置禁PING"><a href="#设置禁PING" class="headerlink" title="设置禁PING"></a>设置禁PING</h3><p>攻击者可能会通过端口扫面工具，而得出目标服务器监听的端口号，从而进行攻击。通过关闭 Linux 服务器的 <a target="_blank" rel="noopener" href="http://baike.baidu.com/link?url=ovep8ysxoVKDCFTCvBxTtWMan-U-99q5sr3PZOuLPfqkr_eiAvO-g10LlU0lmMTLu7d41JA0UMv87p7Y8KCgpK">ICMP</a> 协议服务或者防火墙拦截 ICMP 协议包，可以达到禁用 ping 的目的。</p>
+<p>a. 关闭ICMP服务</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">echo</span> <span class="string">&quot;1&quot;</span> &gt;/proc/sys/net/ipv4/icmp_echo_ignore_all</span></span><br></pre></td></tr></table></figure>
+
+<p>b. 防火墙拦截</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">iptables -A INPUT -p icmp -j DROP</span></span><br></pre></td></tr></table></figure>
+
+<p>检查禁 ping 是否成功：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">ping www.fanhaobai.com</span></span><br><span class="line">请求超时。</span><br><span class="line">请求超时。</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改SSH监听端口"><a href="#修改SSH监听端口" class="headerlink" title="修改SSH监听端口"></a>修改SSH监听端口</h3><p>默认情况下，SSH 监听 <strong>22</strong> 端口，这也使得攻击者可以轻松扫描到目标服务器是否运行 SSH 服务。所以建议将 SSH 端口号更改为大于 1024。</p>
+<p>在文件<code>/etc/ssh/sshd_config</code>中，增加如下配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Port 22                # 保留22默认端口，防止端口配置失败，无法连接SSH</span><br><span class="line">Port 10086</span><br></pre></td></tr></table></figure>
+
+<p>重启 SSH 服务：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">service sshd restart</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">netstat -tunpl | grep sshd</span></span><br><span class="line"></span><br><span class="line">Proto Recv-Q Send-Q Local Address  Foreign Address  State    PID/Program name</span><br><span class="line">tcp   0      0      0.0.0.0:10086  0.0.0.0:*        LISTEN   2462/sshd   </span><br><span class="line">tcp   0      0      0.0.0.0:22     0.0.0.0:*        LISTEN   2462/sshd</span><br></pre></td></tr></table></figure>
+
+<p>通过新端口 10086 连接 SSH，如果连接成功再删除默认端口 22 配置。</p>
+<p>如果查看发现 10086 已被 sshd 监听，而仍然无法连接 SSH，则需添加防火墙规则：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-dport指操作端口号</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">iptables -A INPUT -p tcp --dport 10086 -j ACCEPT</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">永久保存iptables规则</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">/etc/rc.d/init.d/iptables save</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">重启iptables</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">/etc/rc.d/init.d/iptables restart</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="公钥登录"><a href="#公钥登录" class="headerlink" title="公钥登录"></a>公钥登录</h3><p>使用密码登录 SSH，每次登录都需要频繁输入密码，所以比较麻烦，使用 SSH 的公钥登录，可以免去输入密码的步骤。</p>
+<p>1、在本地主机上生成自己的公钥</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">ssh-keygen</span></span><br></pre></td></tr></table></figure>
+
+<p>执行命令后出现一系列提示，直接回车即可。会在<code>$HOME/.ssh</code>目录生成公钥和私钥文件，其中<code>id_rsa.pub</code>为你的公钥，<code>id_rsa</code>为你的私钥。</p>
+<p>2、配置公钥到远程主机</p>
+<p>远程主机将用户的公钥保存在<code>$HOME/.ssh/authorized_keys文件</code>，所以这里需要将上步生成的 <strong>公钥</strong> 文件<code>id_rsa.pub</code>的内容 <strong>追加</strong> 到<code>authorized_keys</code>文件中。</p>
+<p>如果<code>authorized_keys</code>文件不存在，创建即可：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">mkdir</span> ~/.ssh</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">touch</span> ~/.ssh/authorized_keys</span></span><br></pre></td></tr></table></figure>
+
+<p>配置 sshd 服务，配置文件为<code>/etc/ssh/sshd_config</code>，将下面内容关闭注释。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">RSAAuthentication yes</span><br><span class="line">PubkeyAuthentication yes</span><br><span class="line">AuthorizedKeysFile .ssh/authorized_keys</span><br></pre></td></tr></table></figure>
+
+<p>然后，重启 sshd 服务。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">service sshd restart</span></span><br></pre></td></tr></table></figure>
+
+<p>3、免密登录测试</p>
+<p>这里通过配置 <strong>识别名</strong> ，连接时只需指定连接识别名即可，简单方便。</p>
+<p>在<code>$HOME/.ssh</code>目录下创建<code>config</code>文件，并作如下配置：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Host fhb</span><br><span class="line">HostName www.fanhaobai.com</span><br><span class="line">Port 10086</span><br><span class="line">User fhb</span><br></pre></td></tr></table></figure>
+
+<p>使用识别名连接 SSH 登录远程主机，出现如下内容表示公钥登录成功。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">ssh fhb</span></span><br><span class="line">Last login: Mon Feb 20 17:09:00 2017 from 103.233.131.130</span><br><span class="line"></span><br><span class="line">Welcome to aliyun Elastic Compute Service!</span><br></pre></td></tr></table></figure>
+
+<h3 id="强制踢出其他登录用户"><a href="#强制踢出其他登录用户" class="headerlink" title="强制踢出其他登录用户"></a>强制踢出其他登录用户</h3><p>在某些情况下，需要强制踢出系统其他登录用户，比如遇到非法用户登录。查询当前登陆用户：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">当前用户</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">whoami</span></span></span><br><span class="line">root</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">当前所有用户</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">ps -ef | grep <span class="string">&#x27;pts&#x27;</span></span></span><br><span class="line">root      4752  4727  0 00:09 pts/0    00:00:00 su www</span><br><span class="line">www       4755  4752  0 00:09 pts/0    00:00:00 bash</span><br></pre></td></tr></table></figure>
+
+<p>剔除非法登陆用户：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">kill</span> -9 4755</span></span><br></pre></td></tr></table></figure>
+
+<p>更多详细说明，见 <a target="_blank" rel="noopener" href="https://www.fanhaobai.com/2016/11/out-users.html">Linux 强制踢出其他登录用户</a>。</p>
+<h3 id="建立隧道实现端口转发"><a href="#建立隧道实现端口转发" class="headerlink" title="建立隧道实现端口转发"></a>建立隧道实现端口转发</h3><p>在可以使用 ssh 情况下，为了能进行线上调试，我们可以使用 ssh 隧道建立端口映射。</p>
+<p>例如，线上远程目标机器 ip：10.1.1.123、端口：3303；映射到本地 33031 端口。命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">[主机ip]:[端口]:[主机ip]:[远程目标机器端口] [远程目标机器ip]</span></span><br><span class="line">ssh -L 127.0.0.1:33031:127.0.0.1:3303 10.1.1.123</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>该命令操作后，只能通过<code>127.0.0.1</code>访问。若想全网段访问，需要将第一个主机 ip 更改为<code>0.0.0.0</code>，同时需要在<code>/etc/ssh/sshd_config</code>增加<code>GatewayPorts yes</code>的配置项。</p>
+</blockquote>
+<h2 id="常用工具"><a href="#常用工具" class="headerlink" title="常用工具"></a>常用工具</h2><h3 id="Strace调试"><a href="#Strace调试" class="headerlink" title="Strace调试"></a>Strace调试</h3><p>在调试程序时，我们会遇到一些系统层面的错误问题，一般都不易发现，这时可以使用 strace 来跟踪系统调用的过程，方便快速定位和解决问题。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ strace crontab.sh</span><br><span class="line"><span class="title function_">execve</span><span class="params">(<span class="string">&quot;./crontab.sh&quot;</span>, [<span class="string">&quot;./crontab.sh&quot;</span>], [<span class="comment">/* 29 vars */</span>])</span> = <span class="number">0</span></span><br><span class="line">brk(<span class="number">0</span>)                                  = <span class="number">0x106a000</span></span><br><span class="line">mmap(<span class="literal">NULL</span>, <span class="number">4096</span>, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, <span class="number">-1</span>, <span class="number">0</span>) = <span class="number">0x7f0434160000</span></span><br><span class="line">access(<span class="string">&quot;/etc/ld.so.preload&quot;</span>, R_OK)      = <span class="number">-1</span> ENOENT (No such file or directory)</span><br><span class="line">open(<span class="string">&quot;/etc/ld.so.cache&quot;</span>, O_RDONLY)      = <span class="number">3</span></span><br><span class="line">fstat(<span class="number">3</span>, &#123;st_mode=S_IFREG|<span class="number">0644</span>, st_size=<span class="number">53434</span>, ...&#125;) = <span class="number">0</span></span><br><span class="line">mmap(<span class="literal">NULL</span>, <span class="number">53434</span>, PROT_READ, MAP_PRIVATE, <span class="number">3</span>, <span class="number">0</span>) = <span class="number">0x7f0434152000</span></span><br><span class="line">close(<span class="number">3</span>)                                = <span class="number">0</span></span><br><span class="line">open(<span class="string">&quot;/lib64/libc.so.6&quot;</span>, O_RDONLY)      = <span class="number">3</span></span><br><span class="line">... ...</span><br></pre></td></tr></table></figure>
+
+<p>更多详细说明，见 <a target="_blank" rel="noopener" href="https://www.fanhaobai.com/2017/07/php-cli-setting.html#%E9%94%99%E8%AF%AF%E8%B0%83%E8%AF%95https://www.fanhaobai.com/2016/11/out-users.html">错误调试</a>。</p>
+<h3 id="彩色的命令行"><a href="#彩色的命令行" class="headerlink" title="彩色的命令行"></a>彩色的命令行</h3><p>在脚本或者代码中，有时候需要在控制终端输出醒目的提示信息，以便引起我们的关注。其实，在 Linux 终端下很容易就能搞定，如下：</p>
+<p><img src="//www.fanhaobai.com/2018/02/linux-skill/7bb99049-49bd-427b-a338-3afff4268fb3.jpg" alt="彩色的命令行"></p>
+<p>实现的源代码，内容为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\033[1;30m Hello World. \033[0m [高亮]&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\033[0;31m Hello World. \033[0m [关闭属性]&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\033[4;32m Hello World. \033[0m [下划线]&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\033[5;33m Hello World. \033[0m [闪烁]&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\033[7;34m Hello World. \033[0m [反显]&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\033[8;35m Hello World. \033[0m [消隐]&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\033[0;36;40m Hello World.&quot;</span></span><br><span class="line"><span class="built_in">echo</span> -e <span class="string">&quot;\033[0;37;41m Hello World.&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>\033</code>是 Esc 键对应的 ASCII 码（27&#x3D;&#x2F;033&#x3D;0x1B），表示后面的内容具有特殊含义，类似表述有<code>^[</code>以及<code>/e</code>，而<code>\033[0m</code>表示清除格式控制。</p>
+</blockquote>
+<p>输出格式的规则，可表示为<code>\033[特殊格式;前景色;背景色m</code>，主要分为 <a href="#">颜色</a> 和 <a href="#">格式</a> 两类规则。</p>
+<ul>
+<li>颜色</li>
+</ul>
+<p>主要包括 <a href="#">前景色</a> 和 <a href="#">背景色</a>，前景色范围为<code>30~39</code>，背景色范围为<code>40~49</code>（前景色对应颜色值 +10）。前景色颜色代码表如下：</p>
+<div><span style="color:black;">黑   = "\033[30m"</span>
+<span style="color:red;">红   = "\033[31m"</span>
+<span style="color:green;">绿   = "\033[32m"</span>
+<span style="color:yellow;">黄   = "\033[33m"</span>
+<span style="color:blue;">蓝   = "\033[34m"</span>
+<span style="color:purple;">紫   = "\033[35m"</span>
+<span style="color:cyan;">青 = "\033[36m"</span>
+<span style="color:white;">白   = "\033[37m"</span></div>
+
+<ul>
+<li>格式</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>表达式</th>
+<th>格式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>\033[0m</td>
+<td>关闭所有属性</td>
+</tr>
+<tr>
+<td>\033[1m</td>
+<td>高亮度</td>
+</tr>
+<tr>
+<td>\033[4m</td>
+<td>下划线</td>
+</tr>
+<tr>
+<td>\033[5m</td>
+<td>闪烁</td>
+</tr>
+<tr>
+<td>\033[7m</td>
+<td>反显</td>
+</tr>
+<tr>
+<td>\033[8m</td>
+<td>消隐</td>
+</tr>
+</tbody></table>
+<p><strong>更新 <a href="#">»</a></strong></p>
+<ul>
+<li><a href="#%E5%85%8D%E5%AF%86%E7%A0%81%E4%BD%BF%E7%94%A8sudo">免密码使用 sudo</a>（2018-04-12）</li>
+<li><a href="#%E5%BD%A9%E8%89%B2%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C">彩色的命令行</a>（2018-08-14）</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018-01-31-gamification-for-child" rel="next" title="用游戏化的思维养孩子 - 读《儿童技能教养法》">
+                <i class="fa fa-chevron-left"></i> 用游戏化的思维养孩子 - 读《儿童技能教养法》
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/%E5%9F%BA%E4%BA%8EPython%E5%AE%9E%E7%8E%B0Windows%E4%B8%8B%E5%A3%81%E7%BA%B8%E5%88%87%E6%8D%A2%E5%8A%9F%E8%83%BD" rel="prev" title="基于 Python 实现 Windows 下壁纸切换功能">
+                基于 Python 实现 Windows 下壁纸切换功能 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number">1.</span> <span class="nav-text">常用命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F"><span class="nav-number">2.</span> <span class="nav-text">操作系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E7%89%88%E6%9C%AC"><span class="nav-number">2.1.</span> <span class="nav-text">查看系统版本</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E7%89%88%E6%9C%AC"><span class="nav-number">2.1.1.</span> <span class="nav-text">内核版本</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%91%E8%A1%8C%E7%89%88%E6%9C%AC"><span class="nav-number">2.1.2.</span> <span class="nav-text">发行版本</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%AF%E7%94%A8Swap%E5%88%86%E5%8C%BA"><span class="nav-number">2.2.</span> <span class="nav-text">启用Swap分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%8D%E5%AF%86%E7%A0%81%E4%BD%BF%E7%94%A8sudo"><span class="nav-number">2.3.</span> <span class="nav-text">免密码使用sudo</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Yum%E6%9B%B4%E6%96%B0%E6%8E%92%E9%99%A4%E6%8C%87%E5%AE%9A%E8%BD%AF%E4%BB%B6"><span class="nav-number">2.4.</span> <span class="nav-text">Yum更新排除指定软件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ssh"><span class="nav-number">3.</span> <span class="nav-text">ssh</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E7%A6%81PING"><span class="nav-number">3.1.</span> <span class="nav-text">设置禁PING</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9SSH%E7%9B%91%E5%90%AC%E7%AB%AF%E5%8F%A3"><span class="nav-number">3.2.</span> <span class="nav-text">修改SSH监听端口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AC%E9%92%A5%E7%99%BB%E5%BD%95"><span class="nav-number">3.3.</span> <span class="nav-text">公钥登录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%BA%E5%88%B6%E8%B8%A2%E5%87%BA%E5%85%B6%E4%BB%96%E7%99%BB%E5%BD%95%E7%94%A8%E6%88%B7"><span class="nav-number">3.4.</span> <span class="nav-text">强制踢出其他登录用户</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BB%BA%E7%AB%8B%E9%9A%A7%E9%81%93%E5%AE%9E%E7%8E%B0%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91"><span class="nav-number">3.5.</span> <span class="nav-text">建立隧道实现端口转发</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%B7%A5%E5%85%B7"><span class="nav-number">4.</span> <span class="nav-text">常用工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Strace%E8%B0%83%E8%AF%95"><span class="nav-number">4.1.</span> <span class="nav-text">Strace调试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BD%A9%E8%89%B2%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C"><span class="nav-number">4.2.</span> <span class="nav-text">彩色的命令行</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

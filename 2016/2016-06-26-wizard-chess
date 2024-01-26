@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Web,Node.js," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="这篇文章由我 6 月末在 LeanCloud 进行的一次技术分享整理而来。  我高一的时候曾读过一本「代码的力量：C&#x2F;C++ 中国象棋程序入门与提高」，也想自己试着实现一个，连名字都想好了，就叫 Wizard Chess —— 哈利波特中的「巫师棋」。然而直到最近借着 AlphaGo 的热度，我才真正动起手来，代码开源在 GitHub，因为是纯前端程序，所以你可以直接访问托管在云引擎上">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WizardChess: 一个国际象棋 AI 的实现">
+<meta property="og:url" content="https://blog.feedscoin.com/2016/2016-06-26-wizard-chess">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="这篇文章由我 6 月末在 LeanCloud 进行的一次技术分享整理而来。  我高一的时候曾读过一本「代码的力量：C&#x2F;C++ 中国象棋程序入门与提高」，也想自己试着实现一个，连名字都想好了，就叫 Wizard Chess —— 哈利波特中的「巫师棋」。然而直到最近借着 AlphaGo 的热度，我才真正动起手来，代码开源在 GitHub，因为是纯前端程序，所以你可以直接访问托管在云引擎上">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://o5eoc29h5.qnssl.com/wizard-chess-negamaxsearch.jpg">
+<meta property="og:image" content="https://o5eoc29h5.qnssl.com/wizard-chess-alphabetasearch.jpg">
+<meta property="article:published_time" content="2016-06-25T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T06:51:52.188Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="Node.js">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://o5eoc29h5.qnssl.com/wizard-chess-negamaxsearch.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2016/2016-06-26-wizard-chess"/>
+
+
+
+
+
+  <title>WizardChess: 一个国际象棋 AI 的实现 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/2016-06-26-wizard-chess">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">WizardChess: 一个国际象棋 AI 的实现</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-06-26T00:00:00+08:00">
+                2016-06-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <blockquote>
+<p>这篇文章由我 6 月末在 LeanCloud 进行的一次技术分享整理而来。</p>
+</blockquote>
+<p>我高一的时候曾读过一本「代码的力量：C&#x2F;C++ 中国象棋程序入门与提高」，也想自己试着实现一个，连名字都想好了，就叫 Wizard Chess —— 哈利波特中的「巫师棋」。然而直到最近借着 AlphaGo 的热度，我才真正动起手来，代码开源在 <a target="_blank" rel="noopener" href="https://github.com/jysperm/WizardChess">GitHub</a>，因为是纯前端程序，所以你可以直接访问托管在云引擎上的 Demo <a target="_blank" rel="noopener" href="http://wizard-chess.leanapp.cn/">http://wizard-chess.leanapp.cn</a>.</p>
+<p>国际象棋是一种「透明」的、「没有随机元素」的博弈游戏，所谓「透明」是说在任一时间，博弈双方对局面的了解都是一致的（而不像牌类游戏看不到对方的手牌），大部分棋类游戏，例如五子棋、围棋都是如此，这类游戏需要的是非常强的逻辑推理能力去预见若干回合之后的局面，本文介绍的方法也大体适用于这些棋类游戏。</p>
+<p>在技术选型上，我选择了用 TypeScript 来编写核心代码以便可以同时运行于浏览器和 Node.js, 借助 TypeScript 的编译期类型检查，可以让我们更早地发现和类型有关的错误，同时 Chrome 本身也有着非常好用的调试器和性能分析器来查找性能瓶颈。前端方面我选择用 React 来编写 UI, Web Worker 来运行计算 —— 毕竟如果在主线程进行 CPU 密集的运算会阻塞事件循环。</p>
+<p>最近一段时间，我发现在这种偏重于数据结构的程序中，「不可变」的数据类型将会极大地减少复杂度并且提高性能，但在我调研了 Immutable.js 后并没有直接使用它，因为我觉得可能我不需要它提供的那么复杂的数据结构，而是自己在编码时注意不要修改参数、函数总是返回新的对象。</p>
+<h3 id="建模"><a href="#建模" class="headerlink" title="建模"></a>建模</h3><p>第一步是将国际象的规则建模到代码中，首先是定义一些数据结构来表示国际象棋中的元素（阵营、棋子、棋盘）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">enum <span class="title class_">ChessType</span> &#123;</span><br><span class="line">  king, queen, rook, bishop, knight, pawn</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">enum <span class="title class_">Camp</span> &#123;</span><br><span class="line">  black, white</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface <span class="title class_">Piece</span> &#123;</span><br><span class="line">  <span class="attr">type</span>: <span class="title class_">ChessType</span>;</span><br><span class="line">  <span class="attr">camp</span>: <span class="title class_">Camp</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">interface <span class="title class_">Board</span> &#123;</span><br><span class="line">  <span class="comment">/* from 0 to 63 */</span></span><br><span class="line">  <span class="attr">pieces</span>: <span class="title class_">Array</span>&lt;<span class="title class_">Piece</span>&gt;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后需要为每一种棋子编写一个「生成走法」的函数，以便我们的程序知道一个棋子有哪些走法可走，在此以国王为例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">generateMovesForKing</span>(<span class="params">board, piece, camp</span>) &#123;</span><br><span class="line">  <span class="keyword">for</span> target <span class="keyword">in</span> ([-<span class="number">1</span>, -<span class="number">1</span>], [<span class="number">0</span>, -<span class="number">1</span>], [<span class="number">1</span>, -<span class="number">1</span>], [-<span class="number">1</span>, <span class="number">0</span>],</span><br><span class="line">                 [<span class="number">1</span>, <span class="number">0</span>], [-<span class="number">1</span>, <span class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>], [<span class="number">1</span>, <span class="number">1</span>]) &#123;</span><br><span class="line">    <span class="keyword">if</span> (target on the board and (target is empty or target.<span class="property">camp</span> != piece.<span class="property">camp</span>)) &#123;</span><br><span class="line">      <span class="keyword">yield</span> target</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>按照国际象棋的规则，国王可以以直线或斜线的方式移动一格，因此上面的代码会检查相邻一格的位置是否在棋盘范围内、是否是空的或者有对面的棋子（吃子）。</p>
+<p>然后还需要考虑到我们的程序和外部的输入输出，在国际象棋领域已有一个叫 FEN 的标准来表示当前的局势（各个棋子在棋盘上的位置），下面是一段表示开局状态的 FEN:</p>
+<pre><code>rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR
+</code></pre>
+<p>FEN 为每种棋子规定了一个字母、用大小写表示黑棋或者白棋、用斜线分割不同的行、用数字表示空白。在我们的程序的 Web 界面中有一个填写 FEN 的文本框，当你填入一个新的 FEN 时，棋盘上的棋子会随之改变；反过来当你移动棋子时，FEN 也会跟着改变，这将会让我们后续的调试变得非常简单。</p>
+<h3 id="局面评估"><a href="#局面评估" class="headerlink" title="局面评估"></a>局面评估</h3><p>我们的程序会在每个回合中，从众多可能的走法中选择一个对自己而言最优的走法，所以我们需要一个函数去评估和量化一个走法对我们而言的优势。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">evaluate</span>(<span class="params">board: Board, camp: camp</span>): number &#123;</span><br><span class="line">  <span class="keyword">var</span> ourScore = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> piece on board &#123;</span><br><span class="line">    <span class="keyword">if</span> (piece.<span class="property">camp</span> == camp) &#123;</span><br><span class="line">      ourScore += <span class="title function_">getScode</span>(board, piece)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      ourScore -= <span class="title function_">getScode</span>(board, piece)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> ourScore;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数会接受一个棋盘（board）和一个阵营（camp）作为参数，这个棋盘其实就是应用了某个走法之后，各个棋子的位置。这个函数会检查棋盘上每个棋子，如果这个棋子是我方的，就将其代表的分数加到「我方的优势分数」上；如果是对方的，就从我方的优势分数中减去对应的分数。</p>
+<p>每个棋子所代表的分数则按照下表来计算：</p>
+<table>
+<thead>
+<tr>
+<th>棋子</th>
+<th>基础分数</th>
+<th>每多一种走法的额外分数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>王</td>
+<td>10000</td>
+<td>2</td>
+</tr>
+<tr>
+<td>皇后</td>
+<td>1000</td>
+<td>2</td>
+</tr>
+<tr>
+<td>车</td>
+<td>500</td>
+<td>2</td>
+</tr>
+<tr>
+<td>马</td>
+<td>400</td>
+<td>2</td>
+</tr>
+<tr>
+<td>象</td>
+<td>300</td>
+<td>2</td>
+</tr>
+<tr>
+<td>兵</td>
+<td>100</td>
+<td>2</td>
+</tr>
+</tbody></table>
+<p>在这里我们凭「直觉」，按照棋子的重要性，给了每个棋子一个基础分数。但如果只有基础分数的话就会出现这样的情况：我们只能区分出出现吃子行为时的优势，如果不发生吃子，那么所有局面的优势都是一样的。为了解决这个问题，我们可以为「每一个可能的走法」再增加两点分数，因为在象棋中，我们可以走到一个格子，就说明我们对这个格子有一定的控制能力（如果对方的棋子走到这个格子我们就可以吃掉它），引入这个代表「灵活性」的分数后，我们会认为有更多走法的局面是更具有优势的局面。</p>
+<p>关于局面评估函数应该考虑什么、不应该考虑什么是一个值得思考的话题。因为我们的 AI 主要是靠下文介绍的「搜索」算法来找到最优的走法的，搜索函数会模拟双方的走棋，如果棋子之间存在守护关系，会在搜索中得到体现，有时过于「自作聪明」的评估函数反而会影响到搜索。在五子棋这样简单（搜索树小）的游戏中，我们甚至可以将评估函数精简为一个「判断胜负」的函数，因为按照目前的计算力，是有可能直接在搜索中找到获胜的局面的，而在象棋这种搜索树庞大的游戏中，我们还是需要评估函数的。</p>
+<p>在我们的程序中，我将「灵活性分数」做成了一个默认不开启的选项，默认只计算棋子的基础分数，这是因为计算走法是一个相对开销较大的运算，会比较明显地减少搜索层数（减少一层）。</p>
+<h3 id="极大极小搜索法"><a href="#极大极小搜索法" class="headerlink" title="极大极小搜索法"></a>极大极小搜索法</h3><p>棋类游戏的博弈 AI, 最核心的就是搜索算法，即通过轮流模拟双方走棋，找到最优的走法。搜索的层数就是模拟走棋的回合数，搜索层数越深代表博弈程序可以考虑得越远，能力也就越强，响应地消耗的计算资源也越多。</p>
+<p>我们首先介绍一个非常简单的搜索算法 —— 极大极小搜索法，这个算法平淡无奇，只是深度优先地轮流模拟双方走棋：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">negaMaxSearch</span>(<span class="params">depth: number, board: Board, camp: Camp</span>): number &#123;</span><br><span class="line">  <span class="keyword">if</span> (depth &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> evaluate(board, camp);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="title function_">getAllMoves</span>(board, camp).<span class="title function_">reduce</span>( <span class="function">(<span class="params">best, move</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="title class_">Math</span>.<span class="title function_">max</span>(best, -<span class="title function_">negaMaxSearch</span>(depth - <span class="number">1</span>, board.<span class="title function_">move</span>(move), <span class="title function_">anotherCamp</span>(camp)));</span><br><span class="line">    &#125;, -<span class="title class_">Infinity</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我将这个算法实现为了递归的形式，参数 depth 用于控制搜索的深度，每递归一层便减少 1, 当减少到 0 的时候结束递归，使用评估函数评估这个局面的优势值；depth 大于 0 时则递归地搜索当前所有可能的走法（getAllMoves），返回其中优势值最大的局面。</p>
+<p>注意在进行递归时，我们需要用 anotherCamp 来切换阵营，同时对结果取负值。这是因为在象棋中，博弈双方是轮流走棋的，我们需要先模拟自己走棋，再模拟对方走棋。在模拟对方走棋时，我们需要站在对方的角度来考虑 —— 我们需要找到对我方最不利的走法，因为我们需要假设对方是聪明的，是会尽一切可能针对我方的，所以在递归时我们需要对 negaMaxSearch 的结果取负。</p>
+<p><img src="https://o5eoc29h5.qnssl.com/wizard-chess-negamaxsearch.jpg" alt="wizard-chess-negamaxsearch.jpg"></p>
+<p>在我的电脑上，这个算法可以在使用单核心的情况下，花费 1 分钟来搜索 4 层。在开局状态下，搜索树有 9341 个节点，最终评估了 220211 个局面：</p>
+<pre><code>White &#123;search: 9341, evaluate: 220211&#125;
+Black &#123;search: 9341, evaluate: 220211&#125;
+</code></pre>
+<h3 id="Alpha-Beta-剪支"><a href="#Alpha-Beta-剪支" class="headerlink" title="Alpha&#x2F;Beta 剪支"></a>Alpha&#x2F;Beta 剪支</h3><p>但其实在前面的搜索树中，有很大一部分节点是「没有意义」的，即无论是否搜索这些节点，对最终的结果都不会有影响，我们可以通过接下来介绍的 Alpha&#x2F;Beta 剪支算法来跳过对这些无意义的节点的搜索。</p>
+<p><img src="https://o5eoc29h5.qnssl.com/wizard-chess-alphabetasearch.jpg" alt="wizard-chess-alphabetasearch.jpg"></p>
+<p>例如在上图中，如果我们从左到右深度优先地搜索走法树，那么右侧灰色的节点就是我们需要跳过的节点。depth&#x3D;1 最右标有 5 的节点的左侧子树（5 - 5 - 5）被搜索出之后，depth&#x3D;1 最右标有 5 的节点的最小值就已经被确定为了 5 —— 因为在 depth&#x3D;2 时我们需要站在对手的角度找到对我方估值最低的走法，既然左侧子树已经找到了 5, 那么无论其他子树的值是多少，这个节点估值都不可能比 5 更大了。</p>
+<p>如果 depth&#x3D;1 最右标有 5 的节点的估值小于等于 5, 那么它对于父节点也是没有意义的，因为在 depth&#x3D;1 的层我们需要找到估值最高的走法，既然在 depth&#x3D;1 这层我们已经找到了一个估值为 6 的走法，那么我们就对估值小于等于 5 的走法不感兴趣了，因此图中灰色的节点我们都可以跳过。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">alphaBetaSearch</span>(<span class="params">depth: number, board: Board, camp: Camp, currentCamp: Camp, alpha: number, beta: number</span>): number &#123;</span><br><span class="line">  <span class="keyword">if</span> (depth &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> evaluate(board, camp);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">for</span> move <span class="keyword">in</span> <span class="title function_">getAllMoves</span>(<span class="params">board, camp</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (camp == currentCamp) &#123;</span><br><span class="line">        alpha = <span class="title class_">Math</span>.<span class="title function_">max</span>(alpha,</span><br><span class="line">          <span class="title function_">alphaBetaSearch</span>(depth - <span class="number">1</span>, board.<span class="title function_">move</span>(move), camp, <span class="title function_">anotherCamp</span>(currentCamp), alpha, beta)</span><br><span class="line">        );</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        beta = <span class="title class_">Math</span>.<span class="title function_">min</span>(beta,</span><br><span class="line">          <span class="title function_">alphaBetaSearch</span>(depth - <span class="number">1</span>, board.<span class="title function_">move</span>(move), camp, <span class="title function_">anotherCamp</span>(currentCamp), alpha, beta)</span><br><span class="line">        );</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (beta &lt;= alpha) &#123;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (camp == currentCamp) &#123;</span><br><span class="line">      <span class="keyword">return</span> alpha;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> beta;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们在极大极小搜索法的基础上进行了修改，得到了带有剪支（跳过图中灰色节点）功能的 alphaBetaSearch, 它多了 currentCamp, alpha, beta 三个参数。alpha 表示在当前搜索路径中，我方至少可以得到 alpha 的分数，任何低于 alpha 的局面都不考虑（剪支）；beta 表示在当前搜索路径中，对方至少可以拿到 beta 的分数，任何高于 beta 的局面都不考虑（剪支），因对方不会放任你拿到更高的分数的；而 currentCamp 和 camp 将用于在搜索中区分「我方」和「对方」。</p>
+<p>在递归时，我们会区分当前是「我方」还是「对方」。我方走棋时，将最好的估值保存到 alpha, 对方走棋时，我们将最差的估值保存到 beta, 如果某个局面的估值在 beta 和 alpha 之间则进行剪支（break）。</p>
+<table>
+<thead>
+<tr>
+<th>depth</th>
+<th>worst case</th>
+<th>best case</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>n</td>
+<td>b^n</td>
+<td>b^⌈n&#x2F;2⌉+b^⌊n&#x2F;2⌋−1</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>40</td>
+<td>40</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1,600</td>
+<td>79</td>
+</tr>
+<tr>
+<td>3</td>
+<td>64,000</td>
+<td>1,639</td>
+</tr>
+<tr>
+<td>4</td>
+<td>2,560,000</td>
+<td>3,199</td>
+</tr>
+<tr>
+<td>5</td>
+<td>102,400,000</td>
+<td>65,569</td>
+</tr>
+<tr>
+<td>6</td>
+<td>4,096,000,000</td>
+<td>127,999</td>
+</tr>
+<tr>
+<td>7</td>
+<td>163,840,000,000</td>
+<td>2,623,999</td>
+</tr>
+<tr>
+<td>8</td>
+<td>6,553,600,000,000</td>
+<td>5,119,999</td>
+</tr>
+</tbody></table>
+<p>这个表格列出了 Alpha&#x2F;Beta 剪支搜索在最好和最差的情况下搜索的局面数量级，所谓最好的情况就是每个最左子树都是最理想的估值，其余子树都被剪掉了，最差的情况就是每个子树都有着比左侧子树更理想的估值，因此我们需要搜索所有子树来找到最理想的估值。当然实际情况肯定是会介于最好和最坏的情况之间，在开局状态下，我们的程序表现如下，相比于前面的极大极小搜索，我们剪掉了 95% 的局面，只评估了 15k - 34k 的局面。</p>
+<pre><code>White &#123;search: 1748, evaluate: 15854, cut: 1136&#125;
+Black &#123;search: 2071, evaluate: 34740, cut: 1547&#125;
+</code></pre>
+<p>从上面的数据可以看到很有趣的一点，开局状态下明明黑白双方的棋子位置差不多，但搜索的局面数量却差了一倍。这是因为 Alpha&#x2F;Beta 搜索会比较严重地依赖搜索每个走法的顺序 —— 如果先搜索的是估值理想的走法，那么就会触发更多的剪支，搜索更少的节点，反之则会搜索更多的节点。而我们完全没有对走法做排序，所以搜索的顺序会取决于棋子在棋盘上出现的顺序 —— 没错，差别就是这么大。</p>
+<p>因此在搜索子树的时候，对子树（走法）做一个预先的排序就显得很重要了，可以很大程度地提高剪支的效率。但同时这又是一个很矛盾的事情 —— 我们搜索就是为了找到最好的走法，但在搜之前却又需要先对走法进行一个排序。所以这个排序必须直观而简单，例如优先搜索皇后、车这类重要的棋子，</p>
+<h3 id="写在后"><a href="#写在后" class="headerlink" title="写在后"></a>写在后</h3><ul>
+<li>GitHub <a target="_blank" rel="noopener" href="https://github.com/jysperm/WizardChess">https://github.com/jysperm/WizardChess</a></li>
+<li>Demo <a target="_blank" rel="noopener" href="http://wizard-chess.leanapp.cn/">http://wizard-chess.leanapp.cn</a></li>
+</ul>
+<p>说实话，因为我数学基础比较差，也没有进行太多的性能优化，最后实现出来的 AI 非常地弱，基本每一步棋都很「蠢」，但至少实现了一个棋类 AI 应有的骨架。我今后可能不会继续维护这个代码了，所以相比于代码，可能这篇文章对读者的帮助会更大。</p>
+<h3 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h3><p>国际象棋规则：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%9C%8B%E9%9A%9B%E8%B1%A1%E6%A3%8B">https://zh.wikipedia.org/wiki/%E5%9C%8B%E9%9A%9B%E8%B1%A1%E6%A3%8B</a></li>
+</ul>
+<p>FEN:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.xqbase.com/protocol/pgnfen2.htm">https://www.xqbase.com/protocol/pgnfen2.htm</a></li>
+<li><a target="_blank" rel="noopener" href="https://chessprogramming.wikispaces.com/Forsyth-Edwards+Notation">https://chessprogramming.wikispaces.com/Forsyth-Edwards+Notation</a></li>
+</ul>
+<p>Alpha&#x2F;Beta 搜索：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://chessprogramming.wikispaces.com/Alpha-Beta">https://chessprogramming.wikispaces.com/Alpha-Beta</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.xqbase.com/computer/search_alphabeta.htm">https://www.xqbase.com/computer/search_alphabeta.htm</a></li>
+</ul>
+<p>测试数据：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.chess.com/analysis-board-editor">https://www.chess.com/analysis-board-editor</a></li>
+<li><a target="_blank" rel="noopener" href="http://zh.lichess.org/">http://zh.lichess.org</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Web/" rel="tag"># Web</a>
+          
+            <a href="/tags/Node-js/" rel="tag"># Node.js</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/vim-shortcut" rel="next" title="Vim快捷键整理">
+                <i class="fa fa-chevron-left"></i> Vim快捷键整理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016-06-26-my-story-about-infoq" rel="prev" title="我与 InfoQ 的故事">
+                我与 InfoQ 的故事 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BB%BA%E6%A8%A1"><span class="nav-number">1.</span> <span class="nav-text">建模</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B1%80%E9%9D%A2%E8%AF%84%E4%BC%B0"><span class="nav-number">2.</span> <span class="nav-text">局面评估</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%81%E5%A4%A7%E6%9E%81%E5%B0%8F%E6%90%9C%E7%B4%A2%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">极大极小搜索法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Alpha-Beta-%E5%89%AA%E6%94%AF"><span class="nav-number">4.</span> <span class="nav-text">Alpha&#x2F;Beta 剪支</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%99%E5%9C%A8%E5%90%8E"><span class="nav-number">5.</span> <span class="nav-text">写在后</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">6.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

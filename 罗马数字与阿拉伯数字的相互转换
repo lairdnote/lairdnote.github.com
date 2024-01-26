@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="算法,数学,数字," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="因为根据罗马数字最多重复三次的规则，我们应该用 5000-1000 来表示 4000，可问题是这 7 个基本数字中并没有 5000 的定义，这和计算机中的数据溢出是非常相似的，因为我们都无法通过现有的构造去描述一个新的东西;回到罗马数字这个问题，我们发现一个残酷的事实是，古罗马人并没有定义 1000 以上的数字表示，这或许和古罗马人发明数字的过程有关;在罗马数字中，共有 7 个基本数字，即 I、V">
+<meta property="og:type" content="article">
+<meta property="og:title" content="罗马数字与阿拉伯数字的相互转换">
+<meta property="og:url" content="https://blog.feedscoin.com/%E7%BD%97%E9%A9%AC%E6%95%B0%E5%AD%97%E4%B8%8E%E9%98%BF%E6%8B%89%E4%BC%AF%E6%95%B0%E5%AD%97%E7%9A%84%E7%9B%B8%E4%BA%92%E8%BD%AC%E6%8D%A2">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="因为根据罗马数字最多重复三次的规则，我们应该用 5000-1000 来表示 4000，可问题是这 7 个基本数字中并没有 5000 的定义，这和计算机中的数据溢出是非常相似的，因为我们都无法通过现有的构造去描述一个新的东西;回到罗马数字这个问题，我们发现一个残酷的事实是，古罗马人并没有定义 1000 以上的数字表示，这或许和古罗马人发明数字的过程有关;在罗马数字中，共有 7 个基本数字，即 I、V">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2018-04-30T02:59:46.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.233Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="算法">
+<meta property="article:tag" content="数学">
+<meta property="article:tag" content="数字">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/罗马数字与阿拉伯数字的相互转换"/>
+
+
+
+
+
+  <title>罗马数字与阿拉伯数字的相互转换 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E7%BD%97%E9%A9%AC%E6%95%B0%E5%AD%97%E4%B8%8E%E9%98%BF%E6%8B%89%E4%BC%AF%E6%95%B0%E5%AD%97%E7%9A%84%E7%9B%B8%E4%BA%92%E8%BD%AC%E6%8D%A2">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">罗马数字与阿拉伯数字的相互转换</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-04-30T10:59:46+08:00">
+                2018-04-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  因为根据罗马数字最多重复三次的规则，我们应该用 5000-1000 来表示 4000，可问题是这 7 个基本数字中并没有 5000 的定义，这和计算机中的数据溢出是非常相似的，因为我们都无法通过现有的构造去描述一个新的东西;回到罗马数字这个问题，我们发现一个残酷的事实是，古罗马人并没有定义 1000 以上的数字表示，这或许和古罗马人发明数字的过程有关;在罗马数字中，共有 7 个基本数字，即 I、V、X、L、C、D、M，它们分别表示 1、5、10、50、100、500、1000
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>最近遇到一道非常有趣的题目，题目大意如下：有一个富翁在银河系里做生意，而银河系使用的是罗马数字，所以他需要一个精明能干的助手，帮助他完成罗马数字与阿拉伯数字的相互转换，题目在这个背景下衍生出交易场景，我们需要帮助他计算出相关商品的价格。对于这道题目，如果剥离开这个题目本身的交易场景，这道题目本质上就是一个纯粹的算法问题。说来惭愧，博主当时并未能快速地解决这个问题，事后通过研读别人的文章始能有所领悟。所以，今天想在这篇文章里，同大家一起来讨论下这个问题。今天，全世界都在使用 0 到 9 这 10 个阿拉伯数字，比阿拉伯数字早 2000 年的罗马数字。为什么没有流传下来为后世所用呢？我觉得这是一个非常有意思的问题，数学同计算机学科间那种千丝万缕的联系、技术演进过程中若有若无的某种必然性……这些都是令我觉得非常有意思的地方。那么，一起来看看这个问题可好？</p>
+<h1 id="罗马数字起源"><a href="#罗马数字起源" class="headerlink" title="罗马数字起源"></a>罗马数字起源</h1><p>罗马数字，顾名思义，就是古罗马人使用的数字系统。在罗马数字中，共有 7 个基本数字，即 I、V、X、L、C、D、M，它们分别表示 1、5、10、50、100、500、1000。可以注意到，在这套数字系统中，0 不被视作是一个整数。据说，曾经有一位罗马学者不顾教皇的反对，执意将与 0 相关的知识以及 0 在运算中的作用向民众传播，因此被教皇囚禁并投入监狱，理由是 0 是一个邪物，破坏了神圣的数。同样罗马数字无法表示小数(<strong>注：罗马数字有分数的表示方法，可仅仅能表示 1&#x2F;12 的整数倍</strong>)，因此罗马数字常常用来表示纪年，在欧洲国家的古书籍、建筑和钟表中，我们都可以见到罗马数字的身影。我们熟悉的元素周期表，同样采用了罗马数字来表示元素所在的”族”。需要说明的是，罗马数字是一种计数规则，而非计算规则，这意味者罗马数字是没有进位和权重的概念的，所以一般罗马数字只用以计数而不用以演算。</p>
+<p>既然罗马数字是一种计数规则，那么我们就不得不说一说它的组合规则，因为 4000 以内的数字，都可以用这 7 个基本数字组合表示。具体来讲，罗马数字的基本规则有以下 4 条：</p>
+<ul>
+<li>重复次数：<strong>一个数字重复多少次，所表示的数字就是这个罗马数字的多少倍；一个罗马数字最多重复三次。</strong>这条规则该怎么理解呢？第一点，I、II、III 分别表示 1、2、3；第二点，4 必须被表示为 IV，而不是 IIII。关于 4 的表示方法，在历史上一直存在争议，一种观点认为 IIII 这种写法占用书写空间，IV 可以达到简化书写的作用；而一种观点则认为 IV 有亵渎神灵朱庇特、含不敬侮辱之意。</li>
+<li>左减原则：<strong>当一个较小的数字被放在一个较大数字的左边时，所表示的数字等于这个大数减去这个小数，且左边最多只能放一个较小的数字</strong>。联系第一条原则，IV 表示的实际上是 V-I，所以这个数值表示 4；同理，9 为了满足第一条原则，必须被表示成 IX。</li>
+<li>右加原则：<strong>当一个较小的数字被放在一个较大数字的右边时，所表示的数字等于这个大数加上这个小数，且右边最多只能放一个较小的数字</strong>。这一条原则和第二条原则相对应，例如 11 会被表示成 XI、21 会被表示为 XXI，以此类推。</li>
+<li>搭配原则：<strong>I 只能被放在 V 和 X 的左边；X 只能被放在 L 和 C 的左边；C 只能被放在 D 和 M 的左边；V、L、D 不能被放在左边</strong>。这一条可以看作对是第二条的总结，所以没有什么可说的。</li>
+</ul>
+<p>好了，通过这个这些规则我们就可以组合出不同的数字，我们可以注意到这些数字呈现出 1、4、5、9 的规律。什么是 1、4、5、9 的规律呢？我们可以注意到 4 和 9 是两个特殊的数字，4 必须通过 5 左减来得到，9 必须通过 10 左减来得到，这是因为罗马数字要满足最多重复三次的原则，而 4 和 9 相对 1 和 5 的偏移量恰好是 4，所以它们的表示方法和其他数字不同。因为罗马数字没有进位和权重的概念，所以除了左减和右增这两种特殊情况以外，它的基本数字应该从左至右依次递减，即使在左减的情况下，左边的数字应该和右边的数字处在同一序列。这句话怎么理解呢？例如，90 必须用 100-10 来表示；而 99 必须拆解为 90 和 9，然后分别用 100-10 和 10-1 来表示，唯独不能通过 100-1 来表示，因为 100 和 1 分属两个不同的序列。</p>
+<h1 id="数字转换实现"><a href="#数字转换实现" class="headerlink" title="数字转换实现"></a>数字转换实现</h1><p>了解完罗马数字的历史渊源，我们就对罗马数字有了一定的了解。现在来考虑一个问题，即罗马数字和阿拉伯数字间的相互转换。罗马数字的确是古罗马人发明的，可阿拉伯数字实际上却是古印度人发明的。今天全世界人都在使用阿拉伯数字，因此这两者间需要一个转换器，这正是我们一开始所讨论的问题：假如银河系里的人们都使用罗马数字来计数，当一个地球上的富翁来到银河系以后，他要如何去和这里的人们进行交易。显然，这种转换应该是双向的，我们下面分别来看如何实现相应的转换。</p>
+<h2 id="阿拉伯转罗马"><a href="#阿拉伯转罗马" class="headerlink" title="阿拉伯转罗马"></a>阿拉伯转罗马</h2><p>首先来考虑阿拉伯数字转罗马数字，因为一个罗马数字必然是从左到右依次递减，所以我们只需要将这 7 个基本数字从大到小排列，找到第一个不小于指定数字的数位即可。例如 1024 显然超过了 1000，而罗马数字中的 1000 对应 M，因此 1024 的第一位应该是 M。接下来 24，显然超过 10，因此 1024 的第二位数字应该是 X。接下来 14，显然超过 10，因此 1024 的第三位数字同样是 X。接下来 4，这是一个特殊的数字，需要被表示为 IV，这是 1024 的第四位数字。我们将整个过程串联起来，就可以得到 1024 的罗马数字形式 MXXIV。我们注意的一点是，这里需要 4 和 9 这两个数字作为辅助数字，因为 1 到 3、6 到 8 的数字，我们总可以通过不断地重复 1 来得到，就像辗转相除法一样。如果没有这两个辅助数字会怎样呢？4 会变成 IIII，而 9 会变成 VIIII，显然这是不符合我们预期的。整理下我们的思路，这段代码实现如下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">string</span> <span class="title">ConvertToRoman</span>(<span class="params"><span class="built_in">int</span> number</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> output = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">    <span class="keyword">var</span> digitMap = <span class="keyword">new</span> Dictionary&lt;<span class="built_in">int</span>,<span class="built_in">string</span>&gt;()</span><br><span class="line">    &#123;</span><br><span class="line">      &#123;<span class="number">1</span>,<span class="string">&quot;I&quot;</span>&#125;,&#123;<span class="number">4</span>,<span class="string">&quot;IV&quot;</span>&#125;,&#123;<span class="number">5</span>,<span class="string">&quot;V&quot;</span>&#125;,&#123;<span class="number">9</span>,<span class="string">&quot;IX&quot;</span>&#125;,</span><br><span class="line">      &#123;<span class="number">10</span>,<span class="string">&quot;X&quot;</span>&#125;,&#123;<span class="number">40</span>,<span class="string">&quot;XL&quot;</span>&#125;,&#123;<span class="number">50</span>,<span class="string">&quot;L&quot;</span>&#125;,&#123;<span class="number">90</span>,<span class="string">&quot;XC&quot;</span>&#125;,</span><br><span class="line">      &#123;<span class="number">100</span>,<span class="string">&quot;C&quot;</span>&#125;,&#123;<span class="number">400</span>,<span class="string">&quot;CD&quot;</span>&#125;,&#123;<span class="number">500</span>,<span class="string">&quot;D&quot;</span>&#125;,&#123;<span class="number">900</span>,<span class="string">&quot;CM&quot;</span>&#125;,</span><br><span class="line">      &#123;<span class="number">1000</span>,<span class="string">&quot;M&quot;</span>&#125;</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">var</span> digits = digitMap.OrderByDescending(e =&gt; e.Key).ToList();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; digits.Count &amp;&amp; number &gt; <span class="number">0</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (number &lt; digits[i].Key) <span class="keyword">continue</span>;</span><br><span class="line">        <span class="keyword">while</span> (number &gt;= digits[i].Key)</span><br><span class="line">        &#123;</span><br><span class="line">            number -= digits[i].Key;</span><br><span class="line">            output.Append(digits[i].Value);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> output.ToString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="罗马转阿拉伯"><a href="#罗马转阿拉伯" class="headerlink" title="罗马转阿拉伯"></a>罗马转阿拉伯</h2><p>接下来考虑罗马数字如何转换为阿拉伯数字，我们可以明确的一点是，罗马数字基本上是从左到右依次递减排列的，每一个数字的左侧和右侧出现的数字一定处于当前数字的同一序列。比如，I 只能被放在 V 和 X 的左边；X 只能被放在 L 和 C 的左边；C 只能被放在 D 和 M 的左边。因此，我们从左到右依次遍历整个字符串，将每个字符转化为对应的阿拉伯数字然后累加即可，需要注意的是，当当前元素小于下一元素时，表示当前元素为负数；当当前元素大于下一元素时，表示当前元素为正数。显然，这里最后一位应该是正数，因为它没有下一个元素可以比较。至此，我们梳理出整个思路：从第一位到第 n-1 位依次循环，判断当前元素的正负然后累加，再加上最后一位元素的值即可。下面是代码实现：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">int</span> <span class="title">ConvertToNumber</span>(<span class="params"><span class="built_in">string</span> romanNumber</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> number = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">var</span> length = romanNumber.Length;</span><br><span class="line">    <span class="keyword">var</span> digits = <span class="keyword">new</span> Dictionary&lt;<span class="built_in">string</span>,<span class="built_in">int</span>&gt;()</span><br><span class="line">    &#123;</span><br><span class="line">      &#123;<span class="string">&quot;I&quot;</span>,<span class="number">1</span>&#125;,&#123;<span class="string">&quot;V&quot;</span>,<span class="number">5</span>&#125;,&#123;<span class="string">&quot;X&quot;</span>,<span class="number">10</span>&#125;,&#123;<span class="string">&quot;L&quot;</span>,<span class="number">50</span>&#125;,&#123;<span class="string">&quot;C&quot;</span>,<span class="number">100</span>&#125;,&#123;<span class="string">&quot;D&quot;</span>,<span class="number">500</span>&#125;,&#123;<span class="string">&quot;M&quot;</span>,<span class="number">1000</span>&#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; length - <span class="number">1</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//前面 n-1 位数字通过左右比较决定正负 &amp; 第 n 位数字必然为正</span></span><br><span class="line">        <span class="keyword">if</span> ((digits[romanNumber[i].ToString()] &gt;= digits[romanNumber[i + <span class="number">1</span>].ToString()]) || i + <span class="number">1</span> &gt;= length)</span><br><span class="line">        &#123;</span><br><span class="line">            number += digits[romanNumber[i].ToString()];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            number -= digits[romanNumber[i].ToString()];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> number;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="为什么会溢出"><a href="#为什么会溢出" class="headerlink" title="为什么会溢出"></a>为什么会溢出</h1><p>相信上面这两段代码，大家都已然把玩过了。可我们仔细想想，就会觉得这事儿不靠谱。前段时间网络上一直流传着，我们这些佛系青年正在被同龄人抛弃。这个题目里我们所面对的，可是一个来自地球的的富翁啊！富翁的钱不都是按亿来计数的吗？我们没有一个亿这样的小目标，我们的目标是月入 5 万啊，这是一个社会上流行的说法。好了，回到这个题目中来，如果我们输入 50000 这个阿拉伯数字，它会输出什么呢？答案是 50 个 M，这很罗马数字啊，当然更神奇的事情是什么呢？当我们尝试把这由 50 个 M 组成的罗马数字转换为阿拉伯数字时，会发现它不能像我们期望地输出 50000，而会变成是一个负数。为什么这里是负数呢？答案是溢出啦！</p>
+<p>过去，我们常常听到”溢出“这个词儿，最常见的是数据溢出。为什么会发生数据溢出呢？因为我们定义的数据超过了计算机所使用的数据的表示范围。这一点我们可能无法理解，一个相对粗浅的认识是，现代计算机的内存已经大到非常客观，甚至我们的硬盘都已经使用 TB 这样的容量单位，为什么还是会发生数据溢出呢？回到罗马数字这个问题，我们发现一个残酷的事实是，古罗马人并没有定义 1000 以上的数字表示，这或许和古罗马人发明数字的过程有关。古人最早都是使用手指、绳结、竹筹这样的工具来计数，在人们没有接触到相当大的数字以前，人们认为这些数的表示是足够的。同样的，我们的计算机经历了从 8 位、16 位、32 位到 64 位的发展。所以，这个世界上没有任何东西是一成不变的，一个技术方案势必要随着业务演化而扩展。</p>
+<p>我们前面曾提到，这 7 个基本数字可以表示 4000 以内的数字，为什么是 4000 以内呢？因为根据罗马数字最多重复三次的规则，我们应该用 5000-1000 来表示 4000，可问题是这 7 个基本数字中并没有 5000 的定义，这和计算机中的数据溢出是非常相似的，因为我们都无法通过现有的构造去描述一个新的东西。这和数学上的那些”扩充“有着极其相似的地方，当我们意识到所有的数不都是整数的时候，我们引入了分数&#x2F;小数；当我们意识到所有的数不都是有理数的时候，我们引入了无理数； 当我们意识到所有的数不都是实数的时候，我们引入了虚数。在数学上，这叫做数的扩充；在计算机里，这叫做数据溢出。数学作为一本学科，可以通过完善理论来自圆其说；而编程语言里数据结构，是在一开始就定义好的一套规范，它无法更不应该经常去修改，关于如何去解决程序中数据溢出的问题，这已然是一个新的问题了，不过我们可以看看古罗马人是怎么做的。</p>
+<p>聪明的罗马人自然想到了这个问题，他们提出的解决方案是这样的：在一个数字的上面加一条横线，表示这个数增值 1000 倍。所以，按照这个定义，4000 应该由 IV 变化而来，9000 应该由 10000 变化而来，而 10000 则可以看作是 10 的 1000 倍，即 10000 应该由 X 变化而来。我们在最初的规则中为什么没有说这一条呢？因为在数字上面增加一条横线，这更接近一个书写的行为，它增加了我们程序解析的难度，当一个数字的上面出现横线以后，我们就不能再按照原来的方式去转换。所以，考虑这个因素，实际上还是为了简化问题本身，这道题目中同样回避了这个问题。罗马人这个想法的确很好，可以解决眼下我们所面临的问题，可时间久了以后，罗马人发现这套计数规则书写了繁琐复杂，因而这套规则渐渐地就被人们放弃了。在 2015 年意大利官方宣布，国内街道编码、文件编码等全部废弃原有的罗马数字，改为使用阿拉伯数字。</p>
+<h1 id="选择阿拉伯数字"><a href="#选择阿拉伯数字" class="headerlink" title="选择阿拉伯数字"></a>选择阿拉伯数字</h1><p>历史最终选择了阿拉伯数字，而不是罗马数字，这并不是一个巧合，尽管罗马数字要比阿拉伯数字早 2000 年。罗马数字的缺陷不仅仅在于其书写的繁杂，一个更重要的原因是，它不能更好地推动数学学科的发展。罗马人发明罗马数字的目的是为了计数，可一旦产生了数，就势必会产生计算。可我们发现罗马数字并不适合计算，因为它对数字的构造并不是正交的。一个最为直观的例子是，数字可能会用一个字母、两个字母或者三个字母来表示，如果两个数字要进行加减法，我们会发现它的数字是无法”对齐“的，你必须非常小心地分清楚不同的数位，而罗马数字恰好是没有数位的概念的。同样，当数字加减时会产生进位或者借位，罗马数字的构造会导致牵一发而动全身，因为任何一个中间步骤，我们都必须将其记录下来，记录的代价是将整个结果重写。反观阿拉伯数字，0 到 9 共 10 个数字可以表示一切，形式上的统一让计算更加便捷，书写更为简洁，这套定义可以扩展到无限大的数上面去，可以扩展到小数、分数甚至无理数、虚数。这是否意味着，一个统一化的定义或者构造，更适合去做相关的运算流程或者逻辑流程呢？</p>
+<h1 id="本文小结"><a href="#本文小结" class="headerlink" title="本文小结"></a>本文小结</h1><p>本文从一道有趣的题目作为引子，引出这篇文章的主题：罗马数字。我们首先为大家回顾了罗马数字的历史渊源。罗马数字是一种由古罗马人创造的数字系统，这套数字系统主要的用途是进行计数。罗马数字由 I、V、X、L、C、D、M 共 7 个基本数字组成，其基本规则是最多重复三次、左减右增。接下来，我们分析了罗马数字与阿拉伯数字相互转换的规律，并提供相关代码实现。在当前方案的基础上，我们引出了罗马数字中的”4000“问题，联系计算机中的数据溢出的相关概念，我们分析了为什么当罗马数字超过 4000 时会发生”溢出“，以及罗马人是如何解决这个问题的。虽然罗马数字比阿拉伯数字早 2000 年，可历史最终选择了阿拉伯数字，这里我们简要地分析了原因，因为罗马数字并不适合计算，而数字作为数学的基本要素，一个不能被运用到计算出的数字系统，最终免除不了被人们抛弃的命运。好了，这篇五一节前的文章 就是这样啦，4 月再见！</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+          
+            <a href="/tags/%E6%95%B0%E5%AD%A6/" rel="tag"># 数学</a>
+          
+            <a href="/tags/%E6%95%B0%E5%AD%97/" rel="tag"># 数字</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018-04-16-operation-light-summary" rel="next" title="运营启蒙 - 读《运营之光》">
+                <i class="fa fa-chevron-left"></i> 运营启蒙 - 读《运营之光》
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/%E4%BD%BF%E7%94%A8SonarCloud%E4%B8%BA-NET-NET-Core%E9%A1%B9%E7%9B%AE%E9%9B%86%E6%88%90%E9%9D%99%E6%80%81%E6%A3%80%E6%9F%A5" rel="prev" title="使用 SonarCloud 为.NET/.NET Core 项目集成静态检查">
+                使用 SonarCloud 为.NET/.NET Core 项目集成静态检查 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BD%97%E9%A9%AC%E6%95%B0%E5%AD%97%E8%B5%B7%E6%BA%90"><span class="nav-number">1.</span> <span class="nav-text">罗马数字起源</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E8%BD%AC%E6%8D%A2%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">数字转换实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%98%BF%E6%8B%89%E4%BC%AF%E8%BD%AC%E7%BD%97%E9%A9%AC"><span class="nav-number">2.1.</span> <span class="nav-text">阿拉伯转罗马</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BD%97%E9%A9%AC%E8%BD%AC%E9%98%BF%E6%8B%89%E4%BC%AF"><span class="nav-number">2.2.</span> <span class="nav-text">罗马转阿拉伯</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E6%BA%A2%E5%87%BA"><span class="nav-number">3.</span> <span class="nav-text">为什么会溢出</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%89%E6%8B%A9%E9%98%BF%E6%8B%89%E4%BC%AF%E6%95%B0%E5%AD%97"><span class="nav-number">4.</span> <span class="nav-text">选择阿拉伯数字</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E6%96%87%E5%B0%8F%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">本文小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

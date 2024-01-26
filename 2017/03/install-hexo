@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="日常," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前段时间博客一直使用 FireKylin，总体感觉挺好，但是扩展开发和社区是弱点。而 Hexo 最大特点为纯静态博客系统，同时社区支持也比较好， 故我转而投向了 Hexo 的怀抱。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="启用Hexo开源博客系统">
+<meta property="og:url" content="https://blog.feedscoin.com/2017/03/install-hexo">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="前段时间博客一直使用 FireKylin，总体感觉挺好，但是扩展开发和社区是弱点。而 Hexo 最大特点为纯静态博客系统，同时社区支持也比较好， 故我转而投向了 Hexo 的怀抱。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/03/install-hexo/11b9814d-885a-4aca-9b56-94c3ad908f3f.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/03/install-hexo/11b9814d-885a-4aca-9b56-94c3ad908f3f.png">
+<meta property="article:published_time" content="2017-02-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:29:51.000Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="日常">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.fanhaobai.com/2017/03/install-hexo/11b9814d-885a-4aca-9b56-94c3ad908f3f.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2017/03/install-hexo"/>
+
+
+
+
+
+  <title>启用Hexo开源博客系统 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2017/03/install-hexo">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">启用Hexo开源博客系统</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-01T00:00:00+08:00">
+                2017-03-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%97%A5%E5%B8%B8/" itemprop="url" rel="index">
+                    <span itemprop="name">日常</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>前段时间博客一直使用 FireKylin，总体感觉挺好，但是扩展开发和社区是弱点。而 <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a> 最大特点为纯静态博客系统，同时社区支持也比较好， 故我转而投向了 Hexo 的怀抱。</p>
+<p><img src="//www.fanhaobai.com/2017/03/install-hexo/11b9814d-885a-4aca-9b56-94c3ad908f3f.png" alt="预览图"><span id="more"></span></p>
+<p><img src="//www.fanhaobai.com/2017/03/install-hexo/11b9814d-885a-4aca-9b56-94c3ad908f3f.png" alt="预览图"></p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>Hexo 如官方介绍一样，安装方便快捷。安装前请确保 Node 和 Nginx 环境已经存在，需要安装可以参考 <a href="#">CentOS 6 安装 Node</a> 和 <a href="#">Nginx 安装</a>。</p>
+<p>只需使用如下命令即可安装 Hexo。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">npm install hexo-cli -g</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">hexo init blog</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cd</span> blog</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">npm install</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">hexo server</span></span><br></pre></td></tr></table></figure>
+
+<p>安装完成后目录结构如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">├── _config.yml             # 主配置文件</span><br><span class="line">├── package.json            # 应用程序的信息</span><br><span class="line">├── scaffolds               # 模版文件夹，新建文章时根据这些模版来生成文章的.md文件</span><br><span class="line">├── source                  # 资源文件夹</span><br><span class="line">|   ├── _drafts</span><br><span class="line">|   └── _posts</span><br><span class="line">└── themes                  # 主题文件夹</span><br></pre></td></tr></table></figure>
+
+<p>Hexo 默认启动 4000 端口，使用浏览器访问 <a target="_blank" rel="noopener" href="http://localhost:4000/">http://localhost:4000</a>，即可看见 Hexo 美丽的面容。</p>
+<p>说明：Nginx 配置站点根目录为<code>public</code>。</p>
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><p>关于 Hexo 更详细的使用技巧，<a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/">见官网文档</a>，这里只列举常用的使用方法。</p>
+<h2 id="更换主题"><a href="#更换主题" class="headerlink" title="更换主题"></a>更换主题</h2><p>Hexo 提供的可选 <a target="_blank" rel="noopener" href="https://hexo.io/themes/">主题</a> 比较多，总有一款你如意的，我这里主题选择了 <a target="_blank" rel="noopener" href="https://github.com/fan-haobai/hexo-theme-yilia">hexo-theme-yilia</a>，没有为什么，就是看起来舒服而已，后续相关配置也是基于该主题。</p>
+<p>找到喜欢的一款后，使用如下命令安装主题：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">进入博客目录</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cd</span> yourblog</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">克隆主题源码到hexo的themes文件夹下</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git <span class="built_in">clone</span> https://github.com/fan-haobai/hexo-theme-yilia.git themes/yilia</span></span><br></pre></td></tr></table></figure>
+
+<p>最后一步，在<code>_config.yml</code>配置中启用新主题。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">theme: yilia</span><br></pre></td></tr></table></figure>
+
+<p>关于主题的相关配置，参考主题源码中的 README.md 文档。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.fanhaobai.com/">hexo-theme-yilia</a> 主题我做了较多的修改，如果你觉得我的修改也适合你，那么你只要 <a target="_blank" rel="noopener" href="https://github.com/fan-haobai/hexo-theme-yilia">pull</a> 下来即可，而不需要再做 <a href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BF%AE%E6%94%B9%E2%80%94%E2%80%94%E9%9D%9E%E5%BF%85%E9%A1%BB">自定义修改</a> 部分的修改。</p>
+</blockquote>
+<h2 id="写文章"><a href="#写文章" class="headerlink" title="写文章"></a>写文章</h2><p>这里只列举我使用过的方法，更多文章的使用方法，<a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/writing.html">见这里</a>。</p>
+<p>1） 新建文章</p>
+<p>当需要写文章时，使用如下命令新建文章，会在资源文件夹中生成与 title 对应的 md 文件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">hexo new [layout] &lt;title&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>md 文件就是 Markdown 格式的文章表述。格式大致为：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">title: Hello World</span><br><span class="line">date: 2013/7/13 20:46:25</span><br><span class="line">---                                      # 分隔符</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">以下为文章的Markdown内容</span></span><br></pre></td></tr></table></figure>
+
+<p>文件最上方以<code>---</code>为分隔符，分隔符以上为 Front-matter，用于指定与文章相关的基本信息，分隔符以下才为文章的内容区域。</p>
+<p>2） Front-matter</p>
+<p>Front-matter 内容如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">layout                 布局</span><br><span class="line">title                  标题</span><br><span class="line">date                   建立日期</span><br><span class="line">updated                更新日期</span><br><span class="line">comments               是否开启文章的评论功能</span><br><span class="line">tags                   标签</span><br><span class="line">categories             分类</span><br><span class="line">permalink              覆盖文章网址</span><br></pre></td></tr></table></figure>
+
+<p>其中 title、date、tags、categories 这 4 项，在新建文章时需要进行设置，其他项采用默认值即可，不需要在每篇文章中进行设置，故可以将这 4 项基本设置移到模板文件<code>scaffolds\post.md</code>中，如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">title: &#123;&#123; title &#125;&#125;</span><br><span class="line">date: &#123;&#123; date &#125;&#125;</span><br><span class="line">tags:</span><br><span class="line">categories:</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+
+<p>这样在新建文章时，就会自动在文章 md 文件中加入 4 项基本设置。</p>
+<p>特别说明，文章中添加了分类和标签后， Hexo 会自动生成分类页面和统计分类的文章数。关于分类和标签的使用，如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">categories:           # 分类存在顺序关系</span><br><span class="line">- 语言                 # 1级分类</span><br><span class="line">- PHP                 # 2级分类</span><br><span class="line">- PDO                 # 3级分类    </span><br><span class="line">tags:                 # 标签为无序</span><br><span class="line">- PHP                 # 标签1</span><br><span class="line">- PDO                 # 标签2</span><br></pre></td></tr></table></figure>
+
+<p>3） 正文</p>
+<p>文章正文使用 Markdown 格式即可，我使用的 Markdown 编辑器主要有 <a target="_blank" rel="noopener" href="http://typora.io/">Typora — Win版</a> 和 <a target="_blank" rel="noopener" href="https://maxiang.io/">马克飞象 — 网页版</a>。</p>
+<p>Typora 和 马克飞象 的对比：</p>
+<ul>
+<li>Typora 可以在本地使用相对路径预览文章图片，文章中插入图片方法，<a href="#">见配置部分</a>。</li>
+<li>马克飞象在线编辑，可以同印象笔记时时同步，但是想预览图片，就必须是线上图片地址。</li>
+</ul>
+<p>使用编辑器预览编辑完文章后，导出 md 文件替换新建文章时生成的同名 md 文件即可。</p>
+<p>编辑完文章后，使用<code>hexo s</code>命令即可实时预览到文章效果。</p>
+<h2 id="发布"><a href="#发布" class="headerlink" title="发布"></a>发布</h2><p>文章的新增和编辑都是在资源文件夹下（<code>source</code>）操作，完成后需要发布才能生成静态文件（<code>public</code>），进而才能通过浏览器直接访问。</p>
+<p>发布更新命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">hexo generate</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">可以简写为</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">hexo g</span></span><br></pre></td></tr></table></figure>
+
+<p>发布后，<code>public</code>文件夹更新到最新状态，此时即可直接访问。</p>
+<h1 id="插件"><a href="#插件" class="headerlink" title="插件"></a>插件</h1><h2 id="搜索"><a href="#搜索" class="headerlink" title="搜索"></a>搜索</h2><p>安装 <a target="_blank" rel="noopener" href="https://github.com/PaicHyperionDev/hexo-generator-search">hexo-generator-search</a>，在<code>_config.yml</code>中添加如下配置代码：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">search:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">search.xml</span></span><br><span class="line">  <span class="attr">field:</span> <span class="string">all</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="RSS"><a href="#RSS" class="headerlink" title="RSS"></a>RSS</h2><p>安装 <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo-generator-feed">hexo-generator-feed</a>，并按照说明配置（atom.xml 的链接写在<code>source/_data/link.json</code>的 social 项中，一般无需更改）</p>
+<h2 id="jsonContent"><a href="#jsonContent" class="headerlink" title="jsonContent"></a>jsonContent</h2><p>安装 <a target="_blank" rel="noopener" href="https://github.com/alexbruno/hexo-generator-json-content">hexo-generator-json-content</a>，即可生成所有文章的 json 描述。需在<code>_config.yml</code>中添加如下配置代码：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">jsonContent:</span></span><br><span class="line">  <span class="attr">meta:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">pages:</span> <span class="literal">false</span></span><br><span class="line">  <span class="attr">posts:</span></span><br><span class="line">    <span class="attr">title:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">date:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">path:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">text:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">raw:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">content:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">slug:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">updated:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">comments:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">link:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">permalink:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">excerpt:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">categories:</span> <span class="literal">false</span></span><br><span class="line">    <span class="attr">tags:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Sitemap"><a href="#Sitemap" class="headerlink" title="Sitemap"></a>Sitemap</h2><p>安装 <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo-generator-sitemap">hexo-generator-sitemap</a>，并在<code>_config.yml</code>中添加如下配置代码：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">sitemap:</span></span><br><span class="line">  <span class="attr">path:</span> <span class="string">sitemap.xml</span></span><br></pre></td></tr></table></figure>
+
+<p>在使用 Hexo 生成器时会自动生成最新的站点地图 <a href="/sitemap.xml">sitemap.xml</a>文件。</p>
+<h1 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h1><p>更多的配置信息，<a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/configuration.html">见这里</a>。我这里只列举比较重要的配置。</p>
+<h2 id="打开文章资源文件夹功能"><a href="#打开文章资源文件夹功能" class="headerlink" title="打开文章资源文件夹功能"></a>打开文章资源文件夹功能</h2><p>在 Hexo 中，相对路径是针对资源文件夹<code>source</code>来讲，所以文章的静态图片应放置于资源文件夹下。</p>
+<p>可以将所有文章的静态图片统一放置于<code>source/images</code>下，但是这样不方便于管理，推荐方法是将每篇文章的图片放置于与该文章同名的资源文件下，然后使用相对路径引用即可。</p>
+<p>在配置文件<code>_config.yml</code>中开启<code>post_asset_folder</code>项，即更改为：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">post_asset_folder:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+<p>开启该项配置后，Hexo 将会在你每一次通过<code>hexo new [layout] &lt;title&gt;</code>命令创建新文章时自动创建一个文件名同 md 文件的文件夹。将所有与你的文章有关的资源放在这个关联文件夹中之后，就可以通过相对路径来引用它们。</p>
+<p>写文章时你只需在 Markdown 中插入相对 md 文件的 <strong>相对路径</strong> 的图片即可，<a href="#">hexo-asset-image</a> 自动转化为网站 <strong>绝对路径</strong>。此时，可以直接使用 Hexo 提供的标签<code>asset_img</code>来插入图片，但是这样违背了 Markdown 语法，无法及时预览，不便于编辑文章。</p>
+<p>可以通过以下 Markdown 语法在文章中插入图片，这种方式同时也支持本地 Markdown 编辑器实时预览。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">![alt](/post_title/image_name)</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">post_title为与文章.md同名的资源文件夹名</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">image_name为图片的文件名</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="URL静态化"><a href="#URL静态化" class="headerlink" title="URL静态化"></a>URL静态化</h2><p>Hexo 默认 URL 地址为<code>year/month/day/title/</code>形式，而这种形式并不友好，需更改为<code>year/month/title.html</code>形式。这里我已经将<code>source</code>目录下的 md 文件按<code>year/month</code>手动归档了，所以 Hexo 发布时只需要<code>title.html</code>这部分。配置如下：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">permalink:</span> <span class="string">:title.html</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="去除代码块行号"><a href="#去除代码块行号" class="headerlink" title="去除代码块行号"></a>去除代码块行号</h2><p>修改<code>_config.yml</code>配置项如下：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">highlight:</span></span><br><span class="line">  <span class="attr">line_number:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h1><p>如果采用本地编辑博客，博客部署在远程服务器上，那么你就需要部署，才能同步本地更新到远程服务器。</p>
+<h2 id="官方推荐"><a href="#官方推荐" class="headerlink" title="官方推荐"></a>官方推荐</h2><p>Hexo 提供了 5 种部署方案，<a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/deployment.html">见这里</a>，这里只介绍以下 2 种：</p>
+<p>1） Git</p>
+<p>安装 <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo-deployer-git">hexo-deployer-git</a>。</p>
+<p><code>_config.yml</code>配置如下：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">&lt;repository</span> <span class="string">url&gt;</span>                     <span class="comment"># 库地址</span></span><br><span class="line">  <span class="attr">branch:</span> [<span class="string">branch</span>]                           <span class="comment"># 分支名称</span></span><br><span class="line">  <span class="attr">message:</span> [<span class="string">message</span>]                         <span class="comment"># 提交信息</span></span><br></pre></td></tr></table></figure>
+
+<p>该方案适用于采用 Github Pages 托管博客的用户，当然使用服务器搭建博客的用户可以使用 Webhook 方案来实现。</p>
+<p>2） Rsync</p>
+<p>安装 <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo-deployer-rsync">hexo-deployer-rsync</a>。</p>
+<p> <code>_config.yml</code>配置如下：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">rsync</span></span><br><span class="line">  <span class="attr">host:</span> <span class="string">&lt;host&gt;</span>                         <span class="comment"># 远程主机的地址                       </span></span><br><span class="line">  <span class="attr">user:</span> <span class="string">&lt;user&gt;</span>                         <span class="comment"># 使用者名称</span></span><br><span class="line">  <span class="attr">root:</span> <span class="string">&lt;root&gt;</span>                         <span class="comment"># 远程主机的根目录</span></span><br><span class="line">  <span class="attr">port:</span> [<span class="string">port</span>]                         <span class="comment"># 端口，rsync监听端口</span></span><br><span class="line">  <span class="attr">delete:</span> [<span class="literal">true</span><span class="string">|false</span>]                 <span class="comment"># 是否删除远程主机上的旧文件</span></span><br><span class="line">  <span class="attr">verbose:</span> [<span class="literal">true</span><span class="string">|false</span>]                <span class="comment"># 显示调试信息</span></span><br><span class="line">  <span class="attr">ignore_errors:</span> [<span class="literal">true</span><span class="string">|false</span>]          <span class="comment"># 忽略错误</span></span><br></pre></td></tr></table></figure>
+
+<p>显然，该方案适用于使用服务器搭建博客的用户，但是需要在本地安装 Rsync 客户端（<a target="_blank" rel="noopener" href="http://pan.baidu.com/s/1jHTNpVC">cwRsync</a>）。同时，需要在服务器搭建和配置 Rsync 服务，<a href="#">见这里</a>。</p>
+<blockquote>
+<p>我尝试在 Win10 下实现这种方案，但是遇到了很多问题，例如 rsync 服务端采用 SSH 认证方式，但是 cwRsync 使用的 SSH 客户端呆板的从<code>/home/.ssh</code>目录查找 SSH 配置和公钥，很悲剧 Win10 下无法识别这个路径，导致无法免密登录 SSH，Rsync 同步也无法进行。</p>
+</blockquote>
+<p>总之，部署的目的，就是将发布生成的静态文件<code>public</code>更新到服务器上，如果能实现这个目的，途径倒是无所谓了。</p>
+<h2 id="我的方案"><a href="#我的方案" class="headerlink" title="我的方案"></a>我的方案</h2><p>上述推荐部署方案，明显的缺点是本地需要部署 Hexo 环境，无法实现随时随地的更新博客。为了方便写作，我的部署方案见 <a target="_blank" rel="noopener" href="https://www.fanhaobai.com/2018/03/hexo-deploy.html">我的博客发布上线方案 — Hexo</a>。</p>
+<h1 id="自定义修改——非必须"><a href="#自定义修改——非必须" class="headerlink" title="自定义修改——非必须"></a>自定义修改——非必须</h1><h2 id="更好地支持Shell代码高亮"><a href="#更好地支持Shell代码高亮" class="headerlink" title="更好地支持Shell代码高亮"></a>更好地支持Shell代码高亮</h2><p>由于 <a href="#">highlight.js</a> 对 Shell 语法高亮解析效果并不理想，为此我对 <a target="_blank" rel="noopener" href="https://github.com/fan-haobai/highlight.js/blob/master/src/languages/shell.js">languages&#x2F;shell.js</a> 部分做了修改来更好地支持 Shell，你只需要 <a target="_blank" rel="noopener" href="https://github.com/fan-haobai/highlight.js">pull</a> 并替换掉原 <a href="#">languages&#x2F;shell.js</a> 文件即可。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git <span class="built_in">clone</span> https://github.com/fan-haobai/highlight.js.git</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cp</span> highlight.js/src/languages/shell.js node_modules/highlight.js/lib/languages/shell.js</span></span><br></pre></td></tr></table></figure>
+
+<p>并将 <a href="#">shell.js</a> 中的如下部分：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span>(<span class="params">hljs</span>)</span><br></pre></td></tr></table></figure>
+
+<p>修改为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="keyword">function</span>(<span class="params">hljs</span>)</span><br></pre></td></tr></table></figure>
+
+<h2 id="评论"><a href="#评论" class="headerlink" title="评论"></a>评论</h2><p>换来换去，最后还是觉得只有 <a target="_blank" rel="noopener" href="https://disqus.com/">Disqus</a> 合适，但是需要先解决被墙的问题，不过 <a target="_blank" rel="noopener" href="https://github.com/fooleap">fooleap</a> 已经提供了一个较好的解决方案—— <a target="_blank" rel="noopener" href="https://github.com/fooleap/disqus-php-ap">disqus-php-api</a>。你只需要 <a target="_blank" rel="noopener" href="https://github.com/fan-haobai/disqus-php-api">pull</a> 代码到境外服务器，部署一个 PHP 服务即可。</p>
+<p>我部署后域名为 <a target="_blank" rel="noopener" href="https://disqus.fanhaobai.com/">disqus.fanhaobai.com</a>。首先在<code>layout/_partial/article.ejs</code>文件中追加以下内容：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;% <span class="keyword">if</span> (!index &amp;&amp; post.<span class="property">comments</span>)&#123; %&gt;</span><br><span class="line">  &lt;% <span class="keyword">if</span> (theme.<span class="property">disqus</span> || theme.<span class="property">disqus</span>.<span class="property">shortname</span>)&#123; %&gt;</span><br><span class="line">  &lt;%- <span class="title function_">partial</span>(<span class="string">&#x27;post/disqus&#x27;</span>, &#123;</span><br><span class="line">      <span class="attr">title</span>: post.<span class="property">title</span>,</span><br><span class="line">      <span class="attr">url</span>: config.<span class="property">url</span>+<span class="title function_">url_for</span>(post.<span class="property">path</span>)</span><br><span class="line">    &#125;) %&gt;</span><br><span class="line">  &lt;% &#125; %&gt;</span><br><span class="line">&lt;% &#125; %&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然后，在<code>layout/_partial/post</code>目录下创建<code>disqus.ejs</code>文件，内容如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;div id=<span class="string">&quot;disqus_thread&quot;</span>&gt;&lt;/div&gt;</span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">&quot;stylesheet&quot;</span> <span class="attr">href</span>=<span class="string">&quot;/disqus.css&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">&quot;/disqus.js&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">  (<span class="keyword">function</span> (<span class="params"></span>) &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="keyword">var</span> disqus = <span class="keyword">new</span> <span class="title function_">iDisqus</span>(<span class="string">&#x27;disqus_thread&#x27;</span>, &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="attr">forum</span>: <span class="string">&#x27;&lt;%= theme.disqus.shortname %&gt;&#x27;</span>,</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="attr">site</span>: <span class="string">&#x27;&lt;%= config.url %&gt;&#x27;</span>,</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="attr">api</span>: <span class="string">&#x27;&lt;%= theme.disqus.api %&gt;&#x27;</span>,</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="attr">url</span>: <span class="string">&#x27;&lt;%= url %&gt;&#x27;</span>,</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="attr">mode</span>: <span class="number">2</span>,</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="attr">timeout</span>: <span class="number">3000</span>,</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="attr">init</span>: <span class="literal">true</span>,</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="attr">autoCreate</span>: <span class="literal">true</span>,</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">      <span class="attr">relatedType</span>: <span class="literal">false</span></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    &#125;);</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    disqus.<span class="title function_">count</span>();</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">  &#125;)();</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>最后，在<code>_config.yml</code>增加如下配置：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">disqus:</span></span><br><span class="line">  <span class="attr">shortname:</span> <span class="string">&#x27;fanhaobai&#x27;</span></span><br><span class="line">  <span class="attr">api:</span> <span class="string">&#x27;//disqus.fanhaobai.com&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>有关 Disqus 更详细的配置，见 <a target="_blank" rel="noopener" href="https://github.com/fan-haobai/disqus-php-api#disqus-%E8%AE%BE%E7%BD%AE">Disqus 设置</a> 部分。</p>
+</blockquote>
+<h2 id="百度统计"><a href="#百度统计" class="headerlink" title="百度统计"></a>百度统计</h2><p>首先，在<code>layout/_partial/after-footer.ejs</code>文件中追加如下代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;%- <span class="title function_">partial</span>(<span class="string">&#x27;baidu-analytics&#x27;</span>) %&gt;</span><br></pre></td></tr></table></figure>
+
+<p>并在<code>layout/_partial</code>目录下创建<code>baidu-analytics.ejs</code>文件，内容为：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;% <span class="keyword">if</span> (theme.<span class="property">baidu_analytics</span>)&#123; %&gt;</span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml"><span class="keyword">var</span> _hmt = _hmt || [];</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">(<span class="keyword">function</span>(<span class="params"></span>) &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">  <span class="keyword">var</span> hm = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&quot;script&quot;</span>);</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">  hm.<span class="property">src</span> = <span class="string">&quot;https://hm.baidu.com/hm.js?&lt;%= theme.baidu_analytics %&gt;&quot;</span>;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">  <span class="keyword">var</span> s = <span class="variable language_">document</span>.<span class="title function_">getElementsByTagName</span>(<span class="string">&quot;script&quot;</span>)[<span class="number">0</span>]; </span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">  s.<span class="property">parentNode</span>.<span class="title function_">insertBefore</span>(hm, s);</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">&#125;)();</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">&lt;% &#125; %&gt;</span><br></pre></td></tr></table></figure>
+
+<p>然后，在配置文件<code>_config.yml</code>中，增加如下配置信息：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># 百度分析<span class="title class_">Uid</span>，若为空则不启用</span><br><span class="line"><span class="attr">baidu_analytics</span>: 9f0ecfa73797e6a907d8ea6a285df6a5</span><br></pre></td></tr></table></figure>
+
+<h2 id="百度主动推送"><a href="#百度主动推送" class="headerlink" title="百度主动推送"></a>百度主动推送</h2><p>为了更好的收录本站文章，这里引进了百度 <a target="_blank" rel="noopener" href="http://zhanzhang.baidu.com/college/courseinfo?id=267&page=2">主动推送功能</a>，只需添加如下 JS代码，每当文章被浏览时都会自动向百度提交链接，这种方式以用户为驱动，较为方便和实用。</p>
+<p>在主题模板文件<code>layout/_partial/article.ejs</code>中，追加以下代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;% <span class="keyword">if</span> (!index)&#123; %&gt;</span><br><span class="line"><span class="language-xml"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">  (<span class="keyword">function</span> (<span class="params"></span>) &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="keyword">var</span> bp = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&#x27;script&#x27;</span>);</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="keyword">var</span> curProtocol = <span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">protocol</span>.<span class="title function_">split</span>(<span class="string">&#x27;:&#x27;</span>)[<span class="number">0</span>];</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="keyword">if</span> (curProtocol === <span class="string">&#x27;https&#x27;</span>) &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        bp.<span class="property">src</span> = <span class="string">&#x27;https://zz.bdstatic.com/linksubmit/push.js&#x27;</span></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    &#125; <span class="keyword">else</span> &#123;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">        bp.<span class="property">src</span> = <span class="string">&#x27;http://push.zhanzhang.baidu.com/push.js&#x27;</span></span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    &#125;</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    <span class="keyword">var</span> s = <span class="variable language_">document</span>.<span class="title function_">getElementsByTagName</span>(<span class="string">&quot;script&quot;</span>)[<span class="number">0</span>];</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">    s.<span class="property">parentNode</span>.<span class="title function_">insertBefore</span>(bp, s)</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml">  &#125;)();</span></span></span><br><span class="line"><span class="language-javascript"><span class="language-xml"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br><span class="line">&lt;% &#125; %&gt;</span><br></pre></td></tr></table></figure>
+
+<p>到这里，也终于算是搭建结束了。至于 404 页面打算采用 <a target="_blank" rel="noopener" href="http://www.qq.com/404/">腾讯的公益404页面</a> 来做，<a target="_blank" rel="noopener" href="https://www.fanhaobai.com/404.html">见这里</a>。</p>
+<p><strong>更新 <a href="#">»</a></strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/fan-haobai/hexo-theme-yilia">主题更换为 hexo-theme-yilia</a><span>（2017-10-30）</span></li>
+<li><a href="#">自定义分享</a><span>（2017-11-28）</span></li>
+<li><a href="#">去除百度统计</a><span>（2018-07-04）</span></li>
+<li><a href="#%E8%AF%84%E8%AE%BA">科学使用 Disqus</a><span>（2018-07-04）</span></li>
+<li><a href="#%E6%9B%B4%E5%A5%BD%E5%9C%B0%E6%94%AF%E6%8C%81Shell%E4%BB%A3%E7%A0%81%E9%AB%98%E4%BA%AE">更好地支持 Shell 代码高亮</a><span>（2018-09-09）</span></li>
+</ul>
+<p><strong>相关文章 <a href="#">»</a></strong></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.fanhaobai.com/2018/03/hexo-deploy.html">我的博客发布上线方案 — Hexo</a><span>（2018-03-03）</span></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%97%A5%E5%B8%B8/" rel="tag"># 日常</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/report-update-of-blog-styles-and-fonts" rel="next" title="博客样式与字体的更新报告">
+                <i class="fa fa-chevron-left"></i> 博客样式与字体的更新报告
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%E5%A0%86%E4%B9%8BGo%E5%AE%9E%E7%8E%B0" rel="prev" title="斐波那契堆之Go实现">
+                斐波那契堆之Go实现 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E6%8D%A2%E4%B8%BB%E9%A2%98"><span class="nav-number">2.1.</span> <span class="nav-text">更换主题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%99%E6%96%87%E7%AB%A0"><span class="nav-number">2.2.</span> <span class="nav-text">写文章</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%91%E5%B8%83"><span class="nav-number">2.3.</span> <span class="nav-text">发布</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8F%92%E4%BB%B6"><span class="nav-number">3.</span> <span class="nav-text">插件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%90%9C%E7%B4%A2"><span class="nav-number">3.1.</span> <span class="nav-text">搜索</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RSS"><span class="nav-number">3.2.</span> <span class="nav-text">RSS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jsonContent"><span class="nav-number">3.3.</span> <span class="nav-text">jsonContent</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sitemap"><span class="nav-number">3.4.</span> <span class="nav-text">Sitemap</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="nav-number">4.</span> <span class="nav-text">配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%93%E5%BC%80%E6%96%87%E7%AB%A0%E8%B5%84%E6%BA%90%E6%96%87%E4%BB%B6%E5%A4%B9%E5%8A%9F%E8%83%BD"><span class="nav-number">4.1.</span> <span class="nav-text">打开文章资源文件夹功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#URL%E9%9D%99%E6%80%81%E5%8C%96"><span class="nav-number">4.2.</span> <span class="nav-text">URL静态化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%BB%E9%99%A4%E4%BB%A3%E7%A0%81%E5%9D%97%E8%A1%8C%E5%8F%B7"><span class="nav-number">4.3.</span> <span class="nav-text">去除代码块行号</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2"><span class="nav-number">5.</span> <span class="nav-text">部署</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%98%E6%96%B9%E6%8E%A8%E8%8D%90"><span class="nav-number">5.1.</span> <span class="nav-text">官方推荐</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%91%E7%9A%84%E6%96%B9%E6%A1%88"><span class="nav-number">5.2.</span> <span class="nav-text">我的方案</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BF%AE%E6%94%B9%E2%80%94%E2%80%94%E9%9D%9E%E5%BF%85%E9%A1%BB"><span class="nav-number">6.</span> <span class="nav-text">自定义修改——非必须</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9B%B4%E5%A5%BD%E5%9C%B0%E6%94%AF%E6%8C%81Shell%E4%BB%A3%E7%A0%81%E9%AB%98%E4%BA%AE"><span class="nav-number">6.1.</span> <span class="nav-text">更好地支持Shell代码高亮</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%84%E8%AE%BA"><span class="nav-number">6.2.</span> <span class="nav-text">评论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%99%BE%E5%BA%A6%E7%BB%9F%E8%AE%A1"><span class="nav-number">6.3.</span> <span class="nav-text">百度统计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%99%BE%E5%BA%A6%E4%B8%BB%E5%8A%A8%E6%8E%A8%E9%80%81"><span class="nav-number">6.4.</span> <span class="nav-text">百度主动推送</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

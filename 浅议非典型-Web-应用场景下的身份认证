@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="gRPC,SignalR,Kafka," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="据我所知，软件行业，向来是充满着鄙视链的，人们时常会因为语言、框架、范式、架构等等问题而争执不休。不必说 PHP 到底是不是世界上最好的语言，不必说原生与 Web 到底哪一个真正代表着未来，更不必说前端与后端到底哪一个更有技术含量，单单一个 C++ 的版本，1998 与 2011 之间仿佛隔了一个世纪。我真傻，我单知道人们会因为 GCC 和 VC++ 而分庭抗礼多年，却不知道人们还会因为大括号换行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅议非典型 Web 应用场景下的身份认证">
+<meta property="og:url" content="https://blog.feedscoin.com/%E6%B5%85%E8%AE%AE%E9%9D%9E%E5%85%B8%E5%9E%8B-Web-%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B8%8B%E7%9A%84%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="据我所知，软件行业，向来是充满着鄙视链的，人们时常会因为语言、框架、范式、架构等等问题而争执不休。不必说 PHP 到底是不是世界上最好的语言，不必说原生与 Web 到底哪一个真正代表着未来，更不必说前端与后端到底哪一个更有技术含量，单单一个 C++ 的版本，1998 与 2011 之间仿佛隔了一个世纪。我真傻，我单知道人们会因为 GCC 和 VC++ 而分庭抗礼多年，却不知道人们还会因为大括号换行">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/gRPC-MicroService.drawio.png">
+<meta property="og:image" content="https://blog.feedscoin.com/Kafka-Distributed-Transaction.drawio.png">
+<meta property="article:published_time" content="2021-12-28T03:53:29.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.216Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="gRPC">
+<meta property="article:tag" content="SignalR">
+<meta property="article:tag" content="Kafka">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/gRPC-MicroService.drawio.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/浅议非典型-Web-应用场景下的身份认证"/>
+
+
+
+
+
+  <title>浅议非典型 Web 应用场景下的身份认证 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E6%B5%85%E8%AE%AE%E9%9D%9E%E5%85%B8%E5%9E%8B-Web-%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B8%8B%E7%9A%84%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">浅议非典型 Web 应用场景下的身份认证</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-12-28T11:53:29+08:00">
+                2021-12-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>据我所知，软件行业，向来是充满着鄙视链的，人们时常会因为语言、框架、范式、架构等等问题而争执不休。不必说 PHP 到底是不是世界上最好的语言，不必说原生与 Web 到底哪一个真正代表着未来，更不必说前端与后端到底哪一个更有技术含量，单单一个 C++ 的版本，1998 与 2011 之间仿佛隔了一个世纪。我真傻，我单知道人们会因为 GCC 和 VC++ 而分庭抗礼多年，却不知道人们还会因为大括号换行、Tab 还是空格、CRLF 还是 CR……诸如此类的问题而永不休战。也许，正如 <a target="_blank" rel="noopener" href="http://www.yinwang.org/">王垠</a> 前辈所说，编程这个领域总是充满着某种 <a target="_blank" rel="noopener" href="http://www.yinwang.org/blog-cn/2015/04/03/paradigms">宗教原旨</a> 的意味。回想起刚毕业那会儿，因为没有 Web 开发的经验而被人轻视，当年流行的 SSH 全家桶，对我鼓捣 Windows 桌面开发这件事情，投来无限鄙夷的目光，仿佛 Windows 是一种原罪。可时间久了以后，我渐渐意识到，对工程派而言，一切都是工具；而对于学术派而言，一切都是包容。这个世界并不是只有 Web，对吧？所以，这篇博客我想聊聊非典型 Web 应用场景下的身份认证。</p>
+<h1 id="楔子"><a href="#楔子" class="headerlink" title="楔子"></a>楔子</h1><p>在讨论非典型 Web 应用场景前，我们不妨来回想一下，一个典型的 Web 应用是什么样子？打开浏览器、输入一个 URL、按下回车、输入用户名和密码、点击登录……，在这个过程中，Cookie&#x2F;Session用来维持整个会话的状态。直到后来，前后端分离的大潮流下，无状态的服务开始流行，人们开始使用一个令牌(Token)来标识身份信息，无论是催生了 Web 2.0 的 <code>OAuth 2.0</code> 协议，还是在微服务里更为流行的 <code>JWT(JSON Web Token)</code>，其实，都在隐隐约约说明一件事情，那就是在后 Web 时代，特别是微信兴起以后，人们在线与离线的边界越来越模糊，疫情期间居家办公的这段时间，我最怕听到 Teams 会议邀请的声音，因为无论你是否在线，它都会不停地催促你，彻底模糊生活与工作的边界。那么，屏幕前聪明的你，你告诉我，什么是典型的 Web 应用？也许，我同样无法回答这个问题，可或许，下面这几种方式，即 gRPC、SignalR 和 Kafka，可以称之为：非典型的 Web 应用。</p>
+<h1 id="gRPC"><a href="#gRPC" class="headerlink" title="gRPC"></a>gRPC</h1><p>相信经常阅读我博客的朋友，都知道这样一件事情，那就是，过去这半年多的时间，我一直在探索，如何去构建一个以 gRPC 为核心的微服务架构。想了解这方面内容的朋友，不妨抽空看看我前面写过的博客。从整体上来说，我们对于 gRPC 的使用上，基本可以分为对内和对外两个方面。对内，不同的服务间通过 gRPC 客户端互相通信，我们称之为：直连；对外，不同的服务通过 Envoy 代理为 JSON API 供前端&#x2F;客户端消费，我们称之为：代理。一个简单的微服务示意图，如下图所示：</p>
+<p><img src="/gRPC-MicroService.drawio.png" alt="gRPC 微服务中的内与外"></p>
+<p>目前，这个方案最大的问题，不同的服务间通过 gRPC 客户端直连的时候，无法提供身份认证信息，因为如果是单纯的读，即从某一个服务查询数据，其实是可以接受这种“裸奔”的状态，可一旦涉及到了写，这种方案就显得不大严谨。譬如现在的做法，如果从 <code>HttpContext</code> 里提取不到用户信息，就默认当前用户是 Sys，表示这是一个系统级别的操作。那么，如何解决这个问题呢？我们一起来看一下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> channel = GrpcChannel.ForAddress(<span class="string">&quot;https://localhost:5001&quot;</span>);</span><br><span class="line"><span class="keyword">var</span> client = <span class="keyword">new</span> Greeter.GreeterClient(channel);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> metadata = <span class="keyword">new</span> Metadata();</span><br><span class="line">metadata.Add(<span class="string">&quot;Authorization&quot;</span>, <span class="string">$&quot;Bearer <span class="subst">&#123;token&#125;</span>&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> reply = client.SayHello(<span class="keyword">new</span> HelloRequest(), metadata);</span><br></pre></td></tr></table></figure>
+
+<p>可以注意到，这里的关键是构造一个<code>Metadata</code>，并在其中传入<code>Authorization</code>头部。当然，这一切的前提是你遵循并且沿用了 <a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/aspnet/core/security/authentication/identity?view=aspnetcore-3.0&tabs=visual-studio"> ASP.NET Core 身份验证</a>，这里以最常见的 JWT 认证为例：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">services.AddAuthentication(x =&gt;</span><br><span class="line">&#123;</span><br><span class="line">   x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;</span><br><span class="line">   x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;</span><br><span class="line">&#125; ).AddJwtBearer(x =&gt;</span><br><span class="line">&#123;</span><br><span class="line">   x.RequireHttpsMetadata = <span class="literal">false</span>;</span><br><span class="line">   x.SaveToken = <span class="literal">true</span>;</span><br><span class="line">   x.TokenValidationParameters = <span class="keyword">new</span> TokenValidationParameters</span><br><span class="line">  &#123;</span><br><span class="line">     ValidateIssuerSigningKey = <span class="literal">true</span>,</span><br><span class="line">     IssuerSigningKey = <span class="keyword">new</span> SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret)),</span><br><span class="line">     ValidIssuer = jwtOptions.Issuer,</span><br><span class="line">     ValidAudience = jwtOptions.Audience,</span><br><span class="line">     ValidateIssuer = <span class="literal">true</span>,</span><br><span class="line">     ValidateAudience = <span class="literal">true</span>,</span><br><span class="line">   &#125;;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>通常情况下，这里的<code>IssuerSigningKey</code>由一个证书文件来提供，例如最常用的是<code>X509SecurityKey</code>类。为了方便演示，这里采用一组字符串进行签名。不管采用哪一种方式，我们都应该保证它与生成令牌时的参数一致。例如，下面是一个典型的生成  <code>JWT</code> 令牌的代码片段：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> claims = <span class="keyword">new</span>[]</span><br><span class="line">&#123;</span><br><span class="line">   <span class="keyword">new</span> Claim(ClaimTypes.Name, userInfo.UserName),</span><br><span class="line">   <span class="keyword">new</span> Claim(ClaimTypes.Role, userInfo.UserRole)</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> signKey = <span class="keyword">new</span> SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Value.Secret));</span><br><span class="line"><span class="keyword">var</span> credentials = <span class="keyword">new</span> SigningCredentials(signKey, SecurityAlgorithms.HmacSha256);</span><br><span class="line"><span class="keyword">var</span> jwtToken = <span class="keyword">new</span> JwtSecurityToken(</span><br><span class="line">   _jwtOptions.Value.Issuer,</span><br><span class="line">   _jwtOptions.Value.Audience, </span><br><span class="line">   claims, </span><br><span class="line">   expires: DateTime.Now.AddMinutes(_jwtOptions.Value.AccessExpiration), </span><br><span class="line">   signingCredentials: credentials</span><br><span class="line">);</span><br><span class="line"></span><br><span class="line">token = <span class="keyword">new</span> JwtSecurityTokenHandler().WriteToken(jwtToken);</span><br></pre></td></tr></table></figure>
+
+<p> 除了以上两点，请确保你的正确地配置了认证和授权两个中间件，注意它们的顺序和位置：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app, IWebHostEnvironment env</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    app.UseRouting();</span><br><span class="line">    <span class="comment">// 注意顺序</span></span><br><span class="line">    app.UseAuthentication();</span><br><span class="line">    app.UseAuthorization();</span><br><span class="line">    app.UseEndpoints(endpoints =&gt;</span><br><span class="line">   &#123;</span><br><span class="line">       endpoints.MapGrpcService&lt;GreeterService&gt;();</span><br><span class="line">   &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时，我们就可以在 gRPC 中通过<code>IHttpContextAccessor</code>获取当前用户信息：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">override</span> Task&lt;HelloReply&gt; <span class="title">SayHello</span>(<span class="params">HelloRequest request, ServerCallContext context</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> userName = _httpContextAccessor.HttpContext.User?.Identity.Name;</span><br><span class="line">    <span class="keyword">return</span> Task.FromResult(<span class="keyword">new</span> HelloReply &#123; Message = <span class="string">$&quot;Hello <span class="subst">&#123;userName&#125;</span>&quot;</span>&#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当然，考虑到我们使用 gRPC 客户端工厂的场景更多一点，我们更希望这个令牌可以在一开始就准备好，而不是每调用一个方法都需要传一次令牌。此时，我们可以使用下面的做法：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">services.AddGrpcClient&lt;Greeter.GreeterClient&gt;(o =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    o.Address = <span class="keyword">new</span> Uri(<span class="string">&quot;https://localhost:5001&quot;</span>);</span><br><span class="line">&#125;).ConfigureChannel(o =&gt;</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> credentials = CallCredentials.FromInterceptor((context, metadata) =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">if</span> (!<span class="built_in">string</span>.IsNullOrEmpty(_token)</span><br><span class="line">        metadata.Add(<span class="string">&quot;Authorization&quot;</span>, <span class="string">$&quot;Bearer <span class="subst">&#123;_token&#125;</span>&quot;</span>);</span><br><span class="line">      <span class="keyword">return</span> Task.CompletedTask;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    o.Credentials = ChannelCredentials.Create(<span class="keyword">new</span> SslCredentials(), credentials);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>至此，关于 gRPC 的身份认证问题终于得到了解决，无论是对内的直连还是对外的代理，我们都可以获得用户的身份信息。需要说明的是，默认情况下，gRPC  允许调用方在不携带令牌的情况下调用接口，所以，我们这里的认证方案更像是一种君子协定。如果希望做更严格的限制，可以考虑在具体的服务上添加 <code>[Authorize]</code>特性，就像我们在控制器上使用该特性一样。</p>
+<h1 id="SignalR"><a href="#SignalR" class="headerlink" title="SignalR"></a>SignalR</h1><p><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/aspnet/core/signalr/introduction?view=aspnetcore-6.0">SignalR</a> 是由微软提供的一面向实时 Web 应用的、开源的库，你可以认为，它是集 <a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/aspnet/core/fundamentals/websockets?view=aspnetcore-6.0">WebSockets</a>、Server-Sent 事件 和 长轮询于一身的综合性的库。当你需要从服务端实时地推送消息到特定的客户端(组)的时候，SignalR 将会是一个不错的选择。譬如可视化的仪表盘或者监视系统，需要接收数据的变更通知以实时地刷新视图；即时通讯(IM)、社交网络、邮件、游戏、协作等方面地应用都需要及时地发出通知。ASP.NET Core 版本的 SIgnalR 在自动处理连接管理方面做出来不小的改善，可很多时候，SIgnalR 里面的 ConnectionId 对我们而言是没有意义的，我们更想知道连接到 Hub 的用户是谁，这样就催生出来 SignalR 身份认证的需求场景，下面，我们就来看看对应的 <a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/aspnet/core/signalr/authn-and-authz?view=aspnetcore-6.0">解决方案</a>。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 方式一、AccessTokenProvider </span></span><br><span class="line"><span class="keyword">var</span> hubConnection = <span class="keyword">new</span> HubConnectionBuilder()</span><br><span class="line">  .WithUrl(<span class="string">&quot;http://localhost:5000/echohub&quot;</span>,options =&gt;</span><br><span class="line">  &#123;</span><br><span class="line">    options.AccessTokenProvider = () =&gt; Task.FromResult(<span class="string">&quot;&lt;Your Token&gt;&quot;</span>);</span><br><span class="line">  &#125;)</span><br><span class="line">  .WithAutomaticReconnect()</span><br><span class="line">  .Build();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 方式二、直接追加查询参数</span></span><br><span class="line"><span class="keyword">var</span> hubConnection = <span class="keyword">new</span> HubConnectionBuilder()</span><br><span class="line">  .WithUrl(<span class="string">&quot;http://localhost:5000/echohub?access_token=&lt;Your Token&gt;&quot;</span>)</span><br><span class="line">  .WithAutomaticReconnect()</span><br><span class="line">  .Build();</span><br></pre></td></tr></table></figure>
+
+<p>首先，SignalR 的身份认证，整体上依然遵循 ASP.NET Core 里的这套认证&#x2F;授权流程，所以，我们可以继续沿用 gRPC 这部分的代码。考虑到 SignalR 首次发起的是一个 GET 请求，通常的做法是在查询参数中追加令牌参数。当然，现在官方提供了<code>AccessTokenProvider</code>这个属性，允许你构造一个委托来提供令牌。接下来，为了让这个令牌更符合一般的场景，譬如，按照约定它应该出现在 HTTP 请求头的 <code>Authorization</code> 字段上，我们有下面两种方式来对它进行处理：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 方式一、设置 JwtBearer 的 Events 属性</span></span><br><span class="line">services.AddAuthentication(x =&gt;</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">&#125;)</span><br><span class="line">.AddJwtBearer(x =&gt;</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">//...</span></span><br><span class="line">  x.Events = <span class="keyword">new</span> JwtBearerEvents()</span><br><span class="line">  &#123;</span><br><span class="line">    OnMessageReceived = context =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">var</span> accessToken = context.Request.Query[<span class="string">&quot;access_token&quot;</span>];</span><br><span class="line">      <span class="keyword">var</span> path = context.HttpContext.Request.Path;</span><br><span class="line">      <span class="keyword">if</span> (!<span class="built_in">string</span>.IsNullOrEmpty(accessToken) &amp;&amp; (path.StartsWithSegments(<span class="string">&quot;/echohub&quot;</span>)))</span><br><span class="line">        context.Token = accessToken;</span><br><span class="line">      <span class="keyword">return</span> Task.CompletedTask;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 方式二，编写中间件，注意顺序</span></span><br><span class="line">app.Use((context, next) =&gt;</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">var</span> accessToken = context.Request.Query[<span class="string">&quot;access_token&quot;</span>].ToString();</span><br><span class="line">  <span class="keyword">var</span> path = context.Request.Path;</span><br><span class="line">  <span class="keyword">if</span> (!<span class="built_in">string</span>.IsNullOrEmpty(accessToken) &amp;&amp; (path.StartsWithSegments(<span class="string">&quot;/echohub&quot;</span>)))</span><br><span class="line">    context.Request.Headers.Add(<span class="string">&quot;Authorization&quot;</span>, <span class="keyword">new</span> StringValues(<span class="string">$&quot;Bearer <span class="subst">&#123;accessToken&#125;</span>&quot;</span>));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> next.Invoke();</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">app.UseAuthentication();</span><br><span class="line">app.UseAuthorization();</span><br></pre></td></tr></table></figure>
+
+<p>可以注意到，不管是哪一种方式，核心目的都是为了让令牌能在 ASP.NET Core 的请求管道中出现在它期望出现的地方，这是什么地方呢？我想，应该是为执行认证&#x2F;授权中间件以前，所以，为什么我说这两个中间件的顺序非常重要，原因正在于此，一旦我们做了这一点，剩下的事情就交给微软，我们只需要通过 <code>HttpContext</code> 的 <code>User</code> 属性获取用户信息即可。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Task <span class="title">Echo</span>(<span class="params"><span class="built_in">string</span> message</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">var</span> userName = Context.User?.Identity?.Name;</span><br><span class="line">  Clients.Client(Context.ConnectionId).SendAsync(<span class="string">&quot;OnEcho&quot;</span>, <span class="string">$&quot;<span class="subst">&#123;userName&#125;</span>:<span class="subst">&#123;message&#125;</span>&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span> Task.CompletedTask;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于 SignalR 而言，同一个用户会对应多个 ConnectionId，当然，我并不需要过度地去关注这个东西，除非我们真的要分清每一个 ConnectionId 具体代表什么。类似地，SignalR 一样可以用 <code>[Authorized]</code> 特性来限制 Hub 是否可以在未认证的情况下使用，甚至它可以配合不同的 Policy 来做更细致的划分：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">UserRoleRequirement</span> : </span><br><span class="line">  <span class="title">AuthorizationHandler</span>&lt;<span class="title">UserRoleRequirement</span>, <span class="title">HubInvocationContext</span>&gt;, <span class="title">IAuthorizationRequirement</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> Task <span class="title">HandleRequirementAsync</span>(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="function">    AuthorizationHandlerContext context, UserRoleRequirement requirement, HubInvocationContext resource</span>)</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">var</span> userRole = context.User.Claims.FirstOrDefault(x =&gt; x.Type == ClaimTypes.Role)?.Value;</span><br><span class="line">    <span class="keyword">if</span> (userRole == <span class="string">&quot;Admin&quot;</span> &amp;&amp; resource.HubMethodName == <span class="string">&quot;Echo&quot;</span>)</span><br><span class="line">      context.Succeed(requirement);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> Task.CompletedTask;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里，我们定义了一个<code>UserRoleRequirement</code>类，其作用是仅仅允许<code>Admin</code>角色访问<code>Echo()</code>方法。此时，为了让这个策略生效，我们还需要将其注册到容器中，如下面的代码片段所示：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">services</span><br><span class="line">  .AddAuthorization(options =&gt;</span><br><span class="line">  &#123;</span><br><span class="line">    options.AddPolicy(<span class="string">&quot;UserRoleRestricted&quot;</span>, policy =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">      policy.Requirements.Add(<span class="keyword">new</span> UserRoleRequirement());</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+
+<p>现在，我们可以在集线器(Hub)上控制 <code>Echo()</code> 方法访问权限，考虑到 <code>gRPC</code> 和 <code>SignalR</code> 都可以使用这套身份认证方案，所以，这个做法同样适用于 <code>gRPC</code>，如果你希望实现方法级的权限控制：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">Authorize</span>]</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">EchoHub</span> : <span class="title">Hub</span></span><br><span class="line">&#123;</span><br><span class="line">  [<span class="meta">Authorize(<span class="string">&quot;UserRoleRestricted&quot;</span>)</span>]</span><br><span class="line">  <span class="function"><span class="keyword">public</span> Task <span class="title">Echo</span>(<span class="params"><span class="built_in">string</span> message</span>)</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">var</span> userName = Context.User?.Identity?.Name;</span><br><span class="line">    Clients.Client(Context.ConnectionId).SendAsync(<span class="string">&quot;OnEcho&quot;</span>, <span class="string">$&quot;<span class="subst">&#123;userName&#125;</span>:<span class="subst">&#123;message&#125;</span>&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> Task.CompletedTask;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Kafka"><a href="#Kafka" class="headerlink" title="Kafka"></a>Kafka</h1><p>无独有偶，除了 SignalR ，我们还用到了消息中间件 Kafka，事实上，SignalR 会从 Kafka 拉取消息，并将其发布到订阅了该 Topic 的客户端上，所以，Kafka 在整个系统中，其实扮演着非常重要的角色。如果你只是需要让 Kafka 充当一个消息中介者，那么，你完全不需要考虑 Kafka 的身份认证问题。可一旦你考虑用 Kafka 来做具体的业务，这个问题就会立刻凸显出来。譬如，当我们用 Kafka 来实现一个分布式事务的时候，我们采用了 SAGA 模式，即让主事务负责事务的协调，每个子事务在收到主事务的消息后，执行相应的操作并回复主事务一条消息，再由主事务来决定整个事务应该提交还是回滚。如图所示，下面是一个针对 SAGA 模式的简单示意图：</p>
+<p><img src="/Kafka-Distributed-Transaction.drawio.png" alt="分布式事务 SAGA 模式示意图"></p>
+<p>关于这个模式的细节，感兴趣的朋友可以从 <a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/azure/architecture/reference-architectures/saga/saga">这里</a> 获取。这里我想说的是，当我们尝试用 Kafka 来做具体的业务的时候，我们其实是无法获得对应的用户信息的，因为此时此刻，基于 ASP.NET Core 的管道式的洋葱模型，对我们而言是暂时失效的，所以，我一直在说的非典型 Web 应用，其实可以指脱离了洋葱模型、脱离了授权&#x2F;认证流程的这类场景。和 gRPC 类似，当我们需要用户信息，而又无法获得用户信息的时候，该怎么办呢？答案是在 Kafka 的消息中传递一个令牌(Token)，下面是一个简单的实现思路：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> producerConfig = <span class="keyword">new</span> ProducerConfig &#123; BootstrapServers = <span class="string">&quot;192.168.50.162:9092&quot;</span> &#125;;</span><br><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> p = <span class="keyword">new</span> ProducerBuilder&lt;Null, <span class="built_in">string</span>&gt;(producerConfig).Build())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> token = <span class="string">&quot;&lt;Your Token&gt;&quot;</span>;</span><br><span class="line">    <span class="keyword">var</span> topic = “&lt;Your Topic&gt;<span class="string">&quot;;</span></span><br><span class="line"><span class="string">    var document = new &#123; Id = &quot;</span><span class="number">001</span><span class="string">&quot;, Name = &quot;</span>张三<span class="string">&quot;, Address = &quot;</span>北京市朝阳区<span class="string">&quot;, Event = &quot;</span>喝水未遂<span class="string">&quot; &#125;;</span></span><br><span class="line"><span class="string">    var message = new Message&lt;Null, string&gt; &#123; Value = JsonConvert.SerializeObject(document) &#125;;</span></span><br><span class="line"><span class="string">    // 在 Kafka 消息头里增加 Authorization 字段</span></span><br><span class="line"><span class="string">    message.Headers = new Headers();</span></span><br><span class="line"><span class="string">    message.Headers.Add(&quot;</span>Authorization<span class="string">&quot;, Encoding.UTF8.GetBytes($&quot;</span>Bearer &#123;token&#125;<span class="string">&quot;));</span></span><br><span class="line"><span class="string">    var result = await p.ProduceAsync(topic, message);</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>显然，这是非常朴素的一个想法，发送 Kafka 消息的时候，在 Kafka 的消息头里增加 <code>Authorization</code>字段，完美借鉴<code>HTTP</code>协议里的做法。那么，相对应地，消费 Kafka 消息的时候需要做一点调整，因为 Kafka 完全独立于 ASP.NET Core 的请求管道，所以，校验令牌的工作此时需要我们来独立完成。不过，请放心，这一切不会特别难，因为<code>JwtSecurityTokenHandler</code>这个类我们已经在前面用过一次：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> consumerConfig = <span class="keyword">new</span> ConsumerConfig &#123; BootstrapServers = <span class="string">&quot;127.0.0.1:9092&quot;</span> &#125;;</span><br><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> c = <span class="keyword">new</span> ConsumerBuilder&lt;Null, <span class="built_in">string</span>&gt;(consumerConfig).Build())</span><br><span class="line">&#123;</span><br><span class="line">    c.Subscribe(<span class="string">&quot;&lt;Your Topic&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> cts = <span class="keyword">new</span> CancellationTokenSource();</span><br><span class="line">    <span class="keyword">var</span> jwtHandler = <span class="keyword">new</span> JwtSecurityTokenHandler();</span><br><span class="line">    <span class="keyword">var</span> tokenParameters = <span class="keyword">new</span> TokenValidationParameters()</span><br><span class="line">    &#123;</span><br><span class="line">      ValidateIssuerSigningKey = <span class="literal">true</span>,</span><br><span class="line">      IssuerSigningKey = <span class="keyword">new</span> SymmetricSecurityKey(Encoding.UTF8.GetBytes(<span class="string">&quot;&lt;Your Secret&gt;&quot;</span>)),</span><br><span class="line">      ValidIssuer = <span class="string">&quot;&lt;Your Issuer&gt;&quot;</span>,</span><br><span class="line">      ValidAudience = <span class="string">&quot;&lt;Your Audience&gt;&quot;</span>,</span><br><span class="line">      ValidateIssuer = <span class="literal">true</span>,</span><br><span class="line">      ValidateAudience = <span class="literal">true</span>,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> userName = <span class="built_in">string</span>.Empty;</span><br><span class="line">        <span class="keyword">var</span> consumeResult = c.Consume(cts.Token);</span><br><span class="line">        <span class="keyword">var</span> headers = consumeResult.Message.Headers;</span><br><span class="line">        <span class="keyword">if</span> (headers != <span class="literal">null</span> &amp;&amp; headers.TryGetLastBytes(<span class="string">&quot;Authorization&quot;</span>, <span class="keyword">out</span> <span class="built_in">byte</span>[] values))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// 校验令牌</span></span><br><span class="line">            <span class="keyword">var</span> jwtToken = Encoding.UTF8.GetString(values).Replace(<span class="string">&quot;Bearer&quot;</span>, <span class="string">&quot;&quot;</span>).Trim();</span><br><span class="line">            <span class="keyword">var</span> claimsPrincipal = jwtHandler.ValidateToken(jwtToken, tokenParameters, <span class="keyword">out</span> SecurityToken securityToken);</span><br><span class="line">            userName = claimsPrincipal.Identity.Name;</span><br><span class="line">            </span><br><span class="line">            <span class="comment">// 处理消息</span></span><br><span class="line">            <span class="comment">// ......</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不过，我个人感觉，这样会增加消息消费方的工作，更好的做法是采用 <code>CallContext</code> 或者 <code>AsyncLocal</code> 来做统一的处理，这样，消息订阅方只需要关心消息怎么处理即可，考虑到 Kafka 属于 Pull 模式的消息队列，这种思路不见得在性能上有多少提升，更多的是一种简化啦，算是少写一点重复代码：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Subscribe</span>&lt;<span class="title">TKey</span>, <span class="title">TValue</span>&gt;(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="function">  <span class="keyword">this</span> IConsumer&lt;TKey, TValue&gt; consumer, <span class="built_in">string</span> topic, </span></span></span><br><span class="line"><span class="params"><span class="function">  CancellationToken cancellationToken, Action&lt;TValue&gt; callback</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">  consumer.Subscribe(topic);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span> (<span class="literal">true</span>)</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">try</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">var</span> consumeResult = consumer.Consume(cancellationToken);</span><br><span class="line">      <span class="keyword">if</span> (consumeResult != <span class="literal">null</span>)</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">var</span> headers = consumeResult.Message.Headers;</span><br><span class="line">        <span class="keyword">if</span> (headers != <span class="literal">null</span> &amp;&amp; headers.TryGetLastBytes(<span class="string">&quot;Authorization&quot;</span>, <span class="keyword">out</span> <span class="built_in">byte</span>[] values))</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="keyword">var</span> jwtToken = Encoding.UTF8.GetString(values).Replace(<span class="string">&quot;Bearer&quot;</span>, <span class="string">&quot;&quot;</span>).Trim();</span><br><span class="line">          <span class="keyword">var</span> userInfo = <span class="keyword">new</span> JwtTokenResloverService().ValidateToken(jwtToken);</span><br><span class="line">          UserContext.SetUserInfo(userInfo);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (callback != <span class="literal">null</span>)</span><br><span class="line">            callback(consumeResult.Message.Value);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">catch</span> (ConsumeException e)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>UserContext</code>内部利用<code>AsyncLocal</code>在不同线程间共享用户信息，这可以让我们在任意位置访问用户信息，因为该扩展方法中会调用一次<code>SetUserInfo()</code>方法，所以，只要在 Kafka 的消息头上维护了<code>Authorization</code>字段，就可以从中解析出常用的用户信息，譬如用户名、用户角色等等。当然，按照 <a target="_blank" rel="noopener" href="https://jwt.io/">JWT</a> 的 <a target="_blank" rel="noopener" href="https://datatracker.ietf.org/doc/html/rfc7519">规范</a>，我们最好还是不要在载荷(Payload)中存放敏感信息，如果需要更详细的信息，比如部门、权限等等，建议通过调接口或者查数据的库方式来实现。下面是<code>UserContext</code>的实现细节：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">class</span> <span class="title">UserContext</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> AsyncLocal&lt;UserInfo&gt; _localUserInfo = <span class="keyword">new</span> AsyncLocal&lt;UserInfo&gt;();</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">SetUserInfo</span>(<span class="params">UserInfo userInfo</span>)</span> =&gt; _localUserInfo.Value = userInfo;</span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> UserInfo <span class="title">GetUserInfo</span>()</span> =&gt; _localUserInfo.Value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>非常的简单，对不对? 作为 <code>CallContext</code> 的继任者，<code>AsyncLocal</code>就是这样的优秀！也许，大家会好奇<code>JwtTokenResloverService</code>是什么？其实，它还是<code>JwtSecurityTokenHandler</code>那一堆东西，下面的代码片段展示了如何从<code>ClaimsPrincipal</code>中提取用户名和角色名称，再次说明，不要在这里放敏感信息：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> claimsPrincipal = _jwtHandler.ValidateToken(token, tokenParameters, <span class="keyword">out</span> SecurityToken securityToken);</span><br><span class="line"><span class="keyword">if</span> (claimsPrincipal != <span class="literal">null</span>)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">var</span> userInfo = <span class="keyword">new</span> UserInfo();</span><br><span class="line">  userInfo.UserName = claimsPrincipal.Identity.Name;</span><br><span class="line">  userInfo.UserRole = claimsPrincipal.Claims.FirstOrDefault(x =&gt; x.Type == ClaimTypes.Role)?.Value;</span><br><span class="line">  <span class="keyword">return</span> userInfo;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在，我们一开始的例子，可以简化成下面这样：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> consumerConfig = <span class="keyword">new</span> ConsumerConfig &#123; BootstrapServers = <span class="string">&quot;127.0.0.1:9092&quot;</span> &#125;;</span><br><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> c = <span class="keyword">new</span> ConsumerBuilder&lt;Null, <span class="built_in">string</span>&gt;(consumerConfig).Build())</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">var</span> cts = <span class="keyword">new</span> CancellationTokenSource();</span><br><span class="line">  c.Subscribe(<span class="string">&quot;&lt;Your Topic&gt;&quot;</span>, cts.Token, message =&gt;</span><br><span class="line"> &#123;</span><br><span class="line">    <span class="comment">// 获取当前用户信息</span></span><br><span class="line">    <span class="keyword">var</span> userInfo = UserContext.GetUserInfo();</span><br><span class="line">    <span class="comment">// 处理消息</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Kafka 的故事，讲述到这里本该结尾，可世界上哪里会有完美的方案呢？如果考虑到 Kafka 发生消息堆积的可能性，一旦消息没有被及时处理，那么，这个放在消息头上的令牌可能会出现过期的情况。这种事情就和你使用缓存一样，如果不考虑缓存的击穿、穿透、雪崩三大灾难，那你对缓存的认知简直是肤浅。同样的道理，你要考虑令牌的过期、刷新、撤销，整个认知网络才算是真正建立起来，这些就交给我聪明的读者啦，或者以后有机会单独写一写这些话题。</p>
+<h1 id="本文小结"><a href="#本文小结" class="headerlink" title="本文小结"></a>本文小结</h1><p>2021年的最后一天，西安疫情可谓是涛声依旧，居家隔离、远程办公、买不到菜，注定要为这段时光写下注脚。也许，我们都习惯了饭来张口的外卖生活，可在这一刻，当一切线下互动被迫中止的时候，我们终于发现这些“典型”的生活场景变得不再“典型”；当人们开始在微信群里用接龙的方式来寻求生活物资的时候，微信这个社交工具的缺点就被不断地放大；当人们逐渐回归到一种“以物易物”的状态时，我不得不感慨这种从骨子里与生俱来的生存本能；当人们习以为常的“典型”被打破，其本身是否就是一种舒适圈？无论技术还是生活，你是否有做好随时面对“非典型”场景的准备？我想，在与新冠病毒长期对峙的后疫情时代，这是每一个人都应该去思考的问题，这篇博客断断续续地写了好几天，大概 2021 终究还是要这般潦草的过去罢。因为，我是一个长期悲观主义者，我确信这个世界依旧遵循熵增定律。如果你打算反驳，我会说：你说得对。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/gRPC/" rel="tag"># gRPC</a>
+          
+            <a href="/tags/SignalR/" rel="tag"># SignalR</a>
+          
+            <a href="/tags/Kafka/" rel="tag"># Kafka</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021-12-26-githubshortcut" rel="next" title="GitHub 搭配快捷指令，自动记录每天的起床时间">
+                <i class="fa fa-chevron-left"></i> GitHub 搭配快捷指令，自动记录每天的起床时间
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/2021-12-31-summary-of-2021" rel="prev" title="2021 年度小结">
+                2021 年度小结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A5%94%E5%AD%90"><span class="nav-number">1.</span> <span class="nav-text">楔子</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#gRPC"><span class="nav-number">2.</span> <span class="nav-text">gRPC</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SignalR"><span class="nav-number">3.</span> <span class="nav-text">SignalR</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Kafka"><span class="nav-number">4.</span> <span class="nav-text">Kafka</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E6%96%87%E5%B0%8F%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">本文小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

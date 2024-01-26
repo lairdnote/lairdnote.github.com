@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo,版权,知识共享," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="大家可以看到这里就是一段 HTML 代码，因为我们要引入的这个模板和 article.ejs 在同一个页面中，所以我们可以直接在这里调用 item 这个变量，而 item 这个变量里是封装了当前文章的标题和链接的，因此我们可以顺利成章的构造这样一段 HTML 代码，因为博主不会写 CSS 样式，所以使用了一个默认的代码样式来完成这个工作，如果大家懂 CSS，请自行发挥你的创意将它做得更好;;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在 Hexo 中为文章自动添加版权信息声明模块">
+<meta property="og:url" content="https://blog.feedscoin.com/%E5%9C%A8Hexo%E4%B8%AD%E4%B8%BA%E6%96%87%E7%AB%A0%E8%87%AA%E5%8A%A8%E6%B7%BB%E5%8A%A0%E7%89%88%E6%9D%83%E4%BF%A1%E6%81%AF%E5%A3%B0%E6%98%8E%E6%A8%A1%E5%9D%97">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="大家可以看到这里就是一段 HTML 代码，因为我们要引入的这个模板和 article.ejs 在同一个页面中，所以我们可以直接在这里调用 item 这个变量，而 item 这个变量里是封装了当前文章的标题和链接的，因此我们可以顺利成章的构造这样一段 HTML 代码，因为博主不会写 CSS 样式，所以使用了一个默认的代码样式来完成这个工作，如果大家懂 CSS，请自行发挥你的创意将它做得更好;;">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2015-11-15T05:12:22.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.196Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Hexo">
+<meta property="article:tag" content="版权">
+<meta property="article:tag" content="知识共享">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/在Hexo中为文章自动添加版权信息声明模块"/>
+
+
+
+
+
+  <title>在 Hexo 中为文章自动添加版权信息声明模块 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E5%9C%A8Hexo%E4%B8%AD%E4%B8%BA%E6%96%87%E7%AB%A0%E8%87%AA%E5%8A%A8%E6%B7%BB%E5%8A%A0%E7%89%88%E6%9D%83%E4%BF%A1%E6%81%AF%E5%A3%B0%E6%98%8E%E6%A8%A1%E5%9D%97">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">在 Hexo 中为文章自动添加版权信息声明模块</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-11-15T13:12:22+08:00">
+                2015-11-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%8B%AC%E7%AB%8B%E5%8D%9A%E5%AE%A2/" itemprop="url" rel="index">
+                    <span itemprop="name">独立博客</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  大家可以看到这里就是一段 HTML 代码，因为我们要引入的这个模板和 article.ejs 在同一个页面中，所以我们可以直接在这里调用 item 这个变量，而 item 这个变量里是封装了当前文章的标题和链接的，因此我们可以顺利成章的构造这样一段 HTML 代码，因为博主不会写 CSS 样式，所以使用了一个默认的代码样式来完成这个工作，如果大家懂 CSS，请自行发挥你的创意将它做得更好;<div class="article-content">;<div class="article-content">
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>各位朋友，大家好，欢迎大家关注我的博客，我是秦元培，我的博客地址是<a target="_blank" rel="noopener" href="http://qinyuanpei.com/">http://qinyuanpei.com</a>。今天想和大家说说博客文章版权这件事情。每当提到版权的时候，我知道大家内心深处都是对此不以为然的，因为国内版权意识薄弱，所以版权在我们的眼中就变成了这样一件可有可无的东西，可是事实真的是这样的吗？首先我们必须承认一件事情，即你从互联网上获得的知识都是有价值的，即使这些知识的创造者并未因此而获得利益。<span id="more"></span>相对其它的行业，因为程序员这个职业本身需要其通过不断地学习新知识来适应新变化，因此程序员这个群体更喜欢在互联网上分享知识和经验，而这些知识的受众面窄、技术门槛高则决定了程序员们无法像普通的博客作者一样有更多的机会来获得收入。大部分的程序员都是从分享知识、记录学习和技术交流这样的角度来撰写博客的。那么这样就会造成一个问题，在国内版权意识薄弱和技术博客变现困难的双重夹缝中，博客作者该如何寻求新的突破呢？</p>
+<h1 id="为什么要说博客文章版权这件事儿"><a href="#为什么要说博客文章版权这件事儿" class="headerlink" title="为什么要说博客文章版权这件事儿"></a>为什么要说博客文章版权这件事儿</h1><p>首先，我们为什么要说博客文章版权这件事情呢？因为博客是文字创造的产物，是知识共享的一种形式。当我们无视版权的时候，这意味着知识是没有价值的，创造是无关痛痒的，脑力劳动和创意活动的价值在现实中被无情地扼杀。当你引用一个人的观点却不加以注明的时候，当你盗用一个人的创意却不给予报酬的时候，试问谁还会愿意为这个社会贡献创意和想法呢？引用<a target="_blank" rel="noopener" href="http://blog.caijing.com.cn/expert_article-151317-41037.shtml">许锡良</a>的观点，尊重版权更深层次的含义在于对人权的尊重：</p>
+<blockquote>
+<p>从人权的角度看，人与动物的区别在于知识与思想，因此，人类最根本的财富也应该是知识与思想上的财富，一切社会财富都来源于知识与思想，这是从自然界获得生活资料，以及改造社会的根本。没有知识与思想的人类将与动物世界没有什么区别。尊重人权，首先就要学会尊重人的劳动成果，特别是创造性劳动成果，只有人，才能创造出来的知识产权与发明专利。尊重人权，首先就要学会尊重一个人的思想与创意。只有人，才能创造出来的知识产权与发明专利。因为每个人都是一个独立的个体，每个人头脑里的想法都是独一无二的，无人能替代的。在没有说出来，或者写出来之前，也无人能盗取的，这种思想就是个人独有，就是只属于个人的专利。 </p>
+</blockquote>
+<p>我常常遇到在博客评论中和我直接要源代码的人，我不明白从什么时候起对知识的分享变成了某些人懒惰的借口。我选择将我知道的某个分享出来，当然我同样有权利可以选择沉默。你不能因为习惯了做伸手党就认为我应该理所当然地把源代码给你，这是对我的不尊重。我写博客的目的在于和别人交流技术、互相学习，如果你根本没有看懂我博客写了什么，只是希望可以找到可以“抄”来就能用的代码。抱歉!这违背了我的初衷我更没有道理要将源代码分享给你,况且如果我的代码都清清楚楚（命名规范、注释清晰）地写在博客里，如果这样的代码你都不能看懂，就算把完整的工程分享给你又有什么用呢？我本来不情愿论坛来转载我的文章，因为论坛盖楼的这种互动模式实在难以产生较为良好的互动效果，可是人家来诚心诚意地询问你的态度，如此拒绝难免有点却之不恭吧！当然最让人讨厌的是网络爬虫和网站编辑，这种让人讨厌是因为它”简单粗暴”，完全不考虑博客作者的感受，文章的原始链接被删除、文章的作者署名被删除。或许大家都觉得一个署名、一个原始链接都是无足轻重的东西，可是在我看来这恰恰是体现责任的地方。作者的责任在于对文章的真实性和客观性负责，转发者的责任在于帮助读者找到作者当他们之间需要某种交流的时候，这就是我为什么强调署名和原始链接的理由！</p>
+<h1 id="谈谈如何保护博客文章版权"><a href="#谈谈如何保护博客文章版权" class="headerlink" title="谈谈如何保护博客文章版权"></a>谈谈如何保护博客文章版权</h1><p>在保护博客文章版权这个问题上，我们可以采取的方式固然很多，但是这件事情的根本原因在于人们普遍不重视知识产权的保护，所以我们这里提到的这些方式都是外家功夫，真正要根除这等沉疴痼疾需要人们不断提升自我、勤修内功。</p>
+<ul>
+<li>第一种方式，我们称为通过技术方式提醒，比如通过编写 JavaScript 脚本，实现当对方复制你的博客内容的时候，程序可以自动在这段复制的内容中增加署名和连接。当然我们可以通过修改文章的模板来在文章中加入版权信息，这个我们留到最后会说，因为实际上这个是我们今天要重点研究的内容，博主是个程序员，我们当然要用技术的方式来实现了，前面的这些大家看完心里有个数就是了，哈哈！</li>
+<li>第二种方式，我们称为增加文章内链的方式，就是在文章中尽可能地使用指向这个博客的连接，这样可以保证在文章转载后为博客带来一定的反向访客。</li>
+<li>第三种方式，在图片上增加水印，这样读者在看到图片的时候就可以很容易地找到原始出处，可是如果你不能保证拥有所引用的图片得版权，建议不要轻易地使用这种方式。</li>
+<li>第四种方式，逐渐形成个性化的写作风格，这样当读者读到这些文字的时候，可以通过文章的风格知道文章的作者和出处。</li>
+<li>第五种方式，努力提高自己博客的文章质量，让更多的读者从中受益，形成有独立风格的博客品牌。一个博客有了高质量的内容和品牌，那么在搜索引擎中的权重就会很高，网民通过搜索引擎进行查找的时候，博客原文都会排在第一位。</li>
+</ul>
+<p>博主之所以要使用 <a target="_blank" rel="noopener" href="http://qinyuanpei.com/">http://qinyuanpei.com</a> 这个独立博客的原因正是基于这个原因。博主目前采用的<a target="_blank" rel="noopener" href="http://baike.baidu.com/link?url=jcl0t2y3iwHPETIXjXM5yhQtujk2iUJE9Fy7dCoti7xtNDMxHYlUlXcW0GsorpaAWGq_Y1OSduIXVEpHlpSm1qHhV7mkGnU56J6JSRUuCRlwnWHNJL6K913N5mm9sMqiw1BXlmSprfhmwc1sxsjU3X7gMRd7z9OfBR446a__T3Gp90js_NnS6Dq-TkbmBeWB">知识共享</a>许可是署名(BY)-非商业性使用(NC)-相同方式共享(SA)，请各位在转载文章的时候注意保留作者署名和文章出处，谢谢！</p>
+<h1 id="保护博客文章版权，独立博客在行动"><a href="#保护博客文章版权，独立博客在行动" class="headerlink" title="保护博客文章版权，独立博客在行动"></a>保护博客文章版权，独立博客在行动</h1><p>我的博客是采用 <a target="_blank" rel="noopener" href="http://hexo.io/">Hexo</a> 这个博客系统来搭建的，说到底程序员是天生爱折腾的命吧，都有对掌控事物的欲望，不喜欢受到条件制约。CSDN 的博客虽然还不错，可是“限制因素 + 服务器奔溃”这样的强效组合实在让我很难有继续坚持下去的动力，所以果断就自己搭了博客买了域名，老老实实地开始管理起独立博客。好了，废话少说，放码过来，我们下面来看看怎么在 Hexo 中的文章中增加一个展示版权信息的模块，这里以 <a target="_blank" rel="noopener" href="https://github.com/wuchong/jacman">Jacman</a> 主题为例，我们首先定位到该主题文件夹下的 \layout_partial\post\article.ejs 文件：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">&lt;div id=<span class="string">&quot;main&quot;</span> <span class="keyword">class</span>=<span class="string">&quot;&lt;%= item.layout %&gt;&quot;</span> itemscope itemprop=<span class="string">&quot;blogPost&quot;</span>&gt;</span><br><span class="line">  &lt;% <span class="keyword">if</span> (page.<span class="property">layout</span>==<span class="string">&#x27;photo&#x27;</span> &amp;&amp; item.<span class="property">photos</span> &amp;&amp; item.<span class="property">photos</span>.<span class="property">length</span>)&#123; %&gt;</span><br><span class="line">    &lt;%- <span class="title function_">partial</span>(<span class="string">&#x27;gallery&#x27;</span>) %&gt;</span><br><span class="line">  &lt;% &#125; %&gt;</span><br><span class="line">	<span class="language-xml"><span class="tag">&lt;<span class="name">article</span> <span class="attr">itemprop</span>=<span class="string">&quot;articleBody&quot;</span>&gt;</span> </span></span><br><span class="line"><span class="language-xml">		&lt;%- partial(&#x27;header&#x27;) %&gt;</span></span><br><span class="line"><span class="language-xml">	<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;article-content&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">		&lt;% if( table&amp;&amp;(item.toc !== false) &amp;&amp; theme.toc.article)&#123; %&gt;</span></span><br><span class="line"><span class="language-xml">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;toc&quot;</span> <span class="attr">class</span>=<span class="string">&quot;toc-article&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">			<span class="tag">&lt;<span class="name">strong</span> <span class="attr">class</span>=<span class="string">&quot;toc-title&quot;</span>&gt;</span>&lt;%= __(&#x27;contents&#x27;) %&gt;<span class="tag">&lt;/<span class="name">strong</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">		&lt;% if(item.list_number == false) &#123;%&gt;</span></span><br><span class="line"><span class="language-xml">		&lt;%- toc(item.content,&#123;list_number:false&#125;) %&gt;</span></span><br><span class="line"><span class="language-xml">		&lt;% &#125;else&#123; %&gt;</span></span><br><span class="line"><span class="language-xml">			&lt;%- toc(item.content) %&gt;</span></span><br><span class="line"><span class="language-xml">		&lt;% &#125; %&gt;</span></span><br><span class="line"><span class="language-xml">		<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">		&lt;% &#125; %&gt;</span></span><br><span class="line"><span class="language-xml">		&lt;%- item.content %&gt; </span></span><br><span class="line"><span class="language-xml">	<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">		&lt;%- partial(&#x27;footer&#x27;) %&gt;  	       </span></span><br><span class="line"><span class="language-xml">	<span class="tag">&lt;/<span class="name">article</span>&gt;</span></span></span><br><span class="line">	&lt;%- <span class="title function_">partial</span>(<span class="string">&#x27;pagination&#x27;</span>) %&gt;</span><br><span class="line">	&lt;%- <span class="title function_">partial</span>(<span class="string">&#x27;comment&#x27;</span>) %&gt;</span><br><span class="line">&lt;/div&gt;  </span><br></pre></td></tr></table></figure>
+<p>我们可以注意到文章的内容是在 <code>&lt;%- item.content %&gt;</code> 这个标签里，因此我们如果要在文章中增加内容，只需要在 <code>&lt;%- item.content %&gt;</code> 的后面引入一个 ejs 模板文件即可，所以我们接下在 <code>article.ejs</code> 的同级目录下创建一个 <code>declare.ejs</code> 文件：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">pre</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">code</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">b</span>&gt;</span>版权声明<span class="tag">&lt;/<span class="name">b</span>&gt;</span>:本文由</span><br><span class="line">    <span class="tag">&lt;<span class="name">b</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&lt;%= config.root %&gt;about&quot;</span> <span class="attr">target</span>=<span class="string">&quot;_blank&quot;</span> <span class="attr">title</span>=<span class="string">&quot;&lt;%= config.author %&gt;&quot;</span>&gt;</span></span><br><span class="line">        &lt;%=c onfig.author %&gt;<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">b</span>&gt;</span>创作和发表,采用</span><br><span class="line">    <span class="tag">&lt;<span class="name">b</span>&gt;</span>署名(BY)<span class="tag">&lt;/<span class="name">b</span>&gt;</span>-</span><br><span class="line">    <span class="tag">&lt;<span class="name">b</span>&gt;</span>非商业性使用(NC)<span class="tag">&lt;/<span class="name">b</span>&gt;</span>-</span><br><span class="line">    <span class="tag">&lt;<span class="name">b</span>&gt;</span>相同方式共享(SA)<span class="tag">&lt;/<span class="name">b</span>&gt;</span>国际许可协议进行许可,转载请注明作者及出处,本文作者为</span><br><span class="line">    <span class="tag">&lt;<span class="name">b</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&lt;%= config.root %&gt;about&quot;</span> <span class="attr">target</span>=<span class="string">&quot;_blank&quot;</span> <span class="attr">title</span>=<span class="string">&quot;&lt;%= config.author %&gt;&quot;</span>&gt;</span></span><br><span class="line">        &lt;%=c onfig.author %&gt;<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">b</span>&gt;</span>,本文标题为</span><br><span class="line">    <span class="tag">&lt;<span class="name">b</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&lt;%- config.root %&gt;&lt;%- item.path %&gt;&quot;</span> <span class="attr">target</span>=<span class="string">&quot;_blank&quot;</span> <span class="attr">title</span>=<span class="string">&quot;&lt;%= item.title %&gt;&quot;</span>&gt;</span></span><br><span class="line">        &lt;%=i tem.title %&gt;<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">b</span>&gt;</span>,本文链接为</span><br><span class="line">    <span class="tag">&lt;<span class="name">b</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;&lt;%- config.root %&gt;&lt;%- item.path %&gt;&quot;</span> <span class="attr">target</span>=<span class="string">&quot;_blank&quot;</span> <span class="attr">title</span>=<span class="string">&quot;&lt;%= item.title %&gt;&quot;</span>&gt;</span></span><br><span class="line">        &lt;%- config.url %&gt;/</span><br><span class="line">          &lt;%- item.path %&gt;<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">b</span>&gt;</span>.<span class="tag">&lt;/<span class="name">code</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">pre</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>大家可以看到这里就是一段 HTML 代码，因为我们要引入的这个模板和 article.ejs 在同一个页面中，所以我们可以直接在这里调用 item 这个变量，而 item 这个变量里是封装了当前文章的标题和链接的，因此我们可以顺利成章的构造这样一段 HTML 代码，因为博主不会写 CSS 样式，所以使用了一个默认的代码样式来完成这个工作，如果大家懂 CSS，请自行发挥你的创意将它做得更好。好了，下面我们要做的工作就是将这个模版引用到 article.ejs 文件中，类似地我们可以使用&lt;%- partial(‘footer’) %&gt;这样的结构来引入这个模板，这里给出完整的 article.ejs 文件内容：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;main&quot;</span> <span class="attr">class</span>=<span class="string">&quot;&lt;%= item.layout %&gt;&quot;</span> <span class="attr">itemscope</span> <span class="attr">itemprop</span>=<span class="string">&quot;blogPost&quot;</span>&gt;</span></span><br><span class="line">  &lt;% if (page.layout==&#x27;photo&#x27; &amp;&amp; item.photos &amp;&amp; item.photos.length)&#123; %&gt;</span><br><span class="line">    &lt;%- partial(&#x27;gallery&#x27;) %&gt;</span><br><span class="line">  &lt;% &#125; %&gt;</span><br><span class="line">	<span class="tag">&lt;<span class="name">article</span> <span class="attr">itemprop</span>=<span class="string">&quot;articleBody&quot;</span>&gt;</span> </span><br><span class="line">		&lt;%- partial(&#x27;header&#x27;) %&gt;</span><br><span class="line">	<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;article-content&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">	    &lt;% if(theme.show_declare) &#123; %&gt;</span><br><span class="line">			&lt;%- partial(&#x27;declare&#x27;) %&gt;</span><br><span class="line">		&lt;% &#125; %&gt;</span><br><span class="line"></span><br><span class="line">		&lt;% if( table&amp;&amp;(item.toc !== false) &amp;&amp; theme.toc.article)&#123; %&gt;</span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">&quot;toc&quot;</span> <span class="attr">class</span>=<span class="string">&quot;toc-article&quot;</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">strong</span> <span class="attr">class</span>=<span class="string">&quot;toc-title&quot;</span>&gt;</span>&lt;%= __(&#x27;contents&#x27;) %&gt;<span class="tag">&lt;/<span class="name">strong</span>&gt;</span></span><br><span class="line">		&lt;% if(item.list_number == false) &#123;%&gt;</span><br><span class="line">		&lt;%- toc(item.content,&#123;list_number:false&#125;) %&gt;</span><br><span class="line">		&lt;% &#125;else&#123; %&gt;</span><br><span class="line">			&lt;%- toc(item.content) %&gt;</span><br><span class="line">		&lt;% &#125; %&gt;</span><br><span class="line">		<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">		&lt;% &#125; %&gt;</span><br><span class="line">		&lt;%- item.content %&gt; </span><br><span class="line"></span><br><span class="line">	    &lt;% if(theme.show_declare) &#123; %&gt;</span><br><span class="line">			&lt;%- partial(&#x27;declare&#x27;) %&gt;</span><br><span class="line">		&lt;% &#125; %&gt;</span><br><span class="line">	<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">		&lt;%- partial(&#x27;footer&#x27;) %&gt;  	       </span><br><span class="line">	<span class="tag">&lt;/<span class="name">article</span>&gt;</span></span><br><span class="line">	&lt;%- partial(&#x27;pagination&#x27;) %&gt;</span><br><span class="line">	&lt;%- partial(&#x27;comment&#x27;) %&gt;</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span>  </span><br></pre></td></tr></table></figure>
+<p>这里博主在文章的开头和结尾处插入了这个模板，同时在主题文件夹中设置了一个是否显示版权声明的开关变量，这样我们就可以在主题中设置是否开启版权声明模块了。好啦，相信你在看到这边文章的时候你已经看到了它的版权声明了，这就是我们今天的内容啦，谢谢大家！</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Hexo/" rel="tag"># Hexo</a>
+          
+            <a href="/tags/%E7%89%88%E6%9D%83/" rel="tag"># 版权</a>
+          
+            <a href="/tags/%E7%9F%A5%E8%AF%86%E5%85%B1%E4%BA%AB/" rel="tag"># 知识共享</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/%E8%A7%A3%E6%9E%90OBJ%E6%A8%A1%E5%9E%8B%E5%B9%B6%E5%B0%86%E5%85%B6%E5%8A%A0%E8%BD%BD%E5%88%B0Unity3D%E5%9C%BA%E6%99%AF%E4%B8%AD" rel="next" title="解析 OBJ 模型并将其加载到 Unity3D 场景中">
+                <i class="fa fa-chevron-left"></i> 解析 OBJ 模型并将其加载到 Unity3D 场景中
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/wow-typography" rel="prev" title="最近有点迷上字体排印学了">
+                最近有点迷上字体排印学了 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E8%AF%B4%E5%8D%9A%E5%AE%A2%E6%96%87%E7%AB%A0%E7%89%88%E6%9D%83%E8%BF%99%E4%BB%B6%E4%BA%8B%E5%84%BF"><span class="nav-number">1.</span> <span class="nav-text">为什么要说博客文章版权这件事儿</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B0%88%E8%B0%88%E5%A6%82%E4%BD%95%E4%BF%9D%E6%8A%A4%E5%8D%9A%E5%AE%A2%E6%96%87%E7%AB%A0%E7%89%88%E6%9D%83"><span class="nav-number">2.</span> <span class="nav-text">谈谈如何保护博客文章版权</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BF%9D%E6%8A%A4%E5%8D%9A%E5%AE%A2%E6%96%87%E7%AB%A0%E7%89%88%E6%9D%83%EF%BC%8C%E7%8B%AC%E7%AB%8B%E5%8D%9A%E5%AE%A2%E5%9C%A8%E8%A1%8C%E5%8A%A8"><span class="nav-number">3.</span> <span class="nav-text">保护博客文章版权，独立博客在行动</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
