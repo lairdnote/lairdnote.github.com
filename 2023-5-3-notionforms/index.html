@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Notion,在线工具,效率工具,表单," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文首发于微信公众号「效率工具指南」文&#x2F;彭宏豪      Hello 各位好，我是小豪。    好久没写 Notion 相关的内容了，今天想起放假前看到的一个使用案例，因此这篇文章，来介绍一下在 Notion 中使用表单或调查问卷的方法。    表单&#x2F;调查问卷的使用场景说起表单或调查问卷，很多人应该并不陌生，在过去 3 年疫情期间我们填了各式各样的信息申报问卷……">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NotionForms：第三方Notion表单工具，用来做调查问卷收集数据【效率工具指南】">
+<meta property="og:url" content="https://blog.feedscoin.com/2023-5-3-notionforms/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="本文首发于微信公众号「效率工具指南」文&#x2F;彭宏豪      Hello 各位好，我是小豪。    好久没写 Notion 相关的内容了，今天想起放假前看到的一个使用案例，因此这篇文章，来介绍一下在 Notion 中使用表单或调查问卷的方法。    表单&#x2F;调查问卷的使用场景说起表单或调查问卷，很多人应该并不陌生，在过去 3 年疫情期间我们填了各式各样的信息申报问卷……">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16830872724502.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16831042047231.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16830869104828.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16831064171223.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16831067221382.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16831073291274.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16831176172559.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16831187131529.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16831188786559.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16831038024564.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16831191205040.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16831200424005.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16831202940642.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16831204004851.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16831204709252.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16831211464447.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16830836498360.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16830848707207.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/05/04/16831215610302.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/03/25/48844555552858t2.JPG">
+<meta property="og:image" content="https://img.penghh.fun/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png">
+<meta property="article:published_time" content="2023-05-03T14:05:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:59:41.996Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Notion">
+<meta property="article:tag" content="在线工具">
+<meta property="article:tag" content="效率工具">
+<meta property="article:tag" content="表单">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.penghh.fun/2023/05/04/16830872724502.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2023-5-3-notionforms/"/>
+
+
+
+
+
+  <title>NotionForms：第三方Notion表单工具，用来做调查问卷收集数据【效率工具指南】 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2023-5-3-notionforms/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">NotionForms：第三方Notion表单工具，用来做调查问卷收集数据【效率工具指南】</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-05-03T22:05:00+08:00">
+                2023-05-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>本文首发于微信公众号「<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/qbGei1gvEqdra0PV0Re5Hg">效率工具指南</a>」<br>文&#x2F;彭宏豪     </p>
+<p>Hello 各位好，我是小豪。   </p>
+<p>好久没写 Notion 相关的内容了，今天想起放假前看到的一个使用案例，因此这篇文章，来介绍一下在 Notion 中使用表单或调查问卷的方法。   </p>
+<h2 id="表单-调查问卷的使用场景"><a href="#表单-调查问卷的使用场景" class="headerlink" title="表单&#x2F;调查问卷的使用场景"></a>表单&#x2F;调查问卷的使用场景</h2><p>说起表单或调查问卷，很多人应该并不陌生，在过去 3 年疫情期间我们填了各式各样的信息申报问卷……      </p>
+<p>除了用于收集信息，表单&#x2F;调查问卷还有多种用途：  </p>
+<ul>
+<li>调查和研究：如果您正在进行市场调查或者社会科学研究，表单可以用于收集参与者的观点和反馈。</li>
+<li>注册和申请：许多活动或者服务需要参与者或者用户填写表单来完成注册或者申请。例如，工作坊的注册、课程的申请、产品试用的申请（内测申请）等。  </li>
+<li>反馈和评价：企业和机构可能需要通过表单收集用户或者员工的反馈和评价，以改进产品或者服务。</li>
+<li>测试和测验：在教育和培训中，表单可以用于创建测试和测验，检查学生或者参与者的理解和掌握情况。</li>
+<li>订单和预定：商家可以使用表单来接收客户的订单和预定。</li>
+</ul>
+<p>在我上周看到的例子，有一位博主把表单用作 Notion 博客的<strong>留言板</strong>，如下图，用户可以在表单中写下留言或者自己的问题，且所有用户写下的留言会汇总到 Notion 的 database 中。    </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16830872724502.jpg"></p>
+<p>表单留言 ➡️ Notion 数据库：    </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16831042047231.jpg"></p>
+<p>如果你想实现同样的效果，<strong>在 Notion 中使用表单来收集数据，且同时将收集到的数据存放在 Notion 的数据库中</strong>，不妨跟着下面的方法进行操作：    </p>
+<p>Notion 本身没有表单功能，因此要在 Notion 中使用表单来收集数据，得借助外部的应用，这里我们用到的第三方工具是 <strong>NotionForm</strong>s。    </p>
+<h2 id="NotionForms"><a href="#NotionForms" class="headerlink" title="NotionForms"></a>NotionForms</h2><p>NotionForms，为 Notion 而生的表单构建工具，创建漂亮的表单来填充 Notion 表格（数据库），帮助 Notion 用户使用他们喜欢的工具实现更多的目标。      </p>
+<p>简言之，有了 NotionForms，即便 Notion 没有表单功能，你也可以<strong>在 Notion 中直接使用基于 NotionForms 制作的表单</strong>，用于收集数据或用户反馈。    </p>
+<p>NotionForms 官网：<br><a target="_blank" rel="noopener" href="https://notionforms.io/">https://notionforms.io/</a>      </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16830869104828.jpg"></p>
+<p>NotionForms 创建表单的步骤如下：  </p>
+<p>打开 NotionForms 官网，注册一个 NotionForms 帐户，完成注册后，点击 NotionForms 页面左侧的按钮，与 Notion 的 Workspace(工作区) 相关联。     </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16831064171223.jpg"></p>
+<p>在 Notion 工作区中新建一个页面，在页面添加一个数据库，没有特殊要求的话，选择 Database - Inline(数据库只占页面的一小部分) 即可。    </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16831067221382.jpg"></p>
+<p>创建的数据库，默认会有两个属性（两列）——Name 和 Tags，这里我们要根据后面创建的<strong>表单要收集的信息</strong>，适当地修改 property name(属性名) 和 type(类型)。       </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16831073291274.jpg"></p>
+<p>以前面的「博客留言板」表单为例，我们想要收集<strong>留言、昵称、来源</strong>这 3 个字段（信息），因此数据库也要相应地添加这 3 个属性：  </p>
+<ul>
+<li>留言：其实就是数据库中每一个页面的 Title(标题)，无法修改类型   </li>
+<li>昵称：Text 文本类型</li>
+<li>来源：统计用户来自哪个渠道，为方便用户选择，这里将其设置为 Select 类型</li>
+</ul>
+<p><img src="https://img.penghh.fun/2023/05/04/16831176172559.jpg"></p>
+<p>设置好数据库的属性名和类型后，回到 NotionForms，点击左侧的 Create a form，查看右侧列出的数据库，是否包含了你刚创建的页面。  </p>
+<p>如果没有展示出来，则可以尝试在上方的输入框输入数据库或者页面的名称。    </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16831187131529.jpg"></p>
+<p>输入之后还是搜不到的话，可以点击下图的蓝色文本 My Notion database is not here。    </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16831188786559.jpg"></p>
+<p>点击下图的 Share my database，重新关联一下 Notion 数据库和 NotionForms，这样应该就能找到刚创建的包含有数据库的页面。   </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16831038024564.jpg"></p>
+<p>进入到表单的编辑页面，左侧可以编辑表单的标题、描述，输入之后可以在右侧实时预览效果。   </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16831191205040.jpg"></p>
+<p>向下滑动左侧的面板，来到表单结构，这里会把我们在 Notion 数据库中添加的属性，作为表单的<strong>字段</strong>。  </p>
+<p>将鼠标指针移动到字段的右侧，会显示隐藏的星号 * ，把星号点亮变为红色，可以把当前字段设置为「<strong>必填项</strong>」，即用户不输入的情况下，无法提交表单。   </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16831200424005.jpg"></p>
+<p>完成以上设置后，点击左上角的 Save changes，保存修改，会打开下图的页面，点击表单链接右侧的「复制」按钮，复制链接。   </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16831202940642.jpg"></p>
+<p>回到 Notion 页面中，粘贴表单链接，选择 Create embed，将表单嵌入页面。    </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16831204004851.jpg"></p>
+<p>NotionForms 表单嵌入 Notion 页面的效果👇👇     </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16831204709252.jpg"></p>
+<p>当有用户在表单提交了信息，我们也能在 Notion 数据库中及时地看到通过 NotionForms 采集的信息～ </p>
+<p>除了上面介绍的 NotionForms，如果我们只是想在 Notion 页面中收集数据，而对收集到的数据的后续处理放在别的应用中，那我们也可以考虑在 Notion 中嵌入<strong>表单应用</strong>的链接。  </p>
+<h2 id="谷歌表单-Google-Forms"><a href="#谷歌表单-Google-Forms" class="headerlink" title="谷歌表单 Google Forms"></a>谷歌表单 Google Forms</h2><p>谷歌表单，是 Google Workspace 套件的一部分，提供了一个免费、易用、灵活的在线表单制作和管理工具。它允许用户轻松创建表单，以收集数据、进行调查、组织活动等。  </p>
+<p>我们可以先在谷歌表单中设计好表单，再把表单链接嵌入 Notion 页面中，就可以在 Notion 中借由表单来收集信息。   </p>
+<p>不过在 Notion 中填写谷歌表单之前，需要先进行登录操作，体验不是很好。   </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16831211464447.jpg"></p>
+<h2 id="腾讯文档表单"><a href="#腾讯文档表单" class="headerlink" title="腾讯文档表单"></a>腾讯文档表单</h2><p>腾讯文档表单不支持嵌入 Notion 页面，它会把我们想嵌入的链接转为书签的形式。    </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16830836498360.jpg"></p>
+<h2 id="石墨文档表单"><a href="#石墨文档表单" class="headerlink" title="石墨文档表单"></a>石墨文档表单</h2><p>石墨文档也有创建表单的功能，同样地，将我们在石墨文档中创建的表单嵌入 Notion 页面，就能很方便地收集相关信息。   </p>
+<p><img src="https://img.penghh.fun/2023/05/04/16830848707207.jpg"></p>
+<p>经由石墨表单收集到的数据，我们可以在石墨文档的后台，点击「在表格中查看」，会发现石墨文档提供了 2 个选项：   </p>
+<ul>
+<li>在专业表格中查看：其实就是普通的 Excel 表格</li>
+<li>在应用表格中查看：类似于飞书或者腾讯文档的多维表格</li>
+</ul>
+<p><img src="https://img.penghh.fun/2023/05/04/16831215610302.jpg"></p>
+<h2 id="扫码加入我在知识星球上创建的社群「效率工具指南」"><a href="#扫码加入我在知识星球上创建的社群「效率工具指南」" class="headerlink" title="扫码加入我在知识星球上创建的社群「效率工具指南」"></a>扫码加入我在知识星球上创建的社群「效率工具指南」</h2><p>如果你觉得本文帮到了你，想支持我做得更好，欢迎戳下方图片，加入我的知识星球。     </p>
+<p>关于社群「效率工具指南」的介绍，可以查看我在语雀文档上发布的文档：<a target="_blank" rel="noopener" href="https://www.yuque.com/penghonghao/af0aai/glwrg2dl0dqlegi6?singleDoc#">知识星球「效率工具指南」简介</a>    </p>
+<p><img src="https://img.penghh.fun/2023/03/25/48844555552858t2.JPG" alt="48844555552858T2">   </p>
+<h2 id="订阅我在竹白上创建的-Newsletter"><a href="#订阅我在竹白上创建的-Newsletter" class="headerlink" title="订阅我在竹白上创建的 Newsletter"></a>订阅我在竹白上创建的 Newsletter</h2><p>如果对你有帮助的话，别忘了点击下方的链接，订阅我的 Newsletter，之后发布了新的内容，就能第一时间收到通知啦～  </p>
+<p><a target="_blank" rel="noopener" href="https://penghh.zhubai.love/">👉在竹白上订阅效率工具指南</a>         </p>
+<h2 id="欢迎关注"><a href="#欢迎关注" class="headerlink" title="欢迎关注"></a>欢迎关注</h2><p>以上，就是本次想和你分享的内容，希望能够对你有一点帮助。     </p>
+<p><img src="https://img.penghh.fun/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png" alt="公众号：效率工具指南">   </p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Notion/" rel="tag"># Notion</a>
+          
+            <a href="/tags/%E5%9C%A8%E7%BA%BF%E5%B7%A5%E5%85%B7/" rel="tag"># 在线工具</a>
+          
+            <a href="/tags/%E6%95%88%E7%8E%87%E5%B7%A5%E5%85%B7/" rel="tag"># 效率工具</a>
+          
+            <a href="/tags/%E8%A1%A8%E5%8D%95/" rel="tag"># 表单</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023-4-22-bilibili/" rel="next" title="B站工具合集：B站视频和封面下载，带你玩转B站【效率工具指南】">
+                <i class="fa fa-chevron-left"></i> B站工具合集：B站视频和封面下载，带你玩转B站【效率工具指南】
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023-5-7-hexo_blog_font/" rel="prev" title="Hexo博客Fluid主题，字体全局更改为霞鹜文楷体【效率工具指南】">
+                Hexo博客Fluid主题，字体全局更改为霞鹜文楷体【效率工具指南】 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A8%E5%8D%95-%E8%B0%83%E6%9F%A5%E9%97%AE%E5%8D%B7%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">表单&#x2F;调查问卷的使用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NotionForms"><span class="nav-number">2.</span> <span class="nav-text">NotionForms</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%B7%E6%AD%8C%E8%A1%A8%E5%8D%95-Google-Forms"><span class="nav-number">3.</span> <span class="nav-text">谷歌表单 Google Forms</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%85%BE%E8%AE%AF%E6%96%87%E6%A1%A3%E8%A1%A8%E5%8D%95"><span class="nav-number">4.</span> <span class="nav-text">腾讯文档表单</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%B3%E5%A2%A8%E6%96%87%E6%A1%A3%E8%A1%A8%E5%8D%95"><span class="nav-number">5.</span> <span class="nav-text">石墨文档表单</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%AB%E7%A0%81%E5%8A%A0%E5%85%A5%E6%88%91%E5%9C%A8%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83%E4%B8%8A%E5%88%9B%E5%BB%BA%E7%9A%84%E7%A4%BE%E7%BE%A4%E3%80%8C%E6%95%88%E7%8E%87%E5%B7%A5%E5%85%B7%E6%8C%87%E5%8D%97%E3%80%8D"><span class="nav-number">6.</span> <span class="nav-text">扫码加入我在知识星球上创建的社群「效率工具指南」</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A2%E9%98%85%E6%88%91%E5%9C%A8%E7%AB%B9%E7%99%BD%E4%B8%8A%E5%88%9B%E5%BB%BA%E7%9A%84-Newsletter"><span class="nav-number">7.</span> <span class="nav-text">订阅我在竹白上创建的 Newsletter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AC%A2%E8%BF%8E%E5%85%B3%E6%B3%A8"><span class="nav-number">8.</span> <span class="nav-text">欢迎关注</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

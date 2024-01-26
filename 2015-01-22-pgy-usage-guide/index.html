@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Liunx Python Rust Goalng DevOPS" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言我在 《给 iOS 工程增加 Daily Build》 一文中介绍过如何用命令行生成 IPA 文件以及通过 itms-services 协议 来让用户可以直接在网页上安装测试应用。但是这种方法虽然有效，但是还是比较麻烦，因为：  开发者需要自己写相关的 Build 脚本。 开发者需要自己搭建好应用下载的服务器。 如果要做得更友好，开发者还需要部署 CDN 服务、增加扫描二维码下载等功能。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用蒲公英来做iOS测试应用的分发">
+<meta property="og:url" content="https://blog.feedscoin.com/2015-01-22-pgy-usage-guide/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="前言我在 《给 iOS 工程增加 Daily Build》 一文中介绍过如何用命令行生成 IPA 文件以及通过 itms-services 协议 来让用户可以直接在网页上安装测试应用。但是这种方法虽然有效，但是还是比较麻烦，因为：  开发者需要自己写相关的 Build 脚本。 开发者需要自己搭建好应用下载的服务器。 如果要做得更友好，开发者还需要部署 CDN 服务、增加扫描二维码下载等功能。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/images/pgy_0.jpg">
+<meta property="og:image" content="https://blog.feedscoin.com/images/export_ipa_1.jpg">
+<meta property="og:image" content="https://blog.feedscoin.com/images/export_ipa_2.jpg">
+<meta property="og:image" content="https://blog.feedscoin.com/images/pgy_1.jpg">
+<meta property="og:image" content="https://blog.feedscoin.com/images/pgy_2.jpg">
+<meta property="og:image" content="https://blog.feedscoin.com/images/pgy_3.jpg">
+<meta property="article:published_time" content="2015-01-22T11:16:06.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:22:32.399Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Liunx Python Rust Goalng DevOPS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/images/pgy_0.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2015-01-22-pgy-usage-guide/"/>
+
+
+
+
+
+  <title>使用蒲公英来做iOS测试应用的分发 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015-01-22-pgy-usage-guide/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">使用蒲公英来做iOS测试应用的分发</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-01-22T19:16:06+08:00">
+                2015-01-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <img src="/images/pgy_0.jpg" class="">
+
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我在 <a href="/2012/02/16/apply-daily-build-in-ios-project/">《给 iOS 工程增加 Daily Build》</a> 一文中介绍过如何用命令行生成 IPA 文件以及通过 <code>itms-services</code> 协议 来让用户可以直接在网页上安装测试应用。但是这种方法虽然有效，但是还是比较麻烦，因为：</p>
+<ol>
+<li>开发者需要自己写相关的 Build 脚本。</li>
+<li>开发者需要自己搭建好应用下载的服务器。</li>
+<li>如果要做得更友好，开发者还需要部署 CDN 服务、增加扫描二维码下载等功能。</li>
+</ol>
+<p>所以本文给大家推荐一个叫 “<a target="_blank" rel="noopener" href="http://www.pgyer.com/">蒲公英</a>” 的免费服务，帮助开发者能够方便地来做 iOS 应用的测试分发工作。蒲公英于 2014 年 7 月正式上线，我自己使用过一段时间，还是挺满意的。</p>
+<p>下面我们就来看看，如何使用 “<a target="_blank" rel="noopener" href="http://www.pgyer.com/">蒲公英</a>” 来进行测试版本应用的分发工作。</p>
+<h2 id="生成-IPA-文件"><a href="#生成-IPA-文件" class="headerlink" title="生成 IPA 文件"></a>生成 IPA 文件</h2><p>生成应用的 IPA 文件可以使用命令行 <code>xcodebuild exportArchive -exportFormat ipa</code>来完成，也可以使用 Xcode 提供的相应功能。相信大部分同学应该都用过，我就简单介绍一下。</p>
+<p>首先将编译的目标机器设置成 “iOS Device”，然后点击”Product”-&gt;”Archive”，Archive 成功之后，就可以在 Xcode 的 Organizer 中看到相应的文件。</p>
+<p>接下来点击 Organizer 中的 “Export” 按钮，如下图所示：</p>
+<img src="/images/export_ipa_1.jpg" class="">
+
+<p>在接下来的弹出界面中选择 “Save for Ad Hoc Deployment”。如下图所示：</p>
+<img src="/images/export_ipa_2.jpg" class="">
+
+<p>选择完成后点 Next，Xcode 会自动将测试设备的签名信息附加上，并将相应的 IPA 文件导出。</p>
+<h2 id="上传到蒲公英"><a href="#上传到蒲公英" class="headerlink" title="上传到蒲公英"></a>上传到蒲公英</h2><p>如果是第一次使用蒲公英，我们需要访问 <a target="_blank" rel="noopener" href="http://www.pgyer.com/user/register">蒲公英的网址</a> 进行注册。注册主要是为了保护测试应用的安全和设置相应的权限（例如设置下载密码）。</p>
+<p>注册之后，点击<a target="_blank" rel="noopener" href="http://www.pgyer.com/">蒲公英网站首页</a>的 “发布应用”，然后选择之前生成的 IPA 文件即可完成上传 IPA 的过程。蒲公英对上传速度进行了很大程度的优化，上传应用速度非常快，下图是我测试上传猿题库的过程（上传 18M 的 IPA 文件大概花了半分钟时间，平均速度应该超过了 500K 每秒）：</p>
+<img src="/images/pgy_1.jpg" class="">
+
+<p>上传成功后，蒲公英会自动分析应用的 Bundle ID 信息，将其在 App Store 上的应用介绍和截图获取下来。然后你可以选择设置一个 “安装密码”，以避免一些越狱用户非法安装你的应用。对于小范围试用的应用，建议也不要将其发布到 “应用广场”。如下所示：</p>
+<img src="/images/pgy_2.jpg" class="">
+
+<p>设置好所有需要的信息后，点击发布应用，蒲公英会生成一个应用分发的网页。如下图所示：</p>
+<img src="/images/pgy_3.jpg" class="">
+
+<p>你可以把这个网页发给你的测试用户:</p>
+<ul>
+<li>如果用户在手机上打开这个页面，则可以直接点击 “安装按钮” 来一键下载和安装测试应用。</li>
+<li>如果用户在电脑上打开这个应用，则可以用扫描二维码的方式来一键下载和安装测试应用。</li>
+</ul>
+<h2 id="一些小技巧"><a href="#一些小技巧" class="headerlink" title="一些小技巧"></a>一些小技巧</h2><ul>
+<li>有企业证书的同学，如果将 IPA 在本地用企业证书签名，则可以把蒲公英当作一个企业应用发布渠道，省去部署分发服务器的烦恼，但最好设置安装密码，以免被苹果认为滥用企业证书。</li>
+<li>嫌每次打开蒲公英的网页太麻烦？蒲公英提供了 <a target="_blank" rel="noopener" href="http://www.pgyer.com/apps">Mac 客户端</a>，所有上传和设置操作都可以在客户端上直接进行。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/Unity3D%E5%A1%94%E9%98%B2%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E9%A1%B9%E7%9B%AE%E8%AE%B2%E8%A7%A3(%E4%B8%8B)/" rel="next" title="Unity3D塔防游戏开发项目讲解(下)">
+                <i class="fa fa-chevron-left"></i> Unity3D塔防游戏开发项目讲解(下)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/%E5%BD%93Unity3D%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E9%81%87%E4%B8%8AExcel/" rel="prev" title="当 Unity3D 游戏开发遇上 Excel">
+                当 Unity3D 游戏开发遇上 Excel <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E6%88%90-IPA-%E6%96%87%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">生成 IPA 文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8A%E4%BC%A0%E5%88%B0%E8%92%B2%E5%85%AC%E8%8B%B1"><span class="nav-number">3.</span> <span class="nav-text">上传到蒲公英</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E5%B0%8F%E6%8A%80%E5%B7%A7"><span class="nav-number">4.</span> <span class="nav-text">一些小技巧</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

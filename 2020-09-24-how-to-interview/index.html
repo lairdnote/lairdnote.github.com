@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Liunx Python Rust Goalng DevOPS" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言工作这十年来，我面试了很多不同岗位的人。刚开始是面技术，后面是面产品，再后面是测试、运营、教研、设计。最近还面试了很多硬件相关岗位的人，比如 ID 设计师、结构设计师、质量工程师等。 我肯定不可能同时是这些岗位的专家，大部分情况下，我都是外行。但是我又要面试这些岗位，尽可能招聘到优秀的候选人。团队如果组建得不好，工作执行上肯定会受影响。 面试某种程度上是一门艺术，非常不标准化，又非常不确定，每">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面试的艺术 - 如何面试别人">
+<meta property="og:url" content="https://blog.feedscoin.com/2020-09-24-how-to-interview/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="前言工作这十年来，我面试了很多不同岗位的人。刚开始是面技术，后面是面产品，再后面是测试、运营、教研、设计。最近还面试了很多硬件相关岗位的人，比如 ID 设计师、结构设计师、质量工程师等。 我肯定不可能同时是这些岗位的专家，大部分情况下，我都是外行。但是我又要面试这些岗位，尽可能招聘到优秀的候选人。团队如果组建得不好，工作执行上肯定会受影响。 面试某种程度上是一门艺术，非常不标准化，又非常不确定，每">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-09-24T12:41:55.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:22:32.480Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Liunx Python Rust Goalng DevOPS">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2020-09-24-how-to-interview/"/>
+
+
+
+
+
+  <title>面试的艺术 - 如何面试别人 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020-09-24-how-to-interview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">面试的艺术 - 如何面试别人</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-09-24T20:41:55+08:00">
+                2020-09-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>工作这十年来，我面试了很多不同岗位的人。刚开始是面技术，后面是面产品，再后面是测试、运营、教研、设计。最近还面试了很多硬件相关岗位的人，比如 ID 设计师、结构设计师、质量工程师等。</p>
+<p>我肯定不可能同时是这些岗位的专家，大部分情况下，我都是外行。但是我又要面试这些岗位，尽可能招聘到优秀的候选人。团队如果组建得不好，工作执行上肯定会受影响。</p>
+<p>面试某种程度上是一门艺术，非常不标准化，又非常不确定，每个候选人都是一个独特的个体，需要你调整自己的问题，尽可能准确地判断出候选人的水平，这几乎不可能 100% 做到。</p>
+<p>我是如何面试各种岗位的呢？以下是我的一些小结。</p>
+<h2 id="如何面试别人"><a href="#如何面试别人" class="headerlink" title="如何面试别人"></a>如何面试别人</h2><h3 id="从-JD-开始"><a href="#从-JD-开始" class="headerlink" title="从 JD 开始"></a>从 JD 开始</h3><p>当你招聘一个岗位，肯定是工作上具体的事情需要增加人手完成，所以梳理 JD（岗位描述）是招聘的第一步。</p>
+<p>通常 HR、面试官、候选人也是通过 JD 来达成对于目标工作的一致性认知。</p>
+<p>JD 主要包括两部分：</p>
+<ul>
+<li>岗位职责</li>
+<li>任职要求</li>
+</ul>
+<p>岗位职责将这个人进来之后的工作细化，便于你理清楚到底为什么需要这个人，这个人进来之后可以改善哪部分的工作。</p>
+<p>任职要求是对候选人核心素质的描述，便于提前过滤掉不合格的候选人，也便于你之后对核心素质进行考查。</p>
+<h3 id="承认面试考查的不完美"><a href="#承认面试考查的不完美" class="headerlink" title="承认面试考查的不完美"></a>承认面试考查的不完美</h3><p>一个候选人，你只花不到一个小时聊，很难完整得判断出这个人的水平。所以，面试考查算是一个不完备的决策行为。你可能误判，错过一个优秀的候选人。你也可能失误，把一个不合格的候选人招进来。</p>
+<p>面试的第一步，就是承认这种决策的不完美。面试就是：</p>
+<p><strong>在非常有限的时间内从一堆候选人中挑出能够胜任的同学。</strong></p>
+<p>而我们能做的就是尽可能提高面试的 <strong>正确率</strong> 和 <strong>召回率</strong>。</p>
+<h3 id="进行有区分度的考查"><a href="#进行有区分度的考查" class="headerlink" title="进行有区分度的考查"></a>进行有区分度的考查</h3><p>面试过程中，你可以提很多问题，但是如果一个问题所有候选人都答对或者答错，那么这个问题就完全没有区分度了。你不可能全部通过或者拒绝所有候选人。</p>
+<p>所以，我们需要精心设计问题，让优秀的候选人能够被挑出来，不合格的能够被淘汰掉。</p>
+<p>在技术面试中，算法题目就是一类有区分度的问题。常常有人问：某某公司面算法，工作中用得到么？其实答案就是，如果不面算法，一般的工程开发问题都答上来了又有什么意义？面试又不是考查记忆力。</p>
+<p>对于工程师来说，逻辑能力和智力都是很重要的底层能力，而算法题就可以做到很好地筛选出这方面优秀的人。</p>
+<h3 id="用细节和数据来佐证"><a href="#用细节和数据来佐证" class="headerlink" title="用细节和数据来佐证"></a>用细节和数据来佐证</h3><p>候选人的简历可能非常光鲜，但是细问一下就会发现水分。所以面试的时候，我们需要就着细节问，一个事情他负责的，我们可以：</p>
+<ul>
+<li>问宏观。为什么做这个事情，意义是什么，目标是什么。</li>
+<li>问时间。这个事情什么时候开始的，具体每个阶段做了什么。</li>
+<li>问人员和流程。这个事情相关的同事有哪些，相互之间如何配合的。</li>
+<li>问方案。这个事情具体的方案细节是什么样的。</li>
+<li>问数据。这个事情最终的数据如何，如何评价这个数据。</li>
+<li>问困难。这个事情最大的挑战是什么，如何克服的。</li>
+<li>问收获。对这个事情有什么复盘，下一次做会有哪些不一样。</li>
+</ul>
+<p>除了问，我们还可以当场看。对于设计&#x2F;产品&#x2F;教研岗位，可以当场让他给你看线上的作品，讨论作品的细节。</p>
+<p>有了细节，你就可以更真实地判断出来他的简历是否真实，事情做得到底好不好。</p>
+<h3 id="关注核心基础素质"><a href="#关注核心基础素质" class="headerlink" title="关注核心基础素质"></a>关注核心基础素质</h3><p>虽然我们面试的岗位千差万别，但是有一些基础的素质，每一个岗位都需要。</p>
+<p>比如说：表达沟通能力。有些候选人连自己的答案都说不清楚，如何能够做好工作？而有一些候选人，说起话来滔滔不绝，但是一句也没有回答到重点上，这种人也是表达沟通能力有问题的表现。这种是信息表达的“密度”很低，和这种人工作会特别耽误时间。</p>
+<p>除了表达沟通能力之外，我看重的核心能力还包括：</p>
+<ul>
+<li>工作热情。</li>
+<li>团队精神。</li>
+<li>学习习惯。</li>
+</ul>
+<p>通过问一些案例和工作上的细节，我就可以对候选人的这些能力有一个感受。</p>
+<h3 id="考查核心专业能力"><a href="#考查核心专业能力" class="headerlink" title="考查核心专业能力"></a>考查核心专业能力</h3><p>不同岗位的人专业能力不一样，如果条件允许，最好还是让候选人展示一下他的专业能力。如果面试当时时间不够，也可以是以作业的方式来考查。</p>
+<ul>
+<li>对于技术岗位，可以当场考查一些代码。</li>
+<li>对于产品岗位，可以留一个产品分析的作业，或者当场对一些产品交互进行分析。</li>
+<li>对于设计岗位，可以让他当场手绘一张图或者留一个设计作业。</li>
+<li>对于测试岗位，可以当场分析一些用例。</li>
+<li>对于硬件产品经理，可以做一个策划作业。</li>
+</ul>
+<h2 id="标准化和复盘"><a href="#标准化和复盘" class="headerlink" title="标准化和复盘"></a>标准化和复盘</h2><p>当你面试一个岗位的人久了，你就可以形成自己的面试「方法论」。这个方法论包括：</p>
+<ul>
+<li>一组你熟悉的面试题目，你可以灵活地使用。</li>
+<li>对于这套题目的答案好坏程度的经验值，帮助你将候选人分级。</li>
+</ul>
+<p>这套方法论固化下来，可以共享给同事，大家用一个统一的标准来面试。</p>
+<p>每隔一段时间，你也需要复盘一下。有时候因为环境的变化，一些题目不太适用或者已经太普遍了，无法产生区分度，这个时候需要进行调整。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>面试从梳理 JD 开始，在承认面试不可能完美的前提下：</p>
+<ul>
+<li>关注候选人的核心基础能力，通过问细节和数据来获得更详细的信息。</li>
+<li>在专业考查上，通过现场和事后的作业，保证专业能力过关。</li>
+<li>通过标准化和复盘，总结和迭代自己的面试方法。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020-09-19-study-of-HUA/" rel="next" title="关于高尿酸的一些研究">
+                <i class="fa fa-chevron-left"></i> 关于高尿酸的一些研究
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/post/d33db2d3.html" rel="prev" title="九月总结">
+                九月总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E9%9D%A2%E8%AF%95%E5%88%AB%E4%BA%BA"><span class="nav-number">2.</span> <span class="nav-text">如何面试别人</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E-JD-%E5%BC%80%E5%A7%8B"><span class="nav-number">2.1.</span> <span class="nav-text">从 JD 开始</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%BF%E8%AE%A4%E9%9D%A2%E8%AF%95%E8%80%83%E6%9F%A5%E7%9A%84%E4%B8%8D%E5%AE%8C%E7%BE%8E"><span class="nav-number">2.2.</span> <span class="nav-text">承认面试考查的不完美</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9B%E8%A1%8C%E6%9C%89%E5%8C%BA%E5%88%86%E5%BA%A6%E7%9A%84%E8%80%83%E6%9F%A5"><span class="nav-number">2.3.</span> <span class="nav-text">进行有区分度的考查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E7%BB%86%E8%8A%82%E5%92%8C%E6%95%B0%E6%8D%AE%E6%9D%A5%E4%BD%90%E8%AF%81"><span class="nav-number">2.4.</span> <span class="nav-text">用细节和数据来佐证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B3%E6%B3%A8%E6%A0%B8%E5%BF%83%E5%9F%BA%E7%A1%80%E7%B4%A0%E8%B4%A8"><span class="nav-number">2.5.</span> <span class="nav-text">关注核心基础素质</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%80%83%E6%9F%A5%E6%A0%B8%E5%BF%83%E4%B8%93%E4%B8%9A%E8%83%BD%E5%8A%9B"><span class="nav-number">2.6.</span> <span class="nav-text">考查核心专业能力</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%87%E5%87%86%E5%8C%96%E5%92%8C%E5%A4%8D%E7%9B%98"><span class="nav-number">3.</span> <span class="nav-text">标准化和复盘</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

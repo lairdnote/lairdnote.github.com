@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="前端,微信公众号,油猴脚本," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文首发于微信公众号「效率工具指南」文&#x2F;彭宏豪         Hello 各位好，我是小豪。   假期过得很快，还没做啥事情，又快溜走了。         今天回到深圳，趁着不用做其他事情，写了一个很简单的油猴脚本：获取微信公众号文章封面。    这个油猴脚本已提交到寻找各类油猴脚本的网站 Greasy Fork，如果你平时也有获取公众号文章封面的需求，可以在浏览器打开下方的链接安装这">
+<meta property="og:type" content="article">
+<meta property="og:title" content="油猴脚本获取公众号文章封面">
+<meta property="og:url" content="https://blog.feedscoin.com/2022-10-6-tampermonkey/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="本文首发于微信公众号「效率工具指南」文&#x2F;彭宏豪         Hello 各位好，我是小豪。   假期过得很快，还没做啥事情，又快溜走了。         今天回到深圳，趁着不用做其他事情，写了一个很简单的油猴脚本：获取微信公众号文章封面。    这个油猴脚本已提交到寻找各类油猴脚本的网站 Greasy Fork，如果你平时也有获取公众号文章封面的需求，可以在浏览器打开下方的链接安装这">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://img.penghh.fun/2022/10/06/16650455889598.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2022/10/06/16650473197987.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2022/10/06/16650463185503.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2022/10/06/16650476850497.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2022/10/06/qrcodea--a1.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/03/25/48844555552858t2.JPG">
+<meta property="og:image" content="https://img.penghh.fun/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png">
+<meta property="article:published_time" content="2022-10-06T09:55:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:59:41.980Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="前端">
+<meta property="article:tag" content="微信公众号">
+<meta property="article:tag" content="油猴脚本">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.penghh.fun/2022/10/06/16650455889598.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2022-10-6-tampermonkey/"/>
+
+
+
+
+
+  <title>油猴脚本获取公众号文章封面 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+    
+  
+
+  <article class="post post-type-normal post-sticky" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2022-10-6-tampermonkey/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">油猴脚本获取公众号文章封面</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-10-06T17:55:00+08:00">
+                2022-10-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>本文首发于微信公众号「<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/p8pnKX8_4tLKKkG4GsmERQ">效率工具指南</a>」<br>文&#x2F;彭宏豪        </p>
+<p>Hello 各位好，我是小豪。  </p>
+<p>假期过得很快，还没做啥事情，又快溜走了。        </p>
+<p>今天回到深圳，趁着不用做其他事情，写了一个很简单的油猴脚本：<strong>获取微信公众号文章封面</strong>。   </p>
+<p>这个油猴脚本已提交到寻找各类油猴脚本的网站 Greasy Fork，如果你平时也有获取公众号文章封面的需求，可以在浏览器打开下方的链接安装这个脚本：  </p>
+<p><a target="_blank" rel="noopener" href="https://greasyfork.org/zh-CN/scripts/452548-%E8%8E%B7%E5%8F%96%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E6%96%87%E7%AB%A0%E5%B0%81%E9%9D%A2">https://greasyfork.org/zh-CN/scripts/452548-%E8%8E%B7%E5%8F%96%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E6%96%87%E7%AB%A0%E5%B0%81%E9%9D%A2</a></p>
+<p><img src="https://img.penghh.fun/2022/10/06/16650455889598.jpg"></p>
+<p>写这个油猴脚本的想法💡由来已久，只是一直没有付诸行动，会觉得按照之前手动获取封面的方式来写代码很难。   </p>
+<p>但经过下午一点时间的琢磨，还在群里请教了一些朋友，把代码写出来，却发现异常地简单，用下面一行代码，就能搞定我获取公众号文章封面的需求：      </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">window.open(document.querySelector(&#x27;meta[property=&quot;og:image&quot;]&#x27;).content);    </span><br></pre></td></tr></table></figure>
+
+<h2 id="脚本使用方法"><a href="#脚本使用方法" class="headerlink" title="脚本使用方法"></a>脚本使用方法</h2><p>「获取微信公众号文章封面」油猴脚本的使用方法：  </p>
+<p>浏览器安装了脚本之后，当你在浏览器打开任意一篇公众号文章，脚本会自动运行——打开一个新的标签页，里面就会显示公众号文章的封面，如下图所示。    </p>
+<p><img src="https://img.penghh.fun/2022/10/06/16650473197987.jpg"></p>
+<p>需要说明的是，由于这个油猴脚本包含了一个自动打开新标签页的操作，首次使用时可能会被浏览器误以为是「有害的弹窗」而被拦截。  </p>
+<p>解除拦截的方法：点击浏览器地址栏右侧带有「红色小叉号」的图标，选择「总是允许」就可以啦。    </p>
+<h2 id="脚本代码的简要介绍"><a href="#脚本代码的简要介绍" class="headerlink" title="脚本代码的简要介绍"></a>脚本代码的简要介绍</h2><p>下面简单说一下代码的由来和含义：   </p>
+<p>既然我们的需求是要拿到公众号文章的封面，首要的步骤就是找到文章封面的位置，或者更确切地说是<strong>封面图片的链接</strong>。     </p>
+<p>按下 F12 打开浏览器开发者工具，分析下面的 HTML 代码，就能在属性名为 <code>og:image</code> 的 meta 标签中找到封面图片的链接，即 content 属性的值，就是封面图片的链接（图床链接）。           </p>
+<p><img src="https://img.penghh.fun/2022/10/06/16650463185503.jpg"></p>
+<p>要拿到 content 属性的值，我们可以使用 JavaScript(DOM 操作) 和 CSS 选择器，两者搭配一下，就能拿到 meta 对象中的 content 属性的值：    </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">document.querySelector(&#x27;meta[property=&quot;og:image&quot;]&#x27;).content;      </span><br></pre></td></tr></table></figure>
+
+<p>上面这行代码在浏览器中运行后，只会得到一个 https 开头的图片链接，想要看到最终的文章封面，还需要额外一步操作，在浏览器地址栏打开这个链接，因此我在前面那行代码的基础上，再添加了一个在新标签页中打开链接的指令：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">window.open(document.querySelector(&#x27;meta[property=&quot;og:image&quot;]&#x27;).content);   </span><br></pre></td></tr></table></figure>
+
+<p>这样就得到了最终的一行代码。   </p>
+<h2 id="将代码发布为人人可用的油猴脚本"><a href="#将代码发布为人人可用的油猴脚本" class="headerlink" title="将代码发布为人人可用的油猴脚本"></a>将代码发布为人人可用的油猴脚本</h2><p>当然，写完前面的一行代码后，实际上我只能在自己的电脑上使用，而无法很方便地分享给其他人使用，因此，一种更好的方式是，把这行代码发布为人人可安装、可用的油猴脚本。   </p>
+<p>因此，到这里问题就变成了，<strong>如何写一个油猴脚本？</strong>   </p>
+<p><img src="https://img.penghh.fun/2022/10/06/16650476850497.jpg"></p>
+<p>关于如何写一个简单的油猴脚本，可以参考一位 Up 主「不坑老师」发布的视频教程：   </p>
+<p>我发布的油猴脚本，也是参考这位 Up 主的教程制作出来的，这里就不复读了。   </p>
+<p><img src="https://img.penghh.fun/2022/10/06/qrcodea--a1.jpg" alt="QRcode_A — a1"></p>
+<p>写油猴脚本用到的参考资料汇总：   </p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1UU4y1r72Y">不用安编辑器，教你编写属于自己的第一个油猴脚本</a>，<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1UU4y1r72Y">https://www.bilibili.com/video/BV1UU4y1r72Y</a>             </li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/485574687">【油猴脚本-菜单(设置按钮) GM_getValue&#x2F;GM_setValue&#x2F;GM_registerMenuCommand报错原因】设置按钮的制作和报错的坑</a>，<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/485574687">https://zhuanlan.zhihu.com/p/485574687</a>   </li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/apple20154350217/article/details/78639739">javascript跳转到新页面的三种方法</a>，<a target="_blank" rel="noopener" href="https://blog.csdn.net/apple20154350217/article/details/78639739">https://blog.csdn.net/apple20154350217/article/details/78639739</a></li>
+</ul>
+<h2 id="扫码加入我在知识星球上创建的社群「效率工具指南」"><a href="#扫码加入我在知识星球上创建的社群「效率工具指南」" class="headerlink" title="扫码加入我在知识星球上创建的社群「效率工具指南」"></a>扫码加入我在知识星球上创建的社群「效率工具指南」</h2><p>如果你觉得本文帮到了你，想支持我做得更好，欢迎戳下方图片，加入我的知识星球。     </p>
+<p>关于社群「效率工具指南」的介绍，可以查看我在语雀文档上发布的文档：<a target="_blank" rel="noopener" href="https://www.yuque.com/penghonghao/af0aai/glwrg2dl0dqlegi6?singleDoc#">知识星球「效率工具指南」简介</a>    </p>
+<p><img src="https://img.penghh.fun/2023/03/25/48844555552858t2.JPG" alt="48844555552858T2">   </p>
+<h2 id="欢迎关注"><a href="#欢迎关注" class="headerlink" title="欢迎关注"></a>欢迎关注</h2><p>以上，就是本次想和你分享的内容，希望能够对你有一点帮助。     </p>
+<p><img src="https://img.penghh.fun/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png" alt="公众号：效率工具指南">       </p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%89%8D%E7%AB%AF/" rel="tag"># 前端</a>
+          
+            <a href="/tags/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7/" rel="tag"># 微信公众号</a>
+          
+            <a href="/tags/%E6%B2%B9%E7%8C%B4%E8%84%9A%E6%9C%AC/" rel="tag"># 油猴脚本</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022-9-25-vue3learnnote5/" rel="next" title="前端框架 Vue3 + TypeScript 学习笔记（五）">
+                <i class="fa fa-chevron-left"></i> 前端框架 Vue3 + TypeScript 学习笔记（五）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022-10-11-mubuexport/" rel="prev" title="思维导图软件幕布导出Markdown【效率工具指南】">
+                思维导图软件幕布导出Markdown【效率工具指南】 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%84%9A%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">脚本使用方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%84%9A%E6%9C%AC%E4%BB%A3%E7%A0%81%E7%9A%84%E7%AE%80%E8%A6%81%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">脚本代码的简要介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%86%E4%BB%A3%E7%A0%81%E5%8F%91%E5%B8%83%E4%B8%BA%E4%BA%BA%E4%BA%BA%E5%8F%AF%E7%94%A8%E7%9A%84%E6%B2%B9%E7%8C%B4%E8%84%9A%E6%9C%AC"><span class="nav-number">3.</span> <span class="nav-text">将代码发布为人人可用的油猴脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%AB%E7%A0%81%E5%8A%A0%E5%85%A5%E6%88%91%E5%9C%A8%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83%E4%B8%8A%E5%88%9B%E5%BB%BA%E7%9A%84%E7%A4%BE%E7%BE%A4%E3%80%8C%E6%95%88%E7%8E%87%E5%B7%A5%E5%85%B7%E6%8C%87%E5%8D%97%E3%80%8D"><span class="nav-number">4.</span> <span class="nav-text">扫码加入我在知识星球上创建的社群「效率工具指南」</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AC%A2%E8%BF%8E%E5%85%B3%E6%B3%A8"><span class="nav-number">5.</span> <span class="nav-text">欢迎关注</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

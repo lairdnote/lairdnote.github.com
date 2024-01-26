@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="网络," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="几天前窝们宿舍拿中继蹭对面 WiFi 的事儿被几个大嘴巴说漏了，引来一堆人蹭网，于是速度就慢如狗爬了。。 于是拿出中继的那只就给窝说，有个叫 WiFi 杀手 的 APP，可以让蹭网的不能上网。 窝当时就震惊了，woc 还有这么的 dio 的东西，问了下原理，结果他也讲不出个所以然来，似乎还说啥 DNS 污染。这完全不对嘛，应该是假冒网关之类的吧。遂 Google 之：  WiFi 杀手的工作原理使">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 ARP 欺骗禁止同一局域网下的设备访问网络">
+<meta property="og:url" content="https://blog.feedscoin.com/2015/use-arp-spoofing-to-forbid-accessing-internet-on-other-devices-under-the-same-lan/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="几天前窝们宿舍拿中继蹭对面 WiFi 的事儿被几个大嘴巴说漏了，引来一堆人蹭网，于是速度就慢如狗爬了。。 于是拿出中继的那只就给窝说，有个叫 WiFi 杀手 的 APP，可以让蹭网的不能上网。 窝当时就震惊了，woc 还有这么的 dio 的东西，问了下原理，结果他也讲不出个所以然来，似乎还说啥 DNS 污染。这完全不对嘛，应该是假冒网关之类的吧。遂 Google 之：  WiFi 杀手的工作原理使">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://img.prin.studio/images/2015/09/2015-09-18_14-46-04.jpg">
+<meta property="article:published_time" content="2015-09-18T12:29:02.000Z">
+<meta property="article:modified_time" content="2015-09-18T23:00:33.000Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.prin.studio/images/2015/09/2015-09-18_14-46-04.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2015/use-arp-spoofing-to-forbid-accessing-internet-on-other-devices-under-the-same-lan/"/>
+
+
+
+
+
+  <title>使用 ARP 欺骗禁止同一局域网下的设备访问网络 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/use-arp-spoofing-to-forbid-accessing-internet-on-other-devices-under-the-same-lan/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">使用 ARP 欺骗禁止同一局域网下的设备访问网络</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-09-18T20:29:02+08:00">
+                2015-09-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>几天前窝们宿舍拿中继蹭对面 WiFi 的事儿被几个大嘴巴说漏了，引来一堆人蹭网，于是速度就慢如狗爬了。。</p>
+<p>于是拿出中继的那只就给窝说，有个叫 WiFi 杀手 的 APP，可以让蹭网的不能上网。</p>
+<p>窝当时就震惊了，woc 还有这么的 dio 的东西，问了下原理，结果他也讲不出个所以然来，似乎还说啥 DNS 污染。这完全不对嘛，应该是假冒网关之类的吧。遂 Google 之：</p>
+<blockquote>
+<p>WiFi 杀手的工作原理使用了ARP 欺骗的原理，假冒 ARP 回复来欺骗同一 WiFi 网络上的其他设备，让它们以为你的 Android 手机是网关，然后 WiFiKill 丢掉它们的网络包。</p>
+</blockquote>
+<p>唔。。ARP 欺骗啊，窝记得几年前有看过这个的资料（在窝还在使用三六蛋的时候）。这里给出维基百科上关于 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%9C%B0%E5%9D%80%E8%A7%A3%E6%9E%90%E5%8D%8F%E8%AE%AE">ARP</a> 和 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/ARP%E6%AC%BA%E9%A8%99">ARP 欺骗</a> 的页面。</p>
+<p>那么这个啥 WiFi 杀手到底是个啥黑科技呢？窝就来通俗的讲讲吧～</p>
+<p>ARP 协议是拿来干啥的呢？就是将一个网络层地址（譬如 IPv4 地址）转换为数据链路物理地址（MAC 地址）。</p>
+<p>那么估计你应该懂了吧？ARP 欺骗的原理就是伪造 ARP 回复报文。举个栗子（栗子中的 A，B 即为 IP，位置即为 MAC 地址：</p>
+<blockquote>
+<p>A 要和局域网中的 B 通信，于是在 LAN 中发了个广播：“我是 A，地址是 123，B，你丫在哪？”。如果是正常情况下，其他人看到广播会保持沉默，等到 B 收到广播后，他就会回应给 A：“A，我是 B，劳资地址是 234，找我干啥？” 于是可以进行通信。</p>
+</blockquote>
+<p>然而，在受到 ARP 欺骗的局域网中，情况就会是这样子。。</p>
+<blockquote>
+<p>A 要和 B 通信，发了个广播找 B 的 MAC 地址：“B，你在哪儿？”，然后就在 B 回应之前，同一局域网下恶意满满的主机 C 以迅雷不及掩耳盗铃之势抢答道：“窝是 B，MAC 地址是 450 哟～☆ ”。然而傻傻的 A 并不会验证 ARP 回复的真实性，就在地址簿上写上：“IP：B，MAC 地址：450” 供通信用，然后主机 A 尝试对 B 进行 IP 通信，就喜闻乐见地错误啦。</p>
+</blockquote>
+<p>ARP 欺骗大☆成★功～</p>
+<p>这就是 WiFi 杀手的原理，如果欺骗的是网关的 MAC 地址的话就会导致无法访问网络了。那么要如何防范呢？Android 平台上也有许多防御 ARP 欺骗的应用，有需要可以去找下。也可以手动清空 ARP 缓存表（在攻击者长时间跑着 ARP 欺骗程序的情况下没卵用</p>
+<p>顺带一提窝是不太提倡使用 WiFi 杀手这类应用呢。</p>
+<p>BTW，ARP 缓存表一般会在设备重启后清空哦～可以在手机终端中使用 <code>cat /proc/net/arp</code> 来查看你设备的 ARP 表</p>
+<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/09/2015-09-18_14-46-04.jpg"><img src="https://img.prin.studio/images/2015/09/2015-09-18_14-46-04.jpg" alt="image" title="wp-1442587367872"></a></p>
+<p> </p>
+<p>PS. 今天是窝博客第一次达到文章和评论数量相等哦～（虽然有一半评论是窝的 qwq</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag"># 网络</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/lets-encrypt-project-published-the-first-ca/" rel="next" title="Let’s Encrypt 项目发行了第一个证书！">
+                <i class="fa fa-chevron-left"></i> Let’s Encrypt 项目发行了第一个证书！
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/get-alphassl-wildcard/" rel="prev" title="AlphaSSL 的 Wildcard 签下来辣~">
+                AlphaSSL 的 Wildcard 签下来辣~ <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

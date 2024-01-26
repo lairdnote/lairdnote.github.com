@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo,CDN,jsDelivr," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="&gt; https:&#x2F;&#x2F;cdn.jsdelivr.net&#x2F;gh&#x2F;user&#x2F;repo@version&#x2F;file;[jsDelivr提供的CDN加速资源](https:&#x2F;&#x2F;i.loli.net&#x2F;2020&#x2F;02&#x2F;05&#x2F;HtmhUdsSRLW4Q9A.png);https:&#x2F;&#x2F;cdn.jsdelivr.net&#x2F;npm&#x2F;jquery@3.2.1&#x2F;dist&#x2F;jquery.min.js">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 jsDelivr 为 Hexo 博客提供高效免费的CDN加速">
+<meta property="og:url" content="https://blog.feedscoin.com/%E4%BD%BF%E7%94%A8%20jsDelivr%20%E4%B8%BA%20Hexo%20%E5%8D%9A%E5%AE%A2%E6%8F%90%E4%BE%9B%E9%AB%98%E6%95%88%E5%85%8D%E8%B4%B9%E7%9A%84CDN%E5%8A%A0%E9%80%9F/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="&gt; https:&#x2F;&#x2F;cdn.jsdelivr.net&#x2F;gh&#x2F;user&#x2F;repo@version&#x2F;file;[jsDelivr提供的CDN加速资源](https:&#x2F;&#x2F;i.loli.net&#x2F;2020&#x2F;02&#x2F;05&#x2F;HtmhUdsSRLW4Q9A.png);https:&#x2F;&#x2F;cdn.jsdelivr.net&#x2F;npm&#x2F;jquery@3.2.1&#x2F;dist&#x2F;jquery.min.js">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2020/02/05/HtmhUdsSRLW4Q9A.png">
+<meta property="og:image" content="https://i.loli.net/2020/02/05/FZJi9esXWQzxLYf.png">
+<meta property="og:image" content="https://i.loli.net/2020/02/05/E3WYBRQk4DJCZr5.png">
+<meta property="article:published_time" content="2020-02-05T11:01:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.158Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Hexo">
+<meta property="article:tag" content="CDN">
+<meta property="article:tag" content="jsDelivr">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/02/05/HtmhUdsSRLW4Q9A.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/使用 jsDelivr 为 Hexo 博客提供高效免费的CDN加速/"/>
+
+
+
+
+
+  <title>使用 jsDelivr 为 Hexo 博客提供高效免费的CDN加速 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E4%BD%BF%E7%94%A8%20jsDelivr%20%E4%B8%BA%20Hexo%20%E5%8D%9A%E5%AE%A2%E6%8F%90%E4%BE%9B%E9%AB%98%E6%95%88%E5%85%8D%E8%B4%B9%E7%9A%84CDN%E5%8A%A0%E9%80%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">使用 jsDelivr 为 Hexo 博客提供高效免费的CDN加速</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-02-05T19:01:00+08:00">
+                2020-02-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%8B%AC%E7%AB%8B%E5%8D%9A%E5%AE%A2/" itemprop="url" rel="index">
+                    <span itemprop="name">独立博客</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  > https://cdn.jsdelivr.net/gh/user/repo@version/file;[jsDelivr提供的CDN加速资源](https://i.loli.net/2020/02/05/HtmhUdsSRLW4Q9A.png);https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>最近给博客做了升级，从3.x升级到了4.x，主要是在官网看到了关于静态页面生成效率提升的内容。众所周知，Hexo在文章数目增加以后会越来越慢。博主大概是从14年年底开始使用Hexo这个静态博客的，截止到目前一共有176篇博客，其中的“慢”可想而知，中间甚至动过使用Hugo和VuePress的念头，所以，听说有性能方面的提升，还是决定第一时间来试试。整个升级过程挺顺利的，唯一遇到的问题是关于外部链接检测方面的，具体可以参考<a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues/4107">这里</a>。今天，博主主要想和大家分享下关于如何使用<a target="_blank" rel="noopener" href="http://www.jsdelivr.com/">jsDelivr</a>来为博客提供免费、高效的CDN服务，希望对大家有所帮助。</p>
+<p><a target="_blank" rel="noopener" href="http://www.jsdelivr.com/">jsDelivr</a>是一个免费、快速和可信赖的CDN加速服务，官网上声称它每个月可以支撑680亿次的请求。博主是在去年年底的时候，偶然了解到这个服务的存在，这次趁着疫情肆虐的间隙，终于把这个服务集成到了博客中。更重要的是，这个服务在Github上是<a target="_blank" rel="noopener" href="https://github.com/jsdelivr/jsdelivr">开源</a>的。目前，它提供了针对<a target="_blank" rel="noopener" href="https://www.npmjs.com/">npm</a>、<a target="_blank" rel="noopener" href="https://github.com/">Github</a>和<a target="_blank" rel="noopener" href="https://cn.wordpress.org/">WordPress</a>的加速服务，只需要一行代码就可以获得加速效果，以常用的jQuery和Bootstrap为例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// load jQuery v3.2.1</span></span><br><span class="line"><span class="attr">https</span>:<span class="comment">//cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// load bootstrap v4.4.1</span></span><br><span class="line"><span class="attr">https</span>:<span class="comment">//cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.js</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这意味着我们只需要发布一个npm的包，就可以使用它提供的加速服务。CDN加速的好处我这里就不再多说了，只要我们的项目中用到了第三方的静态资源，譬如JavaScript&#x2F;CSS等等都应该考虑接入到CDN中。有人常常担心CDN挂掉或者是私有化部署无法接入外网环境。我想说，我们目光应该长远一点，现在早已不是早年那种单打独斗式的开发模式了，我们不可能把所有资源都放到本地来。随着云计算的概念越发地深入人心，越来越多的基础服务都运行在一台又一台虚拟化的“云服务器”上，这种情况下，搞这种集中化配置的做法，是完全违背分布式的发展趋势的。</p>
+<p>如果说，针对npm包的CDN加速服务离我们还有点遥远，因为我们大多数情况下都是在使用别人写好的库。那么，接下来，针对Github的CDN加速服务应该会让我们无比兴奋吧，毕竟Github Pages的“慢”大家是可以感受得到的。不然，为什么大家要用Coding Pages做国内&#x2F;国外的双线部署呢？首先，我们在浏览器里输入下面这个地址：<a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/qinyuanpei/qinyuanpei.github.io@latest/">https:&#x2F;&#x2F;cdn.jsdelivr.net&#x2F;gh&#x2F;qinyuanpei&#x2F;qinyuanpei.github.io@latest&#x2F;</a><br><img src="https://i.loli.net/2020/02/05/HtmhUdsSRLW4Q9A.png" alt="jsDelivr提供的CDN加速资源"><br>此时，可以注意到，<a target="_blank" rel="noopener" href="http://www.jsdelivr.com/">jsDelivr</a>可以把我们Github上的资源呈现出来，只要我们在Github上发布过相应的版本即可。这里的版本，可以理解为一次Release，对应Git中tag的概念，虽然Github现在引入了包管理器的概念，试图统一像npm、nuget、pip等等这样的包管理器。它提供的CDN服务有一个基本的格式：</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/user/repo@version/file">https://cdn.jsdelivr.net/gh/user/repo@version/file</a></p>
+</blockquote>
+<p>如果大家感兴趣，可以把这里的user和repo改成自己的来体验一番。需要注意的是，这里的版本号同样可以换成Commit ID或者是分支的名称。我个人建议用tag，因为它通常携带了版本号信息，语义上要更好一点。那么，顺着这个思路，我们只要把Hexo中的资源的相对路径改为jsDelivr的CDN加速路径就好啦！为了让切换更加自如，这里我们为Hexo写一个Helper，它可以理解为Hexo中的辅助代码片段。我们在<code>&lt;YouTheme&gt;/scripts/</code>目录下新建一个<code>plugins.js</code>文件，这样Hexo会在渲染时自动加载这个脚本文件：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">source</span> = (<span class="params">path, cache, ext</span>) =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (cache) &#123;</span><br><span class="line">        <span class="keyword">const</span> minFile = <span class="string">`<span class="subst">$&#123;path&#125;</span><span class="subst">$&#123;ext === <span class="string">&#x27;.js&#x27;</span> ? <span class="string">&#x27;.min&#x27;</span> : <span class="string">&#x27;&#x27;</span>&#125;</span><span class="subst">$&#123;ext&#125;</span>`</span>;</span><br><span class="line">        <span class="keyword">const</span> jsdelivrCDN = hexo.<span class="property">config</span>.<span class="property">jsdelivr</span>;</span><br><span class="line">        <span class="keyword">return</span> jsdelivrCDN.<span class="property">enable</span> ? <span class="string">`//<span class="subst">$&#123;jsdelivrCDN.baseUrl&#125;</span>/gh/<span class="subst">$&#123;jsdelivrCDN.gh_user&#125;</span>/<span class="subst">$&#123;jsdelivrCDN.gh_repo&#125;</span>@latest/<span class="subst">$&#123;minFile&#125;</span>`</span> : <span class="string">`<span class="subst">$&#123;minFile&#125;</span>?v=<span class="subst">$&#123;version&#125;</span>`</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> path + ext</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">hexo.<span class="property">extend</span>.<span class="property">helper</span>.<span class="title function_">register</span>(<span class="string">&#x27;theme_js&#x27;</span>, <span class="function">(<span class="params">path, cache</span>) =&gt;</span> <span class="title function_">source</span>(path, cache, <span class="string">&#x27;.js&#x27;</span>))</span><br><span class="line">hexo.<span class="property">extend</span>.<span class="property">helper</span>.<span class="title function_">register</span>(<span class="string">&#x27;theme_css&#x27;</span>, <span class="function">(<span class="params">path, cache</span>) =&gt;</span> <span class="title function_">source</span>(path, cache, <span class="string">&#x27;.css&#x27;</span>))</span><br></pre></td></tr></table></figure>
+<p>接下来，修改布局文件，项目中的JavaScript和CSS文件，均通过<code>theme_js()</code>和<code>thems_css()</code>两个函数引入：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//加载JavaScript</span><br><span class="line">&lt;script src=&quot;&lt;%- url_for(theme_js(&#x27;assets/scripts/search&#x27;, cache)) %&gt;&quot; async&gt;&lt;/script&gt;</span><br><span class="line">//加载CSS</span><br><span class="line">&lt;link rel=&quot;stylesheet&quot; href=&quot;&lt;%- url_for(theme_css(&#x27;/assets/styles/style&#x27;, cache)) %&gt;&quot;&gt;</span><br></pre></td></tr></table></figure>
+<p>既然是否使用CDN加速是可配置的，我们要在_config.yml文件中添加相应的配置项：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># jsdelivr CDN</span></span><br><span class="line"><span class="attr">jsdelivr:</span></span><br><span class="line">  <span class="attr">enable:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">gh_user:</span> <span class="string">qinyuanpei</span></span><br><span class="line">  <span class="attr">gh_repo:</span> <span class="string">qinyuanpei.github.io</span></span><br><span class="line">  <span class="attr">baseUrl:</span> <span class="string">cdn.jsdelivr.net</span></span><br></pre></td></tr></table></figure>
+<p>除此以外，我们还需要在部署博客的时候，生成一个名为latest的tag。虽然官网上说，在引用CDN的时候版本号可以省略，不过经过博主反复尝试，不带版本号并不会指向正确的版本，有些资源文件会报404，因为这部分资源文件回滚以后发现还是没有。所以，最后博主只好把这个版本号给固定下来了，这样又引入一个新问题，即：每次部署的时候都要先删除远程的latest。所以，这块儿的<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/qinyuanpei/qinyuanpei.github.io/blog/.travis.yml">Travis CI脚本</a>看起来会有点讨厌，如果大家有更好的方案，欢迎大家在博客中留言：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git tag latest</span><br><span class="line">git push --force --quiet &quot;https://$&#123;CI_TOKEN&#125;@$&#123;GH_REF&#125;&quot; master:master --tags</span><br></pre></td></tr></table></figure>
+<p>好了，现在重新生成、部署，来看看效果吧：<br><img src="https://i.loli.net/2020/02/05/FZJi9esXWQzxLYf.png" alt="Coding Pages速度"></p>
+<p><img src="https://i.loli.net/2020/02/05/E3WYBRQk4DJCZr5.png" alt="Github Pages速度"><br>感觉效果还不错，Github Pages比平时要快很多，博主顺便就给Coding Pages启用了CDN加速。话说，看到这张图的时候总是感慨，如果肺炎疫情地图能像这两张图一样就好啦！面对这场无声的战役，有很多人一直在一线抗击病魔，还有很多人默默无闻地在支援武汉。或许，宅在家里的你我，什么都做不了，可即便如此，还是让我们一起来祈祷疫情快点结束吧，因为春天都要来了呢……好了，这就是这篇博客的全部内容啦，谢谢大家！</p>
+<h1 id="2020-02-13-更新"><a href="#2020-02-13-更新" class="headerlink" title="2020&#x2F;02&#x2F;13 更新"></a>2020&#x2F;02&#x2F;13 更新</h1><p>在此之前，博主提到版本号的问题，即每一次在CDN上生成的版本，怎样体现到Hexo中引用的资源上面。当时采用了一个取巧的方法，Hexo中固定版本号为latest，然后每次都推送这个tag。这样引发一个问题，每次都先去远程删除这个tag，显然这不是我期望的解决方案。最终，我采用的方案是，通过Travis CI编译部署的时候，首先导出变量<code>$TRAVIS_BUILD_NUMBER</code>到一个文本文件中，然后Hexo在生成静态页面的时侯，从这个文本文件中读取该变量的值作为版本号，这样每次编译部署的时候，我们总能获得一个新的tag，而这个tag和Hexo中引用的资源版本一致，这样就彻底解决了这个遗留问题。修改后的<code>plugins.js</code>文件内容如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> fs = <span class="built_in">require</span>(<span class="string">&#x27;fs&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> version = <span class="string">&#x27;latest&#x27;</span></span><br><span class="line">fs.<span class="title function_">readFile</span>(<span class="string">&#x27;./BUILD_NUMBER.txt&#x27;</span>, <span class="keyword">function</span> (<span class="params">error, data</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (error) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;load BUILD_NUMBER.txt fails, &#x27;</span> + error)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        version = data.<span class="title function_">toString</span>().<span class="title function_">trim</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">source</span> = (<span class="params">path, cache, ext</span>) =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (cache) &#123;</span><br><span class="line">        <span class="keyword">const</span> minFile = <span class="string">`<span class="subst">$&#123;path&#125;</span><span class="subst">$&#123;ext === <span class="string">&#x27;.js&#x27;</span> ? <span class="string">&#x27;.min&#x27;</span> : <span class="string">&#x27;&#x27;</span>&#125;</span><span class="subst">$&#123;ext&#125;</span>`</span>;</span><br><span class="line">        <span class="keyword">const</span> jsdelivrCDN = hexo.<span class="property">config</span>.<span class="property">jsdelivr</span>;</span><br><span class="line">        <span class="keyword">return</span> jsdelivrCDN.<span class="property">enable</span> ? <span class="string">`//<span class="subst">$&#123;jsdelivrCDN.baseUrl&#125;</span>/gh/<span class="subst">$&#123;jsdelivrCDN.gh_user&#125;</span>/<span class="subst">$&#123;jsdelivrCDN.gh_repo&#125;</span>@<span class="subst">$&#123;version&#125;</span>/<span class="subst">$&#123;minFile&#125;</span>`</span> : <span class="string">`<span class="subst">$&#123;minFile&#125;</span>?v=<span class="subst">$&#123;version&#125;</span>`</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> path + ext</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">hexo.<span class="property">extend</span>.<span class="property">helper</span>.<span class="title function_">register</span>(<span class="string">&#x27;theme_js&#x27;</span>, <span class="function">(<span class="params">path, cache</span>) =&gt;</span> <span class="title function_">source</span>(path, cache, <span class="string">&#x27;.js&#x27;</span>))</span><br><span class="line">hexo.<span class="property">extend</span>.<span class="property">helper</span>.<span class="title function_">register</span>(<span class="string">&#x27;theme_css&#x27;</span>, <span class="function">(<span class="params">path, cache</span>) =&gt;</span> <span class="title function_">source</span>(path, cache, <span class="string">&#x27;.css&#x27;</span>))</span><br></pre></td></tr></table></figure>
+<p>修改后的<code>.travis.yml</code>文件可以在<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/qinyuanpei/qinyuanpei.github.io/blog/.travis.yml">这里</a>获取。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Hexo/" rel="tag"># Hexo</a>
+          
+            <a href="/tags/CDN/" rel="tag"># CDN</a>
+          
+            <a href="/tags/jsDelivr/" rel="tag"># jsDelivr</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020-02-08-pm-work-from-yujun/" rel="next" title="俞军产品方法论">
+                <i class="fa fa-chevron-left"></i> 俞军产品方法论
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/2020-02-07-buying-humidifier/" rel="prev" title="加湿器选购指南">
+                加湿器选购指南 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#2020-02-13-%E6%9B%B4%E6%96%B0"><span class="nav-number">1.</span> <span class="nav-text">2020&#x2F;02&#x2F;13 更新</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

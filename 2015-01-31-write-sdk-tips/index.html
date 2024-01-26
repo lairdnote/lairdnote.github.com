@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Liunx Python Rust Goalng DevOPS" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="我发现即使是像腾讯、小米这样的大厂提供的 SDK，在质量和规范上也有很多问题，而且包括我以及我身边的很多朋友都被恶心到了，所以我就把这些注意事项总结出来，希望大家不要犯同样的错误。 注意事项一：所有类名都应该加前缀说明：没有前缀的类名有冲突的风险。 Bad Case：微信分享的 SDK，文件名：WXApiObject.h，代码如下，其中BaseReq类和BaseResp类都没有加前缀。 12345">
+<meta property="og:type" content="article">
+<meta property="og:title" content="写iOS SDK注意事项">
+<meta property="og:url" content="https://blog.feedscoin.com/2015-01-31-write-sdk-tips/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="我发现即使是像腾讯、小米这样的大厂提供的 SDK，在质量和规范上也有很多问题，而且包括我以及我身边的很多朋友都被恶心到了，所以我就把这些注意事项总结出来，希望大家不要犯同样的错误。 注意事项一：所有类名都应该加前缀说明：没有前缀的类名有冲突的风险。 Bad Case：微信分享的 SDK，文件名：WXApiObject.h，代码如下，其中BaseReq类和BaseResp类都没有加前缀。 12345">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/images/weixin-pay-error.jpg">
+<meta property="article:published_time" content="2015-01-31T13:44:33.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:22:32.399Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Liunx Python Rust Goalng DevOPS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/images/weixin-pay-error.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2015-01-31-write-sdk-tips/"/>
+
+
+
+
+
+  <title>写iOS SDK注意事项 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015-01-31-write-sdk-tips/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">写iOS SDK注意事项</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-01-31T21:44:33+08:00">
+                2015-01-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>我发现即使是像腾讯、小米这样的大厂提供的 SDK，在质量和规范上也有很多问题，而且包括我以及我身边的很多朋友都被恶心到了，所以我就把这些注意事项总结出来，希望大家不要犯同样的错误。</p>
+<h3 id="注意事项一：所有类名都应该加前缀"><a href="#注意事项一：所有类名都应该加前缀" class="headerlink" title="注意事项一：所有类名都应该加前缀"></a>注意事项一：所有类名都应该加前缀</h3><p>说明：没有前缀的类名有冲突的风险。</p>
+<p>Bad Case：微信分享的 SDK，文件名：<code>WXApiObject.h</code>，代码如下，其中<code>BaseReq</code>类和<code>BaseResp</code>类都没有加前缀。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">@interface BaseReq : NSObject</span><br><span class="line"></span><br><span class="line">/** 请求类型 */</span><br><span class="line">@property (nonatomic, assign) int type;</span><br><span class="line">/** 由用户微信号和 AppID 组成的唯一标识，发送请求时第三方程序必须填写，用于校验微信用户是否换号登录 */</span><br><span class="line">@property (nonatomic, retain) NSString* openID;</span><br><span class="line"></span><br><span class="line">@end</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#pragma mark - BaseResp</span><br><span class="line">/*! @brief 该类为微信终端 SDK 所有响应类的基类</span><br><span class="line"> *</span><br><span class="line"> */</span><br><span class="line">@interface BaseResp : NSObject</span><br><span class="line">/** 错误码 */</span><br><span class="line">@property (nonatomic, assign) int errCode;</span><br><span class="line">/** 错误提示字符串 */</span><br><span class="line">@property (nonatomic, retain) NSString *errStr;</span><br><span class="line">/** 响应类型 */</span><br><span class="line">@property (nonatomic, assign) int type;</span><br><span class="line"></span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
+
+<h3 id="注意事项二：所有-category-方法加前缀"><a href="#注意事项二：所有-category-方法加前缀" class="headerlink" title="注意事项二：所有 category 方法加前缀"></a>注意事项二：所有 category 方法加前缀</h3><p>说明：category 方法如果不加前缀，有冲突的风险。</p>
+<p>Bad Case：腾讯分享的 SDK，它为 NSArray 增加了一个 JSONArray 的 category，造成我们本身的同名 category 被覆盖。另外他们为 NSArray 增加的其它 category 和著名的 Cordova 开源库冲突，造成 Cordova 无法使用。</p>
+<h3 id="注意事项三：不要将第三方库打包进-SDK"><a href="#注意事项三：不要将第三方库打包进-SDK" class="headerlink" title="注意事项三：不要将第三方库打包进 SDK"></a>注意事项三：不要将第三方库打包进 SDK</h3><p>说明：尽量不要将第三方库打包进 SDK，如果要打包，最好也要将该第三方库重命名，以避免冲突。</p>
+<p>Bad Case：小米的推送 SDK，直接在 SDK 静态库里面编进去一个第三方依赖库，而且这个库还是 ASIHttpRequest。ASIHttp 当前已经处于无人维护状态，很多 Bug 都是大家自己在修复（例如网易就自己维护了一个 ASIHttpRequest 的分支）。在 SDK 中依赖这种库还是比较麻烦的。</p>
+<h3 id="注意事项四：做基本的检查和测试"><a href="#注意事项四：做基本的检查和测试" class="headerlink" title="注意事项四：做基本的检查和测试"></a>注意事项四：做基本的检查和测试</h3><p>说明：SDK 对外公布前应该进行基本的编译检查，不应该有编译器警告存在。</p>
+<p>Bad Case：腾讯分享的 SDK。它的 <code>CGIParamsWrap.o</code> 和  <code>TencentOAuth.o</code> 文件里面的方法名冲突了，如下所示：</p>
+<blockquote>
+<p>ld: warning: instance method ‘deleteAPIRequestBySeq:’ in category from &#x2F;Users&#x2F;tangqiao&#x2F;work&#x2F;iphone&#x2F;solar-ios&#x2F;lib_common&#x2F;TencentOpenApi&#x2F;TencentOpenAPI.framework&#x2F;TencentOpenAPI(CGIParamsWrap.o) overrides method from class in &#x2F;Users&#x2F;tangqiao&#x2F;work&#x2F;iphone&#x2F;solar-ios&#x2F;lib_common&#x2F;TencentOpenApi&#x2F;TencentOpenAPI.framework&#x2F;TencentOpenAPI(TencentOAuth.o)</p>
+</blockquote>
+<h3 id="注意事项五：文档完整并且正确"><a href="#注意事项五：文档完整并且正确" class="headerlink" title="注意事项五：文档完整并且正确"></a>注意事项五：文档完整并且正确</h3><p>说明：这就不用解释了吧？</p>
+<p>Bad Case: 微信官方的微信支付的示例代码，里面有各种错误，代码都无法编译成功。如下所示的是其中一个错误：</p>
+<img src="/images/weixin-pay-error.jpg" class="">
+
+<p>于是还有人专门帮微信另外制作了一个非官方的说明文档，地址在这里：<a target="_blank" rel="noopener" href="https://github.com/gbammc/WechatPayDemo">https://github.com/gbammc/WechatPayDemo</a></p>
+<h3 id="注意事项六：支持最新的-CPU-版本"><a href="#注意事项六：支持最新的-CPU-版本" class="headerlink" title="注意事项六：支持最新的 CPU 版本"></a>注意事项六：支持最新的 CPU 版本</h3><p>说明：去年苹果的一次 Bug，造成上传应用必须支持 arm64 的 CPU 版本，结果众多应用因为依赖的 SDK 不支持 arm64 而无法更新。当然，这次 Bug 出来之后，各 SDK 厂商都紧急做了更新。但是我觉得这种事情如果要做得专业，就应该一开始就紧跟技术更新，及时更新，而不是被迫更新。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上 6 点是我认为写一个 SDK 的最最基本的要求，希望被点名批评的同学能尽快改正哟～</p>
+<p>如果大家在使用其它 SDK 时也发现了类似的问题，欢迎在文章下面留言。希望通过这种方式给开发相关 SDK 的同学一些压力，让他们好好改一下。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/%E5%BD%93Unity3D%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E9%81%87%E4%B8%8AExcel/" rel="next" title="当 Unity3D 游戏开发遇上 Excel">
+                <i class="fa fa-chevron-left"></i> 当 Unity3D 游戏开发遇上 Excel
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/2015-02-01-move-to-hexo/" rel="prev" title="更换博客系统到 Hexo">
+                更换博客系统到 Hexo <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%E4%B8%80%EF%BC%9A%E6%89%80%E6%9C%89%E7%B1%BB%E5%90%8D%E9%83%BD%E5%BA%94%E8%AF%A5%E5%8A%A0%E5%89%8D%E7%BC%80"><span class="nav-number">1.</span> <span class="nav-text">注意事项一：所有类名都应该加前缀</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%E4%BA%8C%EF%BC%9A%E6%89%80%E6%9C%89-category-%E6%96%B9%E6%B3%95%E5%8A%A0%E5%89%8D%E7%BC%80"><span class="nav-number">2.</span> <span class="nav-text">注意事项二：所有 category 方法加前缀</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%E4%B8%89%EF%BC%9A%E4%B8%8D%E8%A6%81%E5%B0%86%E7%AC%AC%E4%B8%89%E6%96%B9%E5%BA%93%E6%89%93%E5%8C%85%E8%BF%9B-SDK"><span class="nav-number">3.</span> <span class="nav-text">注意事项三：不要将第三方库打包进 SDK</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%E5%9B%9B%EF%BC%9A%E5%81%9A%E5%9F%BA%E6%9C%AC%E7%9A%84%E6%A3%80%E6%9F%A5%E5%92%8C%E6%B5%8B%E8%AF%95"><span class="nav-number">4.</span> <span class="nav-text">注意事项四：做基本的检查和测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%E4%BA%94%EF%BC%9A%E6%96%87%E6%A1%A3%E5%AE%8C%E6%95%B4%E5%B9%B6%E4%B8%94%E6%AD%A3%E7%A1%AE"><span class="nav-number">5.</span> <span class="nav-text">注意事项五：文档完整并且正确</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%E5%85%AD%EF%BC%9A%E6%94%AF%E6%8C%81%E6%9C%80%E6%96%B0%E7%9A%84-CPU-%E7%89%88%E6%9C%AC"><span class="nav-number">6.</span> <span class="nav-text">注意事项六：支持最新的 CPU 版本</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number"></span> <span class="nav-text">总结</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

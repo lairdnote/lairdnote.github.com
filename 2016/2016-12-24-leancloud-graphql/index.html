@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Web,LeanCloud," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="GraphQL 是 FaceBook 开源的一套数据查询语言，也是 Relay 钦定的组件，可以在客户端以一种非常灵活的语法来获取数据，但目前支持 GraphQL 的服务还比较少，最近 GitHub 也宣布了其开放 API 支持了 GraphQL。 因为 GraphQL 的支持需要服务器端的更改，因此我选择了在 LeanCloud 的数据服务的基础上用 Node.js 编写一个中间层，运行在云引擎">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在 LeanCloud 中使用 GraphQL">
+<meta property="og:url" content="https://blog.feedscoin.com/2016/2016-12-24-leancloud-graphql/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="GraphQL 是 FaceBook 开源的一套数据查询语言，也是 Relay 钦定的组件，可以在客户端以一种非常灵活的语法来获取数据，但目前支持 GraphQL 的服务还比较少，最近 GitHub 也宣布了其开放 API 支持了 GraphQL。 因为 GraphQL 的支持需要服务器端的更改，因此我选择了在 LeanCloud 的数据服务的基础上用 Node.js 编写一个中间层，运行在云引擎">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2016-12-23T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T06:51:52.195Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="LeanCloud">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2016/2016-12-24-leancloud-graphql/"/>
+
+
+
+
+
+  <title>在 LeanCloud 中使用 GraphQL | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/2016-12-24-leancloud-graphql/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">在 LeanCloud 中使用 GraphQL</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-12-24T00:00:00+08:00">
+                2016-12-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p><a target="_blank" rel="noopener" href="http://graphql.org/">GraphQL</a> 是 FaceBook 开源的一套数据查询语言，也是 <a target="_blank" rel="noopener" href="https://facebook.github.io/relay/">Relay</a> 钦定的组件，可以在客户端以一种非常灵活的语法来获取数据，但目前支持 GraphQL 的服务还比较少，最近 <a target="_blank" rel="noopener" href="http://githubengineering.com/the-github-graphql-api/">GitHub 也宣布了其开放 API 支持了 GraphQL</a>。</p>
+<p>因为 GraphQL 的支持需要服务器端的更改，因此我选择了在 LeanCloud 的数据服务的基础上用 Node.js 编写一个中间层，运行在云引擎上，将 GraphQL 的查询翻译成对 LeanCloud SDK 的调用，为客户端提供 GraphQL 支持。</p>
+<p>我也参考了其他语言和框架的 GraphQL 支持，它们都需要开发者进行很多的开发或配置工作。这是因为无论在 MySQL 还是 MongoDB 中都并没有记录数据之间的关联关系（Id 和 ObjectId 都不会记录指向的表或集合，MySQL 的外键倒是会记录，但可惜用户不多）；而且即使你定义了数据之间的关联，你还是需要去定义权限 —— 哪些用户可以访问哪些数据。</p>
+<p>而 LeanCloud 的 Relation 和 Pointer 都记录了所指向的 Class，同时 LeanCloud 本身也有一套基于 sessionToken 和 ACL 的权限控制机制，因此我们完全可以做到从 LeanCloud 的数据服务获取数据之间的管理，然后遵循现有的 ACL 来自动实现对 GraphQL 的支持。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/leancloud/leancloud-graphql">leancloud-graphql</a> 就是这样的一个项目，你只需将它部署到云引擎上，不需要改动一行代码，便可以用 GraphQL 查询你在 LeanCloud 上的所有数据。</p>
+<p>相较于 RESTful 和 SQL，GraphQL 为数据定义了严格的类型，你可以使用这样一个灵活的语言将数据通过关系组合起来，所见即所得地得到你想要的数据。得益于 GraphQL 的类型系统，你还可以在调试工具（<a target="_blank" rel="noopener" href="https://graphql.leanapp.cn/">graphql.leanapp.cn</a>）中得到精确的错误提示和补全建议。</p>
+<p>例如这里我们查询 Todo 这个 Class 中按优先级排序的前两条数据，获取 title、priority，并将 owner 这个 Pointer 展开：</p>
+<figure class="highlight graphql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">query</span> <span class="punctuation">&#123;</span></span><br><span class="line">  Todo<span class="punctuation">(</span><span class="symbol">ascending</span><span class="punctuation">:</span> priority, <span class="symbol">limit</span><span class="punctuation">:</span> <span class="number">2</span><span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">    title, priority, owner <span class="punctuation">&#123;</span></span><br><span class="line">      username</span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="title class_">Todo</span>: [&#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&quot;紧急 Bug 修复&quot;</span>,</span><br><span class="line">    <span class="attr">priority</span>: <span class="number">0</span>,</span><br><span class="line">    <span class="attr">owner</span>: &#123;</span><br><span class="line">      <span class="attr">username</span>: <span class="string">&quot;someone&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;, &#123;</span><br><span class="line">    <span class="attr">title</span>: <span class="string">&quot;打电话给 Peter&quot;</span>,</span><br><span class="line">    <span class="attr">priority</span>: <span class="number">5</span>,</span><br><span class="line">    <span class="attr">owner</span>: &#123;</span><br><span class="line">      <span class="attr">username</span>: <span class="string">&quot;someone&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>目前 leancloud-graphql 已经实现了 LeanCloud 中大部分的查询参数和查询条件，你可以任意地组合这些条件。例如我们可以查询优先级大于 5 且存在 content 属性的数据：</p>
+<figure class="highlight graphql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">query</span> <span class="punctuation">&#123;</span></span><br><span class="line">  Todo<span class="punctuation">(</span><span class="symbol">exists</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="symbol">content</span><span class="punctuation">:</span> <span class="literal">true</span><span class="punctuation">&#125;</span>, <span class="symbol">greaterThan</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="symbol">priority</span><span class="punctuation">:</span> <span class="number">5</span><span class="punctuation">&#125;</span><span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">    title, content, priority</span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>GraphQL 最大的亮点还是对关系查询的支持，无论是 Relation 还是 Pointer 你都可以任意地展开，而不必受到 LeanCloud RESTful API 只能展开一层的限制。例如我们查询所有的 TodoFolder 中的 Todo（Relation）并展开 owner（Pointer）：</p>
+<figure class="highlight graphql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">query</span> <span class="punctuation">&#123;</span></span><br><span class="line">  TodoFolder <span class="punctuation">&#123;</span></span><br><span class="line">    name,</span><br><span class="line">    containedTodos <span class="punctuation">&#123;</span></span><br><span class="line">      title, owner <span class="punctuation">&#123;</span></span><br><span class="line">        username, email</span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>结果（省略了一部分）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="title class_">TodoFolder</span>: [&#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&quot;工作&quot;</span>,</span><br><span class="line">    <span class="attr">containedTodos</span>: [&#123;</span><br><span class="line">      <span class="attr">title</span>: <span class="string">&quot;紧急 Bug 修复&quot;</span>,</span><br><span class="line">      <span class="attr">owner</span>: &#123;</span><br><span class="line">        <span class="attr">username</span>: <span class="string">&quot;someone&quot;</span>,</span><br><span class="line">        <span class="attr">email</span>: <span class="string">&quot;test@example.com&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;, <span class="comment">// ...</span></span><br><span class="line">    ]</span><br><span class="line">  &#125;, <span class="comment">// ...</span></span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>你也可以在关系查询上附加查询参数或条件。例如我们查询所有 TodoFolder 中优先级最高的一个 Todo：</p>
+<figure class="highlight graphql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">query</span> <span class="punctuation">&#123;</span></span><br><span class="line">  TodoFolder <span class="punctuation">&#123;</span></span><br><span class="line">    name, containedTodos<span class="punctuation">(</span><span class="symbol">limit</span><span class="punctuation">:</span> <span class="number">1</span>, <span class="symbol">ascending</span><span class="punctuation">:</span> priority<span class="punctuation">)</span> <span class="punctuation">&#123;</span></span><br><span class="line">      title, priority</span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="title class_">TodoFolder</span>: [&#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&quot;工作&quot;</span>,</span><br><span class="line">    <span class="attr">containedTodos</span>: [</span><br><span class="line">      &#123;<span class="attr">title</span>: <span class="string">&quot;紧急 Bug 修复&quot;</span>, <span class="attr">priority</span>: <span class="number">0</span>&#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&quot;购物清单&quot;</span>,</span><br><span class="line">    <span class="attr">containedTodos</span>: [</span><br><span class="line">      &#123;<span class="attr">title</span>: <span class="string">&quot;买酸奶&quot;</span>, <span class="attr">priority</span>: <span class="number">10</span>&#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;, &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&quot;someone&quot;</span>,</span><br><span class="line">    <span class="attr">containedTodos</span>: [</span><br><span class="line">      &#123;<span class="attr">title</span>: <span class="string">&quot;紧急 Bug 修复&quot;</span>, <span class="attr">priority</span>: <span class="number">0</span>&#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在实现一对多关系时，我们经常会在「多」上面保存一个到「一」的指针，例如一个 Todo 会有一个叫 owner 的 Pointer 指向用户表。在这时，leancloud-graphql 会自动在用户表上添加一个叫 ownerOfTodo 的属性用来表示这个反向关系，你可以像展开一个 Relation 一样展开这个反向关系，例如我们查询每个用户的 Todo 并展开 title：</p>
+<figure class="highlight graphql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">query</span> <span class="punctuation">&#123;</span></span><br><span class="line">  _User <span class="punctuation">&#123;</span></span><br><span class="line">    username, ownerOfTodo <span class="punctuation">&#123;</span></span><br><span class="line">      title</span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">_User</span>: [&#123;</span><br><span class="line">    <span class="attr">username</span>: <span class="string">&quot;someone&quot;</span>,</span><br><span class="line">    <span class="attr">ownerOfTodo</span>: [</span><br><span class="line">      &#123;<span class="attr">title</span>: <span class="string">&quot;紧急 Bug 修复&quot;</span>&#125;,</span><br><span class="line">      &#123;<span class="attr">title</span>: <span class="string">&quot;打电话给 Peter&quot;</span>&#125;,</span><br><span class="line">      &#123;<span class="attr">title</span>: <span class="string">&quot;还信用卡账单&quot;</span>&#125;,</span><br><span class="line">      &#123;<span class="attr">title</span>: <span class="string">&quot;买酸奶&quot;</span>&#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对 <a target="_blank" rel="noopener" href="https://github.com/leancloud/leancloud-graphql">leancloud-graphql</a> 的简单介绍就到这里，更多使用方法和功能介绍可以在项目的 GitHub 主页上看到，这个项目本身也是开源的。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Web/" rel="tag"># Web</a>
+          
+            <a href="/tags/LeanCloud/" rel="tag"># LeanCloud</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/the-best-method-to-use-whoops-in-laravel/" rel="next" title="Laravel 使用 whoops 处理错误最优雅的姿势">
+                <i class="fa fa-chevron-left"></i> Laravel 使用 whoops 处理错误最优雅的姿势
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/migrate-to-new-domain-blessing-studio/" rel="prev" title="博客启用新域名 Blessing.Studio">
+                博客启用新域名 Blessing.Studio <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

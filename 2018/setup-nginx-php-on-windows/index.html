@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="PHP,Nginx," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="看到这个标题，有人可能会想吐槽： 你他娘的写了这么久 PHP，怎么现在想起来搭建开发环境了？ 呃，情况呢是这么个情况，我之前开发的那个 PHP 项目 (blessing-skin-server) 在两个月前发布 v3.5.0 版本后基本就已经告一段落了。虽然我本意是不再更新（弃坑的委婉说法），因为当前的版本已经足够完善，该有的东西都有了（而且说实话搞了这么久我也腻味，不仅是对这个程序，还有对国内">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Windows 下手动搭建 PHP + Nginx&#x2F;Apache 开发环境">
+<meta property="og:url" content="https://blog.feedscoin.com/2018/setup-nginx-php-on-windows/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="看到这个标题，有人可能会想吐槽： 你他娘的写了这么久 PHP，怎么现在想起来搭建开发环境了？ 呃，情况呢是这么个情况，我之前开发的那个 PHP 项目 (blessing-skin-server) 在两个月前发布 v3.5.0 版本后基本就已经告一段落了。虽然我本意是不再更新（弃坑的委婉说法），因为当前的版本已经足够完善，该有的东西都有了（而且说实话搞了这么久我也腻味，不仅是对这个程序，还有对国内">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://img.prin.studio/images/2018/11/01/php-cgi-processes.png">
+<meta property="og:image" content="https://img.prin.studio/images/2018/11/01/nginx-php-works.png">
+<meta property="og:image" content="https://img.prin.studio/images/2018/11/01/wnmp-all-processes.png">
+<meta property="article:published_time" content="2018-11-01T15:00:10.000Z">
+<meta property="article:modified_time" content="2020-03-03T13:37:00.000Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="PHP">
+<meta property="article:tag" content="Nginx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.prin.studio/images/2018/11/01/php-cgi-processes.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2018/setup-nginx-php-on-windows/"/>
+
+
+
+
+
+  <title>Windows 下手动搭建 PHP + Nginx/Apache 开发环境 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2018/setup-nginx-php-on-windows/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Windows 下手动搭建 PHP + Nginx/Apache 开发环境</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-11-01T23:00:10+08:00">
+                2018-11-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>看到这个标题，有人可能会想吐槽：</p>
+<p><strong>你他娘的写了这么久 PHP，怎么现在想起来搭建开发环境了？</strong></p>
+<p>呃，情况呢是这么个情况，我之前开发的那个 PHP 项目 (<a target="_blank" rel="noopener" href="https://github.com/prinsss/blessing-skin-server/">blessing-skin-server</a>) 在两个月前发布 v3.5.0 版本后基本就已经告一段落了。虽然我本意是不再更新<del>（弃坑的委婉说法）</del>，因为当前的版本已经足够完善，该有的东西都有了（而且说实话搞了这么久我也腻味，不仅是对这个程序，还有对国内 Minecraft 开发生态以及用户群体的失望）。</p>
+<p>不过我的朋友 <a target="_blank" rel="noopener" href="https://blog.gplane.win/">g-plane</a> 说他愿意接坑，所以现在这个项目的后续开发都是他在搞。而我也乐得清闲，做个甩手掌柜 <a target="_blank" rel="noopener" href="https://prinsss.github.io/vscode-c-cpp-configuration-for-acm-oj/">搞别的</a> 去了。当我摸鱼正快活时，他过来联系我说准备发布 4.0.0-alpha 了，我才想起来这茬：「啊，我连新版本长啥样都还不知道呢！😂」于是急急忙忙 pull 了新代码准备 review 一下，却发现我的新笔电上甚至压根儿就没安装 PHP 开发环境，只能说是非常地真实。</p>
+<span id="more"></span>
+
+<p>因为 <a target="_blank" rel="noopener" href="https://prinsss.github.io/phpstudy-prober-page-502-bad-gateway/">某些原因</a>，我不想继续使用那些 PHP 一键包来搭建开发环境了，所以这次我打算全部自己来。本文记录了我手动安装配置 PHP + Nginx&#x2F;Apache 开发环境的过程，希望能帮到后来人。</p>
+<p>注意，本文中的配置适用于本地开发环境，应用至生产环境时要注意哦。</p>
+<blockquote>
+<p><strong>2020&#x2F;03&#x2F;03 更新</strong>：</p>
+<p>你也可以直接用 scoop 来管理 WNMP 开发环境。</p>
+<p>安装：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scoop install nginx mariadb php</span><br></pre></td></tr></table></figure>
+
+<p>启动：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nginx -p <span class="variable">%NGINX_HOME%</span></span><br><span class="line">mysqld --standalone</span><br><span class="line">php-cgi -b <span class="number">127</span>.<span class="number">0</span>.<span class="number">0</span>.<span class="number">1</span>:<span class="number">9000</span></span><br></pre></td></tr></table></figure>
+
+<p>配置或数据文件的位置：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\prin\scoop\apps\nginx\current\conf</span><br><span class="line">C:\Users\prin\scoop\apps\mariadb\current\data</span><br><span class="line">C:\Users\prin\scoop\apps\php\current\cli</span><br></pre></td></tr></table></figure>
+
+<p>比起手动下载方便不少。</p>
+</blockquote>
+<h2 id="0x01-安装-Nginx-Apache"><a href="#0x01-安装-Nginx-Apache" class="headerlink" title="0x01 安装 Nginx &#x2F; Apache"></a>0x01 安装 Nginx &#x2F; Apache</h2><p><strong>如果你用的是 Nginx：</strong></p>
+<ul>
+<li>去 <a target="_blank" rel="noopener" href="https://nginx.org/en/download.html">官网</a> 下载 Windows 版的 Nginx（我下载的是 <code>nginx-1.14.0.zip</code>）；</li>
+<li>解压至你喜欢的地方（我放在 <code>E:\environment\nginx</code> 里）；</li>
+<li>直接双击运行 <code>nginx.exe</code>；</li>
+<li>如果能正常访问 <code>http://localhost:80</code>，就可以进行下一步了。</li>
+</ul>
+<p>推荐修改的 <code>nginx.conf</code> 配置如下：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 可以适当调高，但不要超过 CPU 核心数量</span></span><br><span class="line"><span class="attribute">worker_processes</span>  <span class="number">4</span>;</span><br><span class="line"></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">    <span class="comment"># 开发环境下不用太考虑 worker 最大并发连接数</span></span><br><span class="line">    <span class="attribute">worker_connections</span>  <span class="number">1024</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">    <span class="attribute">include</span>       mime.types;</span><br><span class="line">    <span class="attribute">default_type</span>  application/octet-stream;</span><br><span class="line">    <span class="attribute">sendfile</span>      <span class="literal">on</span>;</span><br><span class="line">    <span class="attribute">keepalive_timeout</span> <span class="number">65</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 启用 gzip</span></span><br><span class="line">    <span class="attribute">gzip</span> <span class="literal">on</span>;</span><br><span class="line">    <span class="attribute">gzip_disable</span> <span class="string">&quot;MSIE [1-6].(?!.*SV1)&quot;</span>;</span><br><span class="line">    <span class="attribute">gzip_http_version</span> <span class="number">1</span>.<span class="number">1</span>;</span><br><span class="line">    <span class="attribute">gzip_vary</span> <span class="literal">on</span>;</span><br><span class="line">    <span class="attribute">gzip_proxied</span> any;</span><br><span class="line">    <span class="attribute">gzip_min_length</span> <span class="number">1000</span>;</span><br><span class="line">    <span class="attribute">gzip_buffers</span> <span class="number">16</span> <span class="number">8k</span>;</span><br><span class="line">    <span class="attribute">gzip_comp_level</span> <span class="number">6</span>;</span><br><span class="line">    <span class="attribute">gzip_types</span> text/plain text/css text/xml text/javascript application/json application/x-javascript application/xml application/xml+rss;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 这里面的内容等 0x03 再细说</span></span><br><span class="line">    <span class="attribute">include</span> vhosts.conf;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>如果你用的是 Apache：</strong></p>
+<ul>
+<li>因为 Apache 官网并不提供 Windows 版的构建下载，所以需要去 <a target="_blank" rel="noopener" href="https://www.apachelounge.com/download/">Apache Lounge</a> 或者其他 <a target="_blank" rel="noopener" href="https://httpd.apache.org/docs/current/platform/windows.html#down">官方推荐的站点</a> 下载预编译二进制包（我下载的是 <code>httpd-2.4.37-win64-VC15.zip</code>，你愿意的话也可以自己编译）；</li>
+<li>解压至你喜欢的地方（我放在 <code>E:\environment\apache</code> 里）；</li>
+<li>直接双击运行 <code>bin/httpd.exe</code>；</li>
+<li>如果能正常访问 <code>http://localhost:80</code>，就可以进行下一步了。</li>
+</ul>
+<p>推荐修改的 <code>httpd.conf</code> 配置如下：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 修改为你的安装目录</span></span><br><span class="line"><span class="attribute">Define</span> SRVROOT <span class="string">&quot;E:\environment\apache&quot;</span></span><br><span class="line"><span class="attribute">ServerRoot</span> <span class="string">&quot;$&#123;SRVROOT&#125;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="attribute">Listen</span> <span class="number">80</span></span><br><span class="line"><span class="attribute">ServerName</span> localhost</span><br><span class="line"></span><br><span class="line"><span class="comment"># 按需启用模块</span></span><br><span class="line"><span class="attribute">LoadModule</span> rewrite_module modules/mod_rewrite.so</span><br><span class="line"><span class="attribute">LoadModule</span> ...</span><br><span class="line"></span><br><span class="line"><span class="comment"># 推荐注释掉自带的 DocumentRoot 和 &lt;Directory&gt;</span></span><br><span class="line"><span class="comment"># 这里面的内容等 0x03 再细说</span></span><br><span class="line"><span class="attribute">Include</span> conf/extra/httpd-php.conf</span><br><span class="line"><span class="attribute">Include</span> conf/vhosts.conf</span><br></pre></td></tr></table></figure>
+
+<h2 id="0x02-安装-PHP"><a href="#0x02-安装-PHP" class="headerlink" title="0x02 安装 PHP"></a>0x02 安装 PHP</h2><p>Windows 版 PHP 下载地址：</p>
+<p><a target="_blank" rel="noopener" href="https://windows.php.net/download">https://windows.php.net/download</a></p>
+<p>其中有 NTS（Non Thread Safe，非线程安全）和 TS（Thread Safe，线程安全）两种版本，简单来说就是 <strong>Nginx 用 NTS 版，Apache 通常用 TS 版</strong>（也可以用 NTS），它们之间的具体区别有兴趣的话可以自己去了解一下。</p>
+<p>为了同时兼容 Nginx 与 Apache，本文将以 NTS 版为例进行配置。</p>
+<ul>
+<li>下载合适的版本（我下载的是 <code>php-7.2.11-nts-Win32-VC15-x64.zip</code>）；</li>
+<li>解压至你喜欢的位置（我放在 <code>E:\environment\php</code> 里）；</li>
+<li>复制一份 <code>php.ini-development</code>，重命名为 <code>php.ini</code> 并适当修改其中配置；</li>
+<li>直接双击运行 <code>php.exe</code>；</li>
+<li>如果能正常打开 PHP Interactive Shell，就可以进入下一步了。</li>
+</ul>
+<p><strong>如果无法运行，请检查你是否安装了对应的 VC 运行库。</strong></p>
+<p>推荐修改的 <code>php.ini</code> 配置如下：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">; 扩展所在的目录，自行修改</span></span><br><span class="line"><span class="attr">extension_dir</span> = <span class="string">&quot;E:\environment\php\ext&quot;</span></span><br><span class="line"><span class="comment">; 按自己的需求启用扩展</span></span><br><span class="line"><span class="attr">extension</span>=pdo_mysql</span><br><span class="line"><span class="attr">extension</span>=...</span><br><span class="line"><span class="comment">; 各种缓存的位置</span></span><br><span class="line"><span class="attr">sys_temp_dir</span> = <span class="string">&quot;E:\environment\php\temp&quot;</span></span><br><span class="line"><span class="attr">upload_tmp_dir</span> = <span class="string">&quot;E:\environment\php\temp&quot;</span></span><br><span class="line"><span class="attr">session.save_path</span> = <span class="string">&quot;E:\environment\php\temp&quot;</span></span><br><span class="line"><span class="comment">; 其他杂七杂八的</span></span><br><span class="line"><span class="attr">upload_max_filesize</span> = <span class="number">100</span>M</span><br><span class="line"><span class="attr">date.timezone</span> = Asia/Shanghai</span><br></pre></td></tr></table></figure>
+
+<h2 id="0x03-配置-FastCGI-转发"><a href="#0x03-配置-FastCGI-转发" class="headerlink" title="0x03 配置 FastCGI 转发"></a>0x03 配置 FastCGI 转发</h2><p>接下来才是重头戏，我们要让 Web Server 与 PHP 能够互相通信以完成请求。</p>
+<p>作为 Web Server 的后端时，PHP 主要有两种运行方式，一种是 <strong>独立进程、使用 <a target="_blank" rel="noopener" href="http://www.nowamagic.net/librarys/veda/detail/1319">FastCGI 协议</a> 与 Web Server 通信</strong>（Nginx 用的就是这种），另外一种是 <strong>作为模块直接加载到 Web Server 中</strong>（比如 Apache 的 <code>mod_php</code> 模块，不过 Apache 也支持 FastCGI 方式）。详细的原理我就不介绍了，有兴趣的选手可以去了解一下。</p>
+<p>为了能够同时兼容 Nginx 和 Apache，<strong>本文均使用 FastCGI 方式加载 PHP</strong>。</p>
+<hr>
+<p>首先我们需要配置一下 PHP 的 FastCGI 进程管理器。为什么呢？因为直接运行 PHP 的 FastCGI 进程（在 Windows 上就是 <code>php-cgi.exe</code>）有以下缺点：</p>
+<ul>
+<li>配置文件 <code>php.ini</code> 修改后无法平滑重载，需要重新启动 <code>php-cgi</code> 进程；</li>
+<li>Windows 下 <code>php-cgi</code> 默认处理 500 个请求后就自动退出（<code>PHP_FCGI_MAX_REQUESTS</code>）；</li>
+<li>如果因为其他原因造成 <code>php-cgi</code> 进程崩溃，就无法处理后续请求了。</li>
+</ul>
+<p>所以我们需要一个类似守护进程的东西，来保证始终有一定数量的 <code>php-cgi</code> 进程在运行。<a target="_blank" rel="noopener" href="http://php.net/manual/zh/install.fpm.php">PHP-FPM</a> (PHP FastCGI Process Manager) 是 PHP 官方钦定的 FastCGI 进程管理器，但遗憾的是，它只适用于类 Unix 系统。在 Windows 上，我们可以使用这些替代品来实现类似的功能（<strong>Apache 用户不需要配置这些东西</strong>，因为它的 <code>mod_fcgid</code> 模块自带 FastCGI 进程管理功能）：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/78/xxfpm">xxfpm</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/deemru/php-cgi-spawner">php-cgi-spawner</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/lighttpd/spawn-fcgi">spawn-fcgi</a></li>
+</ul>
+<p>本文将以 php-cgi-spawner 为例进行配置。</p>
+<ul>
+<li><p>在 <a target="_blank" rel="noopener" href="https://github.com/deemru/php-cgi-spawner/releases">这里</a> 下载编译好的 <code>php-cgi-spawner.exe</code>；</p>
+</li>
+<li><p>放到 PHP 的安装目录下（本文为 <code>E:\environment\php</code>）；</p>
+</li>
+<li><p>打开 PowerShell 或者 CMD，运行命令：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 令 PHP FastCGI 处理程序监听在 9000 端口上</span></span><br><span class="line"><span class="comment"># 至少开启 4 个 php-cgi 进程，高负载时最多可以开到 16 个</span></span><br><span class="line">.\php<span class="literal">-cgi-spawner</span>.exe <span class="string">&quot;php-cgi.exe -c php.ini&quot;</span> <span class="number">9000</span> <span class="number">4</span>+<span class="number">16</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>如果一切正常，你将可以在任务管理器中看到同时运行的多个 <code>php-cgi</code> 进程。</p>
+</li>
+</ul>
+<p><img src="https://img.prin.studio/images/2018/11/01/php-cgi-processes.png" alt="php-cgi-processes"></p>
+<p><strong>接下来修改 Nginx 配置</strong>（即 0x01 中提到的 <code>vhosts.conf</code> 中的内容），通过 FastCGI 协议将请求转发给监听在 9000 端口上的 PHP 进行处理：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">listen</span>       <span class="number">80</span>;</span><br><span class="line">    <span class="attribute">server_name</span>  localhost;</span><br><span class="line">    <span class="attribute">root</span>   E:/wwwroot;</span><br><span class="line">    <span class="attribute">index</span>  index.html index.htm index.php;</span><br><span class="line"></span><br><span class="line">    <span class="section">location</span> <span class="regexp">~ [^/]\.php(/|$)</span> &#123;</span><br><span class="line">        <span class="comment"># 从 URI 中分离出 $fastcgi_script_name 和 $fastcgi_path_info 的值</span></span><br><span class="line">        <span class="comment"># 不推荐使用 php.ini 中的 cgi.fix_pathinfo 选项，这可能会造成安全隐患</span></span><br><span class="line">        <span class="comment"># 虽然我感觉 8012 年了应该没人用 PATH_INFO 了……不需要的话去掉即可</span></span><br><span class="line">        <span class="attribute">fastcgi_split_path_info</span> <span class="regexp"> ^(.+?\.php)(/.*)$</span>;</span><br><span class="line">        <span class="attribute">fastcgi_param</span>  PATH_INFO  <span class="variable">$fastcgi_path_info</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 当请求的 .php 文件不存在时直接返回 404</span></span><br><span class="line">        <span class="comment"># 不然交给 PHP 处理的话那边就会返回 No input file specified.</span></span><br><span class="line">        <span class="attribute">if</span> (!-f <span class="variable">$document_root</span><span class="variable">$fastcgi_script_name</span>) &#123;</span><br><span class="line">            <span class="attribute">return</span> <span class="number">404</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="attribute">fastcgi_pass</span>   <span class="number">127.0.0.1:9000</span>;</span><br><span class="line">        <span class="attribute">fastcgi_index</span>  index.php;</span><br><span class="line">        <span class="comment"># 自带的配置文件，里面设置了一大堆 CGI 协议中的变量</span></span><br><span class="line">        <span class="attribute">include</span>        fastcgi.conf;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>Apache 用户不需要手动配置 PHP FastCGI 进程管理器，相对简单一些：</strong></p>
+<ul>
+<li>在上面提到的 <a target="_blank" rel="noopener" href="https://www.apachelounge.com/download/">Apache Lounge</a> 上下载编译好的 <code>mod_fcgid</code> 模块；</li>
+<li>解压后，将 <code>mod_fcgid.so</code> 放入 Apache 的 <code>modules</code> 目录；</li>
+<li>编辑配置文件加载模块（即 0x01 中提到的 <code>conf/extra/httpd-php.conf</code>）：</li>
+</ul>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 如果嫌麻烦的话这一段也可以直接放到 httpd.conf 里面去</span></span><br><span class="line"><span class="attribute">LoadModule</span> fcgid_module modules/mod_fcgid.so</span><br><span class="line"></span><br><span class="line"><span class="section">&lt;IfModule fcgid_module&gt;</span></span><br><span class="line"><span class="attribute">FcgidInitialEnv</span> PHPRC <span class="string">&quot;E:/environment/php/&quot;</span></span><br><span class="line"><span class="attribute">FcgidInitialEnv</span> PHP_FCGI_MAX_REQUESTS <span class="number">1000</span></span><br><span class="line"><span class="attribute">AddHandler</span> fcgid-script .php</span><br><span class="line"><span class="attribute">FcgidWrapper</span> <span class="string">&quot;E:/environment/php/php-cgi.exe&quot;</span> .php</span><br><span class="line"><span class="attribute">FcgidIOTimeout</span> <span class="number">384</span></span><br><span class="line"><span class="attribute">FcgidConnectTimeout</span> <span class="number">360</span></span><br><span class="line"><span class="attribute">FcgidOutputBufferSize</span> <span class="number">128</span></span><br><span class="line"><span class="attribute">FcgidMaxRequestsPerProcess</span> <span class="number">1000</span></span><br><span class="line"><span class="attribute">FcgidMinProcessesPerClass</span> <span class="number">0</span></span><br><span class="line"><span class="attribute">FcgidMaxProcesses</span> <span class="number">16</span></span><br><span class="line"><span class="attribute">FcgidMaxRequestLen</span> <span class="number">268435456</span></span><br><span class="line"><span class="attribute">ProcessLifeTime</span> <span class="number">360</span></span><br><span class="line"><span class="section">&lt;/IfModule&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>编辑 <code>conf/vhosts.conf</code> 允许运行 CGI 程序：</li>
+</ul>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">&lt;VirtualHost localhost<span class="number">:80</span>&gt;</span></span><br><span class="line">  <span class="attribute">DocumentRoot</span> <span class="string">&quot;E:\wwwroot&quot;</span></span><br><span class="line">  <span class="section">&lt;Directory <span class="string">&quot;E:\wwwroot&quot;</span>&gt;</span></span><br><span class="line">    <span class="attribute">DirectoryIndex</span> index.html index.php</span><br><span class="line">    <span class="comment"># 注意这里的 +ExecCGI，不加的话会 403</span></span><br><span class="line">    <span class="attribute">Options</span> -Indexes -FollowSymLinks +ExecCGI</span><br><span class="line">    <span class="attribute">AllowOverride</span> <span class="literal">All</span></span><br><span class="line">    <span class="attribute">Order</span> <span class="literal">allow</span>,<span class="literal">deny</span></span><br><span class="line">    <span class="attribute">Allow</span> from <span class="literal">all</span></span><br><span class="line">    <span class="attribute">Require</span> <span class="literal">all</span> granted</span><br><span class="line">  <span class="section">&lt;/Directory&gt;</span></span><br><span class="line"><span class="section">&lt;/VirtualHost&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>如果一切配置正确，你应该就能正常访问 PHP 网页了。</p>
+<p><img src="https://img.prin.studio/images/2018/11/01/nginx-php-works.png" alt="nginx-php-works"></p>
+<h2 id="0x04-编写启停脚本"><a href="#0x04-编写启停脚本" class="headerlink" title="0x04 编写启停脚本"></a>0x04 编写启停脚本</h2><p>虽然整个系统是跑起来了，但总不能每次启动都得开一大堆控制台窗口吧？弄个小工具管理 Nginx&#x2F;Apache 和 PHP 的进程还是很有必要的。各种一键包中一般都自带了方便好用的界面来管理这些进程，不过既然我们选择了手动配置，那这一块也得我们自己搞定了。因为图方便，我选择使用 Windows 的批处理脚本（Batch File）来完成这项需求，保存为 <code>.bat</code> 文件双击运行就完事儿了。</p>
+<p><strong>启动 Nginx 和 PHP：</strong></p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@<span class="built_in">ECHO</span> OFF</span><br><span class="line"><span class="built_in">set</span> nginx_home=..\nginx</span><br><span class="line"><span class="built_in">set</span> php_home=..\php</span><br><span class="line"></span><br><span class="line"><span class="built_in">ECHO</span> Starting PHP FastCGI...</span><br><span class="line">.\RunHiddenConsole.exe <span class="variable">%php_home%</span>\php-cgi-spawner.exe &quot;<span class="variable">%php_home%</span>\php-cgi.exe -c <span class="variable">%php_home%</span>\php.ini&quot; <span class="number">9000</span> <span class="number">4</span>+<span class="number">16</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">ECHO</span> Starting Nginx...</span><br><span class="line">.\RunHiddenConsole.exe <span class="variable">%nginx_home%</span>\nginx.exe -p <span class="variable">%nginx_home%</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>停止 Nginx 和 PHP：</strong></p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@<span class="built_in">ECHO</span> OFF</span><br><span class="line"></span><br><span class="line"><span class="built_in">ECHO</span> Stopping nginx...</span><br><span class="line"><span class="built_in">taskkill</span> /F /IM nginx.exe &gt; <span class="built_in">nul</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">ECHO</span> Stopping PHP FastCGI...</span><br><span class="line"><span class="built_in">taskkill</span> /F /IM php-cgi-spawner.exe &gt; <span class="built_in">nul</span></span><br><span class="line"><span class="built_in">taskkill</span> /F /IM php-cgi.exe &gt; <span class="built_in">nul</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>重载 Nginx 配置：</strong></p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@<span class="built_in">ECHO</span> OFF</span><br><span class="line"><span class="built_in">set</span> nginx_home=..\nginx</span><br><span class="line"></span><br><span class="line"><span class="built_in">ECHO</span> Reloading Nginx...</span><br><span class="line"><span class="variable">%nginx_home%</span>\nginx.exe -s reload</span><br></pre></td></tr></table></figure>
+
+<p><strong>启动 Apache</strong>（Apache 会帮我们启动 PHP 的）：</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@<span class="built_in">ECHO</span> OFF</span><br><span class="line"><span class="built_in">set</span> apache_home=..\apache</span><br><span class="line"></span><br><span class="line"><span class="built_in">ECHO</span> Starting Apache Httpd...</span><br><span class="line">.\RunHiddenConsole.exe <span class="variable">%apache_home%</span>\bin\httpd.exe</span><br></pre></td></tr></table></figure>
+
+<p><strong>停止 Apache：</strong></p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@<span class="built_in">ECHO</span> OFF</span><br><span class="line"></span><br><span class="line"><span class="built_in">ECHO</span> Stopping Apache Httpd...</span><br><span class="line"><span class="built_in">taskkill</span> /F /IM httpd.exe &gt; <span class="built_in">nul</span></span><br></pre></td></tr></table></figure>
+
+<p>这些脚本我放在 <code>E:\environment\scripts</code> 目录中，如果你需要放在其他地方，请适当修改脚本中的可执行文件路径。另外，脚本中用到了 <code>RunHiddenConsole.exe</code> 来隐藏命令行窗口，你可以在 <a target="_blank" rel="noopener" href="http://redmine.lighttpd.net/attachments/660/RunHiddenConsole.zip">这里</a> 下载到这个小工具。</p>
+<p><img src="https://img.prin.studio/images/2018/11/01/wnmp-all-processes.png" alt="wnmp-all-processes"></p>
+<h2 id="0x05-后记"><a href="#0x05-后记" class="headerlink" title="0x05 后记"></a>0x05 后记</h2><p>配置完成后的目录结构大概是这样的（有省略）：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line">E:\environment&gt; tree</span><br><span class="line">.</span><br><span class="line">├── apache</span><br><span class="line">│   ├── bin</span><br><span class="line">│   ├── cgi-bin</span><br><span class="line">│   ├── conf</span><br><span class="line">│   │   ├── extra</span><br><span class="line">│   │   ├── original</span><br><span class="line">│   │   ├── charset.conv</span><br><span class="line">│   │   ├── httpd.conf *</span><br><span class="line">│   │   ├── magic</span><br><span class="line">│   │   ├── mime.types</span><br><span class="line">│   │   ├── openssl.cnf</span><br><span class="line">│   │   └── vhosts.conf *</span><br><span class="line">│   ├── include</span><br><span class="line">│   ├── lib</span><br><span class="line">│   ├── logs</span><br><span class="line">│   └── modules</span><br><span class="line">├── mysql</span><br><span class="line">│   ├── bin</span><br><span class="line">│   ├── data</span><br><span class="line">│   ├── include</span><br><span class="line">│   ├── lib</span><br><span class="line">│   └── share</span><br><span class="line">├── nginx</span><br><span class="line">│   ├── conf</span><br><span class="line">│   │   ├── fastcgi.conf</span><br><span class="line">│   │   ├── fastcgi_params</span><br><span class="line">│   │   ├── koi-utf</span><br><span class="line">│   │   ├── koi-win</span><br><span class="line">│   │   ├── mime.types</span><br><span class="line">│   │   ├── nginx.conf *</span><br><span class="line">│   │   ├── scgi_params</span><br><span class="line">│   │   ├── uwsgi_params</span><br><span class="line">│   │   ├── vhosts.conf *</span><br><span class="line">│   │   └── win-utf</span><br><span class="line">│   ├── contrib</span><br><span class="line">│   ├── logs</span><br><span class="line">│   └── nginx.exe</span><br><span class="line">├── php</span><br><span class="line">│   ├── dev</span><br><span class="line">│   ├── ext</span><br><span class="line">│   ├── extras</span><br><span class="line">│   ├── lib</span><br><span class="line">│   ├── sasl2</span><br><span class="line">│   ├── temp</span><br><span class="line">│   ├── ...</span><br><span class="line">│   ├── php7.dll</span><br><span class="line">│   ├── php-cgi.exe</span><br><span class="line">│   ├── php-cgi-spawner.exe *</span><br><span class="line">│   ├── php.exe</span><br><span class="line">│   └── php.ini *</span><br><span class="line">└── scripts</span><br><span class="line">    ├── reload-nginx.bat</span><br><span class="line">    ├── restart-nginx.bat</span><br><span class="line">    ├── RunHiddenConsole.exe</span><br><span class="line">    ├── start-all.bat</span><br><span class="line">    ├── start-apache.bat</span><br><span class="line">    ├── start-mysql.bat</span><br><span class="line">    ├── start-nginx.bat</span><br><span class="line">    ├── stop-all.bat</span><br><span class="line">    ├── stop-apache.bat</span><br><span class="line">    ├── stop-mysql.bat</span><br><span class="line">    └── stop-nginx.bat</span><br></pre></td></tr></table></figure>
+
+<p>非常清爽，有种一切尽在掌控中的感觉，我喜欢。</p>
+<p>如果你是一名 PHP 开发者，却从来没有手动配置过 PHP 环境的话，那我建议你尝试一下。虽然生产环境上一般都是采用成熟的一键包，不过手动配置一下这一套东西可以更深入地了解 PHP 与 Web Server 的协作机制，这对于编写上层应用以及运维也是很有好处的。</p>
+<p>本来想顺带凑齐一套 WNMP，但是 MySQL 的安装配置相对比较简单，而且也不像 PHP 与 Web Server 那样耦合紧密，所以这里就按下不表。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PHP/" rel="tag"># PHP</a>
+          
+            <a href="/tags/Nginx/" rel="tag"># Nginx</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/live-stream-recorder-for-vtuber-fans/" rel="next" title="一种监测 VTuber 直播并自动录像的方法">
+                <i class="fa fa-chevron-left"></i> 一种监测 VTuber 直播并自动录像的方法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/shades-of-pwa" rel="prev" title="The different shades of Progressive Web Apps">
+                The different shades of Progressive Web Apps <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-%E5%AE%89%E8%A3%85-Nginx-Apache"><span class="nav-number">1.</span> <span class="nav-text">0x01 安装 Nginx &#x2F; Apache</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-%E5%AE%89%E8%A3%85-PHP"><span class="nav-number">2.</span> <span class="nav-text">0x02 安装 PHP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x03-%E9%85%8D%E7%BD%AE-FastCGI-%E8%BD%AC%E5%8F%91"><span class="nav-number">3.</span> <span class="nav-text">0x03 配置 FastCGI 转发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x04-%E7%BC%96%E5%86%99%E5%90%AF%E5%81%9C%E8%84%9A%E6%9C%AC"><span class="nav-number">4.</span> <span class="nav-text">0x04 编写启停脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x05-%E5%90%8E%E8%AE%B0"><span class="nav-number">5.</span> <span class="nav-text">0x05 后记</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Liunx Python Rust Goalng DevOPS" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言本人今年主要在负责猿题库 iOS 客户端的开发，本文旨在通过分享猿题库 iOS 客户端开发过程中的技术细节，达到总结和交流的目的。 这是本技术分享系列文章的第三篇。本文涉及的技术细节是：基于 CoreText 的排版引擎。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="猿题库iOS客户端的技术细节（三）：基于CoreText的排版引擎">
+<meta property="og:url" content="https://blog.feedscoin.com/2013-10-21-the-tech-detail-of-ape-client-3/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="前言本人今年主要在负责猿题库 iOS 客户端的开发，本文旨在通过分享猿题库 iOS 客户端开发过程中的技术细节，达到总结和交流的目的。 这是本技术分享系列文章的第三篇。本文涉及的技术细节是：基于 CoreText 的排版引擎。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/images/ape-coretext-1.png">
+<meta property="article:published_time" content="2013-10-21T08:15:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:22:32.386Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Liunx Python Rust Goalng DevOPS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/images/ape-coretext-1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2013-10-21-the-tech-detail-of-ape-client-3/"/>
+
+
+
+
+
+  <title>猿题库iOS客户端的技术细节（三）：基于CoreText的排版引擎 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013-10-21-the-tech-detail-of-ape-client-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">猿题库iOS客户端的技术细节（三）：基于CoreText的排版引擎</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-10-21T16:15:00+08:00">
+                2013-10-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本人今年主要在负责猿题库 iOS 客户端的开发，本文旨在通过分享猿题库 iOS 客户端开发过程中的技术细节，达到总结和交流的目的。</p>
+<p>这是本技术分享系列文章的第三篇。本文涉及的技术细节是：基于 CoreText 的排版引擎。</p>
+<span id="more"></span>
+
+<h2 id="CoreText-概述"><a href="#CoreText-概述" class="headerlink" title="CoreText 概述"></a>CoreText 概述</h2><p>因为猿题库的做题和解析界面需要复杂的排版，所以我们基于 CoreText 实现了自己的富文本排版引擎。我们的排版引擎对公式、图片和链接有着良好支持，并且支持各种字体效果混排。对于内容中的图片，支持点击查看大图功能，对于内容中的链接，支持点击操作。</p>
+<p>下图是我们应用的一个截图，可以看到公式，图片与文字混排良好。</p>
+<img src="/images/ape-coretext-1.png" class="">
+
+<p>对于富文本排版，除了可以用 CoreText 实现外，还可以用 UIWebView 实现。我以前写过一篇介绍如何用 UIWebView 进行复杂内容显示和交互的文章 <a href="/2012/03/24/talk-about-uiwebview-and-phonegap/">《关于 UIWebView 和 PhoneGap 的总结》</a>，里面介绍了使用 UIWebView 如何处理参数传递，同步与异步等问题，感兴趣的同学也可以翻看。 </p>
+<p>基于 CoreText 来实现和基于 UIWebView 来实现相比，前者有以下好处：</p>
+<ol>
+<li>CoreText 占用的内存更少，UIWebView 占用的内存更多。</li>
+<li>CoreText 在渲染界面前就可以精确地获得显示内容的高度（只要有了 CTFrame 即可），而 UIWebView 只有渲染出内容后，才能获得内容的高度（而且还需要用 javascript 代码来获取）</li>
+<li>CoreText 的 CTFrame 可以在后台线程渲染，UIWebView 的内容只能在主线程（UI 线程）渲染。</li>
+<li>基于 CoreText 可以做更好的原生交互效果，交互效果可以更细腻。而 UIWebView 的交互效果都是用 javascript 来实现的，在交互效果上会有一些卡顿存在。例如，在 UIWebView 下，一个简单的按钮按下效果，都无法做到原生按钮的即时和细腻的按下效果。</li>
+</ol>
+<p>当然基于 CoreText 的方案也有一些劣势：</p>
+<ol>
+<li>CoreText 渲染出来的内容不能像 UIWebView 那样方便地支持内容的复制。</li>
+<li>基于 CoreText 来排版，需要自己处理图片排版相关的逻辑，也需要自己处理链接点击操作的支持。</li>
+</ol>
+<p>我们最初的猿题库行测第一版采用了基于 UIWebView 来实现，但是做出来发现一些小的交互细节无法做到精致。所以后来的第二版我们就全部转成用 CoreText 实现，虽然实现成本上增加了不少，但是应用的交互效果好多了。</p>
+<p>使用 CoreText 也为我们后来的 iPad 版提供了技术积累，因为 iPad 版的页面排版更加复杂，用 UIWebView 是完全无法完成相应的交互和排版需求的。</p>
+<p>关于如何基于 CoreText 来做一个排版引擎，我主要参考的是这篇教程：<a target="_blank" rel="noopener" href="http://www.raywenderlich.com/4147/core-text-tutorial-for-ios-making-a-magazine-app">《Core Text Tutorial for iOS: Making a Magazine App》</a> 以及 <a target="_blank" rel="noopener" href="https://github.com/jverkoey/nimbus">Nimbus</a> 中的 <a target="_blank" rel="noopener" href="https://github.com/jverkoey/nimbus/blob/master/src/attributedlabel/src/NIAttributedLabel.m">NIAttributeLabel.m</a> 的实现，在这里我就不重复教程中的内容了，我主要讲一些实现细节。</p>
+<h2 id="实现细节"><a href="#实现细节" class="headerlink" title="实现细节"></a>实现细节</h2><h3 id="服务端接口"><a href="#服务端接口" class="headerlink" title="服务端接口"></a>服务端接口</h3><p>我们在后台实现了一个基于 <a target="_blank" rel="noopener" href="http://baike.baidu.com/view/168792.htm">UBB</a> 的富文本编译器。使用 UBB 的原因是：</p>
+<ol>
+<li>UBB 相对于 HTML 来说，虽然功能较简单，但是能完全满足我们对于富文本排版的需求。</li>
+<li>做一个 UBB 的语法解析器比较简单，便于我们将 UBB 渲染到各个平台上。</li>
+</ol>
+<p>为了简化 iOS 端的实现，我们将 UBB 的语法解析在服务器端完成。服务器端提供了接口，可以直接获得将 UBB 解析成类似 HTML 的 <a target="_blank" rel="noopener" href="http://baike.baidu.com/subview/14806/8904138.htm?fromId=14806&from=rdtself">文件对象模型 (DOM)</a> 的树型数据结构。有了这个树型数据结构，iOS 端渲染就简单多了，无非就是递归遍历树型节点，将相关的内容转换成 NSAttributeString 即可，之后将 NSAttrubiteString 转成 CoreText 的 CTFrame 即可用于界面的绘制。</p>
+<h3 id="支持图文混排"><a href="#支持图文混排" class="headerlink" title="支持图文混排"></a>支持图文混排</h3><p>支持图文混排在教程：<a target="_blank" rel="noopener" href="http://www.raywenderlich.com/4147/core-text-tutorial-for-ios-making-a-magazine-app">《Core Text Tutorial for iOS: Making a Magazine App》</a> 中有介绍，我们在解析 DOM 树遇到图片节点时，则将该内容转成一个空格，随后设置该空格在绘制时，需要我们自己指定宽高相关信息，而宽高信息在图片节点中都有提供。这样，CoreText 引擎在绘制时，就会把相关的图片位置留空，之后我们将图片异步下来下来后，使用 CoreGraph 相关的 API 将图片再画在界面上，就实现了图文混排功能。</p>
+<p>下面的相关的示例代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Callbacks */</span></span><br><span class="line"><span class="keyword">static</span> <span class="type">void</span> deallocCallback( <span class="type">void</span>* ref )&#123;</span><br><span class="line">    [(<span class="type">id</span>)ref release];</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">static</span> <span class="built_in">CGFloat</span> ascentCallback( <span class="type">void</span> *ref )&#123;</span><br><span class="line">    <span class="built_in">CGFloat</span> height = [(<span class="built_in">NSString</span>*)[(<span class="built_in">NSDictionary</span>*)ref objectForKey:<span class="string">@&quot;height&quot;</span>] floatValue];</span><br><span class="line">    <span class="keyword">return</span> height/<span class="number">2</span> + [FrameParserConfig sharedInstance].baselineFromMid;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">static</span> <span class="built_in">CGFloat</span> descentCallback( <span class="type">void</span> *ref )&#123;</span><br><span class="line">    <span class="built_in">CGFloat</span> height = [(<span class="built_in">NSString</span>*)[(<span class="built_in">NSDictionary</span>*)ref objectForKey:<span class="string">@&quot;height&quot;</span>] floatValue];</span><br><span class="line">    <span class="keyword">return</span> height/<span class="number">2</span> - [FrameParserConfig sharedInstance].baselineFromMid;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">static</span> <span class="built_in">CGFloat</span> widthCallback( <span class="type">void</span>* ref )&#123;</span><br><span class="line">    <span class="keyword">return</span> [(<span class="built_in">NSString</span>*)[(<span class="built_in">NSDictionary</span>*)ref objectForKey:<span class="string">@&quot;width&quot;</span>] floatValue];</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">+ (<span class="type">void</span>)appendDelegateData:(<span class="built_in">NSDictionary</span> *)delegateData ToString:(<span class="built_in">NSMutableAttributedString</span>*)contentString &#123;</span><br><span class="line">    <span class="comment">//render empty space for drawing the image in the text //1</span></span><br><span class="line">    <span class="built_in">CTRunDelegateCallbacks</span> callbacks;</span><br><span class="line">    callbacks.version = kCTRunDelegateCurrentVersion;</span><br><span class="line">    callbacks.getAscent = ascentCallback;</span><br><span class="line">    callbacks.getDescent = descentCallback;</span><br><span class="line">    callbacks.getWidth = widthCallback;</span><br><span class="line">    callbacks.dealloc = deallocCallback;</span><br><span class="line">    <span class="built_in">CTRunDelegateRef</span> delegate = <span class="built_in">CTRunDelegateCreate</span>(&amp;callbacks, delegateData);</span><br><span class="line">    [delegateData <span class="keyword">retain</span>];</span><br><span class="line">    <span class="comment">// Character to use as recommended by kCTRunDelegateAttributeName documentation.</span></span><br><span class="line">    <span class="comment">// use &quot; &quot; will lead to wrong width in CTFramesetterSuggestFrameSizeWithConstraints</span></span><br><span class="line">    <span class="type">unichar</span> objectReplacementChar = <span class="number">0xFFFC</span>;</span><br><span class="line">    <span class="built_in">NSString</span> * objectReplacementString = [<span class="built_in">NSString</span> stringWithCharacters:&amp;objectReplacementChar length:<span class="number">1</span>];</span><br><span class="line">    <span class="built_in">NSDictionary</span> * attributes = [<span class="keyword">self</span> getAttributesWithStyleArray:<span class="literal">nil</span>];</span><br><span class="line">    <span class="comment">//try to apply linespacing attributes to this placeholder</span></span><br><span class="line">    <span class="built_in">NSMutableAttributedString</span> * space = [[<span class="built_in">NSMutableAttributedString</span> alloc] initWithString:objectReplacementString attributes:attributes];</span><br><span class="line">    <span class="built_in">CFAttributedStringSetAttribute</span>((<span class="built_in">CFMutableAttributedStringRef</span>)space, <span class="built_in">CFRangeMake</span>(<span class="number">0</span>, <span class="number">1</span>), kCTRunDelegateAttributeName, delegate);</span><br><span class="line">    <span class="built_in">CFRelease</span>(delegate);</span><br><span class="line">    [contentString appendAttributedString:space];</span><br><span class="line">    [space release];</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>这里需要注意的是，用来代替图片的占位符使用空格会带来排版上的异常，具体原因未知，我们猜测是 CoreText 的 bug，参考 <a target="_blank" rel="noopener" href="https://github.com/jverkoey/nimbus">Nimbus</a> 的实现后，我们使用 <code>0xFFFC</code>作为占位符，就没有遇到问题了。</p>
+<h3 id="支持链接"><a href="#支持链接" class="headerlink" title="支持链接"></a>支持链接</h3><p>支持链接点击的主要实现的方式是：</p>
+<ol>
+<li>在解析 DOM 树的时候，记录下链接串在整个富文本中的位置信息（包括 offset 和 length)。</li>
+<li>在 CoreText 渲染到的 view 上，监听用户操作事件，使用 <code>CTLineGetStringIndexForPosition</code>函数来获得用户点击的位置对应 <code>NSAttributedString</code> 字符串上的位置信息（index)</li>
+<li>判断第 2 步得到的 index 是否在第一步记录的各个链接的区间范围内，如果在范围内，则表示用户点击了某一个链接。</li>
+</ol>
+<p>这段逻辑的关键代码如下：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// test touch point is on link or not</span></span><br><span class="line">+ (LinkData *)touchLinkInView:(<span class="built_in">UIView</span> *)view atPoint:(<span class="built_in">CGPoint</span>)point data:(<span class="built_in">CTTableViewCellData</span> *)data &#123;</span><br><span class="line">    <span class="built_in">CTFrameRef</span> textFrame = data.ctFrame;</span><br><span class="line">    <span class="built_in">CFArrayRef</span> lines = <span class="built_in">CTFrameGetLines</span>(textFrame);</span><br><span class="line">    <span class="keyword">if</span> (!lines) <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    <span class="built_in">CFIndex</span> count = <span class="built_in">CFArrayGetCount</span>(lines);</span><br><span class="line">    LinkData *foundLink = <span class="literal">nil</span>;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">CGPoint</span> origins[count];</span><br><span class="line">    <span class="built_in">CTFrameGetLineOrigins</span>(textFrame, <span class="built_in">CFRangeMake</span>(<span class="number">0</span>,<span class="number">0</span>), origins);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// CoreText context coordinates are the opposite to UIKit so we flip the bounds</span></span><br><span class="line">    <span class="built_in">CGAffineTransform</span> transform =  <span class="built_in">CGAffineTransformScale</span>(<span class="built_in">CGAffineTransformMakeTranslation</span>(<span class="number">0</span>, view.bounds.size.height), <span class="number">1.</span>f, <span class="number">-1.</span>f);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</span><br><span class="line">        <span class="built_in">CGPoint</span> linePoint = origins[i];</span><br><span class="line">        <span class="built_in">CTLineRef</span> line = <span class="built_in">CFArrayGetValueAtIndex</span>(lines, i);</span><br><span class="line">        <span class="built_in">CGRect</span> flippedRect = [<span class="keyword">self</span> getLineBounds:line point:linePoint];</span><br><span class="line">        <span class="built_in">CGRect</span> rect = <span class="built_in">CGRectApplyAffineTransform</span>(flippedRect, transform);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">CGRectContainsPoint</span>(rect, point)) &#123;</span><br><span class="line">            <span class="built_in">CGPoint</span> relativePoint = <span class="built_in">CGPointMake</span>(point.x-<span class="built_in">CGRectGetMinX</span>(rect),</span><br><span class="line">                                                point.y-<span class="built_in">CGRectGetMinY</span>(rect));</span><br><span class="line">            <span class="built_in">CFIndex</span> idx = <span class="built_in">CTLineGetStringIndexForPosition</span>(line, relativePoint);</span><br><span class="line">            foundLink = [<span class="keyword">self</span> linkAtIndex:idx linkArray:data.linkArray];</span><br><span class="line">            <span class="keyword">return</span> foundLink;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="基于-CoreText-的内容省略"><a href="#基于-CoreText-的内容省略" class="headerlink" title="基于 CoreText 的内容省略"></a>基于 CoreText 的内容省略</h3><p>我们在使用 CoreText 时，还遇到一个具体排版上的问题。正常情况下，在生成 CTFrame 之后，只需要调用：<code>CTFrameDraw(self.data.ctFrame, context);</code>即可完成界面的绘制。但是产品提出了一个需求，对于某些界面，当显示不下的时候，需要将多余内容用<code>...</code>来表示。这让我们的绘制逻辑需要特别处理，以下是具体的实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="built_in">NSString</span>* <span class="keyword">const</span> kEllipsesCharacter = <span class="string">@&quot;\u2026&quot;</span>;</span><br><span class="line"><span class="built_in">CGPathRef</span> path = <span class="built_in">CTFrameGetPath</span>(_data.ctFrame);</span><br><span class="line"><span class="built_in">CGRect</span> rect = <span class="built_in">CGPathGetBoundingBox</span>(path);</span><br><span class="line"><span class="built_in">CFArrayRef</span> lines = <span class="built_in">CTFrameGetLines</span>(_data.ctFrame);</span><br><span class="line"><span class="built_in">CFIndex</span> lineCount = <span class="built_in">CFArrayGetCount</span>(lines);</span><br><span class="line"><span class="built_in">NSInteger</span> numberOfLines = MIN(_numberOfLines, lineCount);</span><br><span class="line"></span><br><span class="line"><span class="built_in">CGPoint</span> lineOrigins[numberOfLines];</span><br><span class="line"><span class="built_in">CTFrameGetLineOrigins</span>(_data.ctFrame, <span class="built_in">CFRangeMake</span>(<span class="number">0</span>, numberOfLines), lineOrigins);</span><br><span class="line"><span class="built_in">NSAttributedString</span> *attributedString = _data.attributedString;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="built_in">CFIndex</span> lineIndex = <span class="number">0</span>; lineIndex &lt; numberOfLines; lineIndex++) &#123;</span><br><span class="line">    <span class="built_in">CGPoint</span> lineOrigin = lineOrigins[lineIndex];</span><br><span class="line">    lineOrigin.y =  <span class="keyword">self</span>.frame.size.height + (lineOrigin.y - rect.size.height);</span><br><span class="line">    <span class="built_in">CGContextSetTextPosition</span>(context, lineOrigin.x, lineOrigin.y);</span><br><span class="line">    <span class="built_in">CTLineRef</span> line = <span class="built_in">CFArrayGetValueAtIndex</span>(lines, lineIndex);</span><br><span class="line"></span><br><span class="line">    <span class="type">BOOL</span> shouldDrawLine = <span class="literal">YES</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (lineIndex == numberOfLines - <span class="number">1</span>) &#123;</span><br><span class="line">        <span class="built_in">CFRange</span> lastLineRange = <span class="built_in">CTLineGetStringRange</span>(line);</span><br><span class="line">        <span class="keyword">if</span> (lastLineRange.location + lastLineRange.length &lt; (<span class="built_in">CFIndex</span>)attributedString.length) &#123;</span><br><span class="line">            <span class="built_in">CTLineTruncationType</span> truncationType = kCTLineTruncationEnd;</span><br><span class="line">            <span class="built_in">NSUInteger</span> truncationAttributePosition = lastLineRange.location + lastLineRange.length - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">            <span class="built_in">NSDictionary</span> *tokenAttributes = [attributedString attributesAtIndex:truncationAttributePosition</span><br><span class="line">                                                                 effectiveRange:<span class="literal">NULL</span>];</span><br><span class="line">            <span class="built_in">NSAttributedString</span> *tokenString = [[<span class="built_in">NSAttributedString</span> alloc] initWithString:kEllipsesCharacter</span><br><span class="line">                                                                              attributes:tokenAttributes];</span><br><span class="line">            <span class="built_in">CTLineRef</span> truncationToken = <span class="built_in">CTLineCreateWithAttributedString</span>((__bridge <span class="built_in">CFAttributedStringRef</span>)tokenString);</span><br><span class="line"></span><br><span class="line">            <span class="built_in">NSMutableAttributedString</span> *truncationString = [[attributedString attributedSubstringFromRange:<span class="built_in">NSMakeRange</span>(lastLineRange.location, lastLineRange.length)] mutableCopy];</span><br><span class="line">            <span class="keyword">if</span> (lastLineRange.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="comment">// Remove any whitespace at the end of the line.</span></span><br><span class="line">                <span class="type">unichar</span> lastCharacter = [[truncationString string] characterAtIndex:lastLineRange.length - <span class="number">1</span>];</span><br><span class="line">                <span class="keyword">if</span> ([[<span class="built_in">NSCharacterSet</span> whitespaceAndNewlineCharacterSet] characterIsMember:lastCharacter]) &#123;</span><br><span class="line">                    [truncationString deleteCharactersInRange:<span class="built_in">NSMakeRange</span>(lastLineRange.length - <span class="number">1</span>, <span class="number">1</span>)];</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            [truncationString appendAttributedString:tokenString];</span><br><span class="line"></span><br><span class="line">            <span class="built_in">CTLineRef</span> truncationLine = <span class="built_in">CTLineCreateWithAttributedString</span>((__bridge <span class="built_in">CFAttributedStringRef</span>)truncationString);</span><br><span class="line">            <span class="built_in">CTLineRef</span> truncatedLine = <span class="built_in">CTLineCreateTruncatedLine</span>(truncationLine, <span class="keyword">self</span>.size.width, truncationType, truncationToken);</span><br><span class="line">            <span class="keyword">if</span> (!truncatedLine) &#123;</span><br><span class="line">                <span class="comment">// If the line is not as wide as the truncationToken, truncatedLine is NULL</span></span><br><span class="line">                truncatedLine = <span class="built_in">CFRetain</span>(truncationToken);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="built_in">CFRelease</span>(truncationLine);</span><br><span class="line">            <span class="built_in">CFRelease</span>(truncationToken);</span><br><span class="line"></span><br><span class="line">            <span class="built_in">CTLineDraw</span>(truncatedLine, context);</span><br><span class="line">            <span class="built_in">CFRelease</span>(truncatedLine);</span><br><span class="line"></span><br><span class="line">            shouldDrawLine = <span class="literal">NO</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (shouldDrawLine) &#123;</span><br><span class="line">        <span class="built_in">CTLineDraw</span>(line, context);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>以上源码很多都参考了 <a target="_blank" rel="noopener" href="https://github.com/jverkoey/nimbus">Nimbus</a> 的实现，在此再一次表达一下对开源社区的感谢。</p>
+<p>在大约 2 年前，CoreText 还是一个新玩意。那时候微博的界面都还是用控件组合得到的。慢慢的，大家都开始接受 CoreText，很多应用都广泛地将 CoreText 应用于自己的界面中，做出来了更加复杂的排版、交互效果。在 iOS7 之后，苹果推出了更加易于使用的 TextKit，使得富文本排版更加容易，相信以后的 iOS 应用界面会更加美观，交互更加绚丽。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013-10-19-the-tech-detail-of-ape-client-2/" rel="next" title="猿题库iOS客户端的技术细节（二）：答题卡扫描算法">
+                <i class="fa fa-chevron-left"></i> 猿题库iOS客户端的技术细节（二）：答题卡扫描算法
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/sync-subs-project" rel="prev" title="Pet Project: Sync Subs">
+                Pet Project: Sync Subs <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CoreText-%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">CoreText 概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82"><span class="nav-number">3.</span> <span class="nav-text">实现细节</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%8E%A5%E5%8F%A3"><span class="nav-number">3.1.</span> <span class="nav-text">服务端接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%AF%E6%8C%81%E5%9B%BE%E6%96%87%E6%B7%B7%E6%8E%92"><span class="nav-number">3.2.</span> <span class="nav-text">支持图文混排</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%AF%E6%8C%81%E9%93%BE%E6%8E%A5"><span class="nav-number">3.3.</span> <span class="nav-text">支持链接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-CoreText-%E7%9A%84%E5%86%85%E5%AE%B9%E7%9C%81%E7%95%A5"><span class="nav-number">3.4.</span> <span class="nav-text">基于 CoreText 的内容省略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8E%E8%AE%B0"><span class="nav-number">4.</span> <span class="nav-text">后记</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

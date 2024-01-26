@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="supply-chain," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、序之前管过供应链，分享一些我的思考。这是第 2 篇：如何在供应链降本。 大体上：供应链降本分为变更 BOM 和不变 BOM 两类（注：BOM指生产目标产品的物料清单）。 二、变更 BOM如果我们可以变更 BOM，供应链可以在满足功能和性能要求的情况下，考虑寻找更便宜的替代方案。 要做好这一点，首先需要理解上游的产品需求是什么和质量标准为什么那么设立。然后就可以找理解之后找供应链可能的降本方案了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="供应链笔记(2)：如何降本">
+<meta property="og:url" content="https://blog.feedscoin.com/2023-12-17-supply-chain-2/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="一、序之前管过供应链，分享一些我的思考。这是第 2 篇：如何在供应链降本。 大体上：供应链降本分为变更 BOM 和不变 BOM 两类（注：BOM指生产目标产品的物料清单）。 二、变更 BOM如果我们可以变更 BOM，供应链可以在满足功能和性能要求的情况下，考虑寻找更便宜的替代方案。 要做好这一点，首先需要理解上游的产品需求是什么和质量标准为什么那么设立。然后就可以找理解之后找供应链可能的降本方案了">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-17T01:22:40.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:22:32.505Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="supply-chain">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2023-12-17-supply-chain-2/"/>
+
+
+
+
+
+  <title>供应链笔记(2)：如何降本 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2023-12-17-supply-chain-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">供应链笔记(2)：如何降本</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-12-17T09:22:40+08:00">
+                2023-12-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/summary/" itemprop="url" rel="index">
+                    <span itemprop="name">summary</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <h2 id="一、序"><a href="#一、序" class="headerlink" title="一、序"></a>一、序</h2><p>之前管过供应链，分享一些我的思考。这是第 2 篇：如何在供应链降本。</p>
+<p>大体上：供应链降本分为变更 BOM 和不变 BOM 两类（注：BOM指生产目标产品的物料清单）。</p>
+<h2 id="二、变更-BOM"><a href="#二、变更-BOM" class="headerlink" title="二、变更 BOM"></a>二、变更 BOM</h2><p>如果我们可以变更 BOM，供应链可以在满足功能和性能要求的情况下，考虑寻找更便宜的替代方案。</p>
+<p>要做好这一点，首先需要理解上游的产品需求是什么和质量标准为什么那么设立。然后就可以找理解之后找供应链可能的降本方案了。</p>
+<p>举一个例子：我们有一个内容物的包装袋，主要使用在产品包装盒里面。在包装盒里面意味着不容易被磨损和撕扯。在这种背景下，我们发现这个袋子材料如果薄一点可以降很多成本，那么就可以降低袋子厚度来降本。</p>
+<p>第二个例子：我们有个产品最初底部的塑料壳很厚，这消耗了很多ABS原料。后来我们发现，如果把这个壳做薄一点，适当再加一些支撑筋，也可以达成类似的强度要求，这样就达成了降本。</p>
+<p>第三个例子：我们某个产品用了某个带 WiFi 功能的主控，后来我们发现用另外一个品牌的主控性能差不多，价格却可以便宜很多，这也就达成了降本。</p>
+<p>变更 BOM 的降本需要注意不能影响用户体验，所以降本的核心工作是评估替代物料能否达成我们要求的用户体验标准。</p>
+<p>为了控制风险，我们可以使用小批量切换的方式来先做测试，保证用户体验不受影响。</p>
+<h2 id="三、不变-BOM"><a href="#三、不变-BOM" class="headerlink" title="三、不变 BOM"></a>三、不变 BOM</h2><p>不变 BOM 的降本不能改变产品的原料，所以我们只能从多个供应商、原料的价格、产线的优化、规模化等方式来降本。</p>
+<h3 id="3-0-多个供应商"><a href="#3-0-多个供应商" class="headerlink" title="3.0 多个供应商"></a>3.0 多个供应商</h3><p>引入多个供应商，可以让一供和二供在价格上相互制衡，从而长期保证价格是相对公允的。</p>
+<h3 id="3-1-原料价格降本"><a href="#3-1-原料价格降本" class="headerlink" title="3.1 原料价格降本"></a>3.1 原料价格降本</h3><p>控制核心原料价格是第一个可以尝试降本方案。我们可以将生产的核心原材料采购部分拆分，引入多个供应商参与竞价，通过充分竞争让原料价格保持在一个非暴利的状态。</p>
+<p>应用这种方式，首先需要我们有一定的采购规模，否则供应商可能看不上我们的招标。</p>
+<p>另外，因为我们需要参与原料的管控，这对供应链的管理提出了更高的要求，我们需要借助合理的 erp、wms、srm 系统来管控原料的采购和记录原料消耗，否则很容易账目混乱。</p>
+<p>我们在纸张采购上就用这种方式来降本。</p>
+<h3 id="3-2-产线优化"><a href="#3-2-产线优化" class="headerlink" title="3.2 产线优化"></a>3.2 产线优化</h3><p>制造业的现场总是有无数的可改进细节。丰田的 TPS 就是一整套产线优化的方案，见： 构建精益生产的企业 - 读《漫画丰田生产方式》。</p>
+<p>其中的 U 型产线，及时生产、均衡化等都是有效配置人力资源，降低单件产品生产成本的有效方法。</p>
+<p>一些小的制具也可以有效降低组装难度，提升良率。</p>
+<p>产线优化的最大敌人还是规模。拿一般的玩教具来说，常见的一条组装线一天的产能通常都可以做到 2000 左右件成品，这样一个月就可以完成 6 万件成本，一年 72 万件。但是，一个年销量超过 50 万件的玩教具产品其实不那么容易做到。</p>
+<p>所以，产线在规模不够的时候，暂停是常态，那相应的恢复成本就必须承担。</p>
+<p>在这一点上，我见过做得很好的是一家兄弟公司印刷厂生产线。因为这个印厂的产品相似度很高，负责人通过将配料、锁线、上胶、风干、打包环节组合在一个 S 型的产线上，非常高效地完成了整个生产过程，避免了原料的多次转移。</p>
+<h3 id="3-3-规模化降本"><a href="#3-3-规模化降本" class="headerlink" title="3.3 规模化降本"></a>3.3 规模化降本</h3><p>如果你能够比较好的预测未来的消耗，那么你就可以一定程度上通过规模化降本。</p>
+<p>如果消耗是 100% 确定会发生的，你可以提前一年将订单下出，让供应商用工厂的闲置时间来生产。</p>
+<p>例如：巧虎的用户因为是年度订阅用户，所以他们就可以提前预测下一年的大部分订单。很多供应商利用年底等生产淡季来排产巧虎的订单，这样可以保证自己工厂的工人和机器能够持续有活干。相应的，工厂会给巧虎一个好价格。</p>
+<p>如果你不那么确定自己未来的消耗，你也可以通过同步自己的销售预测，让供应商提前一次性采购和储备通用物料。这种上规模化采购也有助于将原材料的价格谈下来。</p>
+<h3 id="3-4-价格分析降本"><a href="#3-4-价格分析降本" class="headerlink" title="3.4 价格分析降本"></a>3.4 价格分析降本</h3><p>有些时候供应商的报价虚高，但是受限于规模，我们也不可能短时间引入二供来竞争，这个时候可以尝试做价格分析降本。</p>
+<p>价格分析降本主要是通过 BOM 拆解和组装环节分析，找到同供应商 argue 价格的合理诉求。供应商也是需要解释他挣得是合理利润，如果解释不通，采购通常就相对容易把价格谈下来。</p>
+<p>BOM 拆解的常见技巧有：</p>
+<ul>
+<li><p>通过比对多个供应商的报价，找出偏高的部分，进行谈判突破。</p>
+</li>
+<li><p>去 1688 或者一些行业网站上搜索原材料价格。</p>
+</li>
+</ul>
+<p>组装环节成本分析最有效的方法就是把整个组装的工序录像下来，计算单件的组装时间，然后通过当地的工人小时工资来核算组装费用。</p>
+<p>比如：某个产品我们发现需要 10 个工人组装 1 分钟，同时当地的工人每小时工资为 20 块钱。那么单件产品的组装费用就是 <code>20*10/60=3.33</code>元。</p>
+<h2 id="四、小结"><a href="#四、小结" class="headerlink" title="四、小结"></a>四、小结</h2><p>供应链降本包括不变 BOM 和变更 BOM 两大类方式。</p>
+<ul>
+<li>对于变更 BOM 方式，我们主要在保证用户体验不变的情况下做原料的变更。</li>
+<li>对于变更 BOM 方式，我们可以尝试多个供应商、原料的价格、产线的优化、规模化、价格分析等方式来降本。</li>
+</ul>
+<p>以上。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/supply-chain/" rel="tag"># supply-chain</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023-12-17-supply-chain-1/" rel="next" title="供应链笔记(1)：如何挑选供应商">
+                <i class="fa fa-chevron-left"></i> 供应链笔记(1)：如何挑选供应商
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023-12-17-supply-chain-3/" rel="prev" title="供应链笔记(3)：挑选供应商的核心因素">
+                供应链笔记(3)：挑选供应商的核心因素 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%BA%8F"><span class="nav-number">1.</span> <span class="nav-text">一、序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%8F%98%E6%9B%B4-BOM"><span class="nav-number">2.</span> <span class="nav-text">二、变更 BOM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%B8%8D%E5%8F%98-BOM"><span class="nav-number">3.</span> <span class="nav-text">三、不变 BOM</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-0-%E5%A4%9A%E4%B8%AA%E4%BE%9B%E5%BA%94%E5%95%86"><span class="nav-number">3.1.</span> <span class="nav-text">3.0 多个供应商</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%8E%9F%E6%96%99%E4%BB%B7%E6%A0%BC%E9%99%8D%E6%9C%AC"><span class="nav-number">3.2.</span> <span class="nav-text">3.1 原料价格降本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%BA%A7%E7%BA%BF%E4%BC%98%E5%8C%96"><span class="nav-number">3.3.</span> <span class="nav-text">3.2 产线优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E8%A7%84%E6%A8%A1%E5%8C%96%E9%99%8D%E6%9C%AC"><span class="nav-number">3.4.</span> <span class="nav-text">3.3 规模化降本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E4%BB%B7%E6%A0%BC%E5%88%86%E6%9E%90%E9%99%8D%E6%9C%AC"><span class="nav-number">3.5.</span> <span class="nav-text">3.4 价格分析降本</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%B0%8F%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">四、小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

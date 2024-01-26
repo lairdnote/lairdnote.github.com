@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Liunx Python Rust Goalng DevOPS" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言几天前，Facebook 在 React.js Conf 2015 大会上推出了 React Native（视频链接）。我发了一条微博(地址），结果引来了 100 多次转发。为什么 React Native 会引来如此多的关注呢？我在这里谈谈我对 React Native 的理解。 一个新框架的出现总是为了解决现有的一些问题，那么对于现在的移动开发者来说，到底有哪些问题 React Nat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="谈谈 React Native">
+<meta property="og:url" content="https://blog.feedscoin.com/2015-02-01-talk-about-react-native/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="前言几天前，Facebook 在 React.js Conf 2015 大会上推出了 React Native（视频链接）。我发了一条微博(地址），结果引来了 100 多次转发。为什么 React Native 会引来如此多的关注呢？我在这里谈谈我对 React Native 的理解。 一个新框架的出现总是为了解决现有的一些问题，那么对于现在的移动开发者来说，到底有哪些问题 React Nat">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/images/react-js.jpg">
+<meta property="article:published_time" content="2015-02-01T08:27:43.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:22:32.400Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Liunx Python Rust Goalng DevOPS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/images/react-js.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2015-02-01-talk-about-react-native/"/>
+
+
+
+
+
+  <title>谈谈 React Native | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015-02-01-talk-about-react-native/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">谈谈 React Native</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-02-01T16:27:43+08:00">
+                2015-02-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <img src="/images/react-js.jpg" class="">
+
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>几天前，Facebook 在 React.js Conf 2015 大会上推出了 React Native（<a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=7rDsRXj9-cU">视频链接</a>）。我发了一条微博(<a target="_blank" rel="noopener" href="http://www.weibo.com/1708947107/C1WHHwqZv?from=page_1005051708947107_profile&wvr=6&mod=weibotime&type=comment#_rnd1422782358309">地址</a>），结果引来了 100 多次转发。为什么 React Native 会引来如此多的关注呢？我在这里谈谈我对 React Native 的理解。</p>
+<p>一个新框架的出现总是为了解决现有的一些问题，那么对于现在的移动开发者来说，到底有哪些问题 React Native 能涉及呢？</p>
+<h3 id="人才稀缺的问题"><a href="#人才稀缺的问题" class="headerlink" title="人才稀缺的问题"></a>人才稀缺的问题</h3><p>首先的问题是：移动开发人才的稀缺。看看那些培训班出来的人吧，经过 3 个月的培训就可以拿到 8K 甚至上万的工作。在北京稍微有点工作经验的 iOS 开发，就要求 2 万一个月的工资。这说明当前移动互联网和创业的火热，已经让业界没有足够的开发人才了，所以大家都用涨工资来抢人才。而由于跨平台的框架（例如 PhoneGap，RubyMotion）都还是不太靠谱，所以对于稍微大一些的公司，都会选择针对 iOS 和 Android 平台分别做不同的定制开发。而 JavaScript 显然是一个群众基础更广的语言，这将使得相关人才更容易获得，同时由于后面提到的代码复用问题得到解决，也能节省一部分开发人员。</p>
+<h3 id="代码复用的问题"><a href="#代码复用的问题" class="headerlink" title="代码复用的问题"></a>代码复用的问题</h3><p>React Native 虽然强调自己不是 “Write once, run anywhere” 的框架，但是它至少能像 Google 的 <a target="_blank" rel="noopener" href="https://github.com/google/j2objc">j2objc</a> 那样，在 Model 层实现复用。那些底层的、与界面无关的逻辑，相信 React Native 也可以实现复用。这样，虽然 UI 层的工作还是需要做 iOS 和 Android 两个平台，但如果抽象得好，Logic 和 Model 层的复用不但可以让代码复用，更可能实现底层的逻辑的单元测试。这样移动端的代码质量将更加可靠。</p>
+<p>其实 React Native 宣传的 “Learning once, write anywhere” 本身也是一种复用的思想。大家厌烦了各种各样的编程语言，如果有一种语言真的能够统一移动开发领域，对于所有人都是好事。</p>
+<h3 id="UI-排版的问题"><a href="#UI-排版的问题" class="headerlink" title="UI 排版的问题"></a>UI 排版的问题</h3><p>我自己一直不喜欢苹果新推出的 AutoLayout 那套解决方案，其实 HTML 和 CSS 在界面布局和呈现上深耕多年，Android 也是借鉴的 HTML 的那套方案，苹果完全可以也走这套方案的。但是苹果选择发明了一个 Constraint 的东西来实现排版。在企业的开发中，其实大家很少使用 Xib 的，而手写 Constraint 其实是非常痛苦的。所以出现了 <a target="_blank" rel="noopener" href="https://github.com/Masonry/Masonry">Masonry</a> 一类的开源框架来解决这类同行的痛苦。</p>
+<p>我一直在寻找使用类似 HTML + CSS 的排版，但是使用原生控件渲染的框架。其实之前 <a target="_blank" rel="noopener" href="https://github.com/gavinkwoe/BeeFramework">BeeFramework</a> 就做了这方面的事情。所以我还专门代表 InfoQ 对他进行过采访。BeeFramework 虽然开源多年，而且有 2000 多的 star 数，但是受限于它自身的影响力以及框架的复杂性，一直没有很大的成功。至少我不知道有什么大的公司采用。</p>
+<p>这次 Facebook 的 React Native 做的事情相比 <a target="_blank" rel="noopener" href="https://github.com/gavinkwoe/BeeFramework">BeeFramework</a> 更加激进。它不但采用了类似 HTML + CSS 的排版，还把语言也换成了 JavaScript，这下子改变可以称作巨大了。但是 Facebook 有它作为全球互联网企业的光环，相信会有不少开发者跟进采用 React Native。</p>
+<p>不过也说回来，Facebook 开源的也不一定都好，比如 <a target="_blank" rel="noopener" href="https://github.com/facebookarchive/three20">three20</a> 就被 Facebook 放弃了，但是不可否认 <a target="_blank" rel="noopener" href="https://github.com/facebookarchive/three20">three20</a> 作为一个框架，在那个时期的特定价值。所以 React Native 即使没有成功，它也将人们关注的焦点放在了移动开发的效率上了。很可能会有越来越多相关的框架因此涌现出来。</p>
+<h3 id="MVVM"><a href="#MVVM" class="headerlink" title="MVVM"></a>MVVM</h3><p>MVVM 在 Web 开发领域相当火热，而 iOS 领域的 <a target="_blank" rel="noopener" href="https://github.com/ReactiveCocoa/ReactiveCocoa">ReactiveCocoa</a> 虽然很火，但是还是非常小众。纠其原因，一方面是 ReactiveCocoa 带来的编程习惯上的改变实在太大，ReactiveCocoa 和 MVVM 的学习成本还是很高。另一方面是 ReactiveCocoa 在代码可读性、可维护性和协作上不太友好。</p>
+<p>而 Web 开发领域对 MVVM 编程模式的接受程度就大不相同了，在 Web 开发中有相当多的被广泛使用的 MVVM 的框架，例如 <a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/AngularJS">AngularJS</a>。相信 React Native 会推动 MVVM 应用在移动端的开发。</p>
+<h3 id="动态更新"><a href="#动态更新" class="headerlink" title="动态更新"></a>动态更新</h3><p>终于说到最 “鸡冻人心” 的部分了。你受够了每次发新版本都要审核一个星期吗？苹果的审核团队在效率上的低下，使得我们这一群狠不得每天迭代更新一版的敏捷开发团队被迫每 2 周或 1 个月更新一次版本。很多团队上一个版本还没审核结束，下一个版本就做好了。</p>
+<p>React Native 的语言是基于 JavaScript，这必然会使得代码可以从服务器端动态更新成为可能。到时候，每天更新不再是梦想。当然，代码的安全性将更一步受到挑战，如何有效保护核心代码的安全将是一个难题。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>不管怎么样，这确确实实是一个移动互联网的时代，我相信随着几年的发展，移动互联网的开发生态也会积累出越来越多宝贵的框架，以支撑出更加伟大的 App 出现。作为一个移动开发者，我很高兴能够成为这个时代的主角，用移动开发技术改变人们的生活。</p>
+<p>愿大家珍惜这样的机会，玩得开心～</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/2015-02-01-move-to-hexo/" rel="next" title="更换博客系统到 Hexo">
+                <i class="fa fa-chevron-left"></i> 更换博客系统到 Hexo
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/2015-02-02-result-of-time-tracking/" rel="prev" title="最新的时间追踪成果">
+                最新的时间追踪成果 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%BA%E6%89%8D%E7%A8%80%E7%BC%BA%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.1.</span> <span class="nav-text">人才稀缺的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%A4%8D%E7%94%A8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.2.</span> <span class="nav-text">代码复用的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UI-%E6%8E%92%E7%89%88%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.3.</span> <span class="nav-text">UI 排版的问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MVVM"><span class="nav-number">1.4.</span> <span class="nav-text">MVVM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E6%9B%B4%E6%96%B0"><span class="nav-number">1.5.</span> <span class="nav-text">动态更新</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

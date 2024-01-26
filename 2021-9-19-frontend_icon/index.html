@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="前端,icon," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="最近在 B 站上看 Pink 老师的前端视频，简单总结一下在网页中使用 icon 图标的两种方法。    直接插入字体图标这里说的字体图标，是指既有普通 icon 图标的外观，又带有字体特征的图标，可以像调整字体那样、调整图标的大小和颜色，且图标放大之后不会失真变模糊。   我们一般是从网上下载字体图标的，譬如国内的阿里巴巴旗下的矢量素材网站 iconfont、国外的 IcoMoon 等。  去">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在网页中使用 icon 字体图标 | 前端开发">
+<meta property="og:url" content="https://blog.feedscoin.com/2021-9-19-frontend_icon/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="最近在 B 站上看 Pink 老师的前端视频，简单总结一下在网页中使用 icon 图标的两种方法。    直接插入字体图标这里说的字体图标，是指既有普通 icon 图标的外观，又带有字体特征的图标，可以像调整字体那样、调整图标的大小和颜色，且图标放大之后不会失真变模糊。   我们一般是从网上下载字体图标的，譬如国内的阿里巴巴旗下的矢量素材网站 iconfont、国外的 IcoMoon 等。  去">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/html5-wang-ye-gao-su-ni-30-zhong-bin-lin-mie-jue-d.png">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/1631932008295.png">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/1631932359827.png">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210918214014532.png">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210918215027965.png">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210918225727566.png">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210918232918454.png">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210918233454678.png">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210919001244754.png">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210919002544501.png">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210919003524108.png">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210919003833891.png">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210919003524108.png">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210919001244754.png">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png">
+<meta property="article:published_time" content="2021-09-18T17:30:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:59:41.976Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="前端">
+<meta property="article:tag" content="icon">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/html5-wang-ye-gao-su-ni-30-zhong-bin-lin-mie-jue-d.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2021-9-19-frontend_icon/"/>
+
+
+
+
+
+  <title>在网页中使用 icon 字体图标 | 前端开发 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2021-9-19-frontend_icon/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">在网页中使用 icon 字体图标 | 前端开发</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-09-19T01:30:00+08:00">
+                2021-09-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/html5-wang-ye-gao-su-ni-30-zhong-bin-lin-mie-jue-d.png" alt="HTML5 网页告诉你 30 种濒临灭绝的物种  轻单"></p>
+<p>最近在 B 站上看 Pink 老师的前端视频，简单总结一下在网页中使用 icon 图标的两种方法。   </p>
+<h2 id="直接插入字体图标"><a href="#直接插入字体图标" class="headerlink" title="直接插入字体图标"></a>直接插入字体图标</h2><p>这里说的字体图标，是指既有普通 icon 图标的外观，又带有字体特征的图标，可以像调整字体那样、调整图标的大小和颜色，且图标放大之后不会失真变模糊。  </p>
+<p>我们一般是从网上下载字体图标的，譬如国内的阿里巴巴旗下的矢量素材网站 <strong>iconfont</strong>、国外的 <strong>IcoMoon</strong> 等。 </p>
+<p>去年写过一篇文章《<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/yxQ4Rrx8r9An2dqreTkndA">微信小程序开发 | 如何在小程序中使用自定义 icon 图标</a>》，其中介绍了 iconfont 图标的使用，这回介绍一下使用来自 IcoMoon 的图标的方法。  </p>
+<p>打开 IcoMoon 图标官网，从中挑选你想使用的 icon 图标，底部的 Selection 会统计你选中的图标数量，选好图标之后，点击右下角的 <strong>Generate Font</strong>，生成字体图标。  </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/1631932008295.png" alt="1631932008295"></p>
+<p>在打开的页面，会显示我们刚才挑选的所有 icon 图标，并且提供图标的 unicode 编码，这些编码等下要用到，但现在先不管。点击右下角的 <strong>Download</strong>，下载生成的字体图标文件。  </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/1631932359827.png" alt="1631932359827"></p>
+<p>IcoMoon 图标下载：<br><em><a target="_blank" rel="noopener" href="https://icomoon.io/app/#/select">https://icomoon.io/app/#/select</a></em></p>
+<p>解压下载的压缩文件，其中包含下面这些文件，我们需要用到其中的 fonts 文件夹。</p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210918214014532.png" alt="image-20210918214014532"></p>
+<p>fonts 文件中包含了 4 个字体文件，这是因为不同浏览器所支持的字体格式是不一样的，考虑到兼容性，fonts 文件夹就包含了主流浏览器支持的字体文件：  </p>
+<ul>
+<li>TrueType 字体(.ttf)：是 Windows 和 Mac 最常见的字体</li>
+<li>Web Open Font Format 字体(.woff)：支持的浏览器有 IE 9+、Firefox 3.5+、Chrome 6+、Safari 3.6+、Opera 11.1+</li>
+<li>Embedded Open Type 字体(.eot)：是 IE 专用的字体，支持的浏览器有 IE 4+     </li>
+<li>SVG 字体(.svg)：是基于 SVG 字体渲染的一种格式，支持的浏览器有 Chrome 4+、Safari 3.1+、Opera 10.0+、iOS Mobile Safari 3.2+</li>
+</ul>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210918215027965.png" alt="image-20210918215027965"></p>
+<p>将 fonts 文件夹复制到网页的项目文件夹📂中，譬如放在与  <code>index.html</code> 文件同级的路径下。 </p>
+<p>打开 HTML 文件，在 <strong>style 标签</strong>中粘贴下方的代码，定义我们等下需要用到的字体 icomoon。需要注意的是，如果 fonts 文件与 html 文件在同个路径下，就不需要修改下方代码中的 url 地址。</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;style&gt;</span><br><span class="line">  <span class="keyword">@font-face</span> &#123;</span><br><span class="line">              <span class="attribute">font-family</span>: <span class="string">&#x27;icomoon&#x27;</span>;</span><br><span class="line">              <span class="attribute">src</span>: <span class="built_in">url</span>(<span class="string">&#x27;fonts/icomoon.eot?bawtoo&#x27;</span>);</span><br><span class="line">              <span class="attribute">src</span>: <span class="built_in">url</span>(<span class="string">&#x27;fonts/icomoon.eot?bawtoo#iefix&#x27;</span>) <span class="built_in">format</span>(<span class="string">&#x27;embedded-opentype&#x27;</span>),</span><br><span class="line">                  <span class="built_in">url</span>(<span class="string">&#x27;fonts/icomoon.ttf?bawtoo&#x27;</span>) <span class="built_in">format</span>(<span class="string">&#x27;truetype&#x27;</span>),</span><br><span class="line">                  <span class="built_in">url</span>(<span class="string">&#x27;fonts/icomoon.woff?bawtoo&#x27;</span>) <span class="built_in">format</span>(<span class="string">&#x27;woff&#x27;</span>),</span><br><span class="line">                  <span class="built_in">url</span>(<span class="string">&#x27;fonts/icomoon.svg?bawtoo#icomoon&#x27;</span>) <span class="built_in">format</span>(<span class="string">&#x27;svg&#x27;</span>);</span><br><span class="line">              <span class="attribute">font-weight</span>: normal;</span><br><span class="line">              <span class="attribute">font-style</span>: normal;	</span><br><span class="line">              <span class="attribute">font-display</span>: block;</span><br><span class="line">          &#125;</span><br><span class="line">&lt;/style&gt;</span><br></pre></td></tr></table></figure>
+
+<p>粘贴代码之后，先来看一下我们最终想要实现的效果，如下图，下方的红色爱心❤️图标，就是前面说到的字体图标。根据最终想要实现的效果，我们要去到 html 文件中书写相应的代码。</p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210918225727566.png" alt="image-20210918225727566"></p>
+<p>在 html 文件的 <strong>body 标签</strong>中输入下方的一行代码，中间的 <strong>span 标签</strong>包含的<strong>方块 </strong>，其实就是爱心图标，只不过它无法在 html 文件中正常显示。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>我 <span class="tag">&lt;<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span> 你<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这个方块  也不是随意输入的，还得从我们前面下载的压缩文件夹中的 <code>demo.html</code> 查看。</p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210918232918454.png" alt="image-20210918232918454"></p>
+<p>在浏览器中打开 <code>demo.html</code> ，移动到爱心图标右下角的区域，框选有时看得到、有时看不到的<strong>方块字符 </strong>，复制到剪贴板，接着粘贴到 html 文件中。 </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210918233454678.png" alt="image-20210918233454678"></p>
+<p>将方块字符粘贴到 html 中，如果此时在浏览器中预览网页效果的话，还是无法看到刚添加的字体图标的，因为还缺少对字体图标设置 CSS 样式——<strong>声明字体图标所使用的字体</strong>。 </p>
+<p>html：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span></span><br><span class="line">  我<span class="tag">&lt;<span class="name">span</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span>你</span><br><span class="line"><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>css：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">p</span> <span class="selector-tag">span</span> &#123;</span><br><span class="line">		<span class="attribute">font-family</span>: <span class="string">&#x27;icomoon&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时在浏览器中重新打开 html 文件，我们所使用的字体图标就会正常显示了。</p>
+<p>如果你还想调整字体图标的<strong>大小</strong>和<strong>颜色</strong>，可以在 CSS 中增加另外两个属性：<strong>font-size</strong> 和 <strong>color</strong>。</p>
+<p>css：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">p</span> <span class="selector-tag">span</span> &#123;</span><br><span class="line">  	<span class="attribute">font-family</span>: <span class="string">&#x27;icomoon&#x27;</span>;</span><br><span class="line">  	<span class="attribute">font-size</span>: <span class="number">50px</span>;</span><br><span class="line">  	<span class="attribute">color</span>: red;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>一番设置之后，重新在浏览器中刷新页面，就可以看到最终的效果啦。</p>
+<h2 id="通过伪类选择器使用字体图标"><a href="#通过伪类选择器使用字体图标" class="headerlink" title="通过伪类选择器使用字体图标"></a>通过伪类选择器使用字体图标</h2><p>前面介绍的第一种方法，需要同时在 body 标签(html) 和 style 标签(css) 中同时书写相关的代码，如果我们想让 html 文件的结构更加简单，我们可以通过第二种方法——在  style 标签(css) 中通过<strong>伪类选择器</strong>使用字体图标，这样就只需要在 style 标签或 css 文件中书写相关的代码。  </p>
+<p>先来看一下我们最终想要实现的效果，如下图所示，给输入框的右侧添加一个<strong>向下的小三角🔽图标</strong>。</p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210919001244754.png" alt="image-20210919001244754"></p>
+<p>想制作这个效果，同样是先从前面介绍的 IcoMoon 网站下载字体图标，将解压后的文件中的 fonts 文件夹放到与 <code>index.html</code> 同级的路径下，接着在 html 的 <strong>style 标签</strong>中粘贴下方的代码：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">  <span class="keyword">@font-face</span> &#123;</span></span><br><span class="line"><span class="language-css">              <span class="attribute">font-family</span>: <span class="string">&#x27;icomoon&#x27;</span>;</span></span><br><span class="line"><span class="language-css">              <span class="attribute">src</span>: <span class="built_in">url</span>(<span class="string">&#x27;fonts/icomoon.eot?bawtoo&#x27;</span>);</span></span><br><span class="line"><span class="language-css">              <span class="attribute">src</span>: <span class="built_in">url</span>(<span class="string">&#x27;fonts/icomoon.eot?bawtoo#iefix&#x27;</span>) <span class="built_in">format</span>(<span class="string">&#x27;embedded-opentype&#x27;</span>),</span></span><br><span class="line"><span class="language-css">                  <span class="built_in">url</span>(<span class="string">&#x27;fonts/icomoon.ttf?bawtoo&#x27;</span>) <span class="built_in">format</span>(<span class="string">&#x27;truetype&#x27;</span>),</span></span><br><span class="line"><span class="language-css">                  <span class="built_in">url</span>(<span class="string">&#x27;fonts/icomoon.woff?bawtoo&#x27;</span>) <span class="built_in">format</span>(<span class="string">&#x27;woff&#x27;</span>),</span></span><br><span class="line"><span class="language-css">                  <span class="built_in">url</span>(<span class="string">&#x27;fonts/icomoon.svg?bawtoo#icomoon&#x27;</span>) <span class="built_in">format</span>(<span class="string">&#x27;svg&#x27;</span>);</span></span><br><span class="line"><span class="language-css">              <span class="attribute">font-weight</span>: normal;</span></span><br><span class="line"><span class="language-css">              <span class="attribute">font-style</span>: normal;	</span></span><br><span class="line"><span class="language-css">              <span class="attribute">font-display</span>: block;</span></span><br><span class="line"><span class="language-css">          &#125;</span></span><br><span class="line"><span class="language-css"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在 html 的 <strong>body 标签</strong>中插入一个空白的盒子 div 标签：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>接着在 style 标签中，给 div 盒子设置宽度、高度，并给它设置一个粗细为 1 px 的黑色边框：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="language-css"></span></span><br><span class="line"><span class="language-css">  <span class="selector-tag">div</span> &#123;</span></span><br><span class="line"><span class="language-css">    <span class="attribute">width</span>: <span class="number">200px</span>;</span></span><br><span class="line"><span class="language-css">    <span class="attribute">height</span>: <span class="number">40px</span>;</span></span><br><span class="line"><span class="language-css">    <span class="attribute">border</span>: <span class="number">1px</span> solid gray;</span></span><br><span class="line"><span class="language-css">  &#125;</span></span><br><span class="line"><span class="language-css"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>此时在浏览器中打开 html 文件，就可以看到下图所示的孤零零的输入框。</p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210919002544501.png" alt="image-20210919002544501"></p>
+<p>接着继续给这个输入框「添砖加瓦」——添加一个向下的小三角🔽，继续在 style 标签中书写代码：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">div::after &#123;</span><br><span class="line">	content: &#x27;&#x27;;</span><br><span class="line">	font-family: &#x27;icomoon&#x27;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>稍微解释一下这个代码，在 div 后面加上<strong>两个英文中的冒号</strong>，并且跟上单词 <strong>after 或者 before</strong>，就是所谓的<strong>伪类选择器</strong>，在我目前的认知范围内，<strong>伪类选择器就是用 css 代码来给 html 页面添加额外的元素</strong>，我们也确实可以在网页中看到添加的小三角，如下图。但这段代码是写在 css 而非 html 文件中，一定程度上可以简化 html 文件的代码。</p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210919003524108.png" alt="image-20210919003524108"></p>
+<p>到这里，我们就顺利地在 html 页面中添加了字体图标，值得一提的是，伪类选择器中 <strong>content 属性</strong>的值，除了可以是字体图标对应的<strong>方块字符</strong>，还可以是<strong>字体图标下方的编号</strong>。</p>
+<p>以下图为例，爱心图标的编号是 e9da，因此 content 属性的值也可以是 <code>\e9da</code> ，通过编号来调用字体图标的时候，需要在编号的最前面加多一个反斜杆 \ 。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">div::after &#123;</span><br><span class="line">	content: &#x27;\e9da&#x27;;</span><br><span class="line">	font-family: &#x27;icomoon&#x27;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210919003833891.png" alt="image-20210919003833891"></p>
+<p>引入字体图标之后，字体图标默认位于输入框的左上角，为了将字体图标移动到右侧居中的位置，这里还需要用到另外的知识——<strong>定位</strong>，包含<strong>相对定位</strong>和<strong>绝对定位</strong>。</p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210919003524108.png" alt="image-20210919003524108"></p>
+<p>关于定位的知识，这里暂时就不过多展开了，可以记住一个口诀「<strong>子绝父相</strong>」，即子元素设置绝对定位，父元素设置相对定位，就可以达到<strong>自由移动下拉小三角位置</strong>的目的。</p>
+<p>分别给 div 和伪元素选择器 div::after 添加另外的样式：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">div &#123;</span><br><span class="line">	position: relative;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">div::after &#123;</span><br><span class="line">	position: absolute;</span><br><span class="line">	top: 12px;</span><br><span class="line">	right: 10px;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的 top 和 right 属性的值，并不是唯一的，需要根据实际情况，配合浏览器的开发者工具进行调整，最终得到看起来比较舒适的值（主要就是调整到小三角可以位于输入框水平居中的位置），最终效果如下。</p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/19/image20210919001244754.png" alt="image-20210919001244754"></p>
+<h2 id="欢迎关注"><a href="#欢迎关注" class="headerlink" title="欢迎关注"></a>欢迎关注</h2><p>以上，就是本次想和你分享的内容，希望能够对你有一点帮助。     </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png" alt="公众号：效率工具指南">      </p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%89%8D%E7%AB%AF/" rel="tag"># 前端</a>
+          
+            <a href="/tags/icon/" rel="tag"># icon</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/laravel-sail-built-with-mirrors/" rel="next" title="使用国内镜像加速 Laravel Sail 构建">
+                <i class="fa fa-chevron-left"></i> 使用国内镜像加速 Laravel Sail 构建
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/60-%E7%94%9F%E6%B4%BB%E4%B8%8E%E5%93%B2%E5%AD%A6/" rel="prev" title="生活与哲学">
+                生活与哲学 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E6%8F%92%E5%85%A5%E5%AD%97%E4%BD%93%E5%9B%BE%E6%A0%87"><span class="nav-number">1.</span> <span class="nav-text">直接插入字体图标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E8%BF%87%E4%BC%AA%E7%B1%BB%E9%80%89%E6%8B%A9%E5%99%A8%E4%BD%BF%E7%94%A8%E5%AD%97%E4%BD%93%E5%9B%BE%E6%A0%87"><span class="nav-number">2.</span> <span class="nav-text">通过伪类选择器使用字体图标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AC%A2%E8%BF%8E%E5%85%B3%E6%B3%A8"><span class="nav-number">3.</span> <span class="nav-text">欢迎关注</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

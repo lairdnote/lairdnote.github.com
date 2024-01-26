@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Liunx Python Rust Goalng DevOPS" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="使用 xcode4 也有一段时间了，今天整理了一下 xcode4 的一些使用技巧，在这里分享给大家。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Xcode4 使用技巧">
+<meta property="og:url" content="https://blog.feedscoin.com/2012-03-10-xcode4-tips/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="使用 xcode4 也有一段时间了，今天整理了一下 xcode4 的一些使用技巧，在这里分享给大家。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/images/xcode-set-author-name.jpg">
+<meta property="og:image" content="https://blog.feedscoin.com/images/xcode-behaviors.jpg">
+<meta property="article:published_time" content="2012-03-10T12:42:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:22:32.370Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Liunx Python Rust Goalng DevOPS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/images/xcode-set-author-name.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2012-03-10-xcode4-tips/"/>
+
+
+
+
+
+  <title>Xcode4 使用技巧 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012-03-10-xcode4-tips/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Xcode4 使用技巧</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2012-03-10T20:42:00+08:00">
+                2012-03-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>使用 xcode4 也有一段时间了，今天整理了一下 xcode4 的一些使用技巧，在这里分享给大家。</p>
+<span id="more"></span>
+
+<h3 id="设置作者"><a href="#设置作者" class="headerlink" title="设置作者"></a>设置作者</h3><p>这里所指的作者就是每个源文件头部注释中的 “Created by xxx” 中的作者名。<br>我很长一段时间不知道应该在哪里设置它。后来终于找到了。</p>
+<p>原来这个作者名是来自 <code>地址薄</code> 这个程序中 <code>我</code> 的姓名。在 sportlight 中输入” 地 “即可找到这个程序。如下图所示：</p>
+<img src="/images/xcode-set-author-name.jpg" class="">
+
+<h3 id="设置公司（组织）"><a href="#设置公司（组织）" class="headerlink" title="设置公司（组织）"></a>设置公司（组织）</h3><p>这里所指的公司也是指源文件头部注释中的”Copyright (c) xxx” 中的公司名字。这个相对好找一些。<br>点击工程，在右边的工具栏中就可以找到 “Organization” 这一项。</p>
+<h3 id="模拟器"><a href="#模拟器" class="headerlink" title="模拟器"></a>模拟器</h3><p>iOS 模拟器也算是 xcode 的一部分。在刚开始使用时，不知道如何把照片导入到模拟器中。后来在网上搜到了方法：<br>将照片拖到 iOS 模拟器中，iOS 模拟器会用 safari 打开该图片，然后在 safari 中长按该图，就会弹出菜单，选择 “保存到相册” 即可。</p>
+<p>另外，模拟器也有一些快捷键，我常用的是 cmd + 左 &#x2F; 右 来调整 Orientation。另外，如果是 iPad 模拟器，可以按 cmd + 1 使其变成 100% 的大小。还有 cmd + s 可以将模拟器截图。</p>
+<h3 id="获得模拟器中的程序数据"><a href="#获得模拟器中的程序数据" class="headerlink" title="获得模拟器中的程序数据"></a>获得模拟器中的程序数据</h3><p>其实模拟器中的程序存储在：<code>/yourHome/Library/Application Support/iPhone Simulator/5.0/Applications</code> 目录下，你可以直接进去找。</p>
+<p>另外，如果要删除所安装的程序，也可以直接将 Applications 目录下的文件夹删掉，这比在模拟器中删更方便。</p>
+<h3 id="安装旧版本的模拟器"><a href="#安装旧版本的模拟器" class="headerlink" title="安装旧版本的模拟器"></a>安装旧版本的模拟器</h3><p>在 xcode 中，只会带最新版的模拟器，虽然有些模拟器可以在设置里面下载，但是更老的版本就无法在 xcode 的设置页下载了。</p>
+<p>这个问题的解决办法是把以前的 xcode 和对应的模拟器装上，然后将模拟器复制或链接到最新的 xcode 目录下，代码如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs</span><br><span class="line">sudo <span class="built_in">ln</span> -s /Developer-3.2.5/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.0.sdk .</span><br><span class="line">sudo <span class="built_in">ln</span> -s /Developer-3.2.5/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator4.1.sdk .</span><br></pre></td></tr></table></figure>
+
+<p>以前的 xcode 可以从 <a target="_blank" rel="noopener" href="http://tangqiaoboy.blog.163.com/blog/static/116114258201191323919494/">以下地址</a> 下载到 (需要开发者账号), 建议大家每次安装新 xcode 的时候，把模拟器都备份一下，安装完再恢复回来，这样就不用这么每次折腾了。</p>
+<h3 id="Behaviors"><a href="#Behaviors" class="headerlink" title="Behaviors"></a>Behaviors</h3><p>Behaviors 是设置页面里的一栏，通过 cmd + 逗号可以调出设置页面看到。<br>在 Behaviors 里可以设置各种行为发生时，界面应该做何改变。</p>
+<p>例如，如果我们要每次运行结束后，就关闭 Console 界面，可以在 Behaviors 下面的 “Run completes” 一栏的右边，选中 “Hide debugger” 一项即可（如下图红色标识所示)。</p>
+<p>另外，我们也可以点击左下角的 “+” 来增加一些自定义的行为，例如我就增加了 2 个行为，分别用于把导航栏和工具栏同时隐藏和显示（如下图蓝色标识所示）。Behavior 的扩展性很强，你甚至可以定义执行一些脚本，所以可以做的事情很多。</p>
+<img src="/images/xcode-behaviors.jpg" class="">
+
+<h3 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h3><p>如果能慢慢熟悉一些快捷键，对于提高工作效率是有很大帮助的。虽然设置页面有所有的快键键列表，但是估计没人能全部记住并且用上，我个人总结出来常用的快键键如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">cmd + 1              切换成 Project Navigator (cmd + 2~7 也可以做相应切换，不过不常用）</span><br><span class="line">cmd + ctrl + 上     在 .h 和 .m 文件之间切换</span><br><span class="line">cmd + enter          切换成 standard editor</span><br><span class="line">cmd + opt + enter    切换成 assistant editor</span><br><span class="line">cmd + shift + y      切换 Console View 的显示或隐藏</span><br><span class="line">cmd + 0              隐藏左边的导航 (Navigator) 区</span><br><span class="line">cmd + opt + 0        隐藏右边的工具 (Utility) 区</span><br><span class="line">ctrl  + 6            列出当前文件中所有的方法，可以输入关键词来过滤。这个相当赞，可以快速定位到想编辑的方法。</span><br><span class="line">                     我直接把这个快键盘改成了 ctrl+o，这样按起来更顺手。</span><br><span class="line">cmd + ctrl + 左 / 右   到上 / 下一次编辑的位置，在 2 个编辑位置跳转的时候很方便。</span><br><span class="line">cmd + opt + j        跳转到文件过滤区</span><br><span class="line">cmd + shift + f      在工程中查找</span><br><span class="line">cmd + r              运行，如果选上直接 kill 掉上次进程的话，每次直接一按就可以重新运行了</span><br><span class="line">cmd + b              编译工程</span><br><span class="line">cmd + shift + k      清空编译好的文件</span><br><span class="line">cmd + .              结束本次调试</span><br><span class="line">ESC                  调出代码补全</span><br><span class="line">cmd + 单击           查看该方法的实现</span><br><span class="line">opt + 单击           查看该方法的文档</span><br><span class="line">cmd + t              新建一个 tab 栏</span><br><span class="line">cmd + shift + [      在 tab 栏之间切换</span><br></pre></td></tr></table></figure>
+
+<h3 id="Snippets"><a href="#Snippets" class="headerlink" title="Snippets"></a>Snippets</h3><p>代码片段 (Snippets) 是 xcode4 新增的功能。用于管理一些常用的代码段，在需要时通过代码补全自动生成出来，可以提高工作效率。</p>
+<p>关于这个，可以参见我的另一篇文章：&lt;&#x2F;2012&#x2F;02&#x2F;04&#x2F;use-git-to-manage-code-snippets&#x2F;&gt;</p>
+<h3 id="下载-xcode"><a href="#下载-xcode" class="headerlink" title="下载 xcode"></a>下载 xcode</h3><p>从 Xcode4.3 开始，苹果将 Xcode 的下载放到了 Lion 的 mac app store 中。郁闷的是，中国区连接 app store 下载的速度相当慢，在试了一些方法（例如设置 hosts, 设置 dns）之后，我发现最好的办法如下：</p>
+<p>用开发者账号登陆：<a target="_blank" rel="noopener" href="https://developer.apple.com/downloads/index.action">https://developer.apple.com/downloads/index.action</a>，然后点击下载获得下载地址，然后将地址复制到 mac 版迅雷中，用迅雷下载，速度可以达到 200K 左右。</p>
+<p>希望这些技巧能提高你的工作效率，祝玩得开心:)</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/boot-to-gecko-html5" rel="next" title="HTML5 in Boot to Gecko">
+                <i class="fa fa-chevron-left"></i> HTML5 in Boot to Gecko
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2012-03-24-talk-about-uiwebview-and-phonegap/" rel="prev" title="关于UIWebView的总结">
+                关于UIWebView的总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E4%BD%9C%E8%80%85"><span class="nav-number">1.</span> <span class="nav-text">设置作者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E5%85%AC%E5%8F%B8%EF%BC%88%E7%BB%84%E7%BB%87%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">设置公司（组织）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E6%8B%9F%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">模拟器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8E%B7%E5%BE%97%E6%A8%A1%E6%8B%9F%E5%99%A8%E4%B8%AD%E7%9A%84%E7%A8%8B%E5%BA%8F%E6%95%B0%E6%8D%AE"><span class="nav-number">4.</span> <span class="nav-text">获得模拟器中的程序数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E6%97%A7%E7%89%88%E6%9C%AC%E7%9A%84%E6%A8%A1%E6%8B%9F%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">安装旧版本的模拟器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Behaviors"><span class="nav-number">6.</span> <span class="nav-text">Behaviors</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BF%AB%E6%8D%B7%E9%94%AE"><span class="nav-number">7.</span> <span class="nav-text">快捷键</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Snippets"><span class="nav-number">8.</span> <span class="nav-text">Snippets</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD-xcode"><span class="nav-number">9.</span> <span class="nav-text">下载 xcode</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

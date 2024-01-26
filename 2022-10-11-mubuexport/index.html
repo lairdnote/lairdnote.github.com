@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="幕布,插件,Markdown,思维导图软件," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文首发于微信公众号「效率工具指南」文&#x2F;彭宏豪       Hello 各位好，我是小豪。     继之前写过石墨文档批量导出之后，今天我想对许久没更新的思维导图软件「幕布」动手了——从幕布中批量导出 Markdown 文件，预防之后幕布可能关停带来的数据丢失。          先来看一下从幕布导出前后的对比：    下图左侧是导出前的幕布文件，右侧是导出后在 Markdown 编辑器">
+<meta property="og:type" content="article">
+<meta property="og:title" content="思维导图软件幕布导出Markdown【效率工具指南】">
+<meta property="og:url" content="https://blog.feedscoin.com/2022-10-11-mubuexport/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="本文首发于微信公众号「效率工具指南」文&#x2F;彭宏豪       Hello 各位好，我是小豪。     继之前写过石墨文档批量导出之后，今天我想对许久没更新的思维导图软件「幕布」动手了——从幕布中批量导出 Markdown 文件，预防之后幕布可能关停带来的数据丢失。          先来看一下从幕布导出前后的对比：    下图左侧是导出前的幕布文件，右侧是导出后在 Markdown 编辑器">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://img.penghh.fun/2022/10/11/16654635347301.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2022/10/11/16654657992107.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2022/10/11/16654667162953.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2022/10/11/16654678724168.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2022/10/11/16654683129332.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2022/10/11/16654689727150.jpg">
+<meta property="og:image" content="https://img.penghh.fun/2023/03/25/48844555552858t2.JPG">
+<meta property="og:image" content="https://img.penghh.fun/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png">
+<meta property="article:published_time" content="2022-10-11T07:03:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:59:41.979Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="幕布">
+<meta property="article:tag" content="插件">
+<meta property="article:tag" content="Markdown">
+<meta property="article:tag" content="思维导图软件">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.penghh.fun/2022/10/11/16654635347301.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2022-10-11-mubuexport/"/>
+
+
+
+
+
+  <title>思维导图软件幕布导出Markdown【效率工具指南】 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2022-10-11-mubuexport/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">思维导图软件幕布导出Markdown【效率工具指南】</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-10-11T15:03:00+08:00">
+                2022-10-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>本文首发于微信公众号「<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/ZWxbw10b_I-M_Q0stszXYw">效率工具指南</a>」<br>文&#x2F;彭宏豪      </p>
+<p>Hello 各位好，我是小豪。    </p>
+<p>继之前写过<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzAxMjY0NTY5OA==&mid=2649920142&idx=1&sn=88f4acce321bb7917a7313c85e6148d8&chksm=83a896a3b4df1fb53feead145913aba5803f69bf5a37504f1c3c901caf0c424dc7e293e4b4ec&token=237325951&lang=zh_CN#rd">石墨文档批量导出</a>之后，今天我想对许久没更新的思维导图软件「幕布」动手了——<strong>从幕布中批量导出 Markdown 文件</strong>，预防之后幕布可能关停带来的数据丢失。         </p>
+<p>先来看一下从幕布导出前后的对比：   </p>
+<p>下图左侧是导出前的幕布文件，右侧是导出后在 Markdown 编辑器 MWeb 打开的 Markdown 文件。   </p>
+<p>对比了导出前后的文件，发现导出的部分 Markdown 文件存在<strong>文本丢失</strong>的问题，这个问题会出现在某一行文本带有<strong>粗体</strong>样式的时候，导出的 Markdown 只保留了粗体样式中的文本。          </p>
+<p><img src="https://img.penghh.fun/2022/10/11/16654635347301.jpg"></p>
+<p>不过我发现，<strong>文本丢失的问题，目前只出现在创建时间比较早的文档上</strong>，我猜测是在幕布推出 Markdown 功能之前创建的文档，导出时所在的行如果带有粗体样式，就会发生内容丢失，而如果是之后创建的文档，就不会出现这个问题。          </p>
+<p>上面在幕布中创建的读书笔记，是纯粹的文本内容，为了更全面地了解这个导出工具的能力，我还测试了<strong>导出带有图片</strong>的幕布文件。   </p>
+<p>下图是带有图片的幕布文件导出前后的对比：  </p>
+<p>导出的 Markdown 文件会生成一个压缩包，里面带有原文件中附带的图片，因此使用 MWeb 打开的 Markdown 文件(下图右侧)，图片也能正常显示，但有个小小的不足——幕布中插入的 gif 动画会变成一张静态的 jpg 图片。             </p>
+<p><img src="https://img.penghh.fun/2022/10/11/16654657992107.jpg"></p>
+<p>总体而言，我对这个导出工具还是比较满意的，虽然多少存在一些问题，但能把我放在幕布中的大部分内容导出，我就很满意了。    </p>
+<h2 id="幕布导出器-Mubu-Dumper"><a href="#幕布导出器-Mubu-Dumper" class="headerlink" title="幕布导出器 - Mubu Dumper"></a>幕布导出器 - Mubu Dumper</h2><p>前面用到的幕布批量导出 Markdown 工具，就是下图的浏览器插件：<strong>幕布导出器 - Mubu Dumper</strong>。</p>
+<p>这个插件目前只上架到了 Chrome Web Store，还没上架 Edge 的插件商店。        </p>
+<p>有意思的是，我还留意到了这个插件名称下方的域名 <code>xmind.app</code>，用过国内另外一款思维导图软件 XMind 的朋友，想必对这个域名并不陌生。   </p>
+<p><img src="https://img.penghh.fun/2022/10/11/16654667162953.jpg"></p>
+<p>浏览器插件「幕布导出器 - Mubu Dumper」安装地址：<br><a target="_blank" rel="noopener" href="https://chrome.google.com/webstore/detail/%E5%B9%95%E5%B8%83%E5%AF%BC%E5%87%BA%E5%99%A8-mubu-dumper/nhpebeoohnmbgeigmojaebjfliekikkb/related">https://chrome.google.com/webstore/detail/%E5%B9%95%E5%B8%83%E5%AF%BC%E5%87%BA%E5%99%A8-mubu-dumper/nhpebeoohnmbgeigmojaebjfliekikkb/related</a> </p>
+<p>安装插件后，在浏览器打开网页版的幕布，点击浏览器右上角的插件图标，在弹出的面板，可以选择导出 所有文件、单个文件夹或是单个文件。       </p>
+<p><img src="https://img.penghh.fun/2022/10/11/16654678724168.jpg"></p>
+<p>勾选☑️ 文件之后，点击下方的「导出」按钮，在弹出的二级菜单，可以选择导出的文件格式：  </p>
+<p>默认导出 xmind 格式的文件，不过下方也提供了更通用的 Markdown 格式。      </p>
+<p>这里之所以提供了 Markdown 格式，不确定是不是只提供 xmind 格式的话，会让人看起来是在「明目张胆」地撬幕布的墙角，所以出于体面一些的考虑，这里也提供了更通用的 Markdown 格式。     </p>
+<p><img src="https://img.penghh.fun/2022/10/11/16654683129332.jpg"></p>
+<p>不过，撬别人墙角，在国内很多产品都可以看到，不独有 XMind 一家：   </p>
+<ul>
+<li>国内很多模仿 XMind 的思维导图软件：支持导入 xmind 文件    </li>
+<li>国内很多模仿 Figma 的设计软件：支持导入 Figma 文件      </li>
+<li>国内很多模仿 Visio 的绘图软件：支持导入 Visio 文件</li>
+</ul>
+<p>不仅如此，有些产品的「帮助文档」中，还明目张胆地列出了如何将其他产品的文件导入自己产品的方法，你说会有多少人注意到呢？       </p>
+<p>绝大多数用户都不会在意这些事情，因为这些下三滥的操作多了，原本不正确的事情也会变成是理所当然。   </p>
+<p><img src="https://img.penghh.fun/2022/10/11/16654689727150.jpg"></p>
+<p>看到这里，你说：       </p>
+<p>情怀有用吗？<br>体面有用吗？<br>体面能当饭吃吗？<br>产品理念有用吗？<br>团队气质有用吗？     </p>
+<p>在没有赚到钱让产品或团队可持续地活下来，扯那么多虚的，有用吗？    </p>
+<p>少谈情怀，多干正事。        </p>
+<h2 id="扫码加入我在知识星球上创建的社群「效率工具指南」"><a href="#扫码加入我在知识星球上创建的社群「效率工具指南」" class="headerlink" title="扫码加入我在知识星球上创建的社群「效率工具指南」"></a>扫码加入我在知识星球上创建的社群「效率工具指南」</h2><p>如果你觉得本文帮到了你，想支持我做得更好，欢迎戳下方图片，加入我的知识星球。     </p>
+<p>关于社群「效率工具指南」的介绍，可以查看我在语雀文档上发布的文档：<a target="_blank" rel="noopener" href="https://www.yuque.com/penghonghao/af0aai/glwrg2dl0dqlegi6?singleDoc#">知识星球「效率工具指南」简介</a>    </p>
+<p><img src="https://img.penghh.fun/2023/03/25/48844555552858t2.JPG" alt="48844555552858T2">   </p>
+<h2 id="欢迎关注"><a href="#欢迎关注" class="headerlink" title="欢迎关注"></a>欢迎关注</h2><p>以上，就是本次想和你分享的内容，希望能够对你有一点帮助。     </p>
+<p><img src="https://img.penghh.fun/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png" alt="公众号：效率工具指南">       </p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%B9%95%E5%B8%83/" rel="tag"># 幕布</a>
+          
+            <a href="/tags/%E6%8F%92%E4%BB%B6/" rel="tag"># 插件</a>
+          
+            <a href="/tags/Markdown/" rel="tag"># Markdown</a>
+          
+            <a href="/tags/%E6%80%9D%E7%BB%B4%E5%AF%BC%E5%9B%BE%E8%BD%AF%E4%BB%B6/" rel="tag"># 思维导图软件</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022-10-6-tampermonkey/" rel="next" title="油猴脚本获取公众号文章封面">
+                <i class="fa fa-chevron-left"></i> 油猴脚本获取公众号文章封面
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022-10-16-Gif/" rel="prev" title="免费制作Gif的软件或网站【效率工具指南】">
+                免费制作Gif的软件或网站【效率工具指南】 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%95%E5%B8%83%E5%AF%BC%E5%87%BA%E5%99%A8-Mubu-Dumper"><span class="nav-number">1.</span> <span class="nav-text">幕布导出器 - Mubu Dumper</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%AB%E7%A0%81%E5%8A%A0%E5%85%A5%E6%88%91%E5%9C%A8%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83%E4%B8%8A%E5%88%9B%E5%BB%BA%E7%9A%84%E7%A4%BE%E7%BE%A4%E3%80%8C%E6%95%88%E7%8E%87%E5%B7%A5%E5%85%B7%E6%8C%87%E5%8D%97%E3%80%8D"><span class="nav-number">2.</span> <span class="nav-text">扫码加入我在知识星球上创建的社群「效率工具指南」</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AC%A2%E8%BF%8E%E5%85%B3%E6%B3%A8"><span class="nav-number">3.</span> <span class="nav-text">欢迎关注</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

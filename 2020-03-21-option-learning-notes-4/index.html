@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="books," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前面写完了 3 篇笔记之后，说说我的一些体会吧。 期权不适合大部分人期权的操作太复杂，不适合大部分人，特别是通过期权组合来建立各种头寸，对非专业人士来说很难掌握。 我感觉如果要成为这方面的专家，应该需要投入非常多的时间，对于普通人来说不但不划算，而且即便投入了也不一定能挣到钱。 用裸卖看跌（PUT)期权来买入股票用裸卖看跌（PUT)期权来尝试降低买入股票的价格，是我认为唯一适合普通投资人尝试的操作">
+<meta property="og:type" content="article">
+<meta property="og:title" content="美股期权学习笔记（四）">
+<meta property="og:url" content="https://blog.feedscoin.com/2020-03-21-option-learning-notes-4/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="前面写完了 3 篇笔记之后，说说我的一些体会吧。 期权不适合大部分人期权的操作太复杂，不适合大部分人，特别是通过期权组合来建立各种头寸，对非专业人士来说很难掌握。 我感觉如果要成为这方面的专家，应该需要投入非常多的时间，对于普通人来说不但不划算，而且即便投入了也不一定能挣到钱。 用裸卖看跌（PUT)期权来买入股票用裸卖看跌（PUT)期权来尝试降低买入股票的价格，是我认为唯一适合普通投资人尝试的操作">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/images/gaoge.jpg">
+<meta property="og:image" content="https://blog.feedscoin.com/images/gaoge-invite.jpg">
+<meta property="og:image" content="https://blog.feedscoin.com/images/sell-put_buy-put.jpg">
+<meta property="og:image" content="https://blog.feedscoin.com/images/theta-tesla.jpg">
+<meta property="article:published_time" content="2020-03-22T13:40:01.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:22:32.477Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="books">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/images/gaoge.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2020-03-21-option-learning-notes-4/"/>
+
+
+
+
+
+  <title>美股期权学习笔记（四） | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020-03-21-option-learning-notes-4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">美股期权学习笔记（四）</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-03-22T21:40:01+08:00">
+                2020-03-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/summary/" itemprop="url" rel="index">
+                    <span itemprop="name">summary</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>前面写完了 3 篇笔记之后，说说我的一些体会吧。</p>
+<h2 id="期权不适合大部分人"><a href="#期权不适合大部分人" class="headerlink" title="期权不适合大部分人"></a>期权不适合大部分人</h2><p>期权的操作太复杂，不适合大部分人，特别是通过期权组合来建立各种头寸，对非专业人士来说很难掌握。</p>
+<p>我感觉如果要成为这方面的专家，应该需要投入非常多的时间，对于普通人来说不但不划算，而且即便投入了也不一定能挣到钱。</p>
+<h2 id="用裸卖看跌（PUT-期权来买入股票"><a href="#用裸卖看跌（PUT-期权来买入股票" class="headerlink" title="用裸卖看跌（PUT)期权来买入股票"></a>用裸卖看跌（PUT)期权来买入股票</h2><p>用裸卖看跌（PUT)期权来尝试降低买入股票的价格，是我认为<strong>唯一</strong>适合普通投资人尝试的操作。</p>
+<p>比如特斯拉现在股票值 450，但是你觉得只有跌到 220 你才愿意买入。那你可以裸卖出一周或一个月到期的 220 元的 PUT 期权。这样：</p>
+<ul>
+<li>如果到期时股价跌到 220 以下，你则以 220 完成了建仓。</li>
+<li>如果到期时股价没有跌到 220 以下，你则收取了权利金。</li>
+</ul>
+<p>这个事情的风险有几个:</p>
+<ul>
+<li>如果股价跌得特别多（比如跌到 100），这种操作实际上把买入的价格被锁定到了 220，造成帐面上的亏损。</li>
+<li>如果股价上涨很多，这种操作会失去拥有这个股票的机会。</li>
+</ul>
+<h2 id="产品化的版本"><a href="#产品化的版本" class="headerlink" title="产品化的版本"></a>产品化的版本</h2><p>该操作被一个 App 产品化了，这个 App 叫<a target="_blank" rel="noopener" href="https://www.toweringsecurities.cn/">高格证券</a>。高格证券把该操作称作「优买计划」，如下图所示：</p>
+<img src="/images/gaoge.jpg" class="">
+
+<p>我觉得这种产品化的思路还挺好，首先它强化了这个策略应该用来长期持有看好的股票。然后它把权利金描述成现金收益，并且提供了年化收益和买入概率等信息。</p>
+<p>如果你打算尝试，可以用我的邀请二维码（下图），这样我们俩各可以获得 5 美金的现金奖励。</p>
+<img src="/images/gaoge-invite.jpg" class="">
+
+<p>也说说高格的缺点吧。高格的优势也同时是它的劣势，因为高格把它产品化了，为你隐藏了大量信息，所以你也就无法做各种各样期权的组合以及中途回购期权。另外从保证金角度，如果是深度的虚值期权，保证金会动态变化，大多时候不会到 100%，而高格因为是鼓励以购买为目标来使用「优买计划」，所以你需要交 100% 的保证金。</p>
+<h2 id="该操作的风险"><a href="#该操作的风险" class="headerlink" title="该操作的风险"></a>该操作的风险</h2><p>《麦克米伦谈期权》的 2.5.3 章节提到了这种操作。作者认为，如果你目的并不是持有股票，而是通过这种方式获取权利金，那么极端风险情况下，你会有极大的账面损失。书中也讲了一个真实的案例：</p>
+<blockquote>
+<p>市场上的专业投资者在裸卖空看跌期权的时候，喜欢选择低权利金，低波动率的股票，而 IBM 就是一个这类的股票。当时，IBM 的股价是 100 ~ 105 之间，挂牌的有行价权为 90 的 IBM 长期期权。<br>许多投资者裸卖出了看跌期权，他们的理由是他们不介意有机会以 90 的价格持有 IBM 的股票。<br>结果，IBM 的股价意外下跌到了 45。这个期权由虚值变为了深度实值。虽然期权没有到期，但是因为它是深度实值，很多被对手方提前行权了。<br>最后分析发现，其中很多投资者并没有打算真正地在熊市中持有 IBM 的股票。</p>
+</blockquote>
+<p>所以，这个故事告诉我们，再好的股票也有经历它自己的熊市的时候，而当事件发生时，裸卖空看跌期权就会遭受损失。</p>
+<p>如果你想控制这种情况发生时的风险，有一个办法是用更低的成本买入深度虚值看跌期权，这样就形成了一个牛市价差的期权组合，这将控制你的下行风险。下图是牛市价差的盈亏图。</p>
+<img src="/images/sell-put_buy-put.jpg" class="">
+
+<h2 id="我自己的一些体会"><a href="#我自己的一些体会" class="headerlink" title="我自己的一些体会"></a>我自己的一些体会</h2><p>我自己尝试了一段时间裸卖空看跌（PUT)期权，以下是一些感悟：</p>
+<ul>
+<li><p>期权的到期时间不要过长。最好不要超过 3 个月。主要的原因一个是 3 个月时间波动可能非常大，另一个原因是你的保证金锁定时间太长。我建议过期时间选择 1 周 ~ 1 个月这个范围。</p>
+</li>
+<li><p>想清楚自己是为了挣权利金还是持有。如果是为了持有，不要将卖空的价格设置得特别低，否则大概率是不可能完成建仓的。而一些极端情况下完成的建仓，真正发生的时候，可能跌幅就不止是当时设置的那个买入价了。</p>
+</li>
+<li><p>如果是为了挣权利金而裸卖空看跌（PUT)期权。那么需要关注好 Theta 指标和 Vega 指标。因为 Theta 是时间价值指标。如果 Theta 指标特别低，而期权收益又高的话，那很可能是由于波动率（Vega）高带来的。那么这么高的波动率本身可能就意味着买入的风险。最好选低波动率的，同时时间价值高的期权。例如：下图中的一周到期的 Tesla 期权，Theta 值就很高：</p>
+</li>
+</ul>
+<img src="/images/theta-tesla.jpg" class="">
+
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>一些朋友告诫我不要操作任何期权，我觉得他们说的很可能是对的。我的以上总结大概率是有一些片面性的，未来我也有极大可能交一些学费。</p>
+<p>不过，如果使用完全不影响生活质量的钱，抱着学习的心态，不上杠杆，心里能够接受最后全部赔光，我想这样也没什么大不了。人生苦短，生活总得有些事情不试试不死心，对吧。</p>
+<p>愿大家玩得开心！</p>
+<p>本系列文章汇总：</p>
+<ul>
+<li><a href="/2020/02/08/option-learning-note/">美股期权学习笔记（一）</a></li>
+<li><a href="/2020/03/15/option-learning-notes-1/">美股期权学习笔记（二）</a></li>
+<li><a href="/2020/03/21/option-learning-notes-3/">美股期权学习笔记（三）</a></li>
+<li><a href="/2020/03/22/option-learning-notes-4/">美股期权学习笔记（四）</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/books/" rel="tag"># books</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020-03-15-option-learning-notes-3/" rel="next" title="美股期权学习笔记（三）">
+                <i class="fa fa-chevron-left"></i> 美股期权学习笔记（三）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/44-%E8%BF%91%E6%9C%9F%E5%8D%9A%E5%AE%A2%E7%AB%99%E7%82%B9%E7%9A%84%E6%9B%B4%E6%96%B0/" rel="prev" title="近期博客站点的更新">
+                近期博客站点的更新 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%9F%E6%9D%83%E4%B8%8D%E9%80%82%E5%90%88%E5%A4%A7%E9%83%A8%E5%88%86%E4%BA%BA"><span class="nav-number">1.</span> <span class="nav-text">期权不适合大部分人</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E8%A3%B8%E5%8D%96%E7%9C%8B%E8%B7%8C%EF%BC%88PUT-%E6%9C%9F%E6%9D%83%E6%9D%A5%E4%B9%B0%E5%85%A5%E8%82%A1%E7%A5%A8"><span class="nav-number">2.</span> <span class="nav-text">用裸卖看跌（PUT)期权来买入股票</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A7%E5%93%81%E5%8C%96%E7%9A%84%E7%89%88%E6%9C%AC"><span class="nav-number">3.</span> <span class="nav-text">产品化的版本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%A5%E6%93%8D%E4%BD%9C%E7%9A%84%E9%A3%8E%E9%99%A9"><span class="nav-number">4.</span> <span class="nav-text">该操作的风险</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%88%91%E8%87%AA%E5%B7%B1%E7%9A%84%E4%B8%80%E4%BA%9B%E4%BD%93%E4%BC%9A"><span class="nav-number">5.</span> <span class="nav-text">我自己的一些体会</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E5%90%8E"><span class="nav-number">6.</span> <span class="nav-text">最后</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

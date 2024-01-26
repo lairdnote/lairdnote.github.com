@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Swift,投稿," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="吕伟（@我在罪恶坑的日子）iOS 开发者，这些年在上海工作。专业：扯淡，兼职：开发。感谢投稿，原文链接。  大家好，我是非知名程序员，想跟大家说一段传统相声节目，额，对不起，说错了。想跟大家分享一点关于文本和动画的东西。这不是一篇纯血统，高、精、尖的技术文章，但依然希望有人能像喜欢混血美女一样喜欢。 前言记得以前看到过一个很赞的文字效果的动画，类似于这样：  当时被惊艳到了，最近偶然间又再次见到">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何实现自己没实现过的需求之文本动画">
+<meta property="og:url" content="https://blog.feedscoin.com/2016-03-19-text-animation-guide/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="吕伟（@我在罪恶坑的日子）iOS 开发者，这些年在上海工作。专业：扯淡，兼职：开发。感谢投稿，原文链接。  大家好，我是非知名程序员，想跟大家说一段传统相声节目，额，对不起，说错了。想跟大家分享一点关于文本和动画的东西。这不是一篇纯血统，高、精、尖的技术文章，但依然希望有人能像喜欢混血美女一样喜欢。 前言记得以前看到过一个很赞的文字效果的动画，类似于这样：  当时被惊艳到了，最近偶然间又再次见到">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://cloud.githubusercontent.com/assets/3759810/13845905/1e55a5d0-ec7e-11e5-9631-68aaf6b07ba1.gif">
+<meta property="og:image" content="https://cloud.githubusercontent.com/assets/3759810/13854816/4a6b5258-eca8-11e5-9870-15ed2d4f0d70.png">
+<meta property="og:image" content="https://cloud.githubusercontent.com/assets/3759810/13854821/4c5b947e-eca8-11e5-811e-e9abb161345f.png">
+<meta property="og:image" content="https://cloud.githubusercontent.com/assets/3759810/13878224/e142bef8-ed4a-11e5-9c84-798cb5939f36.png">
+<meta property="og:image" content="https://cloud.githubusercontent.com/assets/3759810/13878392/fab15e02-ed4b-11e5-9d38-2dc00ed45b0b.png">
+<meta property="og:image" content="https://cloud.githubusercontent.com/assets/3759810/13878767/7631a33c-ed4e-11e5-9d03-46d89d8af9c8.png">
+<meta property="og:image" content="https://cloud.githubusercontent.com/assets/3759810/13857496/2443d70a-ecb5-11e5-8661-a499e9c8719d.gif">
+<meta property="og:image" content="https://cloud.githubusercontent.com/assets/3759810/13864468/9fdcae9c-ecdc-11e5-9c49-278b327d1ba7.png">
+<meta property="article:published_time" content="2016-03-20T13:34:23.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:22:32.420Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Swift">
+<meta property="article:tag" content="投稿">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cloud.githubusercontent.com/assets/3759810/13845905/1e55a5d0-ec7e-11e5-9631-68aaf6b07ba1.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2016-03-19-text-animation-guide/"/>
+
+
+
+
+
+  <title>如何实现自己没实现过的需求之文本动画 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016-03-19-text-animation-guide/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">如何实现自己没实现过的需求之文本动画</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-03-20T21:34:23+08:00">
+                2016-03-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <blockquote>
+<p>吕伟（<a target="_blank" rel="noopener" href="http://weibo.com/u/1660258615">@我在罪恶坑的日子</a>）iOS 开发者，这些年在上海工作。专业：扯淡，兼职：开发。<br>感谢投稿，<a target="_blank" rel="noopener" href="http://www.ismash.cn/post/ru-he-shi-xian-zi-ji-mei-shi-xian-guo-de-xu-qiu-zhi-wen-ben-dong-hua-pian">原文链接</a>。</p>
+</blockquote>
+<p>大家好，我是非知名程序员，想跟大家说一段传统相声节目，额，对不起，说错了。想跟大家分享一点关于文本和动画的东西。这不是一篇纯血统，高、精、尖的技术文章，但依然希望有人能像喜欢混血美女一样喜欢。</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>记得以前看到过一个很赞的文字效果的动画，类似于这样：</p>
+<p><img src="https://cloud.githubusercontent.com/assets/3759810/13845905/1e55a5d0-ec7e-11e5-9631-68aaf6b07ba1.gif" alt="textanimation"></p>
+<p>当时被惊艳到了，最近偶然间又再次见到，依然还是那么喜欢。假设我们现在需要实现这样的需求。一般碰到需求我们都会去 GitHub 上看看，俗称找轮子（GitHub 基本上只有你想不到的，就没有它没有的）。大多数情况下，没有问题。或者说有点小问题：轮子太多，无从下嘴。</p>
+<h2 id="选择"><a href="#选择" class="headerlink" title="选择"></a>选择</h2><blockquote>
+<p>选轮子就像选姑娘，你不知道后面等着你的是什么 —–罪恶坑小程如是说</p>
+</blockquote>
+<p>程序员江湖，每位大侠的武功和套路不尽一样，少林，武当，昆仑各门各派，百花争艳。实现轮子的思路自然也不一样。有的轮子高深晦涩难懂，功能强大，有的清晰明了，功能简单。不过有一点相同是，选错了就会被坑，只是坑大坑小问题。选轮子自然需要无比谨慎，既要匹配需求同时也要能在掉坑里的时候填上（废话，出 bug 了，你不填，谁填），要能 hold 住。然而填坑哪能那么简单呢，首先轮子实现思路，代码的结构，运行时序你要搞清楚吧，提供了哪些功能，没提供哪些功能，你要了解吧。基本上一个复杂点的轮子，研究下来就要好些时间了。这还不包括你开会，沟通，解 bug，喝茶，倒水，上厕所，抽烟，骂娘，吐槽产品需求的时间。所以，妹子们，不要问我们今天加不加班，要问今天能不能在你睡前下班。（项目快上线了，小程不加班谁加班。嗯哼。）</p>
+<h2 id="创造"><a href="#创造" class="headerlink" title="创造"></a>创造</h2><blockquote>
+<p>如果能用代码扮演上帝话，苍老师的量产不是问题，就看产品经理定的需求是拟物还是扁平。—-罪恶坑小程如是说</p>
+</blockquote>
+<p>既然选轮子的时间成本也不低，那有时候我们可以自己造一个轮子。其实写一个的好处也多，有成就感，写好了可以吹牛逼，写坏了填坑速度快。但问题是，以前没写过怎么办？没把握怎么办？比如我们现在需要实现上面的文字效果，但是又不知道怎么写，怎么办？</p>
+<p>没关系，上帝创造世间也分了七步走，跟着这位带头大哥后面学，总不会错的。</p>
+<h2 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h2><blockquote>
+<p>罗马不是一天建成的，毛片不是一次性拍完的 —-罪恶坑小程如是说 </p>
+</blockquote>
+<p>咦，好像扯得有点多了。对不起，现在开始正式拍（苍老师准备下，小程也准备下，Action）：</p>
+<h4 id="1-分解任务"><a href="#1-分解任务" class="headerlink" title="1. ** 分解任务 **"></a>1. ** 分解任务 **</h4><p>通过简单观察我们可以马上知道，上面那个动画效果是通过对每个字符做动画完成的。而在 iOS 里，文本显示控件最常见和常用的是 UILabel。而 iOS 的 Explicit Animation 有 Properties Animation 和 keyframe Animation 两种。</p>
+<p>但是 UILabel 控件没有提供对其 Text 中每个字符的控制的功能，我们需要改造下。既然要对每个字符做动画，那少不了需要<code>frame</code>，<code>bounds</code>，<code>position</code>，<code>transform</code>，这些属性。<br>这样看来我们需要两个武器：一个做排版功能的 framework，不用说，肯定是 <a target="_blank" rel="noopener" href="http://objccn.io/issue-5-1/">TextKit</a>。而另一个是能显示单个字符也拥有<code>frame</code>，<code>bounds</code>，<code>position</code>，<code>transform</code>等属性的类，很自然，我们想到<code>CATextLayer</code>。</p>
+<h4 id="2-先解决文本布局"><a href="#2-先解决文本布局" class="headerlink" title="2. ** 先解决文本布局 **"></a>2. ** 先解决文本布局 **</h4><p>TextKit 里主要是三个类 <code>NSTextStorage</code>，<code>NSLayoutManager</code>，<code>NSContainer</code>。它们一起帮组我们解决文字布局，排版的工作。</p>
+<ul>
+<li><p><strong>NSTextStorage</strong>：<code>NSMutableAttributedString</code>的子类，持有文字内容，当字符发生改变时，通知<code>NSLayoutManager</code>对象</p>
+</li>
+<li><p><strong>NSLayoutManager</strong>: 我们的男主角，从<code>NSTextStorage</code>里获取文字内容后，转换成对应的 glyph，根据<code>NSTextContainer</code>的 visible Region 显示 glyph。</p>
+</li>
+<li><p><strong>NSContainer</strong>: 确定一个 region 来放置 text。这个 region 被<code>NSLayoutManager</code>用来决定哪里可以 break lines</p>
+</li>
+</ul>
+<p>不过可惜 UILabel 没有这三个类作为自己的属性对象，我们需要自己解决：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">class TextAnimationLabel: UILabel,NSLayoutManagerDelegate &#123;   </span><br><span class="line">     let textStorage:NSTextStorage = NSTextStorage(string: &quot;&quot;)</span><br><span class="line">     let textLayoutManager:NSLayoutManager = NSLayoutManager()</span><br><span class="line">     let textContainer:NSTextContainer = NSTextContainer()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>除此以外我们还需要两个 Array 用来保存文本变换前的旧字符和变换后的新字符:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">var oldCharacterTextLayers:[CATextLayer] = [] </span><br><span class="line">var newCharacterTextLayers:[CATextLayer] = []</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>因为我们需要用我们自己的 textStorage 对象，所以我们需要覆盖 text 和 attributedText 等属性。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">override var text:String!&#123;</span><br><span class="line">    get &#123;</span><br><span class="line">        return super.text</span><br><span class="line">    &#125;</span><br><span class="line">    set &#123;</span><br><span class="line">        super.text = text</span><br><span class="line">        let attributedText = NSMutableAttributedString(string: newValue)</span><br><span class="line">        let textRange = NSMakeRange(0,newValue.characters.count)</span><br><span class="line">        attributedText.setAttributes([NSForegroundColorAttributeName:self.textColor], range: textRange)</span><br><span class="line">        attributedText.setAttributes([NSFontAttributeName:self.font], range: textRange)</span><br><span class="line">        let paragraphyStyle = NSMutableParagraphStyle()</span><br><span class="line">        paragraphyStyle.alignment = self.textAlignment</span><br><span class="line">        attributedText.addAttributes([NSParagraphStyleAttributeName:paragraphyStyle], range: textRange)</span><br><span class="line">        self.attributedText = attributedText</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line"> &#125;</span><br><span class="line">    </span><br><span class="line">override var attributedText:NSAttributedString!&#123;</span><br><span class="line">    get &#123;</span><br><span class="line">        return self.textStorage as NSAttributedString</span><br><span class="line">    &#125;</span><br><span class="line">    set&#123;</span><br><span class="line">        cleanOutOldCharacterTextLayers()</span><br><span class="line">        oldCharacterTextLayers = Array(newCharacterTextLayers)</span><br><span class="line">        textStorage.setAttributedString(newValue)</span><br><span class="line">        self.startAnimation &#123; () -&gt; () in</span><br><span class="line">        &#125;</span><br><span class="line">            self.endAnimation(nil)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当 TextStorage 的文本内容改变时，会触发一个通知 send textLayoutManager 以便重新布局排版。显然我们可以在排版布局完成后来为每个字符创建设置一个 CATextLayer，并设置相应的 frame 以便正确的显示内容。我们可以有个函数来完成计算。并且 layout finish 完成时调用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">//Mark:NSLayoutMangerDelegate</span><br><span class="line">func layoutManager(layoutManager: NSLayoutManager, didCompleteLayoutForTextContainer textContainer: NSTextContainer?, atEnd layoutFinishedFlag: Bool) &#123;</span><br><span class="line">        calculateTextLayers()</span><br><span class="line">        print(&quot;\(textStorage.string)&quot;)</span><br><span class="line">&#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">//MARK:CalculateTextLayer</span><br><span class="line">func calculateTextLayers()</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来我们的主要想法，是找到 text 里每个 character 以及对应的 glyph rect. 然后用 character 和 glyph rect 创建 CATextLayer</p>
+<p>首先我们要有一个空数组用来存放新的 CATextLayer。并且获取 textStorage 的 attributedText。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">func calculateTextLayers()</span><br><span class="line">&#123;</span><br><span class="line">    newCharacterTextLayers.removeAll(keepCapacity:false)</span><br><span class="line">    let attributedText = textStorage.string</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>接下来我们要通过 LayoutManger 找到 TextContainer 的 used Rect，这样方便我们可以让文本垂直居中，就像普通的 Label 那样。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">func calculateTextLayers()</span><br><span class="line">&#123;</span><br><span class="line">    newCharacterTextLayers.removeAll(keepCapacity:false)</span><br><span class="line">    let attributedText = textStorage.string</span><br><span class="line">    let wordRange = NSMakeRange(0, attributedText.characters.count)</span><br><span class="line">    let attributedString = self.internalAttributedText();</span><br><span class="line">    let layoutRect = textLayoutManager.usedRectForTextContainer(textContainer)</span><br><span class="line">    var index = wordRange.location</span><br><span class="line">    let totalLength = NSMaxRange(wordRange)</span><br><span class="line">    while index &lt; totalLength &#123;</span><br><span class="line">         ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>现在我们开始迭代处理文本里的每个字符，创建一个 glyphRange 并且用这个 glyphRange 找到对应的 character，然后我们将 glyph index 丢给 LayoutManager 得到 textContainer，再用 container 和 glyphRange 取得 glyphRect(这里需要注意下 kerning 的问题)。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">let glyphRange = NSMakeRange(index, 1)</span><br><span class="line">let characterRange = textLayoutManager.characterRangeForGlyphRange(glyphRange, actualGlyphRange: nil)</span><br><span class="line">let textContainer = textLayoutManager.textContainerForGlyphAtIndex(index, effectiveRange: nil)</span><br><span class="line">var glyphRect = textLayoutManager.boundingRectForGlyphRange(glyphRange, inTextContainer: textContainer!)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>最终我们还需要注意的就是 glyph 的 kerning，如果 <code>kerningRange.location == index</code>，我们需要将前一个 textLayer 取出来调整其 Rect 的宽度至新的 glyphRect 的最右边，保证 glyph 不会被裁切掉（可以对比下面两张图片）</p>
+<img width="122" src="https://cloud.githubusercontent.com/assets/3759810/13854816/4a6b5258-eca8-11e5-9870-15ed2d4f0d70.png">
+
+<img width="122" src="https://cloud.githubusercontent.com/assets/3759810/13854821/4c5b947e-eca8-11e5-811e-e9abb161345f.png">
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">let kerningRange = textLayoutManager.rangeOfNominallySpacedGlyphsContainingIndex(index)</span><br><span class="line">if kerningRange.location == index &amp;&amp; kerningRange.length &gt; 1 &#123;</span><br><span class="line">    if newCharacterTextLayers.count &gt; 0 &#123;</span><br><span class="line">        // 如果前一个 textlayer 的 frame.size.width 不变大的话，</span><br><span class="line">        // 当前的 textLayer 会遮挡住字体的一部分，比如 “Yes” 的 Y 右上角会被切掉一部分</span><br><span class="line">        let previousLayer = newCharacterTextLayers[newCharacterTextLayers.endIndex - 1]</span><br><span class="line">        var frame = previousLayer.frame</span><br><span class="line">        frame.size.width += CGRectGetMaxX(glyphRect) - CGRectGetMaxX(frame)</span><br><span class="line">        previousLayer.frame = frame</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这里关于 kerning 和 glyph 要多说一点。先来说下 glyph，简单来说 glyph 是表示一个 character 的具体样式 , 但他们却不是一一对应的关系，比如一个字母 “A” 可以有不同的写法来表示例如：</p>
+<img width="417" alt="" src="https://cloud.githubusercontent.com/assets/3759810/13878224/e142bef8-ed4a-11e5-9c84-798cb5939f36.png">
+
+<p>除此以外，还有这种情况：</p>
+<img width="243" alt="" src="https://cloud.githubusercontent.com/assets/3759810/13878392/fab15e02-ed4b-11e5-9d38-2dc00ed45b0b.png">
+
+<p>上面是的 “ff” 虽然是两个 character，但是 glyph 却是一个。<br>不过不用担心，强大 LayoutManager 提供了两个方法帮助我们通过一个找到对应另外那个。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">func characterIndexForGlyphAtIndex(_ glyphIndex: Int) -&gt; Int</span><br><span class="line">func glyphIndexForCharacterAtIndex(_ charIndex: Int) -&gt; Int</span><br></pre></td></tr></table></figure>
+
+<p>现在我们说下 kerning。通常，在水平排布的文本中，glyph 都是一个挨着一个放置的，但是在某些时候为了让文本的可读性更好，看上去更加优雅美观，一个字形和另外一个字形之间可能会稍微的错位下，比如下面这种情况：</p>
+<img width="601" alt="" src="https://cloud.githubusercontent.com/assets/3759810/13878767/7631a33c-ed4e-11e5-9d03-46d89d8af9c8.png">
+这也是上面为什么”Y“会出现显示不全的原因了。
+
+<p>接下来就比较简单了，创建 Textlayer, 设置垂直居中，添加到数组当中，<code>index += characterRange.length</code>，开始下次循环</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">glyphRect.origin.y += (self.bounds.size.height/2)-(layoutRect.size.height/2)</span><br><span class="line">let textLayer = CATextLayer(frame: glyphRect, string: attributedString.attributedSubstringFromRange(characterRange));</span><br><span class="line">layer.addSublayer(textLayer);</span><br><span class="line">newCharacterTextLayers.append(textLayer);</span><br><span class="line">index += characterRange.length</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="3-动画实现"><a href="#3-动画实现" class="headerlink" title="3. ** 动画实现 **"></a>3. ** 动画实现 **</h4><p>上面我们解决了字符排版的问题，接下来动画的实现就相对的容易了，仔细观察那个动画，很容易得出主要是对 <code>opacity</code> 和 <code>transform</code> 两个属性做属性动画，<code>opacity</code> 让每个字体逐渐显示和逐渐消失，而 <code>transform</code>则做了两种变形，一种是往下移动，另外一种是旋转。用 <code>CABasicAnimation</code> 可以解决单个属性动画，而 <code>CAAnimationGroup</code> 则帮我们解决多个动画叠加的复合效果。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">func groupAnimationWithLayerChanges(old olderLayer:CALayer, new newLayer:CALayer) </span><br><span class="line">     -&gt; CAAnimationGroup? &#123;</span><br><span class="line"></span><br><span class="line">    var animationGroup:CAAnimationGroup?</span><br><span class="line">    var animations:[CABasicAnimation] = [CABasicAnimation]()</span><br><span class="line"></span><br><span class="line">    if !CATransform3DEqualToTransform(olderLayer.transform,</span><br><span class="line">    newLayer.transform) &#123;</span><br><span class="line">         let basicAnimation = CABasicAnimation(keyPath: &quot;transform&quot;)</span><br><span class="line">         basicAnimation.fromValue = NSValue(CATransform3D: olderLayer.transform)</span><br><span class="line">         basicAnimation.toValue = NSValue(CATransform3D: newLayer.transform)</span><br><span class="line">         animations.append(basicAnimation)</span><br><span class="line">         &#125;</span><br><span class="line"></span><br><span class="line">    if olderLayer.opacity != newLayer.opacity &#123;</span><br><span class="line">       let basicAnimation = CABasicAnimation(keyPath: &quot;opacity&quot;)</span><br><span class="line">       basicAnimation.fromValue = olderLayer.opacity</span><br><span class="line">       basicAnimation.toValue = newLayer.opacity</span><br><span class="line">       animations.append(basicAnimation)</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">    if animations.count &gt; 0 &#123;</span><br><span class="line">       animationGroup = CAAnimationGroup()</span><br><span class="line">       animationGroup!.animations = animations</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里需要注意一个问题，就是隐式动画的问题，Core Animation 基于一个假说，就是屏幕上的任何东西都可以 (或者可能) 做动画，我们平时在写代码时应该有这种印象就是你只是 layer 设置了一个值，没有添加动画，但是你会看到一个平滑过渡的显示效果而不是非常突兀的变化。这就是隐式动画。当我们改变一个属性时，Core Animation 帮我们做了一个动画，动画时间取决于当前 NSTransaction 的设置，而动画类型取决于图层行为。</p>
+<p>这里有个有趣的东西，多说一点，就是当我们对 UIView 关联的图层做动画而不是一个单独的图层做动画，比如</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">func changeColor()</span><br><span class="line">&#123;</span><br><span class="line">    CATransaction.begin();</span><br><span class="line">    CATransaction.setAnimationDuration(1.0)</span><br><span class="line">    CGFloat red = CGFloat(arc4random() / (CGFloat)INT_MAX);</span><br><span class="line">    CGFloat green = CGFloat(arc4random() / (CGFloat)INT_MAX);</span><br><span class="line">    CGFloat blue = CGFloat(arc4random() / (CGFloat)INT_MAX);</span><br><span class="line">    self.layerView.layer.backgroundColor = UIColor.(colorWithRed:red green:green blue:blue alpha:1.0).CGColor;</span><br><span class="line">    CATransaction.commit();</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>图层的颜色瞬间切换到新的值，而不是之前的平滑过渡，隐式动画似乎给关闭了。<br>我们知道 UIView 和 CALayer 最重要的关系就是 UIView 是 CALayer 的 delegate，<br>当我们改变 CALayer 的属性时，它会调用 <code>func actionForKey(_ event: String) -&gt; CAAction?</code> </p>
+<p>这个方法，接下来发生的事情在官方文档里都有写，实际上是如下几步:</p>
+<ul>
+<li><p><em>If the layer has a delegate that implements the actionForLayer:forKey: method, the layer calls that method. The delegate must do one of the following:</em></p>
+<ol>
+<li><p>Return the action object for the given key.</p>
+</li>
+<li><p>Return the NSNull object if it does not handle the action.</p>
+</li>
+</ol>
+</li>
+<li><p><em>The layer looks in the layer’s actions dictionary for a matching key&#x2F;action pair.</em></p>
+</li>
+<li><p><em>The layer looks in the style dictionary for an actions dictionary for a matching key&#x2F;action pair.</em></p>
+</li>
+<li><p><em>The layer calls the defaultActionForKey: class method to look for any class-defined actions.</em></p>
+</li>
+</ul>
+<p>UIView 作为它关联图层的 Delegate，实现了 <code>actionForLayer(_ layer: CALayer, forKey event: String) -&gt; CAAction?</code> ，当不在一个动画块中，UIView 返回 nil，而在动画块中则返回一个非空值</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">print(&quot;OutSide:\(self.view.actionForLayer(self.view.layer, forKey: &quot;backgroundColor&quot;))&quot;)</span><br><span class="line">UIView.beginAnimations(nil, context: nil)</span><br><span class="line">print(&quot;InSide:\(self.view.actionForLayer(self.view.layer,</span><br><span class="line">forKey: &quot;backgroundColor&quot;))&quot;)</span><br><span class="line">UIView.commitAnimations()</span><br></pre></td></tr></table></figure>
+<p>显示结果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">OutSide:Optional(&lt;null&gt;)</span><br><span class="line">InSide:Optional(&lt;CABasicAnimation: 0x7f7f93ff81b0&gt;)</span><br></pre></td></tr></table></figure>
+
+<p>当然返回 nil 并不是禁用隐式动画的唯一方法，下面这样也行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CATransaction.setDisableActions(true)</span><br></pre></td></tr></table></figure>
+
+<p>那为什么说这个问题呢？因为我们在对每个字符做动画的时候需要先将隐式动画关闭，否者将会做两次动画，比如下面这样:</p>
+<p><img src="https://cloud.githubusercontent.com/assets/3759810/13857496/2443d70a-ecb5-11e5-8661-a499e9c8719d.gif" alt="closeimplicitanimation"></p>
+<p>那么，我们先生成一份 oldlayer, 然后改变相应的属性，生产新的 newLayer。然后创建相应的动画组，添加显式动画。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">let olderLayer = animationObjc.animatableLayerCopy(layer)</span><br><span class="line">CATransaction.begin()</span><br><span class="line">CATransaction.setDisableActions(true)</span><br><span class="line">newLayer = effectAnimationClosure(layer: layer)</span><br><span class="line">CATransaction.commit()</span><br><span class="line">var animationGroup:CAAnimationGroup?</span><br><span class="line">animationGroup = groupAnimationWithLayerChanges(old: olderLayer, new: newLayer!)</span><br><span class="line">layer.addAnimation(textAniamtionGroup, forKey: textAnimationGroupKey)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="收工"><a href="#收工" class="headerlink" title="收工"></a>收工</h2><p>好了，当上面所有的工作完成之后，就是我们最开始看到的那个效果，代码已经上传 GitHub，你可以从 <a target="_blank" rel="noopener" href="https://github.com/morpheus1984/TextKitAndAnimationEffect.git">这里</a> 下载。其实这个 demo 里实现的 label 还有很大优化的空间。比如支持多种类型的动画效果，动画效果可配置等等。这是我接下来打算做的事情。<br>本人才疏学浅，错漏难免，欢迎大家批评指正。如果你发现 bug，可以提个 pull request。如果你有更好地思路也请告诉我，让我进步，我请你喝咖啡 ：）。</p>
+<p>这是我的微信号（未完结，请往下看）：</p>
+<p><img src="https://cloud.githubusercontent.com/assets/3759810/13864468/9fdcae9c-ecdc-11e5-9c49-278b327d1ba7.png" alt="wechat"></p>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>不知不觉工作许多年了，这几年萝莉变成了姑娘，姑娘变成了孩子妈。大家从 QQ 空间杀到朋友圈。从晒女朋友，到晒结婚照继而到晒娃。这几年鸣人同志都不负众望当上了火影 (丫也不请吃饭)。大家都在发生变化。</p>
+<p>学会开始写点东西分享可能是我想要的一个变化。</p>
+<p>本来作为非知名程序员，平时都是自己上 GitHub 玩，自认为比起一干牛人既没本领可以提振民心士气，又没有独门绝技可以分享。直到我收到了一封来自组织的信。</p>
+<p>最近我加入了一个公会，里面云集了各类高手，轻功，内力，暗器，大家各有所长，时不时分享下自己的看家本领。还是那句老话，不看不知道，一看吓一跳。世界还是外面的大，姑娘还是城里的靓。在群里，大家都很积极活跃，学习氛围异常的好。其实自打做起程序员起，这么多年来，虽然生性慵懒，但是自学却未敢放下，毕竟逆水行舟，不进则退。不可否认的是一个人的学习是很苦闷无聊的，但一群人陪着你一起苦闷无聊也是很欣慰的。</p>
+<p>最后我想引用那封邮件里面的话来表达下我对公会的看法:</p>
+<blockquote>
+<p>这个社群的意义证明了，在互联网时代，依然有这么多人愿意为知识的积累和个人的成长付费，知识本身的价值得到重新的认知，人们以一种去中心化的方式连接起来，P2P 的创作和分享，可能会让知识和技能的积累、传播达到了一种新的高度、深度和广度</p>
+</blockquote>
+<p>我想一贯懒散的我为何突然想写这么个 blog 可能也是因为这个，毕竟知识的受益者永远是那些积极参与学习并持续思考的人。</p>
+<p>额，最后想说的是，是的，那段引用的文字你没看错，这是个需要付费的群，免费时代的付费群，它叫 <a target="_blank" rel="noopener" href="http://mp.weixin.qq.com/s?__biz=MjM5ODQ2MDIyMA==&mid=402078207&idx=1&sn=c0b437784c7fc789e06767eedf5cdf87&scene=18#wechat_redirect">攻城狮之路</a>。</p>
+<p>知识是很昂贵的，我一直这么认为。另外，其实这是篇硬广。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Swift/" rel="tag"># Swift</a>
+          
+            <a href="/tags/%E6%8A%95%E7%A8%BF/" rel="tag"># 投稿</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/php-namespace-autoload-and-implementation/" rel="next" title="PHP 命名空间自动加载与实现">
+                <i class="fa fa-chevron-left"></i> PHP 命名空间自动加载与实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/%E4%BD%BF%E7%94%A8Mono%E6%89%93%E9%80%A0%E8%BD%BB%E9%87%8F%E7%BA%A7%E7%9A%84.NET%E7%A8%8B%E5%BA%8F%E8%BF%90%E8%A1%8C%E6%97%B6/" rel="prev" title="使用 Mono 打造轻量级的.NET 程序运行时">
+                使用 Mono 打造轻量级的.NET 程序运行时 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%89%E6%8B%A9"><span class="nav-number">2.</span> <span class="nav-text">选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E9%80%A0"><span class="nav-number">3.</span> <span class="nav-text">创造</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E5%A7%8B"><span class="nav-number">4.</span> <span class="nav-text">开始</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%88%86%E8%A7%A3%E4%BB%BB%E5%8A%A1"><span class="nav-number">4.0.1.</span> <span class="nav-text">1. ** 分解任务 **</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%85%88%E8%A7%A3%E5%86%B3%E6%96%87%E6%9C%AC%E5%B8%83%E5%B1%80"><span class="nav-number">4.0.2.</span> <span class="nav-text">2. ** 先解决文本布局 **</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E5%8A%A8%E7%94%BB%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.0.3.</span> <span class="nav-text">3. ** 动画实现 **</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%B6%E5%B7%A5"><span class="nav-number">5.</span> <span class="nav-text">收工</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E5%90%8E"><span class="nav-number">6.</span> <span class="nav-text">最后</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

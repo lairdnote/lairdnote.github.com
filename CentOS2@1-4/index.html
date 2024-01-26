@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="centos,tmux,prezto," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="proxychains-ng1234567git clone https:&#x2F;&#x2F;github.com&#x2F;rofl0r&#x2F;proxychains-ngcd proxychains-ng                                 .&#x2F;configure --prefix&#x3D;&#x2F;usr --sysconfdir&#x3D;&#x2F;etc makemake installmake install-config">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Centos初始化2">
+<meta property="og:url" content="https://blog.feedscoin.com/CentOS2@1-4/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="proxychains-ng1234567git clone https:&#x2F;&#x2F;github.com&#x2F;rofl0r&#x2F;proxychains-ngcd proxychains-ng                                 .&#x2F;configure --prefix&#x3D;&#x2F;usr --sysconfdir&#x3D;&#x2F;etc makemake installmake install-config">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-01-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:23:38.711Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="centos">
+<meta property="article:tag" content="tmux">
+<meta property="article:tag" content="prezto">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/CentOS2@1-4/"/>
+
+
+
+
+
+  <title>Centos初始化2 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/CentOS2@1-4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Centos初始化2</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-01-04T00:00:00+08:00">
+                2017-01-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <h2 id="proxychains-ng"><a href="#proxychains-ng" class="headerlink" title="proxychains-ng"></a>proxychains-ng</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/rofl0r/proxychains-ng</span><br><span class="line"><span class="built_in">cd</span> proxychains-ng                                 </span><br><span class="line">./configure --prefix=/usr --sysconfdir=/etc </span><br><span class="line">make</span><br><span class="line">make install</span><br><span class="line">make install-config   <span class="comment"># 生成配置文件</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;http 10.100.100.136 4411&#x27;</span> &gt;&gt; /etc/proxychains.conf  <span class="comment"># 输入代理设置</span></span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h2 id="TMUX"><a href="#TMUX" class="headerlink" title="TMUX"></a>TMUX</h2><p>CentOS的版本太老，手动编译最新版本</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">yum install ncurses-devel libevent-devel</span><br><span class="line">curl -L https://github.com/tmux/tmux/releases/download/2.3/tmux-2.3.tar.gz | tar xz</span><br><span class="line"><span class="built_in">cd</span> tmux-2.3</span><br><span class="line">./configure</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<p>如果出现<code>protocol version mismatch</code>错误，说明现在tmux正在运行，手动结束掉即可。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">kill</span> -9 `pidof tmux`</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="theme"><a href="#theme" class="headerlink" title="theme"></a>theme</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/gpakosz/.tmux.git</span><br><span class="line"><span class="built_in">ln</span> -s -f .tmux/.tmux.conf</span><br><span class="line"><span class="built_in">cp</span> .tmux/.tmux.conf.local .</span><br><span class="line">vim .tmux.conf.local <span class="comment">#编辑配置文件</span></span><br><span class="line"><span class="comment"># 去掉status left/right sections separators后面几行的注释（终端字体需要支持Powerline）</span></span><br><span class="line"><span class="comment"># 启用 force vi mode</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="shortcuts"><a href="#shortcuts" class="headerlink" title="shortcuts"></a>shortcuts</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Session</span></span><br><span class="line">:new[-s name]  <span class="comment"># new session</span></span><br><span class="line">:kill-session[-t name] <span class="comment"># kill session</span></span><br><span class="line">:<span class="built_in">ls</span> <span class="comment"># list sessions</span></span><br><span class="line">C-c <span class="comment"># new session</span></span><br><span class="line">s  <span class="comment"># list and select sessions</span></span><br><span class="line">$  <span class="comment"># name session</span></span><br><span class="line"></span><br><span class="line">==============================================</span><br><span class="line"></span><br><span class="line"><span class="comment"># Window</span></span><br><span class="line">c  <span class="comment"># create window</span></span><br><span class="line">w  <span class="comment"># list windows</span></span><br><span class="line">n  <span class="comment"># next window</span></span><br><span class="line">p  <span class="comment"># previous window</span></span><br><span class="line">f  <span class="comment"># find window</span></span><br><span class="line">,  <span class="comment"># name window</span></span><br><span class="line">&amp;  <span class="comment"># kill window</span></span><br><span class="line"></span><br><span class="line">===============================================</span><br><span class="line"></span><br><span class="line"><span class="comment"># Panes</span></span><br><span class="line">%  <span class="comment">#vertical split</span></span><br><span class="line"><span class="string">&quot;  # horizontal split</span></span><br><span class="line"><span class="string">o  # swap panes</span></span><br><span class="line"><span class="string">q  # show pane numbers</span></span><br><span class="line"><span class="string">x  # kill pane</span></span><br><span class="line"><span class="string">+  # 最大化pane，再按一次还原</span></span><br><span class="line"><span class="string">-  # restore pane from window</span></span><br><span class="line"><span class="string">⍽  # space - toggle between layouts</span></span><br><span class="line"><span class="string">q  # (Show pane numbers, when the numbers show up type the key to goto that pane)</span></span><br><span class="line"><span class="string">&#123;  # (Move the current pane left)</span></span><br><span class="line"><span class="string">&#125;  # (Move the current pane right)</span></span><br><span class="line"><span class="string">z  # toggle pane zoom</span></span><br><span class="line"><span class="string">方向键 # select the sibling pane</span></span><br><span class="line"><span class="string">C-方向键 # resize current pane</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">================================================</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># Misc</span></span><br><span class="line"><span class="string">d  # detach</span></span><br><span class="line"><span class="string">t  # big clock</span></span><br><span class="line"><span class="string">?  # list shortcuts</span></span><br><span class="line"><span class="string">:  # prompt</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Tmux-Plugin-Manager-tmux-yank"><a href="#Tmux-Plugin-Manager-tmux-yank" class="headerlink" title="Tmux Plugin Manager &amp;&amp; tmux-yank"></a>Tmux Plugin Manager &amp;&amp; tmux-yank</h3><p>tmux-yank可以将tmux的paste-buffer中的文字拷贝到系统剪贴板</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">yumi xclip <span class="comment"># 安装依赖</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm </span><br><span class="line">vim .tmux.conf <span class="comment"># 在最后添加下面几行，注意不是 .tmux.conf.local!!!</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># List of plugins</span></span><br><span class="line"><span class="built_in">set</span> -g @plugin <span class="string">&#x27;tmux-plugins/tpm&#x27;</span></span><br><span class="line"><span class="built_in">set</span> -g @plugin <span class="string">&#x27;tmux-plugins/tmux-yank&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Initialize TMUX plugin manager (keep this line at the very bottom of tmux.conf)</span></span><br><span class="line">run <span class="string">&#x27;~/.tmux/plugins/tpm/tpm&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后，重新加载tmux，按<prefix> + I 安装<code>tmux-yank</code>插件</p>
+<p>然后，并不能奏效，因为xclip需要有X服务。然而ssh客户端Centos只是纯命令行。需要开启<code>X11Forwarding</code></p>
+<h2 id="X11Forwarding"><a href="#X11Forwarding" class="headerlink" title="X11Forwarding"></a>X11Forwarding</h2><ol>
+<li><p>在远程Centos中的<code>/etc/ssh/ssh_config</code>文件中，添加<code>X11Forwarding yes</code></p>
+</li>
+<li><p>在远程Centos中安装认证软件：<code>yumi xorg-x11-xauth</code></p>
+</li>
+<li><p>在本地ssh连接命令添加<code>-Y</code>参数</p>
+<p>启用x11转发之后就可以在Centos中启动x11程序了，可以安装轻量级的xfce4-terminal方便操作。</p>
+</li>
+</ol>
+<h2 id="Prezto"><a href="#Prezto" class="headerlink" title="Prezto"></a>Prezto</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">  git <span class="built_in">clone</span> --recursive https://github.com/sorin-ionescu/prezto.git <span class="string">&quot;<span class="variable">$&#123;ZDOTDIR:-<span class="variable">$HOME</span>&#125;</span>/.zprezto&quot;</span></span><br><span class="line"><span class="built_in">rm</span> -rf .zshrc .zpreztorc .zlogin .zlogout .zprofile .zshenv .zhistory .zcompdump</span><br><span class="line"><span class="built_in">setopt</span> EXTENDED_GLOB</span><br><span class="line"><span class="keyword">for</span> rcfile <span class="keyword">in</span> <span class="string">&quot;<span class="variable">$&#123;ZDOTDIR:-<span class="variable">$HOME</span>&#125;</span>&quot;</span>/.zprezto/runcoms/^README.md(.N); <span class="keyword">do</span></span><br><span class="line">  <span class="built_in">ln</span> -s <span class="string">&quot;<span class="variable">$rcfile</span>&quot;</span> <span class="string">&quot;<span class="variable">$&#123;ZDOTDIR:-<span class="variable">$HOME</span>&#125;</span>/.<span class="variable">$&#123;rcfile:t&#125;</span>&quot;</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 主题列表</span></span><br><span class="line">prompt -l</span><br><span class="line"><span class="comment"># 预览主题</span></span><br><span class="line">prompt -p NAME</span><br><span class="line"><span class="comment"># 做个备份</span></span><br><span class="line"><span class="built_in">mv</span> .zpreztorc .zpreztorc.tmp</span><br><span class="line"><span class="comment"># 添加常用插件(不要第二次运行，而是手动修改.zpreztorc文件)</span></span><br><span class="line">awk -v s=<span class="string">&quot;syntax-highlighting git command-not-found yum history-substring-search autosuggestions&quot;</span> \</span><br><span class="line"><span class="string">&#x27;BEGIN&#123;n=split(s,m)&#125;/&#x27;</span>\&#x27;<span class="string">&#x27;utility&#x27;</span>\&#x27;<span class="string">&#x27;\s+\\/&#123;for(i=1;i&lt;=n;i++)printf(&quot;  &#x27;</span>\&#x27;<span class="string">&#x27;%s&#x27;</span>\&#x27;<span class="string">&#x27; \\\n&quot;,m[i])&#125;&#123;print&#125;&#x27;</span> .zpreztorc.tmp &gt; .zpreztorc</span><br><span class="line"><span class="comment"># 修改默认主题（推荐 skwp）</span></span><br><span class="line">sed -i <span class="string">&quot;s/\(zstyle.*theme\s\).*/\1&#x27;skwp&#x27;/&quot;</span> .zpreztorc</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Yum-Aliases"><a href="#Yum-Aliases" class="headerlink" title="Yum Aliases"></a>Yum Aliases</h2><ul>
+<li><code>yumc</code> removes package(s) and leaves.</li>
+<li><code>yumi</code> installs package(s).</li>
+<li><code>yumh</code> displays history.</li>
+<li><code>yuml</code> lists packages.</li>
+<li><code>yumL</code> lists installed packages.</li>
+<li><code>yumq</code> displays package information.</li>
+<li><code>yumr</code> removes package(s).</li>
+<li><code>yums</code> searches for a package.</li>
+<li><code>yumu</code> updates packages.</li>
+<li><code>yumU</code> upgrades packages.</li>
+</ul>
+<h2 id="spf13-Vim"><a href="#spf13-Vim" class="headerlink" title="spf13 Vim"></a>spf13 Vim</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl https://j.mp/spf13-vim3 -L &gt; spf13-vim.sh &amp;&amp; sh spf13-vim.sh</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/centos/" rel="tag"># centos</a>
+          
+            <a href="/tags/tmux/" rel="tag"># tmux</a>
+          
+            <a href="/tags/prezto/" rel="tag"># prezto</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/Kubernetes%E9%83%A8%E7%BD%B2@1-5/" rel="next" title="Kubernetes部署">
+                <i class="fa fa-chevron-left"></i> Kubernetes部署
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/2017-01-07-programming-of-2016/" rel="prev" title="2016 年度小结（技术方面）">
+                2016 年度小结（技术方面） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#proxychains-ng"><span class="nav-number">1.</span> <span class="nav-text">proxychains-ng</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TMUX"><span class="nav-number">2.</span> <span class="nav-text">TMUX</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#theme"><span class="nav-number">2.1.</span> <span class="nav-text">theme</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#shortcuts"><span class="nav-number">2.2.</span> <span class="nav-text">shortcuts</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tmux-Plugin-Manager-tmux-yank"><span class="nav-number">2.3.</span> <span class="nav-text">Tmux Plugin Manager &amp;&amp; tmux-yank</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#X11Forwarding"><span class="nav-number">3.</span> <span class="nav-text">X11Forwarding</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Prezto"><span class="nav-number">4.</span> <span class="nav-text">Prezto</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Yum-Aliases"><span class="nav-number">5.</span> <span class="nav-text">Yum Aliases</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#spf13-Vim"><span class="nav-number">6.</span> <span class="nav-text">spf13 Vim</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

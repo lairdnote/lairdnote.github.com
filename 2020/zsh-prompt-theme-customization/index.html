@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux,命令行," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="昨天在配置新 VPS 时突然想到，推荐 Zsh 主题、讲如何设置主题的中文教程有很多，但似乎鲜有教人怎么去自己编写一个 Zsh 主题的。搜索了一下确实没多少，Bash 自定义提示符的教程倒是挺多。既然如此，那就我来写一个吧。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="教你写一个 Zsh 主题">
+<meta property="og:url" content="https://blog.feedscoin.com/2020/zsh-prompt-theme-customization/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="昨天在配置新 VPS 时突然想到，推荐 Zsh 主题、讲如何设置主题的中文教程有很多，但似乎鲜有教人怎么去自己编写一个 Zsh 主题的。搜索了一下确实没多少，Bash 自定义提示符的教程倒是挺多。既然如此，那就我来写一个吧。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/zsh-prompt-theme-customization/shell-prompt.png">
+<meta property="og:image" content="https://blog.feedscoin.com/zsh-prompt-theme-customization/zsh-ansi-escape-sequences.png">
+<meta property="og:image" content="https://blog.feedscoin.com/zsh-prompt-theme-customization/my-custom-zsh-themes.png">
+<meta property="article:published_time" content="2020-01-16T13:30:00.000Z">
+<meta property="article:modified_time" content="2020-01-16T15:10:00.000Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="命令行">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/zsh-prompt-theme-customization/shell-prompt.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2020/zsh-prompt-theme-customization/"/>
+
+
+
+
+
+  <title>教你写一个 Zsh 主题 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020/zsh-prompt-theme-customization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">教你写一个 Zsh 主题</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-01-16T21:30:00+08:00">
+                2020-01-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>昨天在配置新 VPS 时突然想到，推荐 Zsh 主题、讲如何设置主题的中文教程有很多，但似乎鲜有教人怎么去自己编写一个 Zsh 主题的。搜索了一下确实没多少，Bash 自定义提示符的教程倒是挺多。既然如此，那就我来写一个吧。</p>
+<span id="more"></span>
+
+<h2 id="1-基础知识"><a href="#1-基础知识" class="headerlink" title="1. 基础知识"></a>1. 基础知识</h2><p>开始动手之前，先来了解一下类 Unix 系统中命令行的一些基础知识。如果你之前有过自定义 Bash 等 Shell 的提示符的经验，可以直接跳过这一段，毕竟除了一些 Zsh 特有的东西之外都是一样的。</p>
+<blockquote>
+<p>再次推荐一下我的这篇文章：<a target="_blank" rel="noopener" href="https://prinsss.github.io/the-difference-between-cli-terminal-shell-tty/">命令行界面 (CLI)、终端 (Terminal)、Shell、TTY，傻傻分不清楚？</a></p>
+</blockquote>
+<p><img src="/zsh-prompt-theme-customization/shell-prompt.png" alt="shell-prompt"></p>
+<p>在上面的截图中，<code>vagrant@homestead:~$</code> 这样的部分就叫做命令行提示符（Prompt）。顾名思义，提示符就是提示你输入 Shell 命令用的，每次运行完一个命令后都会再显示一次提示符，等待下一个命令。</p>
+<p>不同发行版、不同 Shell 的默认提示符格式也不同。比如 CentOS 中默认的 Bash 提示符就是 <code>[prin@localhost ~]$</code> 这样的。一般来说，提示符都会包含这些信息：当前用户、主机名、当前目录等。有些人的可能更高级，包括了当前 Git 状态、环境信息、时间、上一条命令的返回值等等。</p>
+<p>那么这个提示符要怎么修改呢？答案就是 <code>$PS1</code> 环境变量。</p>
+<blockquote>
+<p>当然，并不是所有 Shell 都使用 <code>$PS1</code> 来控制提示符，比如 <a target="_blank" rel="noopener" href="https://fishshell.com/docs/current/tutorial.html#tut_prompt">fish</a>。</p>
+</blockquote>
+<p><code>PS1</code> 的意思是 <del>PlayStation</del> Prompt String One，控制最外层命令行的提示符，也是我们平时最常看到的。另外还有 <code>PS2</code>，当你输入一条多行命令时，左边的 <code>&gt;</code> 就是它。<code>PS3</code>、<code>PS4</code> 平时一般用不到，有兴趣的话可以看一下 <a target="_blank" rel="noopener" href="https://www.thegeekstuff.com/2008/09/bash-shell-take-control-of-ps1-ps2-ps3-ps4-and-prompt_command/">这篇文章</a>。</p>
+<p>你可以在你的机器上尝试一下，看看这几个环境变量的值：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">➜  ~ echo $PS1</span><br><span class="line">%(?:%&#123;%&#125;➜ :%&#123;%&#125;➜ ) %&#123;$fg[cyan]%&#125;%c%&#123;$reset_color%&#125; $(git_prompt_info)</span><br><span class="line">➜  ~ echo $PS2</span><br><span class="line">%_&gt;</span><br></pre></td></tr></table></figure>
+
+<p>卧槽？这一大堆乱七八糟的是什么？</p>
+<h2 id="2-必要元素之-Prompt-转义字符"><a href="#2-必要元素之-Prompt-转义字符" class="headerlink" title="2. 必要元素之 Prompt 转义字符"></a>2. 必要元素之 Prompt 转义字符</h2><p>在 <code>$PS1</code> 中，我们可以加入一些特殊的转义字符，Shell 会将它们解析成相应的值。不同 Shell 的转义字符也不同，比如 Bash 中显示主机名的转义字符是 <code>\h</code>，而 Zsh 上则是 <code>%m</code>。</p>
+<p>Zsh 中可用的转义序列主要有：</p>
+<table>
+<thead>
+<tr>
+<th>转义字符</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>%n</code></td>
+<td>当前用户名 <code>$USERNAME</code></td>
+</tr>
+<tr>
+<td><code>%m</code></td>
+<td>不带域名的本地主机名</td>
+</tr>
+<tr>
+<td><code>%M</code></td>
+<td>完整的主机名</td>
+</tr>
+<tr>
+<td><code>%#</code></td>
+<td>普通用户显示一个 <code>%</code> 字符，超级用户显示 <code>#</code></td>
+</tr>
+<tr>
+<td><code>%?</code></td>
+<td>上一条命令的执行结果</td>
+</tr>
+<tr>
+<td><code>%d</code><br/><code>%/</code></td>
+<td>当前工作目录</td>
+</tr>
+<tr>
+<td><code>%~</code></td>
+<td>当前工作目录，并使用 <code>~</code> 符号替换目录中的 <code>$HOME</code><br />（<code>%1~</code> 表示当前目录名，等效于 <code>%c</code>）</td>
+</tr>
+<tr>
+<td><code>%D</code></td>
+<td>当前日期，格式为 <em>yy-mm-dd</em></td>
+</tr>
+<tr>
+<td><code>%T</code></td>
+<td>当前时间，24 小时制</td>
+</tr>
+<tr>
+<td><code>%&#123;...%&#125;</code></td>
+<td>用于包裹 ANSI 转义序列</td>
+</tr>
+</tbody></table>
+<p>这里只列举了一部分，完整列表请参考 <a target="_blank" rel="noopener" href="http://zsh.sourceforge.net/Doc/Release/Prompt-Expansion.html">Zsh 文档</a>。</p>
+<p>实际操作一下（直接运行 <code>PS1=&#39;...&#39;</code> 即可，仅在当前会话生效）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PS1=&#x27;[%n@%m %1~]$ &#x27;</span><br><span class="line">[vagrant@homestead ~]$</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PS1=&#x27;%n at %m in %1~ λ &#x27;</span><br><span class="line">vagrant at homestead in ~ λ</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PS1=&#x27;我的天啊你看看都几点了 (%*)%# &#x27;</span><br><span class="line">我的天啊你看看都几点了 (20:11:45)%</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-给点颜色看看！ANSI-转义序列"><a href="#3-给点颜色看看！ANSI-转义序列" class="headerlink" title="3. 给点颜色看看！ANSI 转义序列"></a>3. 给点颜色看看！ANSI 转义序列</h2><p>如果你看过我写的那篇关于终端的文章，应该知道 Shell 可以通过一些特殊的转义序列，控制终端上的字符颜色、光标位置等。<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/ANSI%E8%BD%AC%E4%B9%89%E5%BA%8F%E5%88%97">ANSI 转义序列</a> 就是这些特殊序列的一种标准，基本上所有终端都支持（就连著名的小黑窗，Win32 控制台在 Windows 10 TH2 之后也支持 ANSI 转义序列了）。</p>
+<p>以文本颜色为例，16 色 ANSI 转义序列大概长这样：</p>
+<table>
+<thead>
+<tr>
+<th align="left">序列</th>
+<th align="left">文本颜色</th>
+<th align="left">序列</th>
+<th align="left">文本颜色</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>\e[30m</code></td>
+<td align="left">黑</td>
+<td align="left"><code>\e[90m</code></td>
+<td align="left">亮黑（灰）</td>
+</tr>
+<tr>
+<td align="left"><code>\e[31m</code></td>
+<td align="left">红</td>
+<td align="left"><code>\e[91m</code></td>
+<td align="left">亮红</td>
+</tr>
+<tr>
+<td align="left"><code>\e[32m</code></td>
+<td align="left">绿</td>
+<td align="left"><code>\e[92m</code></td>
+<td align="left">亮绿</td>
+</tr>
+<tr>
+<td align="left"><code>\e[33m</code></td>
+<td align="left">黄</td>
+<td align="left"><code>\e[93m</code></td>
+<td align="left">亮黄</td>
+</tr>
+<tr>
+<td align="left"><code>\e[34m</code></td>
+<td align="left">蓝</td>
+<td align="left"><code>\e[94m</code></td>
+<td align="left">亮蓝</td>
+</tr>
+<tr>
+<td align="left"><code>\e[35m</code></td>
+<td align="left">品红</td>
+<td align="left"><code>\e[95m</code></td>
+<td align="left">亮品红</td>
+</tr>
+<tr>
+<td align="left"><code>\e[36m</code></td>
+<td align="left">青</td>
+<td align="left"><code>\e[96m</code></td>
+<td align="left">亮青</td>
+</tr>
+<tr>
+<td align="left"><code>\e[37m</code></td>
+<td align="left">白</td>
+<td align="left"><code>\e[97m</code></td>
+<td align="left">亮白</td>
+</tr>
+</tbody></table>
+<p>其中 <code>\e</code> 表示 <code>ESC</code> 的转义序列，也可以写作 <code>\033</code>、<code>\x1B</code>。</p>
+<p>随着终端的发展，转义序列也有了更多的定义，支持到了 8 位（256 色）、16 位甚至 24 位色。详细的 ANSI 转义序列可以参考以下链接：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/ANSI_escape_code">ANSI escape code - Wikipedia</a></li>
+<li><a target="_blank" rel="noopener" href="https://misc.flogisoft.com/bash/tip_colors_and_formatting">bash:tip_colors_and_formatting - FLOZz’ MISC</a></li>
+</ul>
+<blockquote>
+<p>ANSI 标准规定了有哪些颜色，而这些颜色具体又显示成什么样，就得看终端的设置了。很多人乐此不疲地折腾「终端配色」，说的就是这个。</p>
+</blockquote>
+<p>测试一下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">print -P &#x27;[%&#123;\e[32m%&#125;%n%&#123;\e[0m%&#125;@%&#123;\e[31m%&#125;%m %&#123;\e[34m%&#125;%1~%&#123;\e[0m%&#125;]$ &#x27;</span><br><span class="line">[vagrant@homestead ~]$</span><br></pre></td></tr></table></figure>
+
+<p>看花了？来张图，看得更清楚一点：</p>
+<p><img src="/zsh-prompt-theme-customization/zsh-ansi-escape-sequences.png" alt="zsh-ansi-escape-sequences"></p>
+<p>但是像这样手写一长串不直观的转义序列未免也太过低效，所以 Zsh 提供了几种方便地设置文本颜色的方法：</p>
+<table>
+<thead>
+<tr>
+<th align="center">命令</th>
+<th align="center">描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>$fg[color]</code></td>
+<td align="center">设置文本颜色，<code>color</code> 的取值可以是 <code>black</code> <code>red</code> <code>green</code> <code>yellow</code> <code>blue</code> <code>magenta</code> <code>cyan</code> <code>white</code> <code>default</code> 等</td>
+</tr>
+<tr>
+<td align="center"><code>$fg_bold[color]</code></td>
+<td align="center">设置文本为粗体同时设定文本颜色</td>
+</tr>
+<tr>
+<td align="center"><code>$reset_color</code></td>
+<td align="center">重置文本颜色为默认颜色</td>
+</tr>
+<tr>
+<td align="center"><code>$bg[color]</code></td>
+<td align="center">设置背景颜色</td>
+</tr>
+</tbody></table>
+<p>完整的定义可以在 <a target="_blank" rel="noopener" href="https://github.com/zsh-users/zsh/blob/master/Functions/Misc/colors">Zsh 源码</a> 中查看。</p>
+<blockquote>
+<p>如果你没有使用 oh-my-zsh 之类的配置框架，你需要在 <code>.zshrc</code> 中手动加入 <code>autoload -U colors &amp;&amp; colors</code> 才能使用这些颜色代码。</p>
+</blockquote>
+<p>所以上面的示例也可以改写成这样（注意这里必须用双引号）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">print -P &quot;[%&#123;$fg[green]%&#125;%n%&#123;$reset_color%&#125;@%&#123;$fg[red]%&#125;%m %&#123;$fg[blue]%&#125;%1~%&#123;$reset_color%&#125;]$ &quot;</span><br><span class="line">[vagrant@homestead ~]$</span><br></pre></td></tr></table></figure>
+
+<h2 id="4-Zsh-主题与-oh-my-zsh"><a href="#4-Zsh-主题与-oh-my-zsh" class="headerlink" title="4. Zsh 主题与 oh-my-zsh"></a>4. Zsh 主题与 oh-my-zsh</h2><p><a target="_blank" rel="noopener" href="https://github.com/ohmyzsh/ohmyzsh">oh-my-zsh</a> 是一个配置框架，自带了很多方便的函数、插件、主题，可以大幅简化复杂的 Zsh 配置。但是需要明确的是，并不是只有安装了 oh-my-zsh 之后才能自定义 Zsh 的命令提示符。</p>
+<p>原生 Zsh 就内置了几种提示符主题，你可以这样来启用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">autoload -U promptinit</span><br><span class="line">promptinit</span><br><span class="line">prompt -l</span><br><span class="line">prompt adam1</span><br></pre></td></tr></table></figure>
+
+<p>不喜欢内置的，你可以直接把自定义的 <code>PROMPT=...</code> 写到 <code>.zshrc</code> 里去，大部分的 oh-my-zsh 主题也可以直接通过 <code>source</code> 使用。但是……都 2020 年了，真的还有直接用 Zsh 的人吗？请允许我膜拜一下。</p>
+<p>所以咱也不用太咬文嚼字，「Zsh 主题」「oh-my-zsh 主题」都差不多，核心内容都是一样的。下文我介绍的是通过 oh-my-zsh 框架编写自定义 Zsh 主题的方法。</p>
+<p>新建一个自定义主题：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">touch $ZSH_CUSTOM/themes/my-theme.zsh-theme</span><br></pre></td></tr></table></figure>
+
+<p>编辑我们想要的提示符格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PROMPT=&quot;[%&#123;$fg[green]%&#125;%n%&#123;$reset_color%&#125;@%&#123;$fg[red]%&#125;%m %&#123;$fg[blue]%&#125;%1~%&#123;$reset_color%&#125;]$ &quot;</span><br></pre></td></tr></table></figure>
+
+<p>应用主题：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i &#x27;s/ZSH_THEME=&quot;.*&quot;/ZSH_THEME=&quot;my-theme&quot;/g&#x27; ~/.zshrc</span><br><span class="line">source ~/.zshrc</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-进阶功能"><a href="#5-进阶功能" class="headerlink" title="5. 进阶功能"></a>5. 进阶功能</h2><p>至此，你的主题已经初具雏形。</p>
+<p>但是光提示用户名、当前目录这些信息可能还差点意思，网上那些大佬的主题可是五花八门啥都有，Git 分支、仓库状态、venv 信息、PHP 版本……看起来很高级。不过其实这些都没什么难的，理解了上面那些东西之后，去看一下源码 <del>借鉴一下</del> 就懂了。</p>
+<p>下面以 oh-my-zsh 的默认主题 <a target="_blank" rel="noopener" href="https://github.com/ohmyzsh/ohmyzsh/blob/master/themes/robbyrussell.zsh-theme"><code>robbyrussell</code></a> 为例解剖一下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PROMPT=&quot;%(?:%&#123;$fg_bold[green]%&#125;➜ :%&#123;$fg_bold[red]%&#125;➜ )&quot;</span><br><span class="line">PROMPT+=&#x27; %&#123;$fg[cyan]%&#125;%c%&#123;$reset_color%&#125; $(git_prompt_info)&#x27;</span><br><span class="line"></span><br><span class="line">ZSH_THEME_GIT_PROMPT_PREFIX=&quot;%&#123;$fg_bold[blue]%&#125;git:(%&#123;$fg[red]%&#125;&quot;</span><br><span class="line">ZSH_THEME_GIT_PROMPT_SUFFIX=&quot;%&#123;$reset_color%&#125; &quot;</span><br><span class="line">ZSH_THEME_GIT_PROMPT_DIRTY=&quot;%&#123;$fg[blue]%&#125;) %&#123;$fg[yellow]%&#125;✗&quot;</span><br><span class="line">ZSH_THEME_GIT_PROMPT_CLEAN=&quot;%&#123;$fg[blue]%&#125;)&quot;</span><br></pre></td></tr></table></figure>
+
+<p>先看最重要的前两行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%(?:%&#123;$fg_bold[green]%&#125;➜ :%&#123;$fg_bold[red]%&#125;➜ )</span><br></pre></td></tr></table></figure>
+
+<p>重温一下 Zsh 的 <a target="_blank" rel="noopener" href="http://zsh.sourceforge.net/Doc/Release/Prompt-Expansion.html">Prompt Expansion</a>，这是一个三元表达式。<code>?</code> 在上一条命令的返回值为 <code>0</code> 为 True，其他情况下为 False。在这里就是上一条命令成功的话输出绿色箭头，否则输出红色箭头。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%&#123;$fg[cyan]%&#125;%c%&#123;$reset_color%&#125; $(git_prompt_info)</span><br></pre></td></tr></table></figure>
+
+<p><code>%c</code> 即当前目录名（虽然文档里说了 deprecated），等效于 <code>%1~</code>。整句的意思就是输出蓝色的当前目录名，然后重置回默认颜色，运行 <code>git_prompt_info</code>。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/ohmyzsh/ohmyzsh/blob/master/lib/git.zsh"><code>git_prompt_info</code></a> 是 oh-my-zsh 内置函数，功能是解析当前目录的 Git 仓库状态（如果是的话），按照以下格式输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ZSH_THEME_GIT_PROMPT_PREFIX$ref$(parse_git_dirty)$ZSH_THEME_GIT_PROMPT_SUFFIX</span><br><span class="line"></span><br><span class="line"># parse_git_dirty 的输出为</span><br><span class="line">$ZSH_THEME_GIT_PROMPT_DIRTY or $ZSH_THEME_GIT_PROMPT_CLEAN</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://github.com/ohmyzsh/ohmyzsh/blob/master/lib/theme-and-appearance.zsh#L48">默认情况下</a>，这个函数的输出是这样的：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git:(master*)</span><br></pre></td></tr></table></figure>
+
+<p>不过这里主题覆盖了 <code>$ZSH_THEME_GIT_*</code> 系列变量，所以最后的输出是：</p>
+<!-- ➜ blog git:(master) ✗ -->
+
+<pre><code class="plain"><span style="color:#8AE234">➜&nbsp;</span><span style="color:#34E2E2">blog</span><span style="color:#D3D7CF">&nbsp;</span><span style="color:#729FCF">git:(</span><span style="color:#EF2929">source</span><span style="color:#729FCF">)&nbsp;</span><span style="color:#FCE94F">✗</span></code></pre>
+<p>其他高级功能也差不多，都是利用 Shell 脚本实现的，这里就不多展开。</p>
+<h2 id="6-我在用的主题"><a href="#6-我在用的主题" class="headerlink" title="6. 我在用的主题"></a>6. 我在用的主题</h2><p>我个人对那些华丽的主题也没啥兴趣，够用就行。</p>
+<p>比如各大发行版默认的 Bash Prompt 就挺好（服务器上也用不到那些花里胡哨的），所以我把它们移植到了 Zsh 上。oh-my-zsh 的默认主题也不错，但是其中的 Unicode 箭头显示效果不尽如人意，我将其修改为了 ASCII 字符。</p>
+<p>这些主题的源码可以在 <a target="_blank" rel="noopener" href="https://gist.github.com/prinsss/1ae3b8ae3091a6cfd65a22e1872af7ab">Gist</a> 上查看。</p>
+<p><img src="/zsh-prompt-theme-customization/my-custom-zsh-themes.png" alt="my-custom-zsh-themes"></p>
+<p>截图是 WSL + Windows Terminal，<a target="_blank" rel="noopener" href="https://store.kde.org/p/1232062/">Tango</a> 配色，<a target="_blank" rel="noopener" href="https://github.com/microsoft/cascadia-code">Cascadia Code</a> 字体。另一台装 Manjaro 的笔记本上用的是 GNOME Terminal + <a target="_blank" rel="noopener" href="https://github.com/jeremyFreeAgent/oh-my-zsh-powerline-theme">Powerline</a>，也挺好看的。</p>
+<h2 id="7-参考链接"><a href="#7-参考链接" class="headerlink" title="7. 参考链接"></a>7. 参考链接</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://zsh.sourceforge.net/Doc/Release/Prompt-Expansion.html">zsh: 13 Prompt Expansion</a></li>
+<li><a target="_blank" rel="noopener" href="https://rzhao.io/blog/2015/08/26/zsh-prompt/">Customize your zsh prompt - richard zhao</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/ANSI_escape_code">ANSI escape code - Wikipedia</a></li>
+<li><a target="_blank" rel="noopener" href="https://misc.flogisoft.com/bash/tip_colors_and_formatting">bash:tip_colors_and_formatting - FLOZz’ MISC</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/zsh-users/zsh/blob/master/Functions/Misc/colors">zsh&#x2F;colors at master · zsh-users&#x2F;zsh</a></li>
+<li><a target="_blank" rel="noopener" href="https://wiki.archlinux.org/index.php/Bash/Prompt_customization">Bash&#x2F;Prompt customization - ArchWiki</a></li>
+<li><a target="_blank" rel="noopener" href="https://wiki.archlinux.org/index.php/Zsh">Zsh - ArchWiki</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/%E5%91%BD%E4%BB%A4%E8%A1%8C/" rel="tag"># 命令行</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/v2ray-ws-tls-cloudflare/" rel="next" title="搭建备用梯子：V2Ray + WebSocket + TLS + CloudFlare">
+                <i class="fa fa-chevron-left"></i> 搭建备用梯子：V2Ray + WebSocket + TLS + CloudFlare
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/%E4%BB%8E%20.NET%20Core%202.2%20%E5%8D%87%E7%BA%A7%E5%88%B0%203.1%20%E7%9A%84%E8%B8%A9%E5%9D%91%E4%B9%8B%E6%97%85/" rel="prev" title="从 .NET Core 2.2 升级到 3.1 的踩坑之旅">
+                从 .NET Core 2.2 升级到 3.1 的踩坑之旅 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">1. 基础知识</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%BF%85%E8%A6%81%E5%85%83%E7%B4%A0%E4%B9%8B-Prompt-%E8%BD%AC%E4%B9%89%E5%AD%97%E7%AC%A6"><span class="nav-number">2.</span> <span class="nav-text">2. 必要元素之 Prompt 转义字符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E7%BB%99%E7%82%B9%E9%A2%9C%E8%89%B2%E7%9C%8B%E7%9C%8B%EF%BC%81ANSI-%E8%BD%AC%E4%B9%89%E5%BA%8F%E5%88%97"><span class="nav-number">3.</span> <span class="nav-text">3. 给点颜色看看！ANSI 转义序列</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-Zsh-%E4%B8%BB%E9%A2%98%E4%B8%8E-oh-my-zsh"><span class="nav-number">4.</span> <span class="nav-text">4. Zsh 主题与 oh-my-zsh</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E8%BF%9B%E9%98%B6%E5%8A%9F%E8%83%BD"><span class="nav-number">5.</span> <span class="nav-text">5. 进阶功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E6%88%91%E5%9C%A8%E7%94%A8%E7%9A%84%E4%B8%BB%E9%A2%98"><span class="nav-number">6.</span> <span class="nav-text">6. 我在用的主题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">7.</span> <span class="nav-text">7. 参考链接</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

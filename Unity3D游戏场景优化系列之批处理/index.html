@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Unity3D,游戏,优化," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="1、三个不同的物体使用同一种材质，不做静态批处理，不做动态批处理：**DrawCall 为 4、面数为 584、顶点数为 641**;2、三个不同的物体使用同一种材质，只做静态批处理，不做动态批处理：**DrawCall 为 2、面数为 584、顶点数为 641**;3、三个不同的物体使用不同的材质，不做静态批处理，不做动态批处理：**DrawCall 为 4、面数为 584、顶点数为 641**">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Unity3D 游戏场景优化系列之批处理">
+<meta property="og:url" content="https://blog.feedscoin.com/Unity3D%E6%B8%B8%E6%88%8F%E5%9C%BA%E6%99%AF%E4%BC%98%E5%8C%96%E7%B3%BB%E5%88%97%E4%B9%8B%E6%89%B9%E5%A4%84%E7%90%86/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="1、三个不同的物体使用同一种材质，不做静态批处理，不做动态批处理：**DrawCall 为 4、面数为 584、顶点数为 641**;2、三个不同的物体使用同一种材质，只做静态批处理，不做动态批处理：**DrawCall 为 2、面数为 584、顶点数为 641**;3、三个不同的物体使用不同的材质，不做静态批处理，不做动态批处理：**DrawCall 为 4、面数为 584、顶点数为 641**">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/10/25/3JpmquPZnhvRw51.jpg">
+<meta property="og:image" content="https://i.loli.net/2021/10/25/ezlNEVh15Gmqvuj.jpg">
+<meta property="og:image" content="https://i.loli.net/2021/10/25/3YdaSehRTorOuVy.png">
+<meta property="og:image" content="https://i.loli.net/2021/10/25/YADCWR89NTSOJds.png">
+<meta property="article:published_time" content="2015-09-07T02:59:13.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.130Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Unity3D">
+<meta property="article:tag" content="游戏">
+<meta property="article:tag" content="优化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/10/25/3JpmquPZnhvRw51.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/Unity3D游戏场景优化系列之批处理/"/>
+
+
+
+
+
+  <title>Unity3D 游戏场景优化系列之批处理 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/Unity3D%E6%B8%B8%E6%88%8F%E5%9C%BA%E6%99%AF%E4%BC%98%E5%8C%96%E7%B3%BB%E5%88%97%E4%B9%8B%E6%89%B9%E5%A4%84%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Unity3D 游戏场景优化系列之批处理</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-09-07T10:59:13+08:00">
+                2015-09-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
+                    <span itemprop="name">游戏开发</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  1、三个不同的物体使用同一种材质，不做静态批处理，不做动态批处理：**DrawCall 为 4、面数为 584、顶点数为 641**;2、三个不同的物体使用同一种材质，只做静态批处理，不做动态批处理：**DrawCall 为 2、面数为 584、顶点数为 641**;3、三个不同的物体使用不同的材质，不做静态批处理，不做动态批处理：**DrawCall 为 4、面数为 584、顶点数为 641**
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>各位朋友大家好，我是<strong>秦元培</strong>，欢迎大家关注我的博客，我的博客地址是<a target="_blank" rel="noopener" href="http://qinyuanpei.com/">http://qinyuanpei.com</a>。最近开始研究 Unity3D 游戏场景优化，每次提及游戏优化这个话题的时候，我的脑海中都会浮现出《仙剑奇侠传六》这个让四路泰坦都光荣陨落的神奇游戏，作为一个使用 Unity3D 引擎进行游戏开发的仙剑玩家，我曾经天真的以为，这款使用 Unity3D 引擎打造的仙剑二十周年献礼之作，会让我对《仙剑奇侠传》这个系列游戏的未来充满更多期待，然而当游戏真正呈现在我眼前的时候，我感受到了在历代仙剑游戏中从未有过的尴尬和失望，我尴尬的是 Unity3D 这样一个比较强大的游戏引擎硬生生地被北软玩成了这个鬼样子，我失望的是这部游戏除了剧情和跳跳乐以外并没有什么让人看到希望的东西。</p>
+<span id="more"></span>
+
+<p><img src="https://i.loli.net/2021/10/25/3JpmquPZnhvRw51.jpg" alt="仙剑奇侠传六"></p>
+<p><img src="https://i.loli.net/2021/10/25/ezlNEVh15Gmqvuj.jpg" alt="不到20帧的优化"></p>
+<p>我知道我这样说会有一堆仙剑玩家指责我说，仙剑本来就是玩剧情的嘛，所以只要剧情好其它的都可以原谅啦。然而我们每一个人都清楚《仙剑奇侠传》是一个 RPG 游戏，它不是每隔三年出一次新番的 GAL 动漫、不是每隔三年更新一次的言情小说、更不是每隔三年播放一次的偶像电影。两年前的今天我可以耐着性子玩通关《仙剑奇侠传五》，但是这一次我真的玩不下去了。当一个游戏因为优化问题而获得《仙剑奇侠传六：泰坦陨落》称号的时候，作为一个玩家我真的不想再为这个游戏洗白什么，虽然我曾经深爱过这个游戏。所以言归正传，作为一个程序员，我们还是来做点程序员该做的事情，那么我们今天说什么呢，我们来说说 Unity3D 里的<a target="_blank" rel="noopener" href="http://docs.unity3d.com/Manual/DrawCallBatching.html">批处理</a>！</p>
+<h1 id="一、什么是批处理"><a href="#一、什么是批处理" class="headerlink" title="一、什么是批处理"></a>一、什么是批处理</h1><p>我们知道 Unity3D 在屏幕上绘制一个图形本质上调用<strong>OpneGL</strong>或者<strong>DirectX</strong>这样的 API，因此在这个过程中会产生一定程度上的性能消耗。DrawCall 是 OpenGL 中描述绘制次数的一个量，例如一个基本的 OpenGL 绘制流程是<strong>设置颜色</strong>-&gt;<strong>绘图方式</strong>-&gt;<strong>顶点坐标</strong>-&gt;<strong>绘制</strong>-&gt;<strong>结束</strong>，在绘制的过程中每帧都会重复这个过程，这就是一次 DrawCall，所以当游戏中的绘制过程变得复杂的时候，就会带来 DrawCall 的急剧增加，进而带来游戏的性能问题，反映到游戏表现上就变成了优化问题。那么在 Unity3D 中采取了什么样的措施来降低 DrawCall 呢？这就是我们今天要说的批处理，换句话说 Unity3D 使用了批处理来达到降低 DrawCall 的目的，批处理希望通过对物体网格的重组来获得更高的绘制效率，试想以下如果将多个物体合并为一个物体，那么在绘制的时候只需要绘制一次就够了，因此从这个角度上来讲这样做肯定是可以降低 DrawCall 的，更深刻的一种理解是这里体现了一种资源循环调用的思想，接触过 Android 开发的朋友们一定知道 ListView 控件可以对其元素进行“缓存”从而提高效率，因为我们可以发现其实 ListView 是对列表项进行某种程度上的“复用”从而提高了效率，在 Unity3D 这里同样遵循了这个原理。在 Unity3D 中进行批处理的一个前提是相同材质的物体可以被合并，如果这些物体使用不同的材质，那么当我们把这些材质对应的纹理打成“图集”以后可以对其进行合并，并且在合并的时候应该是用<strong>Renderer.sharedMaterial</strong> 而非 <strong>Renderer.material</strong>以保证材质是可以共享的。关于 DrawCall 的相关细节大家从<a target="_blank" rel="noopener" href="http://www.zhihu.com/question/29730328">这里</a>来了解,博主并未对图形学领域有过深入的研究，因此就不在这里班门弄斧了啊，哈哈！</p>
+<h1 id="二、Unity3D-中批处理的两种方式"><a href="#二、Unity3D-中批处理的两种方式" class="headerlink" title="二、Unity3D 中批处理的两种方式"></a>二、Unity3D 中批处理的两种方式</h1><p>在 Unity3D 中有静态批处理和动态批处理两种方式，下面我们就来分别说说这两种不同的批处理方式！</p>
+<h2 id="静态批处理"><a href="#静态批处理" class="headerlink" title="静态批处理"></a><strong>静态批处理</strong></h2><p>静态批处理其实大家都是知道的。为什么这样说呢？因为我们在使用 Unity3D 的过程中无形中培养了这样一个习惯，那就是将场景中相对来说“静态”的物体都勾选 Static 选项，这在 Unity3D 中称为<strong>Static GameObjects</strong>，并且因为这一特性和<a target="_blank" rel="noopener" href="http://docs.unity3d.com/Manual/GIIntro.html">Lightmapping</a>、<a target="_blank" rel="noopener" href="http://docs.unity3d.com/Manual/Navigation.html">Navigation</a>、<a target="_blank" rel="noopener" href="http://docs.unity3d.com/Manual/class-OffMeshLink.html">Off-meshLinks</a>、<a target="_blank" rel="noopener" href="http://docs.unity3d.com/Manual/class-ReflectionProbe.html">ReflectionProbe</a>、<a target="_blank" rel="noopener" href="http://docs.unity3d.com/Manual/OcclusionCulling.html">Occluder and Occludee</a>等内容均有着密切的联系，因此说静态批处理大家都是知道的其实一点都为过，和场景优化相关的内容博主会在后续的博客中涉及，希望大家能及时关注我的博客更新。静态批处理允许游戏引擎尽可能多的去降低绘制任意大小的物体所产生的 DrawCall，它会占用更多的内存资源和更少的 CPU 资源，因为它需要额外的内存资源来存储合并后的几何结构，如果在静态批处理之前，如果有几个对象共享相同的几何结构，那么将为每个对象创建一个几何图形，无论是在编辑器还是在运行时。这看起来是个艰难的选择，你需要在内存性能和渲染性能间做出最为正确的选择。在内部，静态批处理是通过将静态对象转换为世界空间，并为它们构建一个大的顶点+索引缓冲区。然后，在同一批中，一系列的“便宜”画调用，一系列的“便宜”，几乎没有任何状态变化之间的。所以在技术上它并不保存“三维的调用”，但它可以节省它们之间的状态变化（这是昂贵的部分）。使用静态批处理非常简单啦，只要勾选物体的 Static 选项即可！</p>
+<h2 id="动态批处理"><a href="#动态批处理" class="headerlink" title="动态批处理"></a><strong>动态批处理</strong></h2><p>相对静态批处理而言，动态批处理的要求更为严格一些，它要求批处理的动态对象具有一定的顶点，所以动态批处理只适用于包含小于 900 个顶点属性的网格。如果你的着色器使用顶点位置，法线和单光，然后你可以批处理 300 个顶点的动态对象；而如果你的着色器使用顶点位置，法线，uv0，UV1 和切线，那么只能处理 180 个顶点的动态对象。接下来最为重要的一点，<strong>如果动态对象使用的是不同的材质，那么即使进行了动态批处理从效率上来讲并不会有太大的提升。</strong>如果动态对象采用的是多维子材质，那么批处理是无效的。如果动态对象接收实时光影，同样批处理是无效的。下面展示的是一个将多个物体合并为一个物体的脚本示例：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">MenuItem(<span class="string">&quot;ModelTools/将多个物体合并为一个物体&quot;</span>)</span>]</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">CombineMeshs2</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//在编辑器下选中的所有物体</span></span><br><span class="line">        <span class="built_in">object</span>[] objs = Selection.gameObjects;</span><br><span class="line">        <span class="keyword">if</span>(objs.Length &lt;= <span class="number">0</span>) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//网格信息数组</span></span><br><span class="line">        MeshFilter[] meshFilters =<span class="keyword">new</span> MeshFilter[objs.Length];</span><br><span class="line">        <span class="comment">//渲染器数组</span></span><br><span class="line">        MeshRenderer[] meshRenderers = <span class="keyword">new</span> MeshRenderer[objs.Length];</span><br><span class="line">        <span class="comment">//合并实例数组</span></span><br><span class="line">        CombineInstance[] combines = <span class="keyword">new</span> CombineInstance[objs.Length];</span><br><span class="line">        <span class="comment">//材质数组</span></span><br><span class="line">        Material[] mats = <span class="keyword">new</span> Material[objs.Length];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; objs.Length; i++)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//获取网格信息</span></span><br><span class="line">            meshFilters[i] = ((GameObject)objs[i]).GetComponent&lt;MeshFilter&gt;();</span><br><span class="line">            <span class="comment">//获取渲染器</span></span><br><span class="line">            meshRenderers[i] = ((GameObject)objs[i]).GetComponent&lt;MeshRenderer&gt;();</span><br><span class="line"></span><br><span class="line">            <span class="comment">//获取材质</span></span><br><span class="line">            mats[i] = meshRenderers[i].sharedMaterial;   </span><br><span class="line">            <span class="comment">//合并实例           </span></span><br><span class="line">            combines[i].mesh = meshFilters[i].sharedMesh;</span><br><span class="line">            combines[i].transform = meshFilters[i].transform.localToWorldMatrix;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//创建新物体</span></span><br><span class="line">        GameObject go = <span class="keyword">new</span> GameObject();</span><br><span class="line">        go.name = <span class="string">&quot;CombinedMesh_&quot;</span> + ((GameObject)objs[<span class="number">0</span>]).name;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//设置网格信息</span></span><br><span class="line">        MeshFilter filter = go.transform.GetComponent&lt;MeshFilter&gt;();</span><br><span class="line">        <span class="keyword">if</span> (filter == <span class="literal">null</span>)</span><br><span class="line">            filter = go.AddComponent&lt;MeshFilter&gt;();</span><br><span class="line">       filter.sharedMesh = <span class="keyword">new</span> Mesh();</span><br><span class="line">       filter.sharedMesh.CombineMeshes(combines,<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">       <span class="comment">//设置渲染器</span></span><br><span class="line">       MeshRenderer render = go.transform.GetComponent&lt;MeshRenderer&gt;();</span><br><span class="line">       <span class="keyword">if</span> (render == <span class="literal">null</span>)</span><br><span class="line">           render = go.AddComponent&lt;MeshRenderer&gt;();</span><br><span class="line">        <span class="comment">//设置材质</span></span><br><span class="line">        render.sharedMaterials = mats;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>这段脚本的核心是 CombineMeshes()方法，该方法有三个参数，第一个参数是合并实例的数组，第二个参数是是否对子物体的网格进行合并，第三个参数是是否共享材质，如果希望物体共享材质则第三个参数为 true，否则为 false。在我测试的过程中发现，如果选择了对子物体的网格进行合并，那么每个子物体都不能再使用单独的材质，默认会以第一个材质作为合并后物体的材质，下面演示的是合并前的多个物体和合并后的一个物体的对比：</p>
+<p><img src="https://i.loli.net/2021/10/25/3YdaSehRTorOuVy.png" alt="合并前"></p>
+<p><img src="https://i.loli.net/2021/10/25/YADCWR89NTSOJds.png" alt="合并后"></p>
+<h1 id="三、批处理效率分析"><a href="#三、批处理效率分析" class="headerlink" title="三、批处理效率分析"></a>三、批处理效率分析</h1><p>那么批处理对游戏效率提升究竟有怎样的作用呢？我们来看下面几组测试对比：</p>
+<p>1、三个不同的物体使用同一种材质，不做静态批处理，不做动态批处理：<strong>DrawCall 为 4、面数为 584、顶点数为 641</strong></p>
+<p>2、三个不同的物体使用同一种材质，只做静态批处理，不做动态批处理：<strong>DrawCall 为 2、面数为 584、顶点数为 641</strong></p>
+<p>3、三个不同的物体使用不同的材质，不做静态批处理，不做动态批处理：<strong>DrawCall 为 4、面数为 584、顶点数为 641</strong></p>
+<p>4、三个不同的物体使用不同的材质，只做静态批处理，不做动态批处理：<strong>DrawCall 为 4、面数为 584、顶点数为 641</strong></p>
+<p>5、三个不同的物体使用不同的材质，不做静态批处理，只做动态批处理：<strong>DrawCall 为 4、面数为 584、顶点数为 641</strong></p>
+<p>6、三个不同的物体使用不同的材质，做静态批处理，做动态批处理：<strong>DrawCall 为 4、面数为 584、顶点数为 641</strong></p>
+<p>7、三个不同的物体使用同一种材质，不做静态批处理，只做动态批处理：：<strong>DrawCall 为 4、面数为 584、顶点数为 641</strong></p>
+<p>大家可以注意到各组测试结果中，只有第二组的 DrawCall 降低，这说明只有当不同的物体使用同一种材质时通过批处理可以从一定程度上降低 DrawCall，即我们在文章开始提到的尽可能地保证材质共享。昨天下午兴冲冲地将游戏场景里的某些物体进行了动态批处理，但是实际测试的过程中发现 DrawCall 非常地不稳定，但是在场景中的某些地方 DrawCall 却可以降得非常低，如果静态批处理和动态批处理都不能对场景产生较好的优化，那么 Unity3D 游戏场景的优化究竟要从哪里抓起呢？我觉得这是我们每一个人都该用心去探索的地方，毕竟游戏做出来首先要保证能让玩家流畅的玩下去吧，一味的强调引擎、强调画面，却时常忽略引擎使用者的主观能动性，希望把一切问题都交给引擎去解决，这样的思路是错误而落后的，仙剑六的问题完全是用不用心的问题，我常常看到有人在公开场合说仙剑以后要换虚幻三，其实按照北软现在这样的状态，给他们一个虚幻四也不过是然并卵。我在<a target="_blank" rel="noopener" href="http://www.zhihu.com/question/29403861">知乎</a>上看到了号称 15 岁就开发次时代游戏的高中生妹子，做出个能称为 DEMO 的游戏就觉得自己可以搞引擎了，更有甚者随便用 DirectX 或者 OpenGL 封装若干函数就敢说自己会做游戏引擎了，呵呵，你确定你的游戏能在别人的电脑或者手机上运行起来吗？优化的重要性可见一斑。</p>
+<h1 id="四、小结"><a href="#四、小结" class="headerlink" title="四、小结"></a>四、小结</h1><p>好了，通过今天这篇文章，我们可以整理出以下观点：<br><strong>1、如果不同的物体间共享材质，则可以直接通过静态批处理降低 DrawCall</strong><br><strong>2、动态批处理并不能降低 DrawCall、面数和顶点数（我不会告诉你我昨天傻呵呵地合并了好多场景中的模型，结果面数和顶点数并没有降下来，23333）</strong><br><strong>3、不管是静态批处理还是动态批处理都会影响 Culiing，这同样是涉及到场景优化的一个概念，好吧，为了让场景的 DrawCall 降下来我最近可能要研究好多涉及的优化的内容……</strong><br>那么今天的内容就是这样子了，希望对大家学习 Unity3D 有所帮助，欢迎大家和我交流这些问题来相互促进，毕竟这才是我写博客最初的目的嘛，哈哈！</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Unity3D/" rel="tag"># Unity3D</a>
+          
+            <a href="/tags/%E6%B8%B8%E6%88%8F/" rel="tag"># 游戏</a>
+          
+            <a href="/tags/%E4%BC%98%E5%8C%96/" rel="tag"># 优化</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/interesting-refers/" rel="next" title="今天看了下流量来源">
+                <i class="fa fa-chevron-left"></i> 今天看了下流量来源
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/get-im50/" rel="prev" title="入手了 IM50">
+                入手了 IM50 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E6%89%B9%E5%A4%84%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">一、什么是批处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Unity3D-%E4%B8%AD%E6%89%B9%E5%A4%84%E7%90%86%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">二、Unity3D 中批处理的两种方式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%99%E6%80%81%E6%89%B9%E5%A4%84%E7%90%86"><span class="nav-number">2.1.</span> <span class="nav-text">静态批处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E6%89%B9%E5%A4%84%E7%90%86"><span class="nav-number">2.2.</span> <span class="nav-text">动态批处理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%89%B9%E5%A4%84%E7%90%86%E6%95%88%E7%8E%87%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">三、批处理效率分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%B0%8F%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">四、小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

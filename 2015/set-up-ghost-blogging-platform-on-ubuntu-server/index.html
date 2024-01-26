@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="博客,Linux,Ghost," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文已废弃。 排版的错误是由于 WordPress 转换至 Ghost 文章所致，懒得改了（笑  虽然说网上有很多部署 Ghost 的教程了，官方中文文档也已经很完善了。但看了大多数的教程，都感觉叙述了太多冗余内容，譬如说 安装并配置 nginx、apache、mysql 等，甚至有些还教了如何使用 ssh。窝这里希望写的是干净、优雅、易懂的教程，并标出容易踩坑的地方。 教程目录：（点击展开）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在 Ubuntu 服务器上部署 Ghost 博客程序">
+<meta property="og:url" content="https://blog.feedscoin.com/2015/set-up-ghost-blogging-platform-on-ubuntu-server/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="本文已废弃。 排版的错误是由于 WordPress 转换至 Ghost 文章所致，懒得改了（笑  虽然说网上有很多部署 Ghost 的教程了，官方中文文档也已经很完善了。但看了大多数的教程，都感觉叙述了太多冗余内容，譬如说 安装并配置 nginx、apache、mysql 等，甚至有些还教了如何使用 ssh。窝这里希望写的是干净、优雅、易懂的教程，并标出容易踩坑的地方。 教程目录：（点击展开）">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://img.prin.studio/images/2015/08/2015-08-21_13-27-38.png">
+<meta property="og:image" content="https://img.prin.studio/images/2015/08/2015-08-21_13-32-15-1024x502.png">
+<meta property="og:image" content="https://img.prin.studio/images/2015/08/2015-08-08_03-03-05.jpg">
+<meta property="article:published_time" content="2015-08-21T21:03:09.000Z">
+<meta property="article:modified_time" content="2016-04-29T13:32:42.000Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="博客">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Ghost">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.prin.studio/images/2015/08/2015-08-21_13-27-38.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2015/set-up-ghost-blogging-platform-on-ubuntu-server/"/>
+
+
+
+
+
+  <title>在 Ubuntu 服务器上部署 Ghost 博客程序 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/set-up-ghost-blogging-platform-on-ubuntu-server/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">在 Ubuntu 服务器上部署 Ghost 博客程序</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-08-22T05:03:09+08:00">
+                2015-08-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <blockquote>
+<p>本文已废弃。</p>
+<p>排版的错误是由于 WordPress 转换至 Ghost 文章所致，懒得改了（笑</p>
+</blockquote>
+<p>虽然说网上有很多部署 Ghost 的教程了，官方<a target="_blank" rel="noopener" href="http://docs.ghost.org/zh/installation/">中文文档</a>也已经很完善了。但看了大多数的教程，都感觉叙述了太多冗余内容，譬如说 安装并配置 nginx、apache、mysql 等，甚至有些还教了如何使用 ssh。窝这里希望写的是干净、优雅、易懂的教程，并标出容易踩坑的地方。</p>
+<h2 id="教程目录：（点击展开）"><a href="#教程目录：（点击展开）" class="headerlink" title="教程目录：（点击展开）"></a>教程目录：（点击展开）</h2><ul>
+<li><strong>一、安装所需环境</strong></li>
+<li>1.1 Node.js</li>
+<li>1.2 Nginx&#x2F;Apache，Mysql</li>
+<li><strong>二、下载安装 Ghost</strong></li>
+<li>2.1 建立 Ghost 所使用的 mysql 数据库</li>
+<li>2.2 下载 Ghost 最新版本 v0.6.4</li>
+<li>2.3 安装 Ghost</li>
+<li><strong>三、配置 Ghost</strong></li>
+<li>3.1 使你的 Ghost 可以被外网访问</li>
+<li>3.2 使你的 Ghost 持久运行</li>
+<li>3.3 配置 nginx 使 ghost 可以使用域名访问</li>
+<li><strong>四、Ghost 优化</strong></li>
+</ul>
+<p>页内标签跳转等有空再做吧~</p>
+<hr>
+</div>本教程所使用的环境以及所需材料：
+
+<ul>
+<li>Ubuntu 14.04 VPS 或其他</li>
+<li>一颗折腾的心</li>
+<li>熟练运用搜索引擎的技能</li>
+</ul>
+<h2 id="一、安装所需环境"><a href="#一、安装所需环境" class="headerlink" title="一、安装所需环境"></a>一、安装所需环境</h2><h3 id="1-1-Node-js"><a href="#1-1-Node-js" class="headerlink" title="1.1 Node.js"></a>1.1 Node.js</h3><p>Ghost 构建于 Node.js 平台之上，支持 0.10.* 版本（最新稳定版）的 Node.js。</p>
+<p><strong>什么是 Node.js ？</strong></p>
+<blockquote>
+<p>Node.js 是一个开放源代码、跨平台的、用于服务器端和网络应用的运行环境。Node.js 应用用 JavaScript 语言写成，在 Node.js 运行时运行。Node.js 主要用于编写像 Web 服务器一样的网络应用，提供事件驱动和非阻塞 I&#x2F;O API，可优化应用程序的吞吐量和规模。 From <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Node.js">Wikipedia</a></p>
+</blockquote>
+<p>顺带一提 Node.js 的衍生版本 io.js 也可以，这里就不介绍了。</p>
+<p>直接使用软件包管理器安装 Node.js 即可</p>
+<p>$ sudo apt-get install node.js nodejs-legacy npm</p>
+<p>安装完成后可以使用 <span class="lang:default decode:true crayon-inline ">node -v</span>  和 <span class="lang:default decode:true crayon-inline ">npm -v</span>  查看版本信息 </p>
+<span id="more"></span>
+
+<h3 id="1-2-Nginx-Apache，Mysql"><a href="#1-2-Nginx-Apache，Mysql" class="headerlink" title="1.2 Nginx&#x2F;Apache，Mysql"></a>1.2 Nginx&#x2F;Apache，Mysql</h3><p>这里不再赘述，网上教程一搜一大把。</p>
+<h2 id="二、下载安装-Ghost"><a href="#二、下载安装-Ghost" class="headerlink" title="二、下载安装 Ghost"></a>二、下载安装 Ghost</h2><h3 id="2-1-建立-Ghost-所使用的-mysql-数据库"><a href="#2-1-建立-Ghost-所使用的-mysql-数据库" class="headerlink" title="2.1 建立 Ghost 所使用的 mysql 数据库"></a>2.1 建立 Ghost 所使用的 mysql 数据库</h3><p>同样不多说，自行创建一个。当然你也可以使用 SQLite。</p>
+<h3 id="2-2-下载-Ghost-最新版本-v0-6-4"><a href="#2-2-下载-Ghost-最新版本-v0-6-4" class="headerlink" title="2.2 下载 Ghost 最新版本 v0.6.4"></a>2.2 下载 Ghost 最新版本 v0.6.4</h3><blockquote>
+<p>英文原版：<a target="_blank" rel="noopener" href="https://ghost.org/download/">https://ghost.org/download/</a></p>
+<p>汉化版：<a target="_blank" rel="noopener" href="http://www.ghostchina.com/download/">http://www.ghostchina.com/download/</a></p>
+</blockquote>
+<p>下哪个随你喜欢，原版的话洋文应该不是问题，主要是后期需要对国内网络情况做一些优化。另外，国内 VPS 请使用 ghostchina 提供的源码完整包，不然伟大的墙会造成安装依赖包失败。</p>
+<p>下载到 VPS 上并解压：</p>
+<p>$ mkdir ghost &amp;&amp; cd ghost $ wget <a target="_blank" rel="noopener" href="https://ghost.org/zip/ghost-0.6.4.zip">https://ghost.org/zip/ghost-0.6.4.zip</a> $ unzip -d .&#x2F; ghost-0.6.4.zip</p>
+<p>解压时可能会提示未安装 unzip，<span class="lang:default decode:true crayon-inline ">$ sudo apt-get install unzip</span>  即可</p>
+<h3 id="2-3-安装-Ghost"><a href="#2-3-安装-Ghost" class="headerlink" title="2.3 安装 Ghost"></a>2.3 安装 Ghost</h3><p>确保你现在所处的目录下有 <em>npm-shrinkwrap.json</em> 后：</p>
+<p>$ npm install –production</p>
+<p>安装完毕后启动 Ghost：</p>
+<p>$ npm start –production</p>
+<p>这样 Ghost 就会监听在 <em>localhost:2368</em> 上了</p>
+<p>可以使用 <span class="lang:sh decode:true crayon-inline ">$ curl <a target="_blank" rel="noopener" href="http://127.0.0.1:2368/">http://127.0.0.1:2368</a></span>  查看是否返回 html 页面</p>
+<h2 id="三、配置-Ghost"><a href="#三、配置-Ghost" class="headerlink" title="三、配置 Ghost"></a>三、配置 Ghost</h2><h3 id="3-1-使你的-Ghost-可以被外网访问"><a href="#3-1-使你的-Ghost-可以被外网访问" class="headerlink" title="3.1 使你的 Ghost 可以被外网访问"></a>3.1 使你的 Ghost 可以被外网访问</h3><p>很好。你现在 curl 已经可以得到正确的 html 页面了，于是你兴高采烈地在浏览器中输入 <a target="_blank" rel="noopener" href="http://your-ip:2368/">http://your-ip:2368/</a> 。。</p>
+<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/08/2015-08-21_13-27-38.png"><img src="https://img.prin.studio/images/2015/08/2015-08-21_13-27-38.png" alt="boom~"></a></p>
+<p>Oh…What The Fuck !!! 明明本地 curl 都可以 get 到页面的啊！而且 log 上也完全没有滚动。。</p>
+<p>最初窝以为是 iptables 的问题。但是执行 <span class="lang:sh decode:true crayon-inline ">$ sudo iptables -A INPUT -p tcp –dport 2368 -j ACCEPT</span>  后还是同样的问题。网上搜了搜，有人说将 <strong>config.js</strong> 中的 <strong>127.0.0.1</strong> 改成 <strong>0.0.0.0</strong> 就好了，于是窝就去试了一下：</p>
+<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/08/2015-08-21_13-32-15.png"><img src="https://img.prin.studio/images/2015/08/2015-08-21_13-32-15-1024x502.png" alt="ghost-done"></a> wow~液！It works !! XD</p>
+<p>不过只知其然，不知其所以然是不行的，窝自然要去搜索下 <em>127.0.0.1</em> 与 <em>0.0.0.0</em> 之间的区别</p>
+<p>这是有用的链接：<a target="_blank" rel="noopener" href="http://stackoverflow.com/questions/20778771/what-is-the-difference-between-0-0-0-0-127-0-0-1-and-localhost">@stackoverflow</a>，窝简单翻译一下：</p>
+<blockquote>
+<p>127.0.0.1 是本地环回地址，专门用于本地访问。这一般用于本地调试程序，譬如架设专门服务于本地客户端的服务端。然而一台主机可能有多个网卡或 IP 地址，监听在 0.0.0.0 上即为监听在所有可用的 IP 地址上。</p>
+</blockquote>
+<p>渣翻译，轻喷 qwq。反正就是这么个意思~</p>
+<p>顺带一提，如果按照下面的方法配置 nginx 反代后，nginx 以本地应用身份访问 127.0.0.1 就完全没有问题了。你也可以不改动这些，直接配置 nginx 反代即可。</p>
+<h3 id="3-2-使你的-Ghost-持久运行"><a href="#3-2-使你的-Ghost-持久运行" class="headerlink" title="3.2 使你的 Ghost 持久运行"></a>3.2 使你的 Ghost 持久运行</h3><p>可以外网访问了，于是你高兴地关掉终端想在 Ghost 上写第一篇文章，然后你发现。。</p>
+<blockquote>
+<p>未收到数据</p>
+<p>ERR_EMPTY_RESPONSE</p>
+</blockquote>
+<p>关掉 ssh 连接就不能访问了！如何解决呢？</p>
+<h4 id="1-使用-Supervisor"><a href="#1-使用-Supervisor" class="headerlink" title="1) 使用 Supervisor"></a>1) 使用 Supervisor</h4><p>为啥把 supervisor 放在第一位而不是 forever 呢？也不是因为他俩的优缺点，只是因为上次<a target="_blank" rel="noopener" href="https://prinzeugen.net/vps-ubuntu-shadowsocks/">安装 shadowsocks</a> 时就已经安装了 supervisor 了，可以直接拿来用嘛</p>
+<p>对于没有安装的人：</p>
+<p>$ sudo apt-get install supervisor</p>
+<p>为 ghost 创建一个启动脚本</p>
+<p>$ vim &#x2F;etc&#x2F;supervisor&#x2F;conf.d&#x2F;ghost.conf</p>
+<p>加入如下内容：</p>
+<p>[program:ghost] command &#x3D; node &#x2F;path&#x2F;to&#x2F;ghost&#x2F;index.js directory &#x3D; &#x2F;path&#x2F;to&#x2F;ghost user &#x3D; ghost autostart &#x3D; true autorestart &#x3D; true stdout_logfile &#x3D; &#x2F;var&#x2F;log&#x2F;supervisor&#x2F;ghost.log stderr_logfile &#x3D; &#x2F;var&#x2F;log&#x2F;supervisor&#x2F;ghost_err.log environment &#x3D; NODE_ENV&#x3D;”production”</p>
+<p>记得把路径改成自己的。</p>
+<p><strong>注意</strong>，你现在<strong>并没有</strong>添加 ghost 用户，请使用 <span class="lang:default decode:true crayon-inline ">$ sudo useradd -r ghost -U</span>  添加并使用</p>
+<p><span class="lang:default decode:true crayon-inline">$ sudo chown -R ghost:ghost &#x2F;your-ghost-dir</span> 赋予权限。</p>
+<p>顺带一提，如果你的 ghost 放在 root 下（和窝一样）就要把 user 改成 root</p>
+<p>重启 supervisor 服务</p>
+<p><span class="lang:sh decode:true crayon-inline ">$ sudo service supervisor restart</span></p>
+<p>可以使用 <span class="lang:sh decode:true crayon-inline ">$ supervisorctl {start|stop|restart} ghost</span>  管理</p>
+<h4 id="2-使用-forever"><a href="#2-使用-forever" class="headerlink" title="2) 使用 forever"></a>2) 使用 forever</h4><p><a target="_blank" rel="noopener" href="http://docs.ghost.org/zh/installation/deploy/#forever-(https://npmjs.org/package/forever)">http://docs.ghost.org/zh/installation/deploy/#forever</a></p>
+<p>这样你的 ghost 就可以一直运行啦</p>
+<h3 id="3-3-配置-nginx-使-ghost-可以使用域名访问"><a href="#3-3-配置-nginx-使-ghost-可以使用域名访问" class="headerlink" title="3.3 配置 nginx 使 ghost 可以使用域名访问"></a>3.3 配置 nginx 使 ghost 可以使用域名访问</h3><p>安装 nginx 就不多说了，而且你应该早就装好了吧</p>
+<h4 id="1-对于手动安装-nginx-的用户"><a href="#1-对于手动安装-nginx-的用户" class="headerlink" title="1) 对于手动安装 nginx 的用户"></a>1) 对于手动安装 nginx 的用户</h4><p><a target="_blank" rel="noopener" href="http://docs.ghost.org/zh/installation/deploy/#%E9%85%8D%E7%BD%AE-ghost-%E5%9F%9F%E5%90%8D">http://docs.ghost.org/zh/installation/deploy/#配置-ghost-域名</a></p>
+<h4 id="2-对于lnmp-一键包以及各类面板使用者："><a href="#2-对于lnmp-一键包以及各类面板使用者：" class="headerlink" title="2) 对于lnmp 一键包以及各类面板使用者："></a>2) 对于lnmp 一键包以及各类面板使用者：</h4><p>用你的一件包&#x2F;面板的方法创建一个虚拟机</p>
+<p>找到这个虚拟机的 nginx.conf 文件。当然，很可能不叫这个名字，AMH 面板以及军哥 lnmp 似乎都是命名为 your-domain.conf 的。总之找到里面结构类似于</p>
+<p>server { listen 80; #listen end server_name your-domain.com; }</p>
+<p>这样的就是了。还是找不到请求助于搜索引擎。</p>
+<p>找到后，编辑此配置文件为如下：</p>
+<p>server { listen 80; server_name example.com; #change it to your domian name location &#x2F; { proxy_set_header X-Real-IP $remote_addr; proxy_set_header Host $http_host; proxy_pass <a target="_blank" rel="noopener" href="http://127.0.0.1:2368/">http://127.0.0.1:2368</a>; } }</p>
+<p>原来配置文件中那些乱七八糟的玩意儿删掉也没事</p>
+<h2 id="四、Ghost-优化"><a href="#四、Ghost-优化" class="headerlink" title="四、Ghost 优化"></a>四、Ghost 优化</h2><p>Good Job ! 你已经成功配置好 Ghost 并可以使用域名访问了。可以说 ghost 博客的搭建已经成功了。那么下面就是一些 ghost 博客的优化技巧。</p>
+<p> </p>
+<p><del>To Be Continued. <a target="_blank" rel="noopener" href="http://ghost.prinzeugen.net/">https://ghost.prinzeugen.net/</a></del></p>
+<p>反正没人看，Ghost 字体微调好麻烦，已弃坑。</p>
+<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/08/2015-08-08_03-03-05.jpg"><img src="https://img.prin.studio/images/2015/08/2015-08-08_03-03-05.jpg" alt="20150808110252"></a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%8D%9A%E5%AE%A2/" rel="tag"># 博客</a>
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/Ghost/" rel="tag"># Ghost</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/Unity3D%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E6%B8%B8%E6%88%8F%E8%AF%BB%E5%AD%98%E6%A1%A3%E5%9C%A8Unity3D%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/" rel="next" title="Unity3D 游戏开发游戏读/存档在 Unity3D 中的实现">
+                <i class="fa fa-chevron-left"></i> Unity3D 游戏开发游戏读/存档在 Unity3D 中的实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/thanks-clowwindy/" rel="prev" title="感谢 @clowwindy 为我们所做的一切">
+                感谢 @clowwindy 为我们所做的一切 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%99%E7%A8%8B%E7%9B%AE%E5%BD%95%EF%BC%9A%EF%BC%88%E7%82%B9%E5%87%BB%E5%B1%95%E5%BC%80%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">教程目录：（点击展开）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%AE%89%E8%A3%85%E6%89%80%E9%9C%80%E7%8E%AF%E5%A2%83"><span class="nav-number">2.</span> <span class="nav-text">一、安装所需环境</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-Node-js"><span class="nav-number">2.1.</span> <span class="nav-text">1.1 Node.js</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-Nginx-Apache%EF%BC%8CMysql"><span class="nav-number">2.2.</span> <span class="nav-text">1.2 Nginx&#x2F;Apache，Mysql</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%B8%8B%E8%BD%BD%E5%AE%89%E8%A3%85-Ghost"><span class="nav-number">3.</span> <span class="nav-text">二、下载安装 Ghost</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%BB%BA%E7%AB%8B-Ghost-%E6%89%80%E4%BD%BF%E7%94%A8%E7%9A%84-mysql-%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">3.1.</span> <span class="nav-text">2.1 建立 Ghost 所使用的 mysql 数据库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E4%B8%8B%E8%BD%BD-Ghost-%E6%9C%80%E6%96%B0%E7%89%88%E6%9C%AC-v0-6-4"><span class="nav-number">3.2.</span> <span class="nav-text">2.2 下载 Ghost 最新版本 v0.6.4</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E5%AE%89%E8%A3%85-Ghost"><span class="nav-number">3.3.</span> <span class="nav-text">2.3 安装 Ghost</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E9%85%8D%E7%BD%AE-Ghost"><span class="nav-number">4.</span> <span class="nav-text">三、配置 Ghost</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E4%BD%BF%E4%BD%A0%E7%9A%84-Ghost-%E5%8F%AF%E4%BB%A5%E8%A2%AB%E5%A4%96%E7%BD%91%E8%AE%BF%E9%97%AE"><span class="nav-number">4.1.</span> <span class="nav-text">3.1 使你的 Ghost 可以被外网访问</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%BD%BF%E4%BD%A0%E7%9A%84-Ghost-%E6%8C%81%E4%B9%85%E8%BF%90%E8%A1%8C"><span class="nav-number">4.2.</span> <span class="nav-text">3.2 使你的 Ghost 持久运行</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E4%BD%BF%E7%94%A8-Supervisor"><span class="nav-number">4.2.1.</span> <span class="nav-text">1) 使用 Supervisor</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E4%BD%BF%E7%94%A8-forever"><span class="nav-number">4.2.2.</span> <span class="nav-text">2) 使用 forever</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E9%85%8D%E7%BD%AE-nginx-%E4%BD%BF-ghost-%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8%E5%9F%9F%E5%90%8D%E8%AE%BF%E9%97%AE"><span class="nav-number">4.3.</span> <span class="nav-text">3.3 配置 nginx 使 ghost 可以使用域名访问</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%AF%B9%E4%BA%8E%E6%89%8B%E5%8A%A8%E5%AE%89%E8%A3%85-nginx-%E7%9A%84%E7%94%A8%E6%88%B7"><span class="nav-number">4.3.1.</span> <span class="nav-text">1) 对于手动安装 nginx 的用户</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%AF%B9%E4%BA%8Elnmp-%E4%B8%80%E9%94%AE%E5%8C%85%E4%BB%A5%E5%8F%8A%E5%90%84%E7%B1%BB%E9%9D%A2%E6%9D%BF%E4%BD%BF%E7%94%A8%E8%80%85%EF%BC%9A"><span class="nav-number">4.3.2.</span> <span class="nav-text">2) 对于lnmp 一键包以及各类面板使用者：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Ghost-%E4%BC%98%E5%8C%96"><span class="nav-number">5.</span> <span class="nav-text">四、Ghost 优化</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

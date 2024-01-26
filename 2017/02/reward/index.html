@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="PHP,算法," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="原文：http:&#x2F;&#x2F;www.lcode.cc&#x2F;2016&#x2F;12&#x2F;24&#x2F;rand_ward.html  前一阵公司业务有一个生成红包的需求，分为固定红包和随机红包两种，固定红包没什么好说的了，随机红包要求指定最小值，和最大值，必须至少有一个最大值，可以没有最小值，但任何红包不能小于最小值。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PHP生成随机红包算法">
+<meta property="og:url" content="https://blog.feedscoin.com/2017/02/reward/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="原文：http:&#x2F;&#x2F;www.lcode.cc&#x2F;2016&#x2F;12&#x2F;24&#x2F;rand_ward.html  前一阵公司业务有一个生成红包的需求，分为固定红包和随机红包两种，固定红包没什么好说的了，随机红包要求指定最小值，和最大值，必须至少有一个最大值，可以没有最小值，但任何红包不能小于最小值。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/02/reward/p4GlWAFMrXts5zPMnA88Zsm_.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/02/reward/Dd5AQhhljSVuOdmUAngQ0Zka.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/02/reward/JXPHry2Rdd_PuvEwsaZrFJTq.png">
+<meta property="og:image" content="https://www.fanhaobai.com/2017/02/reward/p4GlWAFMrXts5zPMnA88Zsm_.png">
+<meta property="article:published_time" content="2017-02-12T16:07:06.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:29:51.000Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="PHP">
+<meta property="article:tag" content="算法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.fanhaobai.com/2017/02/reward/p4GlWAFMrXts5zPMnA88Zsm_.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2017/02/reward/"/>
+
+
+
+
+
+  <title>PHP生成随机红包算法 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2017/02/reward/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">PHP生成随机红包算法</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-13T00:07:06+08:00">
+                2017-02-13
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">语言</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%AD%E8%A8%80/PHP/" itemprop="url" rel="index">
+                    <span itemprop="name">PHP</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <blockquote>
+<p>原文：<a target="_blank" rel="noopener" href="http://www.lcode.cc/2016/12/24/rand_ward.html">http://www.lcode.cc/2016/12/24/rand_ward.html</a></p>
+</blockquote>
+<p>前一阵公司业务有一个生成红包的需求，分为固定红包和随机红包两种，固定红包没什么好说的了，随机红包要求指定最小值，和最大值，必须至少有一个最大值，可以没有最小值，但任何红包不能小于最小值。</p>
+<p><img src="//www.fanhaobai.com/2017/02/reward/p4GlWAFMrXts5zPMnA88Zsm_.png"><span id="more"></span></p>
+<p>以前从来没做过这方面，有点懵B，于是去百度了一番，结果发现能找到的红包算法都有各种各样的 bug，要么会算出负值，要么超过最大值，所以决定自己撸一套出来。</p>
+<h1 id="基本思路"><a href="#基本思路" class="headerlink" title="基本思路"></a>基本思路</h1><p>在随机数生成方面，我借鉴了这位博主 <a target="_blank" rel="noopener" href="http://www.cnblogs.com/hanyouchun/p/5074923.html">＠悲惨的大爷</a> 的思路：</p>
+<blockquote>
+<p><strong>原文</strong>：比如要把 1 个红包分给 N 个人，实际上就是相当于要得到 N 个百分比数据 条件是这 N 个百分比之和 &#x3D; 100&#x2F;100。这 N 个百分比的平均值是 1&#x2F;N。 并且这 N 个百分比数据符合一种正态分布（多数值比较靠近平均值）。<br><strong>解读</strong>：比如我有 1000 块钱，发 50 个红包，就先随机出 50 个数，然后算出这 50 个数的均值 avg，用 avg&#x2F;(1&#x2F;N)，就得到了一个基数 mixrand ，然后用随机出的那 50 个数分别去除以 mixrand ，得到每个数相对基数的百分比 randVal ，然后用 randVal 乘以 1000 块钱，就可以得到每个红包的具体金额了。</p>
+</blockquote>
+<p>还是不太清楚咋回事？没关系，我们一起撸代码！</p>
+<h1 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h1><p>Talk is cheap, show me your code!</p>
+<h2 id="核心生成算法"><a href="#核心生成算法" class="headerlink" title="核心生成算法"></a>核心生成算法</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Author:xx_lufei</span></span><br><span class="line"><span class="comment"> * Time:2016年9月14日09:55:36</span></span><br><span class="line"><span class="comment"> * Note:红包生成随机算法</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Reward</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$rewardMoney</span>;        <span class="comment">#红包金额、单位元</span></span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$rewardNum</span>;          <span class="comment">#红包数量</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#执行红包生成算法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">splitReward</span>(<span class="params"><span class="variable">$rewardMoney</span>, <span class="variable">$rewardNum</span>, <span class="variable">$max</span>, <span class="variable">$min</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">#传入红包金额和数量，因为小数在计算过程中会出现很大误差，所以我们直接把金额放大100倍，后面的计算全部用整数进行</span></span><br><span class="line">        <span class="variable">$min</span> = <span class="variable">$min</span> * <span class="number">100</span>;</span><br><span class="line">        <span class="variable">$max</span> = <span class="variable">$max</span> * <span class="number">100</span>;</span><br><span class="line">        <span class="comment">#预留出一部分钱作为误差补偿，保证每个红包至少有一个最小值</span></span><br><span class="line">        <span class="variable language_">$this</span>-&gt;rewardMoney = <span class="variable">$rewardMoney</span> * <span class="number">100</span> - <span class="variable">$rewardNum</span> * <span class="variable">$min</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;rewardNum = <span class="variable">$rewardNum</span>;</span><br><span class="line">        <span class="comment">#计算出发出红包的平均概率值、精确到小数4位。</span></span><br><span class="line">        <span class="variable">$avgRand</span> = <span class="number">1</span> / <span class="variable language_">$this</span>-&gt;rewardNum;</span><br><span class="line">        <span class="variable">$randArr</span> = <span class="keyword">array</span>();</span><br><span class="line">        <span class="comment">#定义生成的数据总合sum</span></span><br><span class="line">        <span class="variable">$sum</span> = <span class="number">0</span>;</span><br><span class="line">        <span class="variable">$t_count</span> = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (<span class="variable">$t_count</span> &lt; <span class="variable">$rewardNum</span>) &#123;</span><br><span class="line">            <span class="comment">#随机产出四个区间的额度</span></span><br><span class="line">            <span class="variable">$c</span> = <span class="title function_ invoke__">rand</span>(<span class="number">1</span>, <span class="number">100</span>);</span><br><span class="line">            <span class="keyword">if</span> (<span class="variable">$c</span> &lt; <span class="number">15</span>) &#123;</span><br><span class="line">                <span class="variable">$t</span> = <span class="title function_ invoke__">round</span>(<span class="title function_ invoke__">sqrt</span>(<span class="title function_ invoke__">mt_rand</span>(<span class="number">1</span>, <span class="number">1500</span>)));</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">$c</span> &lt; <span class="number">65</span>) &#123;</span><br><span class="line">                <span class="variable">$t</span> = <span class="title function_ invoke__">round</span>(<span class="title function_ invoke__">sqrt</span>(<span class="title function_ invoke__">mt_rand</span>(<span class="number">1500</span>, <span class="number">6500</span>)));</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">$c</span> &lt; <span class="number">95</span>) &#123;</span><br><span class="line">                <span class="variable">$t</span> = <span class="title function_ invoke__">round</span>(<span class="title function_ invoke__">sqrt</span>(<span class="title function_ invoke__">mt_rand</span>(<span class="number">6500</span>, <span class="number">9500</span>)));</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="variable">$t</span> = <span class="title function_ invoke__">round</span>(<span class="title function_ invoke__">sqrt</span>(<span class="title function_ invoke__">mt_rand</span>(<span class="number">9500</span>, <span class="number">10000</span>)));</span><br><span class="line">            &#125;</span><br><span class="line">            ++<span class="variable">$t_count</span>;</span><br><span class="line">            <span class="variable">$sum</span> += <span class="variable">$t</span>;</span><br><span class="line">            <span class="variable">$randArr</span>[] = <span class="variable">$t</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">#计算当前生成的随机数的平均值，保留4位小数</span></span><br><span class="line">        <span class="variable">$randAll</span> = <span class="title function_ invoke__">round</span>(<span class="variable">$sum</span> / <span class="variable">$rewardNum</span>, <span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">#为将生成的随机数的平均值变成我们要的1/N，计算一下每个随机数要除以的总基数mixrand。此处可以约等处理，产生的误差后边会找齐</span></span><br><span class="line">        <span class="comment">#总基数 = 均值/平均概率</span></span><br><span class="line">        <span class="variable">$mixrand</span> = <span class="title function_ invoke__">round</span>(<span class="variable">$randAll</span> / <span class="variable">$avgRand</span>, <span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">#对每一个随机数进行处理，并乘以总金额数来得出这个红包的金额。</span></span><br><span class="line">        <span class="variable">$rewardArr</span> = <span class="keyword">array</span>();</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="variable">$randArr</span> <span class="keyword">as</span> <span class="variable">$key</span> =&gt; <span class="variable">$randVal</span>) &#123;</span><br><span class="line">            <span class="comment">#单个红包所占比例randVal</span></span><br><span class="line">            <span class="variable">$randVal</span> = <span class="title function_ invoke__">round</span>(<span class="variable">$randVal</span> / <span class="variable">$mixrand</span>, <span class="number">4</span>);</span><br><span class="line">            <span class="comment">#算出单个红包金额</span></span><br><span class="line">            <span class="variable">$single</span> = <span class="title function_ invoke__">floor</span>(<span class="variable">$this</span>-&gt;rewardMoney * <span class="variable">$randVal</span>);</span><br><span class="line">            <span class="comment">#小于最小值直接给最小值</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="variable">$single</span> &lt; <span class="variable">$min</span>) &#123;</span><br><span class="line">                <span class="variable">$single</span> += <span class="variable">$min</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">#大于最大值直接给最大值</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="variable">$single</span> &gt; <span class="variable">$max</span>) &#123;</span><br><span class="line">                <span class="variable">$single</span> = <span class="variable">$max</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">#将红包放入结果数组</span></span><br><span class="line">            <span class="variable">$rewardArr</span>[] = <span class="variable">$single</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">#对比红包总数的差异、将差值放在第一个红包上</span></span><br><span class="line">        <span class="variable">$rewardAll</span> = <span class="title function_ invoke__">array_sum</span>(<span class="variable">$rewardArr</span>);</span><br><span class="line">        <span class="comment">#此处应使用真正的总金额rewardMoney，$rewardArr[0]可能小于0</span></span><br><span class="line">        <span class="variable">$rewardArr</span>[<span class="number">0</span>] = <span class="variable">$rewardMoney</span> * <span class="number">100</span> - (<span class="variable">$rewardAll</span> - <span class="variable">$rewardArr</span>[<span class="number">0</span>]);</span><br><span class="line">        <span class="comment">#第一个红包小于0时,做修正</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$rewardArr</span>[<span class="number">0</span>] &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="title function_ invoke__">rsort</span>(<span class="variable">$rewardArr</span>);</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">add</span>(<span class="variable">$rewardArr</span>, <span class="variable">$min</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="title function_ invoke__">rsort</span>(<span class="variable">$rewardArr</span>);</span><br><span class="line">        <span class="comment">#随机生成的最大值大于指定最大值</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$rewardArr</span>[<span class="number">0</span>] &gt; <span class="variable">$max</span>) &#123;</span><br><span class="line">            <span class="comment">#差额</span></span><br><span class="line">            <span class="variable">$diff</span> = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">foreach</span> (<span class="variable">$rewardArr</span> <span class="keyword">as</span> <span class="variable">$k</span> =&gt; &amp;<span class="variable">$v</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="variable">$v</span> &gt; <span class="variable">$max</span>) &#123;</span><br><span class="line">                    <span class="variable">$diff</span> += <span class="variable">$v</span> - <span class="variable">$max</span>;</span><br><span class="line">                    <span class="variable">$v</span> = <span class="variable">$max</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="variable">$transfer</span> = <span class="title function_ invoke__">round</span>(<span class="variable">$diff</span> / (<span class="variable">$this</span>-&gt;rewardNum - <span class="variable">$k</span> + <span class="number">1</span>));</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">diff</span>(<span class="variable">$diff</span>, <span class="variable">$rewardArr</span>, <span class="variable">$max</span>, <span class="variable">$min</span>, <span class="variable">$transfer</span>, <span class="variable">$k</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$rewardArr</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">#处理所有超过最大值的红包</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">diff</span>(<span class="params"><span class="variable">$diff</span>, &amp;<span class="variable">$rewardArr</span>, <span class="variable">$max</span>, <span class="variable">$min</span>, <span class="variable">$transfer</span>, <span class="variable">$k</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">#将多余的钱均摊给小于最大值的红包</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="variable">$i</span> = <span class="variable">$k</span>; <span class="variable">$i</span> &lt; <span class="variable language_">$this</span>-&gt;rewardNum; <span class="variable">$i</span>++) &#123;</span><br><span class="line">            <span class="comment">#造随机值</span></span><br><span class="line">            <span class="keyword">if</span> (<span class="variable">$transfer</span> &gt; <span class="variable">$min</span> * <span class="number">20</span>) &#123;</span><br><span class="line">                <span class="variable">$aa</span> = <span class="title function_ invoke__">rand</span>(<span class="variable">$min</span>, <span class="variable">$min</span> * <span class="number">20</span>);</span><br><span class="line">                <span class="keyword">if</span> (<span class="variable">$i</span> % <span class="number">2</span>) &#123;</span><br><span class="line">                    <span class="variable">$transfer</span> += <span class="variable">$aa</span>;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="variable">$transfer</span> -= <span class="variable">$aa</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (<span class="variable">$rewardArr</span>[<span class="variable">$i</span>] + <span class="variable">$transfer</span> &gt; <span class="variable">$max</span>) <span class="keyword">continue</span>;</span><br><span class="line">            <span class="keyword">if</span> (<span class="variable">$diff</span> - <span class="variable">$transfer</span> &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="variable">$rewardArr</span>[<span class="variable">$i</span>] += <span class="variable">$diff</span>;</span><br><span class="line">                <span class="variable">$diff</span> = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="variable">$rewardArr</span>[<span class="variable">$i</span>] += <span class="variable">$transfer</span>;</span><br><span class="line">            <span class="variable">$diff</span> -= <span class="variable">$transfer</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$diff</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="variable">$i</span>++;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">diff</span>(<span class="variable">$diff</span>, <span class="variable">$rewardArr</span>, <span class="variable">$max</span>, <span class="variable">$min</span>, <span class="variable">$transfer</span>, <span class="variable">$k</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">#第一个红包小于0,从大红包上往下减</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">add</span>(<span class="params">&amp;<span class="variable">$rewardArr</span>, <span class="variable">$min</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="variable">$rewardArr</span> <span class="keyword">as</span> &amp;<span class="variable">$re</span>) &#123;</span><br><span class="line">            <span class="variable">$dev</span> = <span class="title function_ invoke__">floor</span>(<span class="variable">$re</span> / <span class="variable">$min</span>);</span><br><span class="line">            <span class="keyword">if</span> (<span class="variable">$dev</span> &gt; <span class="number">2</span>) &#123;</span><br><span class="line">                <span class="variable">$transfer</span> = <span class="variable">$min</span> * <span class="title function_ invoke__">floor</span>(<span class="variable">$dev</span> / <span class="number">2</span>);</span><br><span class="line">                <span class="variable">$re</span> -= <span class="variable">$transfer</span>;</span><br><span class="line">                <span class="variable">$rewardArr</span>[<span class="variable language_">$this</span>-&gt;rewardNum - <span class="number">1</span>] += <span class="variable">$transfer</span>;</span><br><span class="line">            &#125; <span class="keyword">elseif</span> (<span class="variable">$dev</span> == <span class="number">2</span>) &#123;</span><br><span class="line">                <span class="variable">$re</span> -= <span class="variable">$min</span>;</span><br><span class="line">                <span class="variable">$rewardArr</span>[<span class="variable language_">$this</span>-&gt;rewardNum - <span class="number">1</span>] += <span class="variable">$min</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$rewardArr</span>[<span class="variable language_">$this</span>-&gt;rewardNum - <span class="number">1</span>] &gt; <span class="variable">$min</span> || <span class="variable">$rewardArr</span>[<span class="variable language_">$this</span>-&gt;rewardNum - <span class="number">1</span>] == <span class="variable">$min</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">add</span>(<span class="variable">$rewardArr</span>, <span class="variable">$min</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="细节考虑"><a href="#细节考虑" class="headerlink" title="细节考虑"></a>细节考虑</h2><p>下边这段代码用来控制具体的业务逻辑，按照具体的需求，留出固定的最大值、最小值红包的金额等；在代码中调用生成红包的方法时 splitReward($total, $num,$max - 0.01, $min)，我传入的最大值减了 0.01，这样就保证了里面生成的红包最大值绝对不会超过我们设置的最大值。 </p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CreateReward</span></span>&#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * 生成红包</span></span><br><span class="line"><span class="comment">     * author    xx     2016年9月23日13:53:38</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>   int          $total               红包总金额</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>   int          $num                 红包总数量</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>   int          $max                 红包最大值</span></span><br><span class="line"><span class="comment">     * </span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">random_red</span>(<span class="params"><span class="variable">$total</span>, <span class="variable">$num</span>, <span class="variable">$max</span>, <span class="variable">$min</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="comment">#总共要发的红包金额，留出一个最大值;</span></span><br><span class="line">        <span class="variable">$total</span> = <span class="variable">$total</span> - <span class="variable">$max</span>;</span><br><span class="line">        <span class="variable">$reward</span> = <span class="keyword">new</span> <span class="title class_">Reward</span>();</span><br><span class="line">        <span class="variable">$result_merge</span> = <span class="variable">$reward</span>-&gt;<span class="title function_ invoke__">splitReward</span>(<span class="variable">$total</span>, <span class="variable">$num</span>, <span class="variable">$max</span> - <span class="number">0.01</span>, <span class="variable">$min</span>);</span><br><span class="line">        <span class="title function_ invoke__">sort</span>(<span class="variable">$result_merge</span>);</span><br><span class="line">        <span class="variable">$result_merge</span>[<span class="number">1</span>] = <span class="variable">$result_merge</span>[<span class="number">1</span>] + <span class="variable">$result_merge</span>[<span class="number">0</span>];</span><br><span class="line">        <span class="variable">$result_merge</span>[<span class="number">0</span>] = <span class="variable">$max</span> * <span class="number">100</span>;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="variable">$result_merge</span> <span class="keyword">as</span> &amp;<span class="variable">$v</span>) &#123;</span><br><span class="line">            <span class="variable">$v</span> = <span class="title function_ invoke__">floor</span>(<span class="variable">$v</span>) / <span class="number">100</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$result_merge</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="实例测试"><a href="#实例测试" class="headerlink" title="实例测试"></a>实例测试</h1><h2 id="基础代码"><a href="#基础代码" class="headerlink" title="基础代码"></a>基础代码</h2><p>先设置好各种初始值。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Created by PhpStorm.</span></span><br><span class="line"><span class="comment"> * User: lufei</span></span><br><span class="line"><span class="comment"> * Date: 2017/1/4</span></span><br><span class="line"><span class="comment"> * Time: 22:49</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="title function_ invoke__">header</span>(<span class="string">&#x27;content-type:text/html;charset=utf-8&#x27;</span>);</span><br><span class="line"><span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;memory_limit&#x27;</span>, <span class="string">&#x27;128M&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">require_once</span>(<span class="string">&#x27;CreateReward.php&#x27;</span>);</span><br><span class="line"><span class="keyword">require_once</span>(<span class="string">&#x27;Reward.php&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable">$total</span> = <span class="number">50000</span>;</span><br><span class="line"><span class="variable">$num</span> = <span class="number">300000</span>;</span><br><span class="line"><span class="variable">$max</span> = <span class="number">50</span>;</span><br><span class="line"><span class="variable">$min</span> = <span class="number">0.01</span>;</span><br><span class="line"></span><br><span class="line"><span class="variable">$create_reward</span> = <span class="keyword">new</span> <span class="title class_">CreateReward</span>();</span><br></pre></td></tr></table></figure>
+
+<h2 id="性能测试"><a href="#性能测试" class="headerlink" title="性能测试"></a>性能测试</h2><p>因为 memory_limit 的限制，所以只测了 5 次的均值，结果都在 1.6s 左右。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="variable">$i</span>=<span class="number">0</span>; <span class="variable">$i</span>&lt;<span class="number">5</span>; <span class="variable">$i</span>++) &#123;</span><br><span class="line">    <span class="variable">$time_start</span> = <span class="title function_ invoke__">microtime_float</span>();</span><br><span class="line">    <span class="variable">$reward_arr</span> = <span class="variable">$create_reward</span>-&gt;<span class="title function_ invoke__">random_red</span>(<span class="variable">$total</span>, <span class="variable">$num</span>, <span class="variable">$max</span>, <span class="variable">$min</span>);</span><br><span class="line">    <span class="variable">$time_end</span> = <span class="title function_ invoke__">microtime_float</span>();</span><br><span class="line">    <span class="variable">$time</span>[] = <span class="variable">$time_end</span> - <span class="variable">$time_start</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">array_sum</span>(<span class="variable">$time</span>)/<span class="number">5</span>;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">microtime_float</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">list</span>(<span class="variable">$usec</span>, <span class="variable">$sec</span>) = <span class="title function_ invoke__">explode</span>(<span class="string">&quot; &quot;</span>, <span class="title function_ invoke__">microtime</span>());</span><br><span class="line">    <span class="keyword">return</span> ((<span class="keyword">float</span>)<span class="variable">$usec</span> + (<span class="keyword">float</span>)<span class="variable">$sec</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：</p>
+<p><img src="//www.fanhaobai.com/2017/02/reward/Dd5AQhhljSVuOdmUAngQ0Zka.png"></p>
+<h2 id="数据检查"><a href="#数据检查" class="headerlink" title="数据检查"></a>数据检查</h2><p><strong>1） 数值是否有误</strong></p>
+<p>检测有没有负值，有没有最大值，最大值有多少个，有没有小于最小值的值。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$reward_arr</span> = <span class="variable">$create_reward</span>-&gt;<span class="title function_ invoke__">random_red</span>(<span class="variable">$total</span>, <span class="variable">$num</span>, <span class="variable">$max</span>, <span class="variable">$min</span>);</span><br><span class="line"><span class="title function_ invoke__">sort</span>(<span class="variable">$reward_arr</span>);<span class="comment">//正序，最小的在前面</span></span><br><span class="line"><span class="variable">$sum</span> = <span class="number">0</span>;</span><br><span class="line"><span class="variable">$min_count</span> = <span class="number">0</span>;</span><br><span class="line"><span class="variable">$max_count</span> = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">foreach</span>(<span class="variable">$reward_arr</span> <span class="keyword">as</span> <span class="variable">$i</span> =&gt; <span class="variable">$val</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$i</span>&lt;<span class="number">3</span>) &#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;&lt;br /&gt;第&quot;</span>.(<span class="variable">$i</span>+<span class="number">1</span>).<span class="string">&quot;个红包，金额为：&quot;</span>.<span class="variable">$val</span>.<span class="string">&quot;&lt;br /&gt;&quot;</span>;  </span><br><span class="line">    &#125; </span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$val</span> == <span class="variable">$max</span>) &#123;</span><br><span class="line">          <span class="variable">$max_count</span>++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$val</span> &lt; <span class="variable">$min</span>) &#123;</span><br><span class="line">        <span class="variable">$min_count</span>++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable">$val</span> = <span class="variable">$val</span>*<span class="number">100</span>;</span><br><span class="line">    <span class="variable">$sum</span> += <span class="variable">$val</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//检测钱是否全部发完</span></span><br><span class="line"><span class="keyword">echo</span> <span class="string">&#x27;&lt;hr&gt;已生成红包总金额为：&#x27;</span>.(<span class="variable">$sum</span>/<span class="number">100</span>).<span class="string">&#x27;;总个数为：&#x27;</span>.<span class="title function_ invoke__">count</span>(<span class="variable">$reward_arr</span>).<span class="string">&#x27;&lt;hr&gt;&#x27;</span>;</span><br><span class="line"><span class="comment">//检测有没有小于0的值</span></span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;br /&gt;最大值:&quot;</span>.(<span class="variable">$val</span>/<span class="number">100</span>).<span class="string">&#x27;,共有&#x27;</span>.<span class="variable">$max_count</span>.<span class="string">&#x27;个最大值，共有&#x27;</span>.<span class="variable">$min_count</span>.<span class="string">&#x27;个值比最小值小&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：</p>
+<p><img src="//www.fanhaobai.com/2017/02/reward/JXPHry2Rdd_PuvEwsaZrFJTq.png"></p>
+<p><strong>2） 正态分布情况</strong></p>
+<p>注意，出图的时候，红包的数量不要给的太大，不然页面渲染不出来，会崩 。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$reward_arr</span> = <span class="variable">$create_reward</span>-&gt;<span class="title function_ invoke__">random_red</span>(<span class="variable">$total</span>, <span class="variable">$num</span>, <span class="variable">$max</span>, <span class="variable">$min</span>);</span><br><span class="line"><span class="variable">$show</span> = <span class="keyword">array</span>();</span><br><span class="line"><span class="title function_ invoke__">rsort</span>(<span class="variable">$reward_arr</span>);</span><br><span class="line"><span class="comment">//为了更直观的显示正态分布效果,需要将数组重新排序</span></span><br><span class="line"><span class="keyword">foreach</span>(<span class="variable">$reward_arr</span> <span class="keyword">as</span> <span class="variable">$k</span>=&gt;<span class="variable">$value</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="variable">$t</span>=<span class="variable">$k</span>%<span class="number">2</span>;</span><br><span class="line">    <span class="keyword">if</span>(!<span class="variable">$t</span>) <span class="variable">$show</span>[]=<span class="variable">$value</span>;;</span><br><span class="line">    <span class="keyword">else</span> <span class="title function_ invoke__">array_unshift</span>(<span class="variable">$show</span>,<span class="variable">$value</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;设定最大值为:&quot;</span>.<span class="variable">$max</span>.<span class="string">&#x27;,最小值为:&#x27;</span>.<span class="variable">$min</span>.<span class="string">&#x27;&lt;hr /&gt;&#x27;</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;table style=&#x27;font-size:12px;width:600px;border:1px solid #ccc;text-align:left;&#x27;&gt;&lt;tr&gt;&lt;td&gt;红包金额&lt;/td&gt;&lt;td&gt;图示&lt;/td&gt;&lt;/tr&gt;&quot;</span>;</span><br><span class="line"><span class="keyword">foreach</span>(<span class="variable">$show</span> <span class="keyword">as</span> <span class="variable">$val</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">#线条长度计算</span></span><br><span class="line">    <span class="variable">$width</span>=<span class="title function_ invoke__">intval</span>(<span class="variable">$num</span>*<span class="variable">$val</span>*<span class="number">300</span>/<span class="variable">$total</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;&lt;tr&gt;&lt;td&gt; <span class="subst">&#123;$val&#125;</span> &lt;/td&gt;&lt;td width=&#x27;500px;text-align:left;&#x27;&gt;&lt;hr style=&#x27;width:<span class="subst">&#123;$width&#125;</span>px;height:3px;border:none;border-top:3px double red;margin:0 auto 0 0px;&#x27;&gt;&lt;/td&gt;&lt;/tr&gt;&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;/table&gt;&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：</p>
+<p><img src="//www.fanhaobai.com/2017/02/reward/p4GlWAFMrXts5zPMnA88Zsm_.png"></p>
+<blockquote>
+<p><strong>PS</strong>：有朋友问我生成的数据有没有通过数学方法来验证其是否符合标准正态分布，因为我的数学不好，这个还真没算过，只是看着觉得像，就当他是了。既然遇到了这个问题，就一定要解决嘛，所以我就用 php 内置函数算了一下，算出来的结果在数据量小的时候还是比较接近正态分布的，但是数据量大起来的时候就不能看了，我整不太明白这个，大家感兴趣的可以找一下原因哟。 php 的四个函数：stats_standard_deviation（标准差），stats_variance（方差）， stats_kurtosis（(峰度），stats_skew（偏度）。使用上面的函数需要安装 <a href="(http://pecl.php.net/package/stats">stats</a> 扩展。</p>
+</blockquote>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>到这里，红包就算是写完啦，不知道能不能涨 50 块工资，但应该能解决燃眉之急了。<br>哦对，还落下了这个源码，<a target="_blank" rel="noopener" href="https://github.com/xxlufei/reward">打包下载</a> 。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PHP/" rel="tag"># PHP</a>
+          
+            <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/CODEGATE-CTF-PREQUALS-2017-babypwn/" rel="next" title="[CODEGATE CTF 2017] babypwn 50">
+                <i class="fa fa-chevron-left"></i> [CODEGATE CTF 2017] babypwn 50
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/%E6%89%AB%E7%9B%B2%E7%AC%94%E8%AE%B0-H5%E8%A7%86%E9%A2%91%E7%9B%B4%E6%92%AD/" rel="prev" title="扫盲笔记--H5视频直播">
+                扫盲笔记--H5视频直播 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%80%9D%E8%B7%AF"><span class="nav-number">1.</span> <span class="nav-text">基本思路</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">算法实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%94%9F%E6%88%90%E7%AE%97%E6%B3%95"><span class="nav-number">2.1.</span> <span class="nav-text">核心生成算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%86%E8%8A%82%E8%80%83%E8%99%91"><span class="nav-number">2.2.</span> <span class="nav-text">细节考虑</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B%E6%B5%8B%E8%AF%95"><span class="nav-number">3.</span> <span class="nav-text">实例测试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E4%BB%A3%E7%A0%81"><span class="nav-number">3.1.</span> <span class="nav-text">基础代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95"><span class="nav-number">3.2.</span> <span class="nav-text">性能测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%A3%80%E6%9F%A5"><span class="nav-number">3.3.</span> <span class="nav-text">数据检查</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

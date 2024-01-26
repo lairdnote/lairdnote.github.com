@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Unity3D,游戏开发,uGUI," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="好了，接下来我们会遇到一个新的问题，这些精灵的层级应该是从中间位置向两边依次递减的，所以为了解决这个问题，我们还需要对每个精灵的层级进行计算，这部分代码的实现细节如下：;其实这篇文章我还想继续再往下写的，可是因为我比较懒一直拖着不写，以及接下来相当多的内容都是和界面相关的东西，所以我决定这篇文章就暂时写到这里，目前这个方案可以实现一个简单的“3D”滚动的效果，按照这个思路，接下来我们要做的事情是让">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在 Unity3D 中使用 uGUI 实现 3D 旋转特效">
+<meta property="og:url" content="https://blog.feedscoin.com/%E5%9C%A8Unity3D%E4%B8%AD%E4%BD%BF%E7%94%A8uGUI%E5%AE%9E%E7%8E%B03D%E6%97%8B%E8%BD%AC%E7%89%B9%E6%95%88/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="好了，接下来我们会遇到一个新的问题，这些精灵的层级应该是从中间位置向两边依次递减的，所以为了解决这个问题，我们还需要对每个精灵的层级进行计算，这部分代码的实现细节如下：;其实这篇文章我还想继续再往下写的，可是因为我比较懒一直拖着不写，以及接下来相当多的内容都是和界面相关的东西，所以我决定这篇文章就暂时写到这里，目前这个方案可以实现一个简单的“3D”滚动的效果，按照这个思路，接下来我们要做的事情是让">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fziy4xe3bqj20zk0m8grl.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fzixyfcuz1j20i90e7dld.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fzixbd5ajtj20kz0gtk0w.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fzix8dwz8rg20l90gpb29.jpg">
+<meta property="article:published_time" content="2016-07-10T06:29:33.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.198Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Unity3D">
+<meta property="article:tag" content="游戏开发">
+<meta property="article:tag" content="uGUI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fziy4xe3bqj20zk0m8grl.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/在Unity3D中使用uGUI实现3D旋转特效/"/>
+
+
+
+
+
+  <title>在 Unity3D 中使用 uGUI 实现 3D 旋转特效 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E5%9C%A8Unity3D%E4%B8%AD%E4%BD%BF%E7%94%A8uGUI%E5%AE%9E%E7%8E%B03D%E6%97%8B%E8%BD%AC%E7%89%B9%E6%95%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">在 Unity3D 中使用 uGUI 实现 3D 旋转特效</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-10T14:29:33+08:00">
+                2016-07-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Unity3D/" itemprop="url" rel="index">
+                    <span itemprop="name">Unity3D</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  好了，接下来我们会遇到一个新的问题，这些精灵的层级应该是从中间位置向两边依次递减的，所以为了解决这个问题，我们还需要对每个精灵的层级进行计算，这部分代码的实现细节如下：;其实这篇文章我还想继续再往下写的，可是因为我比较懒一直拖着不写，以及接下来相当多的内容都是和界面相关的东西，所以我决定这篇文章就暂时写到这里，目前这个方案可以实现一个简单的“3D”滚动的效果，按照这个思路，接下来我们要做的事情是让滚动更加平滑以及支持鼠标或者触屏操作，毕竟这个需求的出发点是来自一个游戏，所以我们可以考虑在“滚动”的时候增加插值特性，与此同时，为了让它更加具有“3D”的感觉，可以在设置精灵层级的时候为不同的精灵设置不同的缩放比例，这样会更加符合美术中的透视关系，效果应该会更好吧;所以在这里除了确定每个精灵的放置位置以外，我们还有一个问题，如何对这些精灵进行排序，所幸的是在 uGUI 中我们可以通过 SetSiblingIndex 方法来设置一个精灵的深度，当每次通过按钮切换精灵的时候，我们都需要对所有精灵重新计算坐标和深度，而为了更好的视觉表现力，我们可以在切换的时候做一个简单的位移动画，至此我们就可以开始动手实现功能啦
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>各位朋友大家好，欢迎大家关注我的博客，我是 Payne，我的博客地址是<a target="_blank" rel="noopener" href="http://qinyuanpei.com/">http://qinyuanpei.com</a>。最近一位朋友问我，如何在 Unity 引擎中实现类似《英雄联盟》中选择皮肤时的 3D 滚动视图效果，虽然我非常不喜欢这个游戏，可是大学四年在宿舍里被周围同学们耳濡目染，对这个游戏中常见英雄的口头禅还是颇为熟悉的，曾经在周围同学的“硝烟”和“噪杂”中熬夜编程，此时此刻想起来大概是最能让我怀念和骄傲的记忆了。剑圣说“你的剑就是我的剑”，伊泽瑞尔说“是时候表演真正的技术了”，杰斯说“为了更美好的明天而战”……或许曾经的某一瞬间，我们曾经有过类似的让你我疯狂着迷的人生信条，可是不管怎样，我希望我们可以将这些永远地铭刻在心里，如同心中栽种下一棵红莲，在黑夜中静静地等待开放，这样当此去经年亦或时过境迁的时候，我们不会说是时光抹去了你我年轻的棱角，因为我相信真正的棱角会因为磨砺而变得更加明亮，绝对不会因为此刻的苟且就变的麻木甚至迷茫。好了，喝完我这碗心灵鸡汤，下面我们来一起学习如何在 Unity3D 中使用 uGUI 实现 3D 滚动视图效果。</p>
+<span id="more"></span>
+
+<h1 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h1><p>首先，我们先来对这个需求进行分析，从这篇文章的题目我们获得的一个关键信息是，希望通过某种方式实现 3D 滚动特效。因此我们首先要解决的一个问题是，我们应该采用 2D 方式来实现还是采用 3D 方式来实现这种界面效果。我们假定这里希望实现的效果如下图所示，我们可以注意到从这张图片的设计初衷来看，它更像是一种介绍产品特性的文案设计，我们这里仅仅是想通过这张图告诉大家，我们需要实现一个什么样的效果。软件开发过程中最大的成本在我看来主要来自沟通。因为事实上对普通用户而言技术并不重要，重要的是能否实现用户想要的功能，可是大部分情形是用户并不知道自己想要什么，除非你将实际的产品放到用户眼前甚至手中。好了，在对需求有了一个基本的印象以后，我们来思考如何实现这个需求。</p>
+<p>具体来讲，我们有两种思路：</p>
+<ul>
+<li>其一是采用真实的 3D 来制作，即我们通过一个圆柱体或者是多棱柱将图片”粘贴”在不同的面上，通过对圆柱体或者多棱柱进行旋转，然后以真实的 3D 的形式来呈现给用户。</li>
+<li>其二是采用伪 3D 来制作，即我们通过在 2D 平面内对图片的层次进行合理化调整实现伪 3D 效果，配合插值、缩放等技巧来实现 2D 平面上的旋转，然后给用户一种视觉上的 3D 效果。</li>
+</ul>
+<p><img src="https://ww1.sinaimg.cn/large/4c36074fly1fziy4xe3bqj20zk0m8grl.jpg" alt="需求设定"></p>
+<h1 id="核心原理"><a href="#核心原理" class="headerlink" title="核心原理"></a>核心原理</h1><p>在这里我们选择采用伪 3D 来制作，为什么选择这种方案呢？因为它简单啊，哈哈。好了，我们现在将实际的需求进行抽象，我们会发现什么呢？我们注意到这本质上是一个曲线问题，我们可以将每个图片的中心用平滑的曲线连接起来，然后我们就得到了一条抛物线或者是圆锥曲线或者是贝塞尔曲线，在这里我们将其理解为什么样的曲线并不重要，因为这最终影响到的是曲线的平滑度问题，即细节上的调整。沿着这个思路，我们就意识到，这是一个根据曲线平均分布坐标点的过程，假设我们这里 5 张图片，并且曲线在中间位置可以找到一条垂直的对称轴，那么我们只需要将这 5 个点在水平方向上平均分布即可，事实上根据人类视觉的特点，这个距离应该是越来越小的，就像我们看到的一排并列的树木，越远的地方它们的间距会越来越小，而事实上它们的间距是一样的，根据这个特性我们可以表现出这种视觉上的纵深的感觉，在实际项目中它取决于美术设定和策划设定，我们这里就从最简单的情况开始分析。</p>
+<p>好了，在解决了精灵放置的这个问题以后，我们接下来要解决的是什么呢？答案是精灵的层级，因为层级能够帮助我们营造一种视觉上的层次感和立体感，比如在跑酷游戏中我们常常使用视差滚动这种技术来表现 3D 效果，以及传统的斜 45 度瓦片地图来实现 2.5D 效果都是使用 2D 来模拟 3D 效果的经典案例。所以在这里除了确定每个精灵的放置位置以外，我们还有一个问题，如何对这些精灵进行排序，所幸的是在 uGUI 中我们可以通过 SetSiblingIndex 方法来设置一个精灵的深度，当每次通过按钮切换精灵的时候，我们都需要对所有精灵重新计算坐标和深度，而为了更好的视觉表现力，我们可以在切换的时候做一个简单的位移动画，至此我们就可以开始动手实现功能啦。</p>
+<h1 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h1><p>首先我们来搭建一个基本的场景，我们这里将一切浮华褪尽，我们可以看到在场景中有两个按钮，它们可以让我们当前选中的卡片，而界面底部的标签会显示我们当前选择的角色名称。虽然在这里采用触屏滑动的效果更好，可我们这里主要的目的是为了说明如何实现我们的思路，当引入这部分功能的设计以后，会增加大家在整体理解上的难度，所以我们这里以快速实现功能为主。注意到场景中的卡片此时都是相当“任性”地放置在界面上，这是因为我们稍后会采用算法计算每个卡片的实际位置，所以在这里完全可以忽略其“美观性”。</p>
+<p><img src="https://ww1.sinaimg.cn/large/4c36074fly1fzixyfcuz1j20i90e7dld.jpg" alt="场景展示"></p>
+<p>这里，我们设定场景的大小为 800x460，那么在这种情况下，我们可以按照下面图中所示的曲线轨迹来构造一条曲线，考虑到椭圆方程比贝塞尔曲线更加简单易用，所以我们这里选择椭圆方程来作为场景中这些卡片排列的曲线方程。</p>
+<p><img src="https://ww1.sinaimg.cn/large/4c36074fly1fzixbd5ajtj20kz0gtk0w.jpg" alt="曲线方程"></p>
+<p>此时以屏幕中心为原点构建平面直角坐标系，则这个椭圆是一个以长轴 2A&#x3D;400、短轴 2B&#x3D;640、中心在(0,320)上的椭圆。根据这个原理，我们可以将其代码实现分为三个步骤来实现。首先，我们将场景中的所有卡片存储在 GameObject 数组中，这里我们这里规定卡片的数目必须为奇数，然后我们从左到右依次计算每个卡片的位置和深度，这样就可以让卡片按照我们期望的方式进行排列啦。下面一起来看代码如何实现：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//初始化精灵数组</span></span><br><span class="line"><span class="built_in">int</span> childCount = transform.childCount;</span><br><span class="line"><span class="comment">//计算两侧精灵数目</span></span><br><span class="line">halfSize = (childCount<span class="number">-1</span>) / <span class="number">2</span>;</span><br><span class="line"><span class="comment">//初始化精灵</span></span><br><span class="line">sprites = <span class="keyword">new</span> GameObject[childCount];</span><br><span class="line"><span class="keyword">for</span>(<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; childCount; i++)</span><br><span class="line">&#123;</span><br><span class="line">   sprites[i] = transform.GetChild(i).gameObject;</span><br><span class="line">   SetPosition(i);</span><br><span class="line">   SetDeepin(i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里 sprites 显然是一个 GameObject[],因为卡片的数目为奇数个，所以 halfSize 是指中间位置卡片的索引，这里需要两个辅助方法，SetPosition 和 SetDeepin，从名字我们就知道这两个方法分别是设置卡片位置和设置卡片深度。当我们提到代码注释的时候，好多人以代码自注释为理解逃避注释，孰不知这建立在命名规范的基础上，如果你连这点基本的要求都做不到，我建议你还是多写点注释、少写点代码。好了，这两个方法的实现细节如下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 设置精灵位置</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">SetPosition</span>(<span class="params"><span class="built_in">int</span> index</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">   <span class="comment">//计算第index个精灵的角度</span></span><br><span class="line">   <span class="built_in">float</span> angle = <span class="number">0.0f</span>;</span><br><span class="line">   <span class="keyword">if</span> (index &lt; halfSize) &#123;</span><br><span class="line">      angle = startAngle - (halfSize - index) * DeltaAngle;</span><br><span class="line">   &#125; <span class="keyword">else</span> <span class="keyword">if</span> (index &gt; halfSize) &#123;</span><br><span class="line">      angle = startAngle + (index - halfSize) * DeltaAngle;</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      angle = startAngle;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">//计算第index个精灵的坐标</span></span><br><span class="line">   <span class="built_in">float</span> x = A* Mathf.Cos((angle/<span class="number">180</span>) * Mathf.PI) + Center.x;</span><br><span class="line">   <span class="built_in">float</span> y = B* Mathf.Sin((angle/<span class="number">180</span>) * Mathf.PI) + Center.y;</span><br><span class="line">   Vector3 v3 = Camera.main.WorldToScreenPoint(<span class="keyword">new</span> Vector3(x,y,<span class="number">0</span>));</span><br><span class="line">   v3 = Camera.main.ScreenToWorldPoint(v3);</span><br><span class="line">   Vector2 v2 = <span class="keyword">new</span> Vector2(v3.x,v3.y);</span><br><span class="line">   sprites[index].GetComponent&lt;RectTransform&gt;().anchoredPosition = v2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以注意到，在这里我们根据精灵索引 index 和两侧精灵数目 halfSize 的关系，按照 DeltaAngle 这个增量来计算每个精灵实际的角度，在此基础上结合椭圆的参数方程，我们可以非常容易地计算出每个精灵实际的位置，这样就可以保证精灵中心都在椭圆曲线上。好了，接下来我们会遇到一个新的问题，这些精灵的层级应该是从中间位置向两边依次递减的，所以为了解决这个问题，我们还需要对每个精灵的层级进行计算，这部分代码的实现细节如下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 设置精灵深度</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">SetDeepin</span>(<span class="params"><span class="built_in">int</span> index</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">   <span class="comment">//计算精灵深度</span></span><br><span class="line">   <span class="built_in">int</span> deepin = <span class="number">0</span>;</span><br><span class="line">   <span class="keyword">if</span>(index &lt; halfSize) &#123;</span><br><span class="line">      deepin = index;</span><br><span class="line">   &#125; <span class="keyword">else</span> <span class="keyword">if</span>(index &gt; halfSize) &#123;</span><br><span class="line">      deepin = sprites.Length - (<span class="number">1</span> + index);</span><br><span class="line">   &#125; <span class="keyword">else</span>&#123;</span><br><span class="line">      deepin = halfSize;</span><br><span class="line">   &#125;</span><br><span class="line">   sprites[index].GetComponent&lt;RectTransform&gt;().SetSiblingIndex(deepin);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>事实上，我在这里并不清楚 SetSiblingIndex 这个方法的真正作用:)，可是它的确能够实现我们想要的功能。有时候在维护一个古老的项目的时候，可能你会在代码中看到各种有趣的注释，而这些注释中有相当一些都充满了一种“形而上学”的味道在里面，我们不知道这个世界为什么会是这样，可是看起来它们都运行地非常良好。或许这就是这个世界的奇妙之处，无论我们是否想要尝试打破这些规则，这个世界上总是有些我们难以理解的东西存在，可是存在即合理，不是吗？理性思维的缺陷在于想要为一切问题找到一个答案，所以这次苏格拉没有底，我们就感性一次又何妨呢，这个问题就让它没有答案吧！</p>
+<p>现在，显然我们需要解决一个新的问题，就像上帝在我们关上一扇门的同时，会为我们开启一扇窗口。理论上任何问题都可以通过引入一个中间层来解决，而引入中间层的同时毫无疑问地引入了一个新的问题。在这里我们已经完成了让所有精灵按照椭圆曲线进行排布以及精灵的层级关系这两个问题，可是我们这是一个静态的过程啊，我们需要的是让它能够滚动起来，所以怎么解决这个问题呢？我们可以注意到的一点是，精灵的这种“滚动”效果，实际上是将数组中的第一个元素 sprites[0]或者最后一个元素 sprites[sprites.Length-1]，依次和数组中的第 i 个元素进行交换。比如精灵整体向右侧“滚动”，我们只需要从第一个元素开始依次和最后一个元素进行交换就可以啦，所以这里的实现实际上是：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 向后翻页</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">OnNext</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">   <span class="built_in">int</span> length = sprites.Length;</span><br><span class="line">   <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; length; i++)</span><br><span class="line">   &#123;</span><br><span class="line">      GameObject temp = sprites[i];</span><br><span class="line">      sprites[i] = sprites[length - <span class="number">1</span>];</span><br><span class="line">      sprites[length<span class="number">-1</span>] = temp;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">for</span> (<span class="built_in">int</span> i = <span class="number">0</span>; i &lt; length; i++)</span><br><span class="line">   &#123;</span><br><span class="line">      SetPosition(i);</span><br><span class="line">      SetDeepin(i);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们在对数组内的元素重新组织后，需要重新计算每个精灵的位置和深度。我这里在思考的一个问题是：精灵的位置和深度实际上是确定的，所以我们可以考虑将它们存储起来“复用”，这样可以减少每次的重复计算。其实，代码的优化和重构是一个需要时间来酝酿的过程，没有人能够在写代码的时候，就可以意识到代码中的瑕疵，而这种发现问题的眼光通常需要长时间的培养，这是我们之所以提倡不要过早优化的原因，除非你能够快速地找到代码中的优化点。好了，现在采用类似的思路，我们可以实现向前翻页的逻辑啦，这里的代码非常简单不再赘述。</p>
+<p>好了，现在我们可以看看到目前为止我们实现了一个怎样的功能吧！</p>
+<p><img src="https://ww1.sinaimg.cn/large/4c36074fly1fzix8dwz8rg20l90gpb29.jpg" alt="效果展示"></p>
+<p>其实这篇文章我还想继续再往下写的，可是因为我比较懒一直拖着不写，以及接下来相当多的内容都是和界面相关的东西，所以我决定这篇文章就暂时写到这里，目前这个方案可以实现一个简单的“3D”滚动的效果，按照这个思路，接下来我们要做的事情是让滚动更加平滑以及支持鼠标或者触屏操作，毕竟这个需求的出发点是来自一个游戏，所以我们可以考虑在“滚动”的时候增加插值特性，与此同时，为了让它更加具有“3D”的感觉，可以在设置精灵层级的时候为不同的精灵设置不同的缩放比例，这样会更加符合美术中的透视关系，效果应该会更好吧！我认识的一位朋友使用 uGUI 中原生控件 ScrollRect 实现了类似的功能，感觉她还是非常厉害的啊，果然我不再从事 Unity 开发以后，我在这块的技术完全跟不上整个技术圈的节奏啊。</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>本文介绍了一种基于曲线方程来构建伪 3D 效果的思路，主要借助椭圆的参数方程来计算精灵位置，使其实现按照椭圆曲线进行排布的效果，在此基础上配合层级调整、插值、缩放等技巧，在一定程度上可以实现 2D 平面内的伪 3D 旋转效果。因为博主身患拖延症晚期，所以这篇文章在拖延了很久以后，终于成功的成为了一个没有填完的坑，不过我相信掌握原理比获取代码更为重要，所以这篇文章更多的是希望能给大家提供相关思路，博主在这篇文章中没有实现的功能，各位读者有兴趣的话可以考虑自行实现，写完这篇文章表示心好累，好了，就这样吧,各位晚安！</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Unity3D/" rel="tag"># Unity3D</a>
+          
+            <a href="/tags/%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/" rel="tag"># 游戏开发</a>
+          
+            <a href="/tags/uGUI/" rel="tag"># uGUI</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016-07-09-lead-by-tech-companys-trap/" rel="next" title="技术主导型公司的困境">
+                <i class="fa fa-chevron-left"></i> 技术主导型公司的困境
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/implement-function-reloading-in-php/" rel="prev" title="PHP 实现函数重载（伪）">
+                PHP 实现函数重载（伪） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">需求分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">核心原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">具体实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

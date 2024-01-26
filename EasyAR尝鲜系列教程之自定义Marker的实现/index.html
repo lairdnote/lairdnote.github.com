@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="教程,Unity3D,增强现实,AR," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="如果我们希望把它放在一个自定义的文件夹中，如 StreamingAssets&#x2F;ziying 目录下，则需要将 ziying 的 image 属性值改为 ziying&#x2F;ziying.jpg，以此类推;[EasyAR 基本流程示意图](https:&#x2F;&#x2F;ww1.sinaimg.cn&#x2F;large&#x2F;4c36074fly1fzix180mu7j20g0057dft.jpg);我们可以注意到 idback 这张">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EasyAR 尝鲜系列教程之自定义 Marker 的实现">
+<meta property="og:url" content="https://blog.feedscoin.com/EasyAR%E5%B0%9D%E9%B2%9C%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E4%B9%8B%E8%87%AA%E5%AE%9A%E4%B9%89Marker%E7%9A%84%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="如果我们希望把它放在一个自定义的文件夹中，如 StreamingAssets&#x2F;ziying 目录下，则需要将 ziying 的 image 属性值改为 ziying&#x2F;ziying.jpg，以此类推;[EasyAR 基本流程示意图](https:&#x2F;&#x2F;ww1.sinaimg.cn&#x2F;large&#x2F;4c36074fly1fzix180mu7j20g0057dft.jpg);我们可以注意到 idback 这张">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fzix180mu7j20g0057dft.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/None.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/None.jpg">
+<meta property="og:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fz68j4zrs5j20dc0m8al9.jpg">
+<meta property="article:published_time" content="2015-11-03T02:23:14.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.116Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="教程">
+<meta property="article:tag" content="Unity3D">
+<meta property="article:tag" content="增强现实">
+<meta property="article:tag" content="AR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ww1.sinaimg.cn/large/4c36074fly1fzix180mu7j20g0057dft.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/EasyAR尝鲜系列教程之自定义Marker的实现/"/>
+
+
+
+
+
+  <title>EasyAR 尝鲜系列教程之自定义 Marker 的实现 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/EasyAR%E5%B0%9D%E9%B2%9C%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%E4%B9%8B%E8%87%AA%E5%AE%9A%E4%B9%89Marker%E7%9A%84%E5%AE%9E%E7%8E%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">EasyAR 尝鲜系列教程之自定义 Marker 的实现</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-11-03T10:23:14+08:00">
+                2015-11-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Unity3D/" itemprop="url" rel="index">
+                    <span itemprop="name">Unity3D</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  如果我们希望把它放在一个自定义的文件夹中，如 StreamingAssets/ziying 目录下，则需要将 ziying 的 image 属性值改为 ziying/ziying.jpg，以此类推;[EasyAR 基本流程示意图](https://ww1.sinaimg.cn/large/4c36074fly1fzix180mu7j20g0057dft.jpg);我们可以注意到 idback 这张图片和 mousepad 这张图片相比增加了两个属性，即 uid 和 size
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>各位朋友大家好，欢迎大家关注我的博客，我是<strong>秦元培</strong>，我的博客地址是<a target="_blank" rel="noopener" href="http://qinyuanpei.com/" title="秦元培">http://qinyuanpei.com</a>。通过本系列第一篇文章，我们初步了解了 EasyAR 这个增强现实引擎，这次我们来尝试自己定义一个 Marker，这样我们就可以用自己喜欢的图片来作为 Marker。因为目前 EasyAR 文档并不完善，所以下面的这些内容可能更多的是我个人的尝试和探索。如果大家对此感兴趣的话继续往下看否则就不要往下看了，因为我担心在官方正式文档出来以后大家可能会骂我啊。好了，对这个话题感兴趣的朋友就请继续往下看吧！</p>
+<span id="more"></span>
+
+<h1 id="EasyAR-的基本流程"><a href="#EasyAR-的基本流程" class="headerlink" title="EasyAR 的基本流程"></a>EasyAR 的基本流程</h1><p>首先我们来看看官方给出的一张 EasyAR 的基本流程示意图：<br><img src="https://ww1.sinaimg.cn/large/4c36074fly1fzix180mu7j20g0057dft.jpg" alt="EasyAR基本流程示意图"><br>在这张流程图，当中作为开发者的我们此刻需要关注的 Target 这一条线和 Frame 这条线。前者对应的是如何将普通的图片如.jpg、.png 配合 JSON 文件转化为系统可以识别的 Target，后者对应的是我们在识别到 Target 后要去处理哪些逻辑。在官方文档中我们可以找到这样一段话：</p>
+<ul>
+<li><strong>创建相机设备、图像追踪器和增强对象（Create CameraDevice and ImageTracker and Augmenter objects）</strong>.</li>
+<li><strong>打开相机设备（Open CameraDevice）.</strong></li>
+<li><strong>给相机设备附加图像追踪器（Attach ImageTracker to CameraDevice）</strong>.</li>
+<li><strong>开始执行相机设备和图形追踪器的相关逻辑（Start CameraDevice and ImageTracker）</strong>.</li>
+<li><strong>获得从图像追踪器增强后的帧画面（New frame using Augmenter from ImageTracker）</strong>.</li>
+<li><strong>绘制视频和其它的内容（Draw video background and other stuffs）</strong>.</li>
+</ul>
+<p>这段话基本上就是 EasyAR 流程示意图的全面解读了，所以我们学习 EasyAR 可以从这个基本流程来入手，了解这个流程能帮助我们更快地理解 API 接口，虽然现在官方的 API 文档依然处在 Debug 状态下，想到这里简直各种不开心啊！</p>
+<h1 id="创建自定义-Marker"><a href="#创建自定义-Marker" class="headerlink" title="创建自定义 Marker"></a>创建自定义 Marker</h1><p>在了解了 EasyAR 的基本流程后，我们就来说说如何在 EasyAR 中创建自定义 Marker 吧！相信使用过 Vuforia 的人都知道要创建一个自定义的 Marker 需要到开发者后台去创建然后下载资源包，这种方式虽然高效、直接，可是因为没有人为地干预过程，所以我们对 AR 引擎内部究竟做了怎样的处理基本上是一无所知的，换句话说我们大部分的工作都是在做黑箱测试。到了 EasyAR 这里，一切就变得特别简单，这一点要给 EasyAR 点个赞。首先在 EasyAR 中配置 Marker 是通过 StreamingAssets 目录下的 dataset.json 这个文件来实现的：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;images&quot;</span> <span class="punctuation">:</span></span><br><span class="line">  <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;image&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;mousepad.jpg&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;name&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;mousepad&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;image&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;idback.jpg&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;name&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;idback&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;size&quot;</span> <span class="punctuation">:</span> <span class="punctuation">[</span><span class="number">8.56</span><span class="punctuation">,</span> <span class="number">5.4</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;uid&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;todo=uid-string&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>从这个文件中我们可以发现每一张图片都具有某些不同的属性，从目前博主掌握的资料来看，每张图片最重要的两个属性是 image 和 name。其中 image 是指图片的相对路径，该路径相对于 StreamingAssets 目录，因为我们做 Unity3D 游戏开发的时候都知道这个目录下的资源在编译的时候不会被压缩，当导出 APK 安装包的时候它会被完整的保留到根目录下的 assets 目录中。同样地，name 是指图片的名称即 ID，EasyAR 正是通过这个 ID 来和图片资源关联起来的。比如在默认的 SDK 项目中身份证背面这张图片是和 idback 这个 ID 对应的，如图所示，在这里 Easy 提供了四种存储方案即 Assets、App、Absolute、Json。和官方的人交流的时候说可以支持路径和 Json 字符串两种形式，但是对更加具体的这四种存储方案上的区别和优缺点目前并没有一个确切的说法，所以在这里我们就继续沿用 Assets 这种存储方案吧！我们可以注意到 idback 这张图片和 mousepad 这张图片相比增加了两个属性，即 uid 和 size。size 目前基本可以了解为 Unity3D 中的缩放，因为这个值表示的是在物理空间里的范围大小，单位是米，而我们知道 Unity3D 里默认的单位就是米，所以这个数值可以暂时理解为 Unity3D 里的缩放，它对应到下图里的 Size，我已经用红色字体标示出来。对于 uid 这个属性嘛，既然配置文件里都有 todo 标识出来了，那么我们就姑且认为这是一个暂时没有启用的属性值吧！</p>
+<p><img src="https://ww1.sinaimg.cn/large/None.jpg" alt="配置文件和ImagTarget的对应关系"></p>
+<p>好了，下面我们来具体看看如何创建一个自定义 Markder。</p>
+<ul>
+<li>首先我们在 StreamingAssets 目录中添加一张图片 ziying.jpg，然后在 dataset.json 文件中增加该图片的信息。此时 ziying.jpg 的位置是在 StreamingAssets 根目录下。如果我们希望把它放在一个自定义的文件夹中，如 StreamingAssets&#x2F;ziying 目录下，则需要将 ziying 的 image 属性值改为 ziying&#x2F;ziying.jpg，以此类推。</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;images&quot;</span> <span class="punctuation">:</span></span><br><span class="line">  <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;image&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;mousepad.jpg&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;name&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;mousepad&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;image&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;ziying.jpg&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;name&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;ziying&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;image&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;idback.jpg&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;name&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;idback&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;size&quot;</span> <span class="punctuation">:</span> <span class="punctuation">[</span><span class="number">8.56</span><span class="punctuation">,</span> <span class="number">5.4</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;uid&quot;</span> <span class="punctuation">:</span> <span class="string">&quot;todo=uid-string&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>在 Materials 目录下新建一个材质，然后找到 ziying.jpg 将其作为该材质的纹理贴图。</li>
+<li>在场景中找到 ImageTargetDataSet-idback 节点，修改其附加的 SimpleImageTargetBehaviour 脚本下的 Name 属性，将其修改为 ziying，同时将第二步创建的材质赋给 ImageTargetDataSet-idback 节点。此时场景效果如图所示，这意味着我们使用手机摄像头来扫描这张图片就可以看到场景中的这个模型啦！</li>
+</ul>
+<p><img src="https://ww1.sinaimg.cn/large/None.jpg" alt="自定义Markder效果"></p>
+<ul>
+<li>好了，现在编译这个项目并部署到手机上可以得到我们期望的结果，哈哈，慕容紫英站在桌面上和我一起玩对一个仙剑迷来说是不是特别有趣呢？</li>
+</ul>
+<p><img src="https://ww1.sinaimg.cn/large/4c36074fly1fz68j4zrs5j20dc0m8al9.jpg" alt="站在手机上的慕容紫英"></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>到目前为止，EasyAR 官方还没有给出一个完整的 API 文档，所以我们目前能做的研究依然十分有限，在本文中涉及到的部分没有解决的问题，博主会在官方给出文档后第一时间给予解决，希望大家继续关注我的博客！我们现在使用的都是 SDK 中现成的脚本，如果我们希望自己来设计脚本来满足自己的要求实现某些定制的功能或者是想用原生代码来减少 Unity3D 这类游戏引擎带来的性能上的损耗以及实现播放视频的功能等等。这些内容博主在稍后会陆续写出来，好了，今天的内容就是这个样子啦！希望大家喜欢。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E6%95%99%E7%A8%8B/" rel="tag"># 教程</a>
+          
+            <a href="/tags/Unity3D/" rel="tag"># Unity3D</a>
+          
+            <a href="/tags/%E5%A2%9E%E5%BC%BA%E7%8E%B0%E5%AE%9E/" rel="tag"># 增强现实</a>
+          
+            <a href="/tags/AR/" rel="tag"># AR</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015-11-02-mvc-and-mvvm/" rel="next" title="被误解的 MVC 和被神化的 MVVM">
+                <i class="fa fa-chevron-left"></i> 被误解的 MVC 和被神化的 MVVM
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/Unity3D%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B9%8B%E5%88%86%E9%A1%B5%E6%95%88%E6%9E%9C%E5%9C%A8uGUI%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/" rel="prev" title="Unity3D 游戏开发之分页效果在 uGUI 中的实现">
+                Unity3D 游戏开发之分页效果在 uGUI 中的实现 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#EasyAR-%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">EasyAR 的基本流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E8%87%AA%E5%AE%9A%E4%B9%89-Marker"><span class="nav-number">2.</span> <span class="nav-text">创建自定义 Marker</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

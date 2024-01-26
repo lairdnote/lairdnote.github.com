@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="gRPC,Protobuf,Any," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="我发现，人们非常喜欢在一件事情上反复横跳。譬如，以编程语言为例，人们喜欢静态的、强类型语言的严谨和安全，可难免会羡慕动态的、弱类型语言的自由和灵活。于是，在过去的这些年里，我们注意到，.NET 的世界里出现了 dynamic 类型，JavaScript 的世界里出现了 TypeScript，甚至连 Python 都开始支持类型标注。这种动与静、强与弱的角逐，隐隐然有种太极圆转、轮回不绝的感觉。果然">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gRPC 借助 Any 类型实现接口的泛化调用">
+<meta property="og:url" content="https://blog.feedscoin.com/gRPC-%E5%80%9F%E5%8A%A9-Any-%E7%B1%BB%E5%9E%8B%E5%AE%9E%E7%8E%B0%E6%8E%A5%E5%8F%A3%E7%9A%84%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="我发现，人们非常喜欢在一件事情上反复横跳。譬如，以编程语言为例，人们喜欢静态的、强类型语言的严谨和安全，可难免会羡慕动态的、弱类型语言的自由和灵活。于是，在过去的这些年里，我们注意到，.NET 的世界里出现了 dynamic 类型，JavaScript 的世界里出现了 TypeScript，甚至连 Python 都开始支持类型标注。这种动与静、强与弱的角逐，隐隐然有种太极圆转、轮回不绝的感觉。果然">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-12-10T03:53:29.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.140Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="gRPC">
+<meta property="article:tag" content="Protobuf">
+<meta property="article:tag" content="Any">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/gRPC-借助-Any-类型实现接口的泛化调用/"/>
+
+
+
+
+
+  <title>gRPC 借助 Any 类型实现接口的泛化调用 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/gRPC-%E5%80%9F%E5%8A%A9-Any-%E7%B1%BB%E5%9E%8B%E5%AE%9E%E7%8E%B0%E6%8E%A5%E5%8F%A3%E7%9A%84%E6%B3%9B%E5%8C%96%E8%B0%83%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">gRPC 借助 Any 类型实现接口的泛化调用</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-12-10T11:53:29+08:00">
+                2021-12-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>我发现，人们非常喜欢在一件事情上反复横跳。譬如，以编程语言为例，人们喜欢静态的、强类型语言的严谨和安全，可难免会羡慕动态的、弱类型语言的自由和灵活。于是，在过去的这些年里，我们注意到，<code>.NET</code> 的世界里出现了 <code>dynamic</code> 类型，<code>JavaScript</code> 的世界里出现了 <code>TypeScript</code>，甚至连 <code>Python</code> 都开始支持类型标注。这种动与静、强与弱的角逐，隐隐然有种太极圆转、轮回不绝的感觉。果然，“城外的人想冲进去，城里的人想逃出来”，钱钟书先生说的固然是婚姻，可世上的事情，也许都差不多罢！人们反复横跳的样子，像极了「九品芝麻官」里的方唐镜。曾经有段时间，好多人吹捧 <a target="_blank" rel="noopener" href="https://v3.cn.vuejs.org/">Vue3</a> + <a target="_blank" rel="noopener" href="https://www.tslang.cn/">TypeScript</a> 的技术栈，有位前辈一针见血地戳破了这种叶公好龙式的喜欢，“你那么喜欢 TypeScript，不还是关掉了 ESLint 的规则，项目里全部都用 Any”。对于这个吐槽，我表示非常真实，因为我们对于动与静、强与弱的心理变化是非常微妙的。常言道，“动态类型一时爽，代码重构火葬场”，你是如何看待编程语言里的动与静静、强与弱的呢？在 gRPC 中我们通过 Protobuf 来描述接口的参数和返回值，由此对服务提供&#x2F;消费方进行约束。此时，参数和返回值都是静态的、强类型的。如果我们希望提供某种“泛型”的接口，又该如何去做呢？所以，这篇文章我们来聊聊 gPRC 里的 Any 类型。</p>
+<h1 id="Protobuf-里的-Any-类型"><a href="#Protobuf-里的-Any-类型" class="headerlink" title="Protobuf 里的 Any 类型"></a>Protobuf 里的 Any 类型</h1><p>在讲 Any 类型前，我想，我们应该想明白，为什么需要这样一个类型？现在，假设我们有下面的 <code>Protobuf</code> 定义：</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Vehicle</span></span><br><span class="line"><span class="keyword">message </span><span class="title class_">Vehicle</span> &#123;</span><br><span class="line">  <span class="type">int32</span> VehicleId = <span class="number">1</span>;</span><br><span class="line">  <span class="type">string</span> FleetNo = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Officer</span></span><br><span class="line"><span class="keyword">message </span><span class="title class_">Officer</span> &#123;</span><br><span class="line">  <span class="type">int32</span> OfficerId = <span class="number">1</span>;</span><br><span class="line">  <span class="type">string</span> Department = <span class="number">2</span>;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p>此时，按照<code>Protobuf</code>的规范，我们必须像下面这样定义对应的集合：</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// VehicleList</span></span><br><span class="line"><span class="keyword">message </span><span class="title class_">VehicleList</span> &#123;</span><br><span class="line">  <span class="keyword">repeated</span> Vehicle List = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// OfficerList</span></span><br><span class="line"><span class="keyword">message </span><span class="title class_">OfficerList</span> &#123;</span><br><span class="line">  <span class="keyword">repeated</span> Officer List = <span class="number">1</span>;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p>考虑到，在<code>C#</code> 中我们只需要使用 <code>List&lt;Vehicle&gt;</code> 和 <code>List&lt;Officer&gt;</code> 即可，这样难免就会形成一种割裂感，因为你几乎要为每一种类型建立对应的表示集合的类型，从语义化的角度考虑，我们更希望使用下面的 <code>Protobuf</code> 定义：</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">message </span><span class="title class_">Collection</span> &#123;</span><br><span class="line">  <span class="keyword">repeated</span> Any List = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时，<code>VehicleList</code> 和 <code>OfficerList</code> 就可以统一到 <code>Collection</code> 这个类型中，这样，不但减少了花在类型定义的时间，更能帮助我们打开一点思路。在过去，我们编写 API 的时候，通常会定义下面的类来返回结果：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ApiResult</span>&lt;<span class="title">TData</span>&gt; &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="built_in">int</span> Code &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">  <span class="keyword">public</span> <span class="built_in">string</span> Msg &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">  <span class="keyword">public</span> TData Data &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>类似地，当我们用 gPRC 来做微服务的时候，我们希望在 <code>Protobuf</code> 中沿用这个设计： </p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">message </span><span class="title class_">ApiResult</span> &#123;</span><br><span class="line">  <span class="type">int32</span> Code = <span class="number">1</span>;</span><br><span class="line">  <span class="type">string</span> Msg = <span class="number">2</span>;</span><br><span class="line">  Any Data = <span class="number">3</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>至此，它可以和我们在 <code>C#</code> 中的认知联系起来，不会让你有太多心智上的负担。基于上述两种诉求，我们发现， <code>Protobuf</code> 中存在着需要泛化的场景，你可以理解为，我们需要用 <code>Protobuf</code> 来表示泛型或者模板类这样的东西。幸运的是，Google 为我们定义了 <code>Any</code> 类型，它到底是何方神圣呢？我们一起来看看：</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">message </span><span class="title class_">Any</span> &#123;</span><br><span class="line">  <span class="type">string</span> type_url = <span class="number">1</span>;</span><br><span class="line">  <span class="type">bytes</span> value = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>没错，它就是这样的朴实无华，甚至比古天乐还要平平无奇，简单来说，<code>type_url</code>字段告诉你这是一个什么类型，<code>value</code>字段里则存放对应的二进制数据，而这就是 <code>Any</code> 类型的全部秘密！</p>
+<h1 id="在-NET-中使用-Any-类型"><a href="#在-NET-中使用-Any-类型" class="headerlink" title="在 .NET 中使用 Any 类型"></a>在 .NET 中使用 Any 类型</h1><p>好了，下面我们来演示，如何在 .NET 中使用 <code>Any</code> 类型。通过前面我们已经知道， <code>Any</code> 类型和我们自定义的消息没有区别，所以，它同样实现了 <code>IMessage</code> 和 <code>IMessage&lt;Any&gt;</code>两个接口，唯一不同的地方在于，它拥有<code>Pack()</code>、<code>Unpack&lt;T&gt;()</code>、<code>TryUnpack&lt;T&gt;()</code>这样几个静态方法，这是实现任意 <code>IMessage</code> 到 <code>Any</code> 相互转换的关键。现在，假设我们现在有如下的 <code>Protobuf</code> 定义：</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">message </span><span class="title class_">AnyRequest</span> &#123;</span><br><span class="line">  google.protobuf.Any Data = <span class="number">1</span>; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">AnyResponse</span> &#123;</span><br><span class="line">  google.protobuf.Any Data = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">Foo</span> &#123;</span><br><span class="line">  <span class="type">string</span> Name = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">message </span><span class="title class_">Bar</span> &#123;</span><br><span class="line">  <span class="type">string</span> Name = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时，如果我们希望在 <code>AnyRequest</code> 或者 <code>AnyResponse</code> 里传递 <code>Any</code> 类型，我们可以这样做：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> anyRequest = <span class="keyword">new</span> AnyRequest()</span><br><span class="line"></span><br><span class="line"><span class="comment">// Foo -&gt; Any，默认类型地址前缀</span></span><br><span class="line"><span class="keyword">var</span> foo = <span class="keyword">new</span> Foo();</span><br><span class="line">foo.Name = <span class="string">&quot;Foo&quot;</span>;</span><br><span class="line">anyRequest.Data = Any.Pack(foo);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Bar -&gt; Any, 自定义类型地址前缀</span></span><br><span class="line"><span class="keyword">var</span> bar = <span class="keyword">new</span> Bar();</span><br><span class="line">bar.Name = <span class="string">&quot;Bar&quot;</span>;</span><br><span class="line">anyRequest.Data = Any.Pack(bar, <span class="string">&quot;type.company.com/bar&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>反过来，我们可以从 <code>Any</code> 中解析出 <code>IMessage</code> ：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (request.Data.Is(Foo.Descriptor))</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// Any -&gt; Foo</span></span><br><span class="line">  <span class="keyword">var</span> foo = request.Data.Unapck&lt;Foo&gt;();</span><br><span class="line">&#125; </span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (request.Data.Is(Bar.Descriptor))</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// Any -&gt; Bar</span></span><br><span class="line">  <span class="keyword">var</span> bar = request.Data.Unapck&lt;Bar&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>默认的 <code>Any</code> 类型，只能对 <code>Protobuf</code> 生成的类型(即实现了 IMessage 接口)进行 <code>Pack</code> ，如果我们想做得更绝一点(最好还是不要)，那么，可以使用自定义的 <code>MyAny</code> 类型：</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">message </span><span class="title class_">MyAny</span> &#123;</span><br><span class="line">  <span class="type">string</span> TypeUrl = <span class="number">1</span>;</span><br><span class="line">  <span class="type">bytes</span> Value = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>相应地，我们为 <code>MyAny</code> 类型编写一点扩展方法：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title">MyAnyExtension</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> MyAny <span class="title">Pack</span>(<span class="params"><span class="keyword">this</span> <span class="built_in">object</span> obj, <span class="built_in">string</span> typeUrlPrefix = <span class="string">&quot;&quot;</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> any = <span class="keyword">new</span> MyAny();</span><br><span class="line">        any.TypeUrl = <span class="string">$&quot;<span class="subst">&#123;typeUrlPrefix&#125;</span>/<span class="subst">&#123;obj.GetType().FullName&#125;</span>&quot;</span>;</span><br><span class="line">        <span class="keyword">var</span> bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj));</span><br><span class="line">        any.Value = Google.Protobuf.ByteString.CopyFrom(bytes);</span><br><span class="line">        <span class="keyword">return</span> any;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> T <span class="title">Unpack</span>&lt;<span class="title">T</span>&gt;(<span class="params"><span class="keyword">this</span> MyAny any, <span class="built_in">string</span> typeUrlPrefix = <span class="string">&quot;&quot;</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> typeUrl = <span class="string">$&quot;<span class="subst">&#123;typeUrlPrefix&#125;</span>/<span class="subst">&#123;<span class="keyword">typeof</span>(T).FullName&#125;</span>&quot;</span>;</span><br><span class="line">        <span class="keyword">if</span> (typeUrl == any.TypeUrl)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> json = Encoding.UTF8.GetString(any.Value.ToByteArray());</span><br><span class="line">            <span class="keyword">return</span> JsonConvert.DeserializeObject&lt;T&gt;(json);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">default</span>(T);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">bool</span> <span class="title">Is</span>&lt;<span class="title">T</span>&gt;(<span class="params"><span class="keyword">this</span> MyAny any, <span class="built_in">string</span> typeUrlPrefix = <span class="string">&quot;&quot;</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> typeUrl = <span class="string">$&quot;<span class="subst">&#123;typeUrlPrefix&#125;</span>/<span class="subst">&#123;<span class="keyword">typeof</span>(T).FullName&#125;</span>&quot;</span>;</span><br><span class="line">        <span class="keyword">return</span> typeUrl == any.TypeUrl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们就可以对任意类型进行处理，虽然，此时此刻，从严格意义上来讲，它已不再属于 <code>Protobuf</code> 的范畴，因为序列化&#x2F;反序列化都交给了 JSON ：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> client = serviceProvider.GetService&lt;ProtobufAny.Greeter.GreeterClient&gt;();</span><br><span class="line">client.Ping(<span class="keyword">new</span> Foo() &#123; Name = <span class="string">&quot;Foo&quot;</span> &#125;.Pack());</span><br><span class="line">client.Ping(<span class="keyword">new</span> Bar() &#123; Name = <span class="string">&quot;Foo&quot;</span> &#125;.Pack());</span><br><span class="line">client.Ping(<span class="keyword">new</span> &#123; X = <span class="number">0</span>, Y = <span class="number">1</span>, Z = <span class="number">0</span> &#125;.Pack());</span><br></pre></td></tr></table></figure>
+
+<p>这样看起来是不是非常酷？我始终认为，这件事情是有意义的，一个系统中最多的接口显然是查询接口，此时，我们可以构建一个通用的 <a target="_blank" rel="noopener" href="https://github.com/qinyuanpei/DynamicSearch">查询</a> 来处理，使用者只需要传递一个实体、一个Proto，一组过滤条件，它就可以返回对应的数据，这样是不是比写一个又一个差不多的接口要好一点呢？过去我们开发 API，主张用数据传输对象(DTO)来隔离持久化层和业务层，从这个角度来看，Protobuf 本身就是 一种 DTO ，对于大多数相似的、模板化的、套路化的接口，我们完全可以考虑用这种方案来实现，只要双方约定好类型即可。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在业务层构建通用的查询</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> QueryReply <span class="title">Query</span>&lt;<span class="title">TInput</span>, <span class="title">TOutput</span>&gt;(<span class="params">SearchParameters searchParameters</span>) <span class="keyword">where</span> TInput : <span class="keyword">class</span></span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> result = _chinookContext.Set&lt;TInput&gt;().AsQueryable().Search(searchParameters).ToList();</span><br><span class="line">    <span class="keyword">var</span> output = result.Adapt&lt;List&lt;TOutput&gt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> reply = <span class="keyword">new</span> QueryReply();</span><br><span class="line">    reply.List.AddRange(output.Select(x =&gt; x.Pack()));</span><br><span class="line">    <span class="keyword">return</span> reply;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// x =&gt; &#123; 1, 2, 3 &#125;.Contains(x.AlbumId)</span></span><br><span class="line"><span class="keyword">var</span> searchParameters = SearchParameters();</span><br><span class="line">searchParameters.QueryModel = <span class="keyword">new</span> QueryModel();</span><br><span class="line">searchParameters.QueryModel.Add(<span class="keyword">new</span> Condition() &#123; Field = <span class="string">&quot;AlbumId&quot;</span>, Op = Operation.StdIn, Value = <span class="keyword">new</span> <span class="built_in">int</span>[] &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125; &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在服务层解析参数，完全可以由调用方提供 SearchParameters</span></span><br><span class="line"><span class="keyword">var</span> inputType = Type.GetType(request.InputType);</span><br><span class="line"><span class="keyword">var</span> outputType = Type.GetType(request.OutputType);</span><br><span class="line"><span class="keyword">if</span> (inputType != <span class="literal">null</span> &amp;&amp; outputType != <span class="literal">null</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> queryMethod = _queryService.GetType().GetMethod(<span class="string">&quot;Query&quot;</span>).MakeGenericMethod(inputType, outputType);</span><br><span class="line">    QueryReply queryResult = (QueryReply)queryMethod.Invoke(_queryService, <span class="keyword">new</span> <span class="built_in">object</span>[] &#123; </span><br><span class="line">      <span class="keyword">new</span> DynamicSearch.Core.SearchParameters()</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span> Task.FromResult(queryResult);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="本文小结"><a href="#本文小结" class="headerlink" title="本文小结"></a>本文小结</h1><p>对于编程语言中的动与静、强与弱，我个人觉得还是要看场景，只要双方定义好契约，我相信，它都可以运作起来，当然，更多的时候，我们是在灵活与严谨间反复横跳。作为一门 DSL，Protobuf 虽然可以对服务提供&#x2F;消费方产生一定约束，可当我们面对需要泛型或者模板类的场景的时候，这种做法就变成了一种负担，更不必说它缺乏对继承的支持。想象一下，你要写二十多个大同小异的接口，譬如为每一张数据表写一个 <code>GetXXXById()</code> 的接口。此时，我们可以借助 <code>Any</code> 类型来实现类似泛型、模板类的东西，它本质上还是 <code> IMessage</code> 接口的实现类，唯一的不同是增加了 Pack&#x2F;Unpack 这组静态方法，可以帮助我们实现 <code>Any</code> 和 <code>IMessage</code> 的相互转换，关于本文中使用的的实例，可以参考：<a target="_blank" rel="noopener" href="https://github.com/Regularly-Archive/2021/tree/master/src/ProtobufAny">ProtobufAny</a>，好了，以上就是这篇博客的全部内容，如果有朋友对文章中的内容和观点存在疑问，欢迎在评论区积极留言，谢谢大家！</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/gRPC/" rel="tag"># gRPC</a>
+          
+            <a href="/tags/Protobuf/" rel="tag"># Protobuf</a>
+          
+            <a href="/tags/Any/" rel="tag"># Any</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021-12-6-gitblog/" rel="next" title="你可以用 RSS 订阅 GitHub 博客了">
+                <i class="fa fa-chevron-left"></i> 你可以用 RSS 订阅 GitHub 博客了
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021-12-13-mac/" rel="prev" title="用苹果电脑，有时也是找罪受。">
+                用苹果电脑，有时也是找罪受。 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Protobuf-%E9%87%8C%E7%9A%84-Any-%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">Protobuf 里的 Any 类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9C%A8-NET-%E4%B8%AD%E4%BD%BF%E7%94%A8-Any-%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">在 .NET 中使用 Any 类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E6%96%87%E5%B0%8F%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">本文小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

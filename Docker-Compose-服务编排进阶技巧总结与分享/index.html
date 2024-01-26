@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Docker,容器,服务编排,云原生," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="在团队内推广Docker Compose有段时间啦，值得庆幸的是，最终落地效果还不错，因为说到底，大家都不大喜欢，那一长串复杂而枯燥的命令行参数。对我而言，最为重要的一点，团队内使用的技术变得更加透明化、标准化，因为每个微服务的配置信息都写在docker-compose.yml文件中，任何人都可以快速地构建出一套可用的服务，而不是每次都要去找具体的某一个人。我想说，这其实是一个信息流如何在团队内流">
+<meta property="og:type" content="article">
+<meta property="og:title" content="你不可不知的容器编排进阶技巧">
+<meta property="og:url" content="https://blog.feedscoin.com/Docker-Compose-%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92%E8%BF%9B%E9%98%B6%E6%8A%80%E5%B7%A7%E6%80%BB%E7%BB%93%E4%B8%8E%E5%88%86%E4%BA%AB/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="在团队内推广Docker Compose有段时间啦，值得庆幸的是，最终落地效果还不错，因为说到底，大家都不大喜欢，那一长串复杂而枯燥的命令行参数。对我而言，最为重要的一点，团队内使用的技术变得更加透明化、标准化，因为每个微服务的配置信息都写在docker-compose.yml文件中，任何人都可以快速地构建出一套可用的服务，而不是每次都要去找具体的某一个人。我想说，这其实是一个信息流如何在团队内流">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/08/15/LnAh6GSdMJ2NkVx.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/15/BqDRtbJkpVcno3s.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/15/Hhx4R7obZL5FBrv.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/16/jgbwuVHeJNvG5BY.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/15/fplPBvICiEOYsKR.jpg">
+<meta property="og:image" content="https://i.loli.net/2021/08/14/QnuPZ8vsCYKbVHm.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/14/oNtX8G7UAqEDIzS.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/15/HKvjmoCdznlW6FV.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/16/DJq3CBrmktaRNex.png">
+<meta property="og:image" content="https://i.loli.net/2021/08/16/Sgsbpt1huUlmTQM.png">
+<meta property="article:published_time" content="2021-08-14T14:13:32.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.115Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="容器">
+<meta property="article:tag" content="服务编排">
+<meta property="article:tag" content="云原生">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/08/15/LnAh6GSdMJ2NkVx.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/Docker-Compose-服务编排进阶技巧总结与分享/"/>
+
+
+
+
+
+  <title>你不可不知的容器编排进阶技巧 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/Docker-Compose-%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92%E8%BF%9B%E9%98%B6%E6%8A%80%E5%B7%A7%E6%80%BB%E7%BB%93%E4%B8%8E%E5%88%86%E4%BA%AB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">你不可不知的容器编排进阶技巧</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-08-14T22:13:32+08:00">
+                2021-08-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>在团队内推广<code>Docker Compose</code>有段时间啦，值得庆幸的是，最终落地效果还不错，因为说到底，大家都不大喜欢，那一长串复杂而枯燥的命令行参数。对我而言，最为重要的一点，团队内使用的技术变得更加透明化、标准化，因为每个微服务的配置信息都写在<code>docker-compose.yml</code>文件中，任何人都可以快速地构建出一套可用的服务，而不是每次都要去找具体的某一个人。我想说，这其实是一个信息流如何在团队内流动的问题。也许，我们有文档或者<code>Wiki</code>，可新人能不能快速融入其中，这才是检验信息流是否流动的唯一标准。就这样，团队从刀耕火种的<code>Docker</code>时代，进入到使用服务编排的<code>Docker Compose</code>时代。接下来，能否进入<code>K8S</code>甚至是云原生的时代，我终究不得而知。今天我想聊聊，在使用<code>Docker Compose</code>的过程中，我们遇到的诸如容器的<strong>启动顺序</strong>、<strong>网络模式</strong>、<strong>健康检查</strong>这类问题，我有一点<code>Docker Compose</code>的进阶使用技巧想和大家分享。</p>
+<h1 id="容器的启动顺序"><a href="#容器的启动顺序" class="headerlink" title="容器的启动顺序"></a>容器的启动顺序</h1><p>使用服务编排以后，大家最关心的问题是，如果服务间存在依赖关系，那么如何保证容器的启动顺序？我承认，这是一个真实存在的问题，譬如，你的应用依赖某个数据库，理论上数据库要先启动，抑或者是像<code>Redis</code>、<code>Kafka</code>、<code>Envoy</code>这样的基础设施，总是要优先于应用服务本身启动。</p>
+<p><img src="https://i.loli.net/2021/08/15/LnAh6GSdMJ2NkVx.png" alt="假如章鱼的这些脚互相影响会怎么样？"></p>
+<p>熟悉<code>Docker Compose</code>的同学，也许会想到<code>depends_on</code>这个选项，可如果大家亲自去尝试过就会知道，这终究只是我们的一厢情愿。为什么呢？因为这个<code>depends_on</code>主要是看目标容器是不是处于<code>running</code>的状态，所以，在大多数情况下，我们会注意到<code>Docker Compose</code>并不是按我们期望的顺序去启动的，因为目标容器在某一瞬间的确已经是<code>running</code>的状态了，那这样简直太尴尬了有木有啊！我们从一个简单的例子开始：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&quot;3.8&quot;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">redis_server:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">redis:latest</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">&gt;</span></span><br><span class="line"><span class="string">      /bin/bash -c &#x27;</span></span><br><span class="line"><span class="string">      sleep 5;</span></span><br><span class="line"><span class="string">      echo &quot;sleep over&quot;;&#x27;</span></span><br><span class="line"><span class="string"></span>    <span class="attr">networks:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">backend</span></span><br><span class="line">  <span class="attr">city_service:</span></span><br><span class="line">    <span class="attr">build:</span> <span class="string">CityService/</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">city_service</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;8081:80&quot;</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">backend</span></span><br><span class="line">    <span class="attr">depends_on:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">redis_server</span></span><br><span class="line"></span><br><span class="line"><span class="attr">networks:</span></span><br><span class="line">  <span class="attr">backend:</span></span><br></pre></td></tr></table></figure>
+
+<p>可以注意到，为了证明<code>city_service</code>服务不会等待<code>redis_server</code>服务，我故意让子弹飞了一会儿，结果如何呢？我们一起来看看：</p>
+<p><img src="https://i.loli.net/2021/08/15/BqDRtbJkpVcno3s.png" alt=" Docker Compose 启动顺序：一厢情愿"></p>
+<p>果然，我没有骗各位，<code>city_service</code>服务不会等待<code>redis_server</code>服务。我们知道，<code>Redis</code>提供的命令行接口中，有一个<code>PING</code>命令，当<code>Redis</code>可以正常连接的时候，它会返回一个<code>PONG</code>，也许，这就是乒乓球的魅力所在。基于这个想法，我们继续修改<code>docker-compose.yml</code>文件：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&quot;3.8&quot;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">redis_server:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">redis:latest</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">backend</span></span><br><span class="line">  <span class="attr">city_service:</span></span><br><span class="line">    <span class="attr">build:</span> <span class="string">CityService/</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">city_service</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;8081:80&quot;</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">backend</span></span><br><span class="line">    <span class="attr">depends_on:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">redis_server</span></span><br><span class="line">    <span class="attr">command:</span> <span class="string">&gt;</span></span><br><span class="line"><span class="string">      /bin/bash -c &#x27;</span></span><br><span class="line"><span class="string">      while ! nc -z redis_server 6379;</span></span><br><span class="line"><span class="string">      do</span></span><br><span class="line"><span class="string">        echo &quot;wait for redis_server&quot;;</span></span><br><span class="line"><span class="string">        sleep 1;</span></span><br><span class="line"><span class="string">      done;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line">      <span class="string">echo</span> <span class="string">&quot;redis_server is ready!&quot;</span><span class="string">;</span></span><br><span class="line">      <span class="string">echo</span> <span class="string">&quot;start city_service here&quot;</span><span class="string">;</span></span><br><span class="line">      <span class="string">&#x27;</span></span><br><span class="line"><span class="string">networks:</span></span><br><span class="line"><span class="string">  backend:</span></span><br></pre></td></tr></table></figure>
+<p>这里，我们用了一种取巧的方法，<code>Ubuntu</code>中的<code>nc</code>命令可以对指定主机、指定端口进行检测，换言之，我们简单粗暴的认为，只要<code>6379</code>这个端口可以访问，就认为<code>Redis</code>准备就绪啦，因为我们没有办法在<code>city_service</code>这个容器中调用<code>redis-cli</code>，这个做法本身并不严谨，我们这里更多的是验证想法：</p>
+<p><img src="https://i.loli.net/2021/08/15/Hhx4R7obZL5FBrv.png" alt="Docker Compose 启动顺序：检测 Redis"></p>
+<p>可以注意到，此时，<code>city_service</code>服务会等待<code>redis_server</code>服务，直到<code>redis_server</code>服务就绪。所以，要解决服务编排时，容器的启动顺序的问题，本质上就是把需要等待的服务、端口以及当前服务的启动命令，统一到容器的入口中。为此，官方提供了 <a target="_blank" rel="noopener" href="https://github.com/vishnubob/wait-for-it">wait-for-it</a> 这个方案，官方关于容器启动顺序的文档，可以参考：<a target="_blank" rel="noopener" href="https://docs.docker.com/compose/startup-order/">Startup Order</a>。对于上面的例子，我们可以这样改写<code>docker-compose.yml</code>文件：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&quot;3.8&quot;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">redis_server:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">redis:latest</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">backend</span></span><br><span class="line">  <span class="attr">city_service:</span></span><br><span class="line">    <span class="attr">build:</span> <span class="string">CityService/</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">city_service</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;8081:80&quot;</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">backend</span></span><br><span class="line">    <span class="attr">depends_on:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">redis_server</span></span><br><span class="line">    <span class="attr">command:</span> [<span class="string">&quot;/wait-for-it.sh&quot;</span>, <span class="string">&quot;redis_server:6379&quot;</span>, <span class="string">&quot;--&quot;</span>, <span class="string">&quot;dotnet&quot;</span>, <span class="string">&quot;CityService.dll&quot;</span>]</span><br><span class="line"><span class="attr">networks:</span></span><br><span class="line">  <span class="attr">backend:</span></span><br></pre></td></tr></table></figure>
+<p>此时，启动容器时的效果如下，因为这个方案依赖 <a target="_blank" rel="noopener" href="http://netcat.sourceforge.net/">Netcat</a> 这样一个工具，所以，我们的容器中还需要加入这个工具，此时，可以使用下面的脚本片段：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> debian:buster-slim as wait-for-it</span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> apt-get update &amp;&amp; apt-get install -y <span class="string">&quot;wait-for-it&quot;</span></span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> --from=wait-for-it /usr/bin/wait-for-it .</span></span><br></pre></td></tr></table></figure>
+
+<p>不过，不太明白为什么这里一直提示路径不对：</p>
+<p><img src="https://i.loli.net/2021/08/16/jgbwuVHeJNvG5BY.png" alt="Docker Compose 启动顺序：wait-for-it.sh"></p>
+<p>个人建议，最好将这个语句写在<code>Dockerfile</code>，或者试提供一个类似于<code>entrypoint.sh</code>的脚本文件。关于这个方案的更多细节，大家可以参考<a target="_blank" rel="noopener" href="https://docs.docker.com/compose/startup-order/">官方文档</a>，写这篇文章的时候，我不由得感慨：<code>Shell</code>脚本真的是太难学了(逃……。所以，点到为止。刚刚提到过，我个人觉得这种主机 + 端口号的检测方式不够严谨，因为一个端口可以<code>PING</code>通，并不代表服务一定是可用的，所以，在接下来的内容里，我会介绍基于健康检查的思路。</p>
+<h1 id="容器的健康检查"><a href="#容器的健康检查" class="headerlink" title="容器的健康检查"></a>容器的健康检查</h1><p>不知道大家有没有这样的经历，就是你明明看到一个容器的状态变成<code>Up</code> ，可对应的微服务就是死活调不通。面对来自前端同事的戏谑与嘲讽，你不禁仰天长叹一声，开始在容器里翻箱倒柜，一通操作如虎。过了许久，你终于发现是容器内部出现了始料不及的错误。看来，容器状态显示为<code>Up</code>，并不代表容器内的服务就是可用的啊！果然，还是需要一种机制来判断容器内的服务是否可用啊！等等，这不就是传说中的健康检查？恭喜你，答对了！</p>
+<p><img src="https://i.loli.net/2021/08/15/fplPBvICiEOYsKR.jpg" alt=" Docker 经典集装箱形象"></p>
+<p>在<code>Docker</code>及<code>Docker Compse</code>中，均原生支持 <a target="_blank" rel="noopener" href="https://docs.docker.com/engine/reference/builder/#healthcheck">健康检查</a> 机制，一旦一个容器指定了<code>HEALTHCHECK</code>选项，<code>Docker</code>会定时检查容器内的服务是否可用。我们都知道，一个普通的 Docker 容器，无非是开始、运行中、停止这样三种状态，而提供了<code>HEALTHCHECK</code>选项的<code>Docker</code>容器，会在这个基础上增加健康(<strong>healthy</strong>)和非健康(<strong>unhealthy</strong>)两种状态，所以，我们应该用这两个状态来判断容器内的服务是否可用。下面是一个指定了<code>HEALTHCHECK</code>选项的容器示例：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> <span class="keyword">FROM</span> mcr.microsoft.com/dotnet/core/aspnet:<span class="number">3.1</span>-buster-slim</span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">80</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">443</span></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="language-bash"> /app</span></span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> /app/publish .</span></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="language-bash"> [<span class="string">&quot;dotnet&quot;</span>, <span class="string">&quot;CityService.dll&quot;</span>]</span></span><br><span class="line"><span class="keyword">HEALTHCHECK</span><span class="language-bash"> --interval=5s --<span class="built_in">timeout</span>=3s \</span></span><br><span class="line"><span class="language-bash">  CMD curl -fs http://localhost:80/city || <span class="built_in">exit</span> 1</span></span><br></pre></td></tr></table></figure>
+<p>可以注意到，<code>Docker</code>原生的健康机制，需要通过<code>CMD</code>的方式来执行一个命令行，如果该命令行返回 0 ，则表示成功；返回 1，则表示失败。</p>
+<p>此处，我们还可以配置以下三个参数，<code>--interval=&lt;间隔&gt;</code>表示健康检查的间隔，默认为 30 秒；<code>--timeout=&lt;时长&gt;</code>表示健康检查命令超时时间，超过该时间即表示<code>unhealthy</code>，默认为 30 秒；<code>--retries=&lt;次数&gt;</code>表示连续失败的次数，超过该次数即表示<code>unhealthy</code>。对于我们这里的<code>ASP.NET Core</code>应用而言，如果程序正常启动，显然这个地址是可以调通的，我们可以用这个来作为一个“探针”。</p>
+<p><img src="https://i.loli.net/2021/08/14/QnuPZ8vsCYKbVHm.png" alt=" Docker 健康检查：healthy "></p>
+<p>我们可以注意到，在容器启动的第 14 秒，其状态为：<code>health：starting</code>。而等到容器启动的第 16 秒，其状态则为：<code>healthy</code>，这表明我们的服务是健康的。此时此刻，如果我们耍点小心思，让<code>curl</code>去访问一个不存在的地址会怎么样呢？可以注意到，此时状态变成了：<code>unhealthy</code>:</p>
+<p><img src="https://i.loli.net/2021/08/14/oNtX8G7UAqEDIzS.png" alt="Docker 健康检查：unhealthy "></p>
+<p><code>HEALTHCHECK</code>指令除了可以直接写在<code>Dockerfile</code>中以外，还可以直接附加到<code>docker run</code>命令上，还是以上面的项目作为示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">docker run  --name city_service -d -p 8081:80  city_service \</span><br><span class="line">--health-cmd=&quot;curl -fs http://localhost:80/city || exit 1&quot; \</span><br><span class="line">--health-interval=3s \</span><br><span class="line">--health-timeout=5s \</span><br><span class="line">--health-retries=3 </span><br></pre></td></tr></table></figure>
+<p>甚至，我们还可以使用下面的命令来查询容器的健康状态：<code>docker inspect --format=&#39;&#123;&#123;json .State.Health&#125;&#125;&#39; &lt;ContainerID&gt;</code></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;Status&quot;</span><span class="punctuation">:</span> <span class="string">&quot;unhealthy&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;FailingStreak&quot;</span><span class="punctuation">:</span> <span class="number">5</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;Log&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span></span><br><span class="line">	<span class="attr">&quot;Start&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2021-08-14T15:27:50.3325424Z&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;End&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2021-08-14T15:27:50.3813102Z&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;ExitCode&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;Output&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>不过，我个人感觉这个<code>curl</code>的写法非常别扭，尤其是当我试图在<code>docker-compose</code>中写类似命令的时候，我觉得稍微复杂一点的健康检查，还是交给脚本语言来实现吧！例如，下面是官方提供的针对<code>MongoDB</code>的健康检查的脚本<code>docker-healthcheck.sh</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line">set -eo pipefail </span><br><span class="line">host=&quot;$(hostname --ip-address || echo &#x27;127.0.0.1&#x27;)&quot; </span><br><span class="line">if mongo --quiet &quot;$host/test&quot; --eval &#x27;quit(db.runCommand(&#123; ping: 1 &#125;).ok ? 0 : 2)&#x27;; then </span><br><span class="line">   exit 0</span><br><span class="line">fi </span><br><span class="line">   exit 1</span><br></pre></td></tr></table></figure>
+<p>此时，<code>HEALTHCHECK</code>可以简化为：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">HEALTHCHECK</span><span class="language-bash"> --interval=5s --<span class="built_in">timeout</span>=3s \</span></span><br><span class="line"><span class="language-bash">  CMD bin/bash docker-healthcheck.sh</span></span><br></pre></td></tr></table></figure>
+<p>更多的示例，请参考：<a target="_blank" rel="noopener" href="https://github.com/docker-library/healthcheck/">docker-library&#x2F;healthcheck&#x2F;</a> 以及 <a target="_blank" rel="noopener" href="https://github.com/rodrigobdz/docker-compose-healthchecks">rodrigobdz&#x2F;docker-compose-healthchecks</a>。</p>
+<p>其实，对于容器的启动顺序问题，我们还可以借助检查检查的思路来解决，因为<code>depends_on</code>并不会等待目标容器进入<code>ready</code>状态，而是等目标容器进入<code>running</code>状态。这样，就回到了我们一开始描述的现象：一个容器明明都变为<code>Up</code>状态了，可为什么接口就是死活调不通呢？因为我们无法界定这样一个<code>ready</code>状态。考虑到<code>depends_on</code>可以指定<code>condition</code>，此时，我们可以这样编写<code>docker-compose.yml</code>文件：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&quot;3.8&quot;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">redis_server:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">redis:latest</span></span><br><span class="line">    <span class="attr">healthcheck:</span></span><br><span class="line">      <span class="attr">test:</span> [<span class="string">&quot;CMD&quot;</span>, <span class="string">&quot;redis-cli&quot;</span>, <span class="string">&quot;ping&quot;</span>]</span><br><span class="line">      <span class="attr">interval:</span> <span class="string">1s</span></span><br><span class="line">      <span class="attr">timeout:</span> <span class="string">3s</span></span><br><span class="line">      <span class="attr">retries:</span> <span class="number">30</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">backend</span></span><br><span class="line">  <span class="attr">city_service:</span></span><br><span class="line">    <span class="attr">build:</span> <span class="string">CityService/</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">city_service</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;8081:80&quot;</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">backend</span></span><br><span class="line">    <span class="attr">depends_on:</span></span><br><span class="line">      <span class="attr">redis_server:</span></span><br><span class="line">        <span class="attr">condition:</span> <span class="string">service_healthy</span></span><br><span class="line"><span class="attr">networks:</span></span><br><span class="line">  <span class="attr">backend:</span></span><br></pre></td></tr></table></figure>
+<p>简单来说，我们使用了<code>Redis</code>内置的命令对<code>redis_server</code>服务进行健康检查，而<code>city_service</code>服务则依赖于<code>redis_server</code>服务的健康状态，只有当<code>Redis</code>准备就绪了以后，<code>city_service</code>才会开始启动。下面是实际启动过程的截图，看看是不是和我们想的一样：</p>
+<p><img src="https://i.loli.net/2021/08/15/HKvjmoCdznlW6FV.png" alt=" Docker 健康检查：容器启动顺序"></p>
+<p>果然，奇怪的知识有增加了呢，我们唯一需要解决的问题，就是怎么给某一个服务做健康检查，以上！</p>
+<h1 id="容器的网络模式"><a href="#容器的网络模式" class="headerlink" title="容器的网络模式"></a>容器的网络模式</h1><p>接下来，我们来说说<code>Docker</code>里的网络模式，特别是当我们使用<code>docker-compose</code>来编排一组服务的时候，假设我们有一个目录<code>app</code>，在这个牡蛎里我们放置了服务编排文件<code>docker-compose.yml</code>，默认情况下，<code>Docker-Compose</code>会创建一个一个名为<code>app_default</code>的网络，并且这个网络是<code>bridge</code>，即网桥模式的一个网络。什么是网桥模式呢？你可能会感到困惑，而这要从<code>Docker</code>中的网络模式开始说起，这里简单下常用的几种：</p>
+<ul>
+<li>host 模式，或叫做主机模式，可以认为容器和主机使用相同的端口进行访问，因为容器和主机在同一个网络下，此模式下，意味着通过<code>-p</code>绑定的端口失效，因为所有容器都使用主机的网络，所以容器间可以相互通信，此模式通过<code>--network=host</code>指定。</li>
+<li>bridge 模式，或叫做网桥模式，这是<code>Docker</code>中默认的网络设置，此模式下，容器和主机有各自的 IP&#x2F;端口号，两者之间通过一个虚拟网桥进行通信，虚拟网桥的作用类似于物理交换机。因此，不同容器间的网络是相互隔离的，此模式通过<code>--network=bridge</code>指定。</li>
+<li>none 模式，通俗讲就是无网络模式，意味着容器是一个封闭的环境，无法通过主机访问外部的网络，这种模式在那种讲究保密性质、封闭式开发的场合应该会有一点用，可这都 2021 年了，难道你还能把互联网上的软件全部下载下来吗？此模式通过<code>--network=none</code>指定。</li>
+<li>container 模式，或叫做共享模式，通俗来讲，就是指一个容器共享某个已经存在的容器的<code>Network Namespace</code>，此时，该容器将不会拥有属于自己的 IP&#x2F;端口号等资源，因为这种模式可以节约一定的网络资源，此模式通过<code>--network=&lt;Container_ID&gt;/&lt;Container_Name&gt;</code>指定。</li>
+</ul>
+<p>为了帮助大家理解和区分这四种模式，博主绘制了下面的图示来补充说明：</p>
+<p><img src="https://i.loli.net/2021/08/16/DJq3CBrmktaRNex.png" alt="容器的网络模式(主机、容器、网桥)示意图"></p>
+<p>通过以上的图文信息反复加深印象，相信大家可以找出点规律：</p>
+<ul>
+<li>如果你的容器网络与主机网络不需要隔离，那么选择主机模式(<strong>host</strong>)</li>
+<li>如果你的应用运行在不同的容器里，并且这些容器间需要相互通信，那么选择网桥模式(<strong>bridge</strong>)</li>
+<li>如果你的应用需要运行在一个隔绝外界网络的环境中，那么选择无网络模式(<strong>none</strong>)</li>
+<li>如果你希望在节省网络资源的同时，实现不同容器间的通信，那么选择容器模式(<strong>container</strong>)</li>
+</ul>
+<p>以上四种网络模式，除了可以在<code>docker run</code>的时候指定以外，我们还可以在<code>docker-compose.yml</code>文件中指定。例如，下面表示的是一个主机模式的容器：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3.8&#x27;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">cache_server:</span></span><br><span class="line">    <span class="attr">build:</span> <span class="string">.</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">cache_server</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">always</span></span><br><span class="line">    <span class="attr">network_mode:</span> <span class="string">host</span></span><br></pre></td></tr></table></figure>
+
+<p>大多数情况下，我们只需要连接到<code>docker0</code>这个虚拟网卡即可，而如果你想为某个容器或者一组容器单独建立这样一张网卡，此时，就不得不提到<code>Docker</code>中的自定义网络功能，我们一起来看下面的示例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 创建一个网络：test-network</span><br><span class="line">docker network create test-network</span><br><span class="line">// 创建一个Nginx的容器：nginx_8087，使用网络：test-network</span><br><span class="line">docker run -d --name nginx_8087 --network test-network -p 8087:80 nginx:latest</span><br><span class="line">// 创建一个Nginx的容器：nginx_8088</span><br><span class="line">docker run -d --name nginx_8088 -p 8088:80 nginx:latest</span><br><span class="line">// 连接容器：nginx_8088 至网络：test-network</span><br><span class="line">docker network connect test-network nginx_8088</span><br></pre></td></tr></table></figure>
+<p>接下来，通过下面的命令，我们可以拿到两个容器的 ID，在此基础上我们看一下两个容器各自分配的 IP 是多少：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker ps -a</span><br><span class="line">docker inspect --format=&#x27;&#123;&#123;.NetworkSettings.IPAddress&#125;&#125;&#x27; &lt;ContainerID&gt;</span><br></pre></td></tr></table></figure>
+
+<p>此时，我们会发现一个有趣的现象，<code>nginx_8087</code>这个容器，可以获得 IP 地址<code>172.17.0.2</code>，而<code>nginx_8088</code>则无法获得 IP 地址，这是为什么呢？这其实就是我们前面提到过的容器模式(<strong>container</strong>)，此时，<code>nginx_8088</code>这个容器实际上是和<code>nginx_8087</code>共享一个<code>Network Namespace</code>，即使它们有各自的文件系统。同样地，我们可以使用下面的命令来让容器从某个网络中断开：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// 断开容器：nginx_8088 至网络：test-network</span><br><span class="line">docker network disconnect test-network nginx_8088</span><br><span class="line">// 删除网络</span><br><span class="line">docker network rm test-network</span><br></pre></td></tr></table></figure>
+<p>是否觉得手动维护容器的网络非常痛苦？幸好，我们还有<code>Docker-Compose</code>可以用，上面两个<code>Nginx</code>的容器我们可以这样维护：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&quot;3.8&quot;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">nginx_8087:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx:latest</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">nginx_8087</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8087</span><span class="string">:80</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">test-network</span></span><br><span class="line">  <span class="attr">nginx_8088:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx:latest</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">nginx_8088</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8088</span><span class="string">:80</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">test-network</span></span><br><span class="line"></span><br><span class="line"><span class="attr">networks:</span></span><br><span class="line">  <span class="attr">test-network:</span></span><br><span class="line">    <span class="attr">driver:</span> <span class="string">bridge</span></span><br></pre></td></tr></table></figure>
+<p>此时，我们可以注意到，<code>Docker Compose</code>会创建两个网络，即<code>network_mode_default</code>和<code>network_mode_test-network</code>：</p>
+<p><img src="https://i.loli.net/2021/08/16/Sgsbpt1huUlmTQM.png" alt="Docker Compose 中使用自定义网络"></p>
+<p>这说明默认网络依然存在，如果我们希望完全地使用自定义网络，此时，我们可以这样修改服务编排文件：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">networks:</span></span><br><span class="line">  <span class="attr">default:</span></span><br><span class="line">    <span class="attr">driver:</span> <span class="string">host</span></span><br></pre></td></tr></table></figure>
+<p>这表示默认网络会采用主机模式，相应地，你需要修改<code>nginx_8087</code>和<code>nginx_8088</code>两个容器的<code>network</code>选项，使其指向<code>default</code>。</p>
+<p>除此之外，你还可以使用<code>external</code>指向一个已经存在的网络：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">networks:</span></span><br><span class="line">  <span class="attr">default:</span></span><br><span class="line">    <span class="attr">external:</span> <span class="literal">true</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">a-existing-network</span></span><br></pre></td></tr></table></figure>
+<p>在<code>Docker</code>中，每个容器都会分配<code>IP</code>，因为这个<code>IP</code>总是不固定的，所以，如果我们希望像虚拟机那样使用一个静态<code>IP</code>的话，可以考虑下面的做法：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&quot;3.8&quot;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">nginx_8087:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx:latest</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">nginx_8087</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8087</span><span class="string">:80</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">test-network</span></span><br><span class="line">          <span class="attr">ipv4_address:</span> <span class="number">172.2</span><span class="number">.0</span><span class="number">.10</span></span><br><span class="line">  <span class="attr">nginx_8088:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx:latest</span></span><br><span class="line">    <span class="attr">container_name:</span> <span class="string">nginx_8088</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8088</span><span class="string">:80</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">test-network</span></span><br><span class="line">          <span class="attr">ipv4_address:</span> <span class="number">172.2</span><span class="number">.0</span><span class="number">.11</span></span><br><span class="line"></span><br><span class="line"><span class="attr">networks:</span></span><br><span class="line">  <span class="attr">test-network:</span></span><br><span class="line">    <span class="attr">driver:</span> <span class="string">bridge</span></span><br><span class="line">    <span class="attr">config:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">subnet:</span> <span class="number">172.2</span><span class="number">.0</span><span class="number">.0</span><span class="string">/24</span></span><br></pre></td></tr></table></figure>
+<p>关于<code>Docker</code>及<code>Docker Compose</code>中的网络驱动，如 <a target="_blank" rel="noopener" href="https://docs.docker.com/network/macvlan/">macvlan</a>、<a target="_blank" rel="noopener" href="https://docs.docker.com/network/overlay/">overlay</a> 等等，这些显然是更加深入的话题，考虑到篇幅，不在这里做进一步的展开，对此感兴趣的朋友可以参考官方文档：<a target="_blank" rel="noopener" href="https://docs.docker.com/network/">Networking Overview</a> 以及 <a target="_blank" rel="noopener" href="https://docs.docker.com/compose/networking/">Networking in Compose</a>。博主写这篇文章的想法，主要是源于团队内落地<code>Docker-Compose</code>时的一次经历，当时有台虚拟机偶尔会出现<code>IP</code>被篡改的情况，而罪魁祸首居然是<code>Docker-Compose</code>，虽然最终用主机模式勉强解决了这个问题，可终究留下了难以言说的疑问，此刻，大概能稍微对<code>Docker</code>的网络有点了解。果然，越靠近底层，就是越是抽象、越是难以理解。</p>
+<h1 id="文本小结"><a href="#文本小结" class="headerlink" title="文本小结"></a>文本小结</h1><p>本文分享了<code>Docker</code>及<code>Docker-Compose</code>中的进阶使用技巧，主要探索了服务编排场景下容器的启动顺序、健康检查、网络模式三类问题。默认情况下，<code>Docker-Compose</code>的<code>depends_on</code>选项，取决于容器是否处于<code>running</code>状态，因此，当我们有多个服务需要启动时，实际上启动顺序并不会受到<code>depends_on</code>选项的影响，因为此时容器都是<code>running</code>的状态。为了解决这个问题，官方提供了 <a target="_blank" rel="noopener" href="https://github.com/vishnubob/wait-for-it">wait-for-it</a> 的方案，这是一种利用 <a target="_blank" rel="noopener" href="http://netcat.sourceforge.net/">Netcat</a> 对<code>TCP</code>和<code>UDP</code>进行检测的机制，当检测条件被满足的时候，它会执行由用户指定的启动脚本。从这里看，其实已经有了一点健康检查的影子，而官方的健康检查，则允许用户使用更加自由的命令或者脚本去实现检测逻辑，所以，从这个角度上来讲，<code>HEALTHCHECK</code>结合<code>depends_on</code>，这才是实现容器启动顺序控制的终极方案。<code>Docker</code>的网络是一个相对复杂的概念，所以，这里就是简单的介绍了下常见的四种网络模式，更深入的话题比如网络驱动等，还需要花时间去做进一步的探索。本文示例以上传至<a target="_blank" rel="noopener" href="https://github.com/Regularly-Archive/2021/tree/master/src/DockerTips">Github</a>，供大家参考。好了，以上就是这篇博客的全部内容啦，谢谢大家！</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Docker/" rel="tag"># Docker</a>
+          
+            <a href="/tags/%E5%AE%B9%E5%99%A8/" rel="tag"># 容器</a>
+          
+            <a href="/tags/%E6%9C%8D%E5%8A%A1%E7%BC%96%E6%8E%92/" rel="tag"># 服务编排</a>
+          
+            <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" rel="tag"># 云原生</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021-08-14-yijia-design-problem/" rel="next" title="宜家的设计问题">
+                <i class="fa fa-chevron-left"></i> 宜家的设计问题
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/%E4%BD%BF%E7%94%A8%20Python%20%E8%87%AA%E5%8A%A8%E8%AF%86%E5%88%AB%E9%98%B2%E7%96%AB%E5%81%A5%E5%BA%B7%E7%A0%81/" rel="prev" title="使用 Python 自动识别防疫健康码">
+                使用 Python 自动识别防疫健康码 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E7%9A%84%E5%90%AF%E5%8A%A8%E9%A1%BA%E5%BA%8F"><span class="nav-number">1.</span> <span class="nav-text">容器的启动顺序</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E7%9A%84%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5"><span class="nav-number">2.</span> <span class="nav-text">容器的健康检查</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%B9%E5%99%A8%E7%9A%84%E7%BD%91%E7%BB%9C%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">容器的网络模式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%96%87%E6%9C%AC%E5%B0%8F%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">文本小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

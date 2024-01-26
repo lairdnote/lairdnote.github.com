@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="编辑器,Unity3D,模板," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="现在解决了创建资源的问题，我们接下来只要调用 ProjectWindowUtil 的 StartNameEditingIfProjectWindowExists 方法即可，该方法需要传入一个继承自 EndNameEditAction 的类的实例、目标文件路径和模板文件的路径;好了，第二个参数作为一个验证的标志，如果该标志为 true，意味着我们定义的静态方法是一个验证方法在执行静态方法前会首先对方">
+<meta property="og:type" content="article">
+<meta property="og:title" content="扩展 Unity3D 编辑器的脚本模板">
+<meta property="og:url" content="https://blog.feedscoin.com/%E6%89%A9%E5%B1%95Unity3D%E7%BC%96%E8%BE%91%E5%99%A8%E7%9A%84%E8%84%9A%E6%9C%AC%E6%A8%A1%E6%9D%BF/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="现在解决了创建资源的问题，我们接下来只要调用 ProjectWindowUtil 的 StartNameEditingIfProjectWindowExists 方法即可，该方法需要传入一个继承自 EndNameEditAction 的类的实例、目标文件路径和模板文件的路径;好了，第二个参数作为一个验证的标志，如果该标志为 true，意味着我们定义的静态方法是一个验证方法在执行静态方法前会首先对方">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.loli.net/2021/10/18/ZeBFMRDiGk24fSz.png">
+<meta property="og:image" content="https://i.loli.net/2021/10/18/y3p5Gf81XLaKkle.gif">
+<meta property="article:published_time" content="2016-01-08T05:58:44.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:50:33.212Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="编辑器">
+<meta property="article:tag" content="Unity3D">
+<meta property="article:tag" content="模板">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/10/18/ZeBFMRDiGk24fSz.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/扩展Unity3D编辑器的脚本模板/"/>
+
+
+
+
+
+  <title>扩展 Unity3D 编辑器的脚本模板 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E6%89%A9%E5%B1%95Unity3D%E7%BC%96%E8%BE%91%E5%99%A8%E7%9A%84%E8%84%9A%E6%9C%AC%E6%A8%A1%E6%9D%BF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">扩展 Unity3D 编辑器的脚本模板</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-01-08T13:58:44+08:00">
+                2016-01-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Unity3D/" itemprop="url" rel="index">
+                    <span itemprop="name">Unity3D</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  现在解决了创建资源的问题，我们接下来只要调用 ProjectWindowUtil 的 StartNameEditingIfProjectWindowExists 方法即可，该方法需要传入一个继承自 EndNameEditAction 的类的实例、目标文件路径和模板文件的路径;好了，第二个参数作为一个验证的标志，如果该标志为 true，意味着我们定义的静态方法是一个验证方法在执行静态方法前会首先对方法进行验证，这个我们暂且不管，因为今天我们这个来自星星的黑科技主要和第三个参数有关，第三个参数表示一个优先级，它表示菜单项在菜单栏中的展示顺序，优先级大的菜单项会展示在优先级小的菜单项下面，由此我们就明白了了模板文件名中的类似 81、83 这样的数字的真实含义，注意到模板文件的排列顺序和编辑器中的菜单项顺序是一样的，我们做一个尝试，编写下面的代码：;Unity3D 默认的脚本模版位于/Editor/Data/Resources/ScriptTemplates/目录下，注意该目录相对 Unity3D 的安装目录而言，在这个目录中我们可以找到 Unity3D 中脚本模板的某些蛛丝马迹，首先，脚本模板是一个简单的文本文件，这个文本文件中预先填充了内容，我们在编辑器中创建模脚本或者 Shader 的时候实际上是读取这些文件然后在写入项目中的指定路径的
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>最近在学习 Shader 时感觉 Shader 语言参数众多、语法诡异，如果每次都从头开始写 Shader 一定是一件痛苦的事情。如果可以在本地定义好一组标准的 Shader 模板，这样当我们需要实现某些效果类似的 Shader 时，就可以在这个 Shader 模板的基础上进行修改。因为 Shader 文件是一个文本文件，所以我们可以非常容易地创建这样一个模板，在这个模板中我们可以进一步完善相关的参数注释，这样就不用每次写 Shader 的时候都需要查文档了，从这个角度出发，就进入了这篇文章的正题：扩展 Unity3D 编辑器的脚本模板。</p>
+<span id="more"></span>
+
+<h1 id="按图索骥，模板在哪里"><a href="#按图索骥，模板在哪里" class="headerlink" title="按图索骥，模板在哪里"></a>按图索骥，模板在哪里</h1><p>Unity3D 默认的脚本模版位于&#x2F;Editor&#x2F;Data&#x2F;Resources&#x2F;ScriptTemplates&#x2F;目录下，注意该目录相对 Unity3D 的安装目录而言，在这个目录中我们可以找到 Unity3D 中脚本模板的某些蛛丝马迹，首先，脚本模板是一个简单的文本文件，这个文本文件中预先填充了内容，我们在编辑器中创建模脚本或者 Shader 的时候实际上是读取这些文件然后在写入项目中的指定路径的。其次，这些模板文件中#SCRIPTNAME#或者#NAME#这样的标记，当我们在编辑器中创建文件的时候，这个标记会被替换成指定的文件名。比如 Unity3D 中继承自 MonoBehaviour 的脚本，有一个非常重要的特性是文件名必须和类名保持一致，这固然是 Unity3D 引擎的一个设定，可是在这里亦可以找到一个可以称得上理由的理由。我们注意到这些模板的文件名中都有一个独一无二的数字，比如 C#脚本的模板中的数字是 81、Shader 模板中的数字是 83，这些数字是什么呢，博主这里将其称为来自星星的黑科技。</p>
+<h1 id="来自星星的黑科技"><a href="#来自星星的黑科技" class="headerlink" title="来自星星的黑科技"></a>来自星星的黑科技</h1><p>作为一个经常捣鼓 Unity3D 编辑器的人，如果说你不知道 MenuItem、EditorWindow、ScriptableWizard 这些黑科技，那么说明你不是一个喜欢折腾和探索的人。从 Unity3D 的 API 文档中，我们知道 MenuItem 的原型为：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MenuItem(<span class="built_in">string</span> itemName,<span class="built_in">bool</span> isValidateFunction,<span class="built_in">int</span> priority) </span><br></pre></td></tr></table></figure>
+<p>我知道我们通常使用 MenuItem 常常使用的是它的第一个参数，即定义一个菜单项的名称，我们可以使用”&#x2F;“这样的分隔符来表示菜单的层级，MenuItem 需要配合一个静态方法来使用，可以理解为当我们点击当前定义的菜单后就会去执行静态方法中的代码，因此 MenuItem 常常可以帮助我们做些编辑器扩展开发的工作。好了，第二个参数作为一个验证的标志，如果该标志为 true，意味着我们定义的静态方法是一个验证方法在执行静态方法前会首先对方法进行验证，这个我们暂且不管，因为今天我们这个来自星星的黑科技主要和第三个参数有关，第三个参数表示一个优先级，它表示菜单项在菜单栏中的展示顺序，优先级大的菜单项会展示在优先级小的菜单项下面，由此我们就明白了了模板文件名中的类似 81、83 这样的数字的真实含义，注意到模板文件的排列顺序和编辑器中的菜单项顺序是一样的，我们做一个尝试，编写下面的代码：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">MenuItem(<span class="string">&quot;Assets/Create/Lua Scripts&quot;</span>, false, 85)</span>]</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">CreateLuaScripts</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">        </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">[<span class="meta">MenuItem(<span class="string">&quot;Assets/Create/固定功能着色器&quot;</span>, false, 86)</span>]</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">CreateFixedFunctionShader</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">        </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">[<span class="meta">MenuItem(<span class="string">&quot;Assets/Create/表面着色器&quot;</span>, false, 87)</span>]</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">CreateSurfaceShader</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">       </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">[<span class="meta">MenuItem(<span class="string">&quot;Assets/Create/可编程着色器&quot;</span>, false, 88)</span>]</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">CreateVertexAndFragmentShader</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">        </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意到我们按照已知的优先级继续写了四个方法，现在我们在编辑器中可以发现默认的菜单栏发生了变化：</p>
+<p><img src="https://i.loli.net/2021/10/18/ZeBFMRDiGk24fSz.png" alt="黑科技让菜单栏发生了变化"></p>
+<p>我们可以看到我们编写的这四个菜单都生效了，虽然它们暂时什么都做不了，但顺着这个方向去探索，我们是可以实现最初的梦想的。现在我们来思考如何根据模板来创建文件，这个对我们来说简直太简单了，通过 StreamReader 来读取模板，然后再用 StreamWriter 来生成文件就可以了。可是这样创建的文件的文件名是固定的，在创建文件的时候我们没法修改，而且即使修改了文件内定义的名字并不会改变啊。所以我们需要一个更好的解决方案。Unity3D 提供了一个 UnityEditor.ProjectWindowCallback 的命名空间，在这个空间中提供了一个称为 EndNameEditAction 的类，我们只需要继承这个类就可以完成这个任务。这个类需要重写 Action 的方法，我们知道创建一个文件的完整步骤是创建文件然后使其高亮显示，因此这部分代码实现如下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> 定义一个创建资源的Action类并实现其Action方法</span></span><br><span class="line"><span class="comment"><span class="doctag">///</span> <span class="doctag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="keyword">class</span> <span class="title">CreateAssetAction</span> : <span class="title">EndNameEditAction</span></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">Action</span>(<span class="params"><span class="built_in">int</span> instanceId, <span class="built_in">string</span> pathName, <span class="built_in">string</span> resourceFile</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//创建资源</span></span><br><span class="line">        Object obj = CreateAssetFormTemplate(pathName, resourceFile);</span><br><span class="line">        <span class="comment">//高亮显示该资源</span></span><br><span class="line">        ProjectWindowUtil.ShowCreatedAsset(obj);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">internal</span> <span class="keyword">static</span> Object <span class="title">CreateAssetFormTemplate</span>(<span class="params"><span class="built_in">string</span> pathName, <span class="built_in">string</span> resourceFile</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//获取要创建资源的绝对路径</span></span><br><span class="line">        <span class="built_in">string</span> fullName = Path.GetFullPath(pathName);</span><br><span class="line">        <span class="comment">//读取本地模版文件</span></span><br><span class="line">        StreamReader reader = <span class="keyword">new</span> StreamReader(resourceFile);</span><br><span class="line">        <span class="built_in">string</span> content = reader.ReadToEnd();</span><br><span class="line">        reader.Close();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//获取资源的文件名</span></span><br><span class="line">        <span class="built_in">string</span> fileName = Path.GetFileNameWithoutExtension(pathName);</span><br><span class="line">        <span class="comment">//替换默认的文件名</span></span><br><span class="line">        content = content.Replace(<span class="string">&quot;#NAME&quot;</span>, fileName);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//写入新文件</span></span><br><span class="line">        StreamWriter writer = <span class="keyword">new</span> StreamWriter(fullName, <span class="literal">false</span>, System.Text.Encoding.UTF8);</span><br><span class="line">        writer.Write(content);</span><br><span class="line">        writer.Close();</span><br><span class="line"></span><br><span class="line">        <span class="comment">//刷新本地资源</span></span><br><span class="line">        AssetDatabase.ImportAsset(pathName);</span><br><span class="line">        AssetDatabase.Refresh();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> AssetDatabase.LoadAssetAtPath(pathName, <span class="keyword">typeof</span>(Object));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这部分代码相对来说比较简单，就是读取本地模板文件然后生成新文件，在生成新文件的时候会将#NAME 替换成实际的文件名，这样我们就完成了文件资源的创建。现在的问题是如何在创建文件的时候获取实际的路径，这部分代码实现如下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="built_in">string</span> <span class="title">GetSelectedPath</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//默认路径为Assets</span></span><br><span class="line">    <span class="built_in">string</span> selectedPath = <span class="string">&quot;Assets&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取选中的资源</span></span><br><span class="line">    Object[] selection = Selection.GetFiltered(<span class="keyword">typeof</span>(Object), SelectionMode.Assets);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//遍历选中的资源以返回路径</span></span><br><span class="line">    <span class="keyword">foreach</span> (Object obj <span class="keyword">in</span> selection)</span><br><span class="line">    &#123;</span><br><span class="line">        selectedPath = AssetDatabase.GetAssetPath(obj);</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">string</span>.IsNullOrEmpty(selectedPath) &amp;&amp; File.Exists(selectedPath))</span><br><span class="line">        &#123;</span><br><span class="line">            selectedPath = Path.GetDirectoryName(selectedPath);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> selectedPath;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在解决了创建资源的问题，我们接下来只要调用 ProjectWindowUtil 的 StartNameEditingIfProjectWindowExists 方法即可，该方法需要传入一个继承自 EndNameEditAction 的类的实例、目标文件路径和模板文件的路径。例如要创建一个 Lua 脚本可以这样实现：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[<span class="meta">MenuItem(<span class="string">&quot;Assets/Create/Lua Scripts&quot;</span>, false, 85)</span>]</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">CreateLuaScripts</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    ProjectWindowUtil.StartNameEditingIfProjectWindowExists(<span class="number">0</span>,</span><br><span class="line">        ScriptableObject.CreateInstance&lt;CreateAssetAction&gt;(),</span><br><span class="line">        GetSelectedPath() + <span class="string">&quot;/NewLuaScript.lua&quot;</span>, <span class="literal">null</span>,</span><br><span class="line">        <span class="string">&quot;Assets/Editor/Template/85-Lua-NewLuaScript.lua.txt&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://i.loli.net/2021/10/18/y3p5Gf81XLaKkle.gif" alt="通过编辑器扩展实现 Shader 文件的创建"></p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>现在有了这个黑科技以后，我们可以创建更多的模板来扩展编辑器的功能，比如对 Shader 而言，我们可以创建些基础性的 Shader 模板，然后每次需要写 Shader 的时候直接从模板库中选择一个功能类似的 Shader 然后在此基础上进行修改，这样比从头开始写一个新的 Shader 应该会轻松不少，这段时间学习 Shader，感觉进程缓慢离图形学高手遥遥无期，行了，这篇博客就是这样了。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E7%BC%96%E8%BE%91%E5%99%A8/" rel="tag"># 编辑器</a>
+          
+            <a href="/tags/Unity3D/" rel="tag"># Unity3D</a>
+          
+            <a href="/tags/%E6%A8%A1%E6%9D%BF/" rel="tag"># 模板</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/blessing-skin-server-0-1/" rel="next" title="Blessing Skin Server 0.1 —— 开源 PHP Minecraft 皮肤站">
+                <i class="fa fa-chevron-left"></i> Blessing Skin Server 0.1 —— 开源 PHP Minecraft 皮肤站
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016-01-10-atswift-conference-summary/" rel="prev" title="首届 Swift 开发者大会见闻">
+                首届 Swift 开发者大会见闻 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%89%E5%9B%BE%E7%B4%A2%E9%AA%A5%EF%BC%8C%E6%A8%A1%E6%9D%BF%E5%9C%A8%E5%93%AA%E9%87%8C"><span class="nav-number">1.</span> <span class="nav-text">按图索骥，模板在哪里</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9D%A5%E8%87%AA%E6%98%9F%E6%98%9F%E7%9A%84%E9%BB%91%E7%A7%91%E6%8A%80"><span class="nav-number">2.</span> <span class="nav-text">来自星星的黑科技</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">3.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

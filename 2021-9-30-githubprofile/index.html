@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="GitHub," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Hello 各位早上好，今天是国庆小长假前的最后一个工作日。 按照我不成熟的经验，长假前和长假后，不少人可能都会临时患上「假期综合症」，具体表现为：无心上班、只想摸鱼，导致工作效率低下。 假期后回来也是一样，需要一两天作为过渡，从闲散、疲惫中重新找回工作的状态，就像是冬天开车之前，需要先点燃发动机预热一下，才能把你更好地带向远方。     反正都是会摸鱼的，不妨来看一点有意思的：       这是">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在 GitHub 个人主页添加一个有趣的贪吃蛇动画">
+<meta property="og:url" content="https://blog.feedscoin.com/2021-9-30-githubprofile/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="Hello 各位早上好，今天是国庆小长假前的最后一个工作日。 按照我不成熟的经验，长假前和长假后，不少人可能都会临时患上「假期综合症」，具体表现为：无心上班、只想摸鱼，导致工作效率低下。 假期后回来也是一样，需要一两天作为过渡，从闲散、疲惫中重新找回工作的状态，就像是冬天开车之前，需要先点燃发动机预热一下，才能把你更好地带向远方。     反正都是会摸鱼的，不妨来看一点有意思的：       这是">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/27/tan-chi-she.gif">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/30/16329663719831.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/30/16329667299571.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/30/16329670167145.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/30/16329671382752.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/30/16329681948235.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/30/16329676198923.jpg">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/27/tan-chi-she.gif">
+<meta property="og:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png">
+<meta property="article:published_time" content="2021-09-30T02:30:00.000Z">
+<meta property="article:modified_time" content="2024-01-15T07:59:41.977Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="GitHub">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/27/tan-chi-she.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/2021-9-30-githubprofile/"/>
+
+
+
+
+
+  <title>在 GitHub 个人主页添加一个有趣的贪吃蛇动画 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2021-9-30-githubprofile/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">在 GitHub 个人主页添加一个有趣的贪吃蛇动画</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-09-30T10:30:00+08:00">
+                2021-09-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>Hello 各位早上好，今天是国庆小长假前的最后一个工作日。</p>
+<p>按照我不成熟的经验，长假前和长假后，不少人可能都会临时患上「<strong>假期综合症</strong>」，具体表现为：无心上班、只想摸鱼，导致工作效率低下。</p>
+<p>假期后回来也是一样，需要一两天作为过渡，从闲散、疲惫中重新找回工作的状态，就像是冬天开车之前，需要先点燃发动机预热一下，才能把你更好地带向远方。    </p>
+<p>反正都是会摸鱼的，不妨来看一点有意思的：      </p>
+<p>这是我前几天在逛 GitHub 发现的有意思的东西，给自己的个人 GitHub 主页添加一个贪吃蛇动画，效果如下：  </p>
+<p>贪吃蛇会吃掉我们在 GitHub 上提交的代码记录，即吃掉那些绿色的格子。     </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/27/tan-chi-she.gif" alt="贪吃蛇"></p>
+<p>这里稍微提一下，有些朋友可能对下面👇这种类型的图表不熟悉，这种类型的图表称为「<strong>热力图</strong>」，每一个小格子对应每一天，格子默认都是灰色的，其中绿色的格子就表示我们在那一天提交了代码，格子的颜色越深，则说明我们在那一天提交的代码次数越多。   </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/30/16329663719831.jpg"></p>
+<p>除了 GitHub，<strong>在其他互联网产品上，也可以看到热力图的影子</strong>，例如下面这些产品：   </p>
+<ul>
+<li>豆瓣</li>
+<li>Day One</li>
+<li>flomo  </li>
+<li>幕布  </li>
+<li>极客时间</li>
+</ul>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/30/16329667299571.jpg"></p>
+<p>回到前面说的，如何在 GitHub 个人主页，实现贪吃蛇的小动画呢？  </p>
+<p>非常简单，只需要你会复制代码就可以了，这个贪吃蛇小动画的代码来自 GitHub 上的一位用户 @L1cardo 的个人页面：  </p>
+<p><em><a target="_blank" rel="noopener" href="https://github.com/L1cardo">https://github.com/L1cardo</a></em>   </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/30/16329670167145.jpg"></p>
+<p>实现贪吃蛇动画的代码如下，作者将其做成了一个会自动运行的命令，每天自动运行一次，运行之后会生成两个文件：gif 和 svg。      </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/30/16329671382752.jpg"></p>
+<p>为方便你使用，我将原作者的代码复制到了下面：     </p>
+<pre><code class="yml">name: Generate Snake
+
+on:
+  schedule:
+    - cron: &quot;0 0 * * *&quot;
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+      
+      - name: Generate Snake
+        uses: Platane/snk@master
+        id: snake-gif
+        with:
+          github_user_name: $&#123;&#123; github.repository_owner &#125;&#125;
+          gif_out_path: ./assets/github-contribution-grid-snake.gif
+          svg_out_path: ./assets/github-contribution-grid-snake.svg
+
+      - name: Push to GitHub
+        uses: EndBug/add-and-commit@v7.2.1
+        with:
+          branch: main
+          message: &#39;Generate Contribution Snake&#39;      
+</code></pre>
+<p>需要注意的是，我们需要将这个代码复制到与自己的 GitHub ID 同名仓库的 <code>.github/workflows</code> 路径下。    </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/30/16329681948235.jpg"></p>
+<p>同名仓库没有这个路径或文件夹📂的，且<strong>不知道如何创建文件夹</strong>的朋友，可以参考我之前写过的一篇文章：   </p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzAxMjY0NTY5OA==&mid=2649917461&idx=1&sn=0b56985fa9f5a51e75cc18e569edbb5e&chksm=83a88c38b4df052e9deb1a70428c6f0c2a38cbbbed5457d3e525041921e57afa2387b989ab54&token=80706750&lang=zh_CN#rd">在个人主页展示今年的时间进度 | GitHub</a>         </p>
+<p>复制完代码后，我们还要将代码生成的 svg 文件放在<strong>GitHub ID 同名仓库的 README 文档中</strong>，它才会在个人首页显示。    </p>
+<p>由于 README 文档是用 <strong>Markdown</strong> 格式进行编辑，引入 svg 文件需要使用下面这种格式。      </p>
+<pre><code class="markdown">![](https://raw.githubusercontent.com/这里更换为你的 GitHub ID/这里更换为你的 GitHub ID/main/assets/github-contribution-grid-snake.svg)              
+</code></pre>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/30/16329676198923.jpg"></p>
+<p>完成以上两步操作，就可以在自己的 GitHub 主页看到这个动画啦，还是很酷😎的：    </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/09/27/tan-chi-she.gif" alt="贪吃蛇"></p>
+<h2 id="欢迎关注"><a href="#欢迎关注" class="headerlink" title="欢迎关注"></a>欢迎关注</h2><p>以上，就是本次想和你分享的内容，希望能够对你有一点帮助。     </p>
+<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png" alt="公众号：效率工具指南">        </p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/GitHub/" rel="tag"># GitHub</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/gRPC%20%E6%90%AD%E9%85%8D%20Swagger%20%E5%AE%9E%E7%8E%B0%E5%AE%9E%E7%8E%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%96%87%E6%A1%A3%E5%8C%96/" rel="next" title="gRPC 搭配 Swagger 实现微服务文档化">
+                <i class="fa fa-chevron-left"></i> gRPC 搭配 Swagger 实现微服务文档化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021-10-5-apps/" rel="prev" title="近期值得关注的 App，乔布斯逝世 10 周年">
+                近期值得关注的 App，乔布斯逝世 10 周年 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AC%A2%E8%BF%8E%E5%85%B3%E6%B3%A8"><span class="nav-number">1.</span> <span class="nav-text">欢迎关注</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

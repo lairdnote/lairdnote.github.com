@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Liunx Python Rust Goalng DevOPS" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="那天项目部署的时候，遇到一个很诡异的现象，一度怀疑自己职业生涯到此结束了，后面经排除发现，原来是Linux和Windows下shell脚本换行符的格式问题，导致脚本一直执行不了…（到此，标题所说的事故讲完了…：）   看起来很蠢的问题，溜了 :) …但莎士比亚说过，解决一个问题最好的方式，就是下次不要再犯了。所以我们刨根问底儿，彻底搞清楚换行符在计算机系统中到底是个啥玩意儿。  历史来源">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次换行符引发的事故">
+<meta property="og:url" content="https://blog.feedscoin.com/%E8%AE%B0%E4%B8%80%E6%AC%A1%E6%8D%A2%E8%A1%8C%E7%AC%A6%E5%BC%95%E5%8F%91%E7%9A%84%E4%BA%8B%E6%95%85/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="那天项目部署的时候，遇到一个很诡异的现象，一度怀疑自己职业生涯到此结束了，后面经排除发现，原来是Linux和Windows下shell脚本换行符的格式问题，导致脚本一直执行不了…（到此，标题所说的事故讲完了…：）   看起来很蠢的问题，溜了 :) …但莎士比亚说过，解决一个问题最好的方式，就是下次不要再犯了。所以我们刨根问底儿，彻底搞清楚换行符在计算机系统中到底是个啥玩意儿。  历史来源">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://github.com/palmerye/pictureBed/raw/master/blog/16cdd1edadf05db1.png">
+<meta property="og:image" content="https://github.com/palmerye/pictureBed/raw/master/blog/16cdd56922280953.png">
+<meta property="og:image" content="https://github.com/palmerye/pictureBed/raw/master/blog/16cdd66cdb8e9c93.png">
+<meta property="og:image" content="https://github.com/palmerye/pictureBed/raw/master/blog/16cdd6a98da94de2.png">
+<meta property="og:image" content="https://github.com/palmerye/pictureBed/raw/master/blog/16cdd90fdc095d43.png">
+<meta property="og:image" content="https://github.com/palmerye/pictureBed/raw/master/blog/16cdd9bb03dcf40c.png">
+<meta property="og:image" content="https://github.com/palmerye/pictureBed/raw/master/blog/16ce067f129b3bcd.png">
+<meta property="article:published_time" content="2019-08-30T13:22:13.000Z">
+<meta property="article:modified_time" content="2024-01-15T08:11:30.413Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Liunx Python Rust Goalng DevOPS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.com/palmerye/pictureBed/raw/master/blog/16cdd1edadf05db1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/记一次换行符引发的事故/"/>
+
+
+
+
+
+  <title>记一次换行符引发的事故 | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E8%AE%B0%E4%B8%80%E6%AC%A1%E6%8D%A2%E8%A1%8C%E7%AC%A6%E5%BC%95%E5%8F%91%E7%9A%84%E4%BA%8B%E6%95%85/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">记一次换行符引发的事故</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-08-30T21:22:13+08:00">
+                2019-08-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <blockquote>
+<p>那天项目部署的时候，遇到一个很诡异的现象，一度怀疑自己职业生涯到此结束了，后面经排除发现，原来是<code>Linux</code>和<code>Windows</code>下<code>shell</code>脚本换行符的格式问题，导致脚本一直执行不了…（到此，标题所说的事故讲完了…：）</p>
+</blockquote>
+<blockquote>
+<p>看起来很蠢的问题，溜了 :) …但莎士比亚说过，解决一个问题最好的方式，就是下次不要再犯了。所以我们刨根问底儿，彻底搞清楚换行符在计算机系统中到底是个啥玩意儿。</p>
+</blockquote>
+<h2 id="历史来源"><a href="#历史来源" class="headerlink" title="历史来源"></a>历史来源</h2><p><img src="https://github.com/palmerye/pictureBed/raw/master/blog/16cdd1edadf05db1.png"></p>
+<span id="more"></span>
+
+<p>在计算机出现之前，有一种通信设备叫电传打字机（Teletype Mode），每秒输出10个字符，平均每个字符0.1秒，但有个问题，就是打完一行换行的时候，要消耗0.2秒，在这个时间段内，如果有新字符传来，就将丢失，所以有人为了解决这个问题，在每一行后面加两个字符表示该行结束。</p>
+<p>那这里就涉及到两个动作：</p>
+<ul>
+<li>将打印探头（就如上图的那个刻度上的头子）从右边拉回到左边，这就是回车（carriage return）</li>
+<li>拉回到左边还不够，还要将探头换行（相对应的就是将纸往上吐一行的距离），这就是换行（line feed）</li>
+</ul>
+<p>后面这个概念就被搬到了计算机系统上，But，有人的地方就有分歧，各大系统开始秀了。</p>
+<ul>
+<li><code>Windows</code>系统里，每行结尾是回车+换行（和上述提到的两个动作一致），<code>\r\n</code>;</li>
+<li><code>Unix</code>系统，每行结尾只有换行<code>\n</code>;</li>
+<li><code>Mac</code>系统，每行结尾只有换行<code>\n</code>;</li>
+</ul>
+<blockquote>
+<p>PS：老<code>MAC</code>系统用的<code>\r</code>，现在的<code>MAC</code>都是用的<code>\n</code>，和<code>Unix</code>一致了。</p>
+</blockquote>
+<p>不同系统之间的换行规则的不同，导致不同系统下的文件交叉使用的时候，存在不一致，比如最常见的，<code>Unix/Mac</code>系统下的文件在<code>Windows</code>里打开，所有文字会变成一行，原因显而易见。</p>
+<h3 id="ASCII码"><a href="#ASCII码" class="headerlink" title="ASCII码"></a>ASCII码</h3><table>
+<thead>
+<tr>
+<th>二进制</th>
+<th>十进制</th>
+<th>十六进制</th>
+<th>字符&#x2F;缩写</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>00001001</td>
+<td>9</td>
+<td>09</td>
+<td>HT (Horizontal Tab)</td>
+<td>水平制表符</td>
+</tr>
+<tr>
+<td>00001010</td>
+<td>10</td>
+<td>0A</td>
+<td><strong>LF</strong>&#x2F;NL(Line Feed&#x2F;New Line)</td>
+<td><strong>换行键</strong></td>
+</tr>
+<tr>
+<td>00001011</td>
+<td>11</td>
+<td>0B</td>
+<td>VT (Vertical Tab)</td>
+<td>垂直制表符</td>
+</tr>
+<tr>
+<td>00001100</td>
+<td>12</td>
+<td>0C</td>
+<td>FF&#x2F;NP (Form Feed&#x2F;New Page)</td>
+<td>换页键</td>
+</tr>
+<tr>
+<td>00001101</td>
+<td>13</td>
+<td>0D</td>
+<td><strong>CR</strong> (Carriage Return)</td>
+<td><strong>回车键</strong></td>
+</tr>
+<tr>
+<td>00001110</td>
+<td>14</td>
+<td>0E</td>
+<td>SO (Shift Out)</td>
+<td>不用切换</td>
+</tr>
+</tbody></table>
+<h2 id="实践见真章"><a href="#实践见真章" class="headerlink" title="实践见真章"></a>实践见真章</h2><blockquote>
+<p>我们一步步来实践下上述说的，测试环境是<code>Windows</code>和<code>Linux</code>。</p>
+</blockquote>
+<ol>
+<li><code>Windows</code>下新建个<code>win.txt</code>文件，写一句大白话。上面有听讲的同学应该知道，这里的换行符为<code>CRLF</code>。</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">talk is cheap,</span><br><span class="line">show me your code.</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>在<code>Linux</code>系统用<code>vim</code>打开刚新建的文件</li>
+</ol>
+<p><img src="https://github.com/palmerye/pictureBed/raw/master/blog/16cdd56922280953.png"></p>
+<p>这看起来不是挺正常的么？和<code>Windows</code>上显示的一样啊。注意这里<code>vim</code>查看文件的时候，会检测换行符，如果所有的换行符都是<code>CRLF</code>，那么它会自动以<code>dos</code>格式来显示文本内容，最下面<code>[dos]</code>里也体现了这一点。</p>
+<blockquote>
+<p><code>dos</code>(Disk Operating System 磁盘操作系统)和<code>Windows</code>一样采用的是<code>CRLF</code></p>
+</blockquote>
+<ol start="3">
+<li>使用<code>cat -A</code>选项查看文本所有的字符</li>
+</ol>
+<p><img src="https://github.com/palmerye/pictureBed/raw/master/blog/16cdd66cdb8e9c93.png"><br>可以看到多了<code>^M$</code>，<code>^M</code>这是<code>Linux</code>等系统下规定的特殊标记，占一个字符大小，不是<code>^</code>和<code>M</code>的组合，只能用<code>Ctrl+v，Ctrl+m</code>按出来；而<code>$</code>不是换行符，可以理解为<code>Linux</code>下用来表示文本结束EOF的符号。</p>
+<ol start="4">
+<li>使用<code>cat -v</code>选项显示出非打印字符</li>
+</ol>
+<p><img src="https://github.com/palmerye/pictureBed/raw/master/blog/16cdd6a98da94de2.png"><br>5. 把第一行的回车符去掉再看看</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i &#x27;1s/^M//&#x27; win.txt</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://github.com/palmerye/pictureBed/raw/master/blog/16cdd90fdc095d43.png"><br>看到第一行的<code>^M</code>不见了，第二行还是保留。</p>
+<ol start="6">
+<li>再重复第一步看看变化</li>
+</ol>
+<p><img src="https://github.com/palmerye/pictureBed/raw/master/blog/16cdd9bb03dcf40c.png"></p>
+<p>结果展示<code>vim</code>中多了<code>^M</code>这个符号，左下角也没了<code>[dos]</code>的标识，这里回应了第二点提到的现象，表示<code>vim</code>用<code>Linux</code>来显示文本内容。</p>
+<p>到这一步为止，我们证实了<code>Windows</code>和<code>Linux</code>环境下不同换行规则带来的差异。</p>
+<h3 id="验证下回车符的真实存在"><a href="#验证下回车符的真实存在" class="headerlink" title="验证下回车符的真实存在"></a>验证下回车符的真实存在</h3><blockquote>
+<p>看到社区里的小伙伴做了这个尝试，便参考着做了下，可以直观体现什么是“回车”。</p>
+</blockquote>
+<ol>
+<li>还原上述的例子，<code>cat -A</code>查看所有字符</li>
+<li><code>sed -i &#39;1s/.*/&amp; ypm/g&#39; win.txt</code>在第一行末尾加上<code> ypm</code></li>
+<li>再次查看，我们发现上面执行的命令用<code>.*</code>匹配整行的时候，不包括换行符<code>^M</code>，所以<code> ypm</code>加在了第一行的末尾</li>
+<li>用<code>cat</code>正常查看文本的时候，发现一件奇怪的事情，<code>  ypm</code>覆盖了<code>talk</code>，怎么解释？</li>
+</ol>
+<blockquote>
+<p>我们要知道<code>cat</code>普通模式下输出文本内容，会将<code>^M</code>理解为回车。</p>
+</blockquote>
+<p>这就可以解释了，遇到回车符，就像打印探头从右回到了左，<code> ypm</code>这里的四个字符，刚好覆盖了<code>talk</code>四个字符。这就直观解释了什么是回车。</p>
+<p><img src="https://github.com/palmerye/pictureBed/raw/master/blog/16ce067f129b3bcd.png"></p>
+<h2 id="如何规避"><a href="#如何规避" class="headerlink" title="如何规避"></a>如何规避</h2><p>谈到如何规避这个差异，其实不同方向上有不同方法，比如针对<code>^M</code>、强制转换文本格式，但个人觉得，能解决其根本问题的，还是在不同系统间，代码编辑的时候，注意到这个格式问题，各大IDE都有自己的解决方案。</p>
+<ol>
+<li>去除回车符号</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cat -v win.txt | tr -d &#x27;^M&#x27;  &gt; linux.txt</span><br><span class="line">或者</span><br><span class="line">cat win.txt |tr -d &#x27;\015&#x27; &gt; linux.txt</span><br><span class="line">或者</span><br><span class="line">cat win.txt |tr -d &#x27;\r&#x27; &gt; linux.txt</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">vim</span> 编辑器中输入</span><br><span class="line">:%s/^M//g</span><br><span class="line">或者</span><br><span class="line">:<span class="keyword">set</span> fileformat=unix</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>终端命令转换</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dos2unix win.txt</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>回车符 <code>\r</code>：CR（carriage return）</li>
+<li>换行符 <code>\n</code>：LF（line feed）</li>
+<li><code>Windows</code>系统遵循最原始的规则，即必须满足回车符+换行符，缺少或者顺序调换都不可，即<code>\r\n</code></li>
+<li><code>Unix</code>系统中遇到换行符<code>\n</code>就会进行回车+换行的操作，而回车符<code>\r</code>会作为特殊字符<code>^M</code>显示</li>
+</ul>
+<p>没想到这么简单的问题，扯了这么多，其实很多小伙伴也都遇到过这个问题，社区里也经常有因为换行符导致的“血案”，希望没有因此酿成之前那个程序猿小哥手误导致的几千万的损失。在运维、DB等领域，这些“小问题”可能会被放大，因此还是需要引起重视，虽然有很多规避手段，但在代码编写的初期，就应该养成习惯关注到这一点，排查问题的时候这同样是一个方向。</p>
+<blockquote>
+<p>PS: 可能会有不严谨的地方，也欢迎大家讨论，轻喷…</p>
+</blockquote>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a target="_blank" rel="noopener" href="http://www.ruanyifeng.com/blog/2006/04/post_213.html">http://www.ruanyifeng.com/blog/2006/04/post_213.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/linuxnote/p/3753153.html">https://www.cnblogs.com/linuxnote/p/3753153.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/zhangguangyi888/article/details/8159601">https://blog.csdn.net/zhangguangyi888/article/details/8159601</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019-08-25-ad-101/" rel="next" title="效果广告基础 - 兼读《计算广告》">
+                <i class="fa fa-chevron-left"></i> 效果广告基础 - 兼读《计算广告》
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019-09-21-competitive-strategy-summary/" rel="prev" title="如何有效地竞争 - 读《竞争战略》">
+                如何有效地竞争 - 读《竞争战略》 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">1451</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">71</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">914</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%86%E5%8F%B2%E6%9D%A5%E6%BA%90"><span class="nav-number">1.</span> <span class="nav-text">历史来源</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ASCII%E7%A0%81"><span class="nav-number">1.1.</span> <span class="nav-text">ASCII码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E8%B7%B5%E8%A7%81%E7%9C%9F%E7%AB%A0"><span class="nav-number">2.</span> <span class="nav-text">实践见真章</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E4%B8%8B%E5%9B%9E%E8%BD%A6%E7%AC%A6%E7%9A%84%E7%9C%9F%E5%AE%9E%E5%AD%98%E5%9C%A8"><span class="nav-number">2.1.</span> <span class="nav-text">验证下回车符的真实存在</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E8%A7%84%E9%81%BF"><span class="nav-number">3.</span> <span class="nav-text">如何规避</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
