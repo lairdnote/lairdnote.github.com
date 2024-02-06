@@ -274,6 +274,344 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/use-arp-spoofing-to-forbid-accessing-internet-on-other-devices-under-the-same-lan/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/use-arp-spoofing-to-forbid-accessing-internet-on-other-devices-under-the-same-lan/" itemprop="url">使用 ARP 欺骗禁止同一局域网下的设备访问网络</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-09-18T12:29:02+00:00">
+                2015-09-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>几天前窝们宿舍拿中继蹭对面 WiFi 的事儿被几个大嘴巴说漏了，引来一堆人蹭网，于是速度就慢如狗爬了。。</p>
+<p>于是拿出中继的那只就给窝说，有个叫 WiFi 杀手 的 APP，可以让蹭网的不能上网。</p>
+<p>窝当时就震惊了，woc 还有这么的 dio 的东西，问了下原理，结果他也讲不出个所以然来，似乎还说啥 DNS 污染。这完全不对嘛，应该是假冒网关之类的吧。遂 Google 之：</p>
+<blockquote>
+<p>WiFi 杀手的工作原理使用了ARP 欺骗的原理，假冒 ARP 回复来欺骗同一 WiFi 网络上的其他设备，让它们以为你的 Android 手机是网关，然后 WiFiKill 丢掉它们的网络包。</p>
+</blockquote>
+<p>唔。。ARP 欺骗啊，窝记得几年前有看过这个的资料（在窝还在使用三六蛋的时候）。这里给出维基百科上关于 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%9C%B0%E5%9D%80%E8%A7%A3%E6%9E%90%E5%8D%8F%E8%AE%AE">ARP</a> 和 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/ARP%E6%AC%BA%E9%A8%99">ARP 欺骗</a> 的页面。</p>
+<p>那么这个啥 WiFi 杀手到底是个啥黑科技呢？窝就来通俗的讲讲吧～</p>
+<p>ARP 协议是拿来干啥的呢？就是将一个网络层地址（譬如 IPv4 地址）转换为数据链路物理地址（MAC 地址）。</p>
+<p>那么估计你应该懂了吧？ARP 欺骗的原理就是伪造 ARP 回复报文。举个栗子（栗子中的 A，B 即为 IP，位置即为 MAC 地址：</p>
+<blockquote>
+<p>A 要和局域网中的 B 通信，于是在 LAN 中发了个广播：“我是 A，地址是 123，B，你丫在哪？”。如果是正常情况下，其他人看到广播会保持沉默，等到 B 收到广播后，他就会回应给 A：“A，我是 B，劳资地址是 234，找我干啥？” 于是可以进行通信。</p>
+</blockquote>
+<p>然而，在受到 ARP 欺骗的局域网中，情况就会是这样子。。</p>
+<blockquote>
+<p>A 要和 B 通信，发了个广播找 B 的 MAC 地址：“B，你在哪儿？”，然后就在 B 回应之前，同一局域网下恶意满满的主机 C 以迅雷不及掩耳盗铃之势抢答道：“窝是 B，MAC 地址是 450 哟～☆ ”。然而傻傻的 A 并不会验证 ARP 回复的真实性，就在地址簿上写上：“IP：B，MAC 地址：450” 供通信用，然后主机 A 尝试对 B 进行 IP 通信，就喜闻乐见地错误啦。</p>
+</blockquote>
+<p>ARP 欺骗大☆成★功～</p>
+<p>这就是 WiFi 杀手的原理，如果欺骗的是网关的 MAC 地址的话就会导致无法访问网络了。那么要如何防范呢？Android 平台上也有许多防御 ARP 欺骗的应用，有需要可以去找下。也可以手动清空 ARP 缓存表（在攻击者长时间跑着 ARP 欺骗程序的情况下没卵用</p>
+<p>顺带一提窝是不太提倡使用 WiFi 杀手这类应用呢。</p>
+<p>BTW，ARP 缓存表一般会在设备重启后清空哦～可以在手机终端中使用 <code>cat /proc/net/arp</code> 来查看你设备的 ARP 表</p>
+<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/09/2015-09-18_14-46-04.jpg"><img src="https://img.prin.studio/images/2015/09/2015-09-18_14-46-04.jpg" alt="image" title="wp-1442587367872"></a></p>
+<p> </p>
+<p>PS. 今天是窝博客第一次达到文章和评论数量相等哦～（虽然有一半评论是窝的 qwq</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/lets-encrypt-project-published-the-first-ca/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/lets-encrypt-project-published-the-first-ca/" itemprop="url">Let’s Encrypt 项目发行了第一个证书！</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-09-15T12:18:30+00:00">
+                2015-09-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%9A%8F%E7%AC%94/" itemprop="url" rel="index">
+                    <span itemprop="name">随笔</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>9 月窝最期待的项目终于有动静了！(*´∀｀) 第一个使用此项目签名的证书的网站是：<a target="_blank" rel="noopener" href="https://helloworld.letsencrypt.org/">https://helloworld.letsencrypt.org/</a>，不过目前还没有被信任。</p>
+<p>ISP：我们已做好封锁 443 端口的准备（笑</p>
+<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/09/2015-09-15_15-10-46.png"><img src="https://img.prin.studio/images/2015/09/2015-09-15_15-10-46.png" alt="lisfwIGqXcOfM"></a></p>
+<p>Let’s Encrypt 项目旨在让每个网站都能使用 HTTPS 加密，该项目获得了 Mozilla、思科、Akamai、IdenTrust 和 EFF 等组织的支持，由 Linux 基金会托管。目前 Let’s Encrypt CA 还没有被加入到信任CA列表，用户需要自己添加 ISRG root CA 才能在浏览器上正常访问Let’s Encrypt 签名的 HTTPS 网站。它已经向 Mozilla、Google、Microsoft 和Apple 递交了root CA 申请。Let’s Encryp t计划在11月份开放签名申请，感兴趣的网站可以申请参加 beta。</p>
+<p>以上来自 <a target="_blank" rel="noopener" href="http://solidot.org.feedsportal.com/c/33236/f/556826/s/49d9d106/sc/27/l/0L0Ssolidot0Borg0Cstory0Dsid0F4550A2/story01.htm">Solidot</a>。</p>
+<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/09/2015-09-15_04-18-28.png"><img src="https://img.prin.studio/images/2015/09/2015-09-15_04-18-28-576x1024.png" alt="wpid-2015-09-15_04-18-28.png"></a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/fix-phpmyadmin-on-amh-5-1-cant-login-independently/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3558,376 +3896,6 @@ AND p2.prod_id = &#39;DTNTR&#39;;
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/thanks-clowwindy/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/thanks-clowwindy/" itemprop="url">感谢 @clowwindy 为我们所做的一切</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-08-22T09:15:52+00:00">
-                2015-08-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%9A%8F%E7%AC%94/" itemprop="url" rel="index">
-                    <span itemprop="name">随笔</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>@clowwindy 的 <a target="_blank" rel="noopener" href="https://twitter.com/clowwindy?lang=zh-cn">twitter</a> 似乎已经开始更新推文了，看来人没有大事，也算是放心了。注意，C大现在已经锁推了，除了以前关注的都看不到他的推文。这里放一下 C大最近的两条推文：</p>
-<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/08/2015-08-22_01-14-53.png"><img src="https://img.prin.studio/images/2015/08/2015-08-22_01-14-53.png" alt="T1"></a></p>
-<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/08/2015-08-22_01-14-53.png"><img src="https://img.prin.studio/images/2015/08/2015-08-22_01-14-52.png" alt="T2"></a></p>
-<p>我文采不好，无法表达出我此刻的心情，只能说</p>
-<h3 id="clowwindy，感谢你为我们所做的一切。祝安好。"><a href="#clowwindy，感谢你为我们所做的一切。祝安好。" class="headerlink" title="@clowwindy，感谢你为我们所做的一切。祝安好。"></a>@clowwindy，感谢你为我们所做的一切。祝安好。</h3><p>下面的文字引用自 <a target="_blank" rel="noopener" href="https://typeblog.net/life/2015/08/21/long-live-shadowsocks.html">@Typeblog</a>：</p>
-<hr>
-<p>有很多人说今天这件事情恶心，事实上，它一直是这么恶心，只不过 shadowsocks 这种协议让我们暂时忘记了它有多恶心而已。</p>
-<p>世界闻名的两堵墙，一堵已经推倒了，另一堵居然一年比一年还要高。</p>
-<p>这里面的有些人啊，居然不知道自己一生都活在这么一个猪圈一样的东西里面，还为建造这堵墙的人加油助威。</p>
-<p>在这个神奇的国度，事情总是如此之神奇。大量的 shadowsocks 用户甚至不知道作者是谁，而作者本人却要为这些人付出极大的代价，这就是无名英雄。</p>
-<p>鲁迅先生说过：</p>
-<blockquote>
-<p>真的猛士，敢于直面惨淡的人生，敢于正视淋漓的鲜血。</p>
-</blockquote>
-<p>今天我们就看着这样淋漓的鲜血在眼前一滴滴地流尽！</p>
-<p>请永远记住：你的眼睛，你的手，你这个人，是你自己的，不是别人的。只要你有健全的思想，你能看到什么、应该看什么，只要不侵犯别人的权益，都是无可非议的。尤其是像某长城这样家长式的管教，或者说已经偏向于保护某些人可耻的利益，是无法接受的。</p>
-<p>更可怕的是为了一些自己都不知道是什么的利益而跪下来舔着别人的**还满口叫香的所谓评论员们。您们的吃相真恶心。</p>
-<p>如果不能做一个真的猛士，请至少确保，你所说的每一句话，是一个人应该说的，而不是连没有自我意识的东西都可以复制的话。</p>
-<p>我们是人，不是没有自我意识的机器，更不是可以随便被限制的思想。
- </p>
-<p>在此，谨向：</p>
-<h3 id="一切像-clowwindy-一样为互联网自由而努力的斗士们"><a href="#一切像-clowwindy-一样为互联网自由而努力的斗士们" class="headerlink" title="一切像 clowwindy 一样为互联网自由而努力的斗士们"></a>一切像 clowwindy 一样为互联网自由而努力的斗士们</h3><p>致敬！</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/set-up-ghost-blogging-platform-on-ubuntu-server/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/set-up-ghost-blogging-platform-on-ubuntu-server/" itemprop="url">在 Ubuntu 服务器上部署 Ghost 博客程序</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-08-21T21:03:09+00:00">
-                2015-08-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
-                    <span itemprop="name">技术</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <blockquote>
-<p>本文已废弃。</p>
-<p>排版的错误是由于 WordPress 转换至 Ghost 文章所致，懒得改了（笑</p>
-</blockquote>
-<p>虽然说网上有很多部署 Ghost 的教程了，官方<a target="_blank" rel="noopener" href="http://docs.ghost.org/zh/installation/">中文文档</a>也已经很完善了。但看了大多数的教程，都感觉叙述了太多冗余内容，譬如说 安装并配置 nginx、apache、mysql 等，甚至有些还教了如何使用 ssh。窝这里希望写的是干净、优雅、易懂的教程，并标出容易踩坑的地方。</p>
-<h2 id="教程目录：（点击展开）"><a href="#教程目录：（点击展开）" class="headerlink" title="教程目录：（点击展开）"></a>教程目录：（点击展开）</h2><ul>
-<li><strong>一、安装所需环境</strong></li>
-<li>1.1 Node.js</li>
-<li>1.2 Nginx&#x2F;Apache，Mysql</li>
-<li><strong>二、下载安装 Ghost</strong></li>
-<li>2.1 建立 Ghost 所使用的 mysql 数据库</li>
-<li>2.2 下载 Ghost 最新版本 v0.6.4</li>
-<li>2.3 安装 Ghost</li>
-<li><strong>三、配置 Ghost</strong></li>
-<li>3.1 使你的 Ghost 可以被外网访问</li>
-<li>3.2 使你的 Ghost 持久运行</li>
-<li>3.3 配置 nginx 使 ghost 可以使用域名访问</li>
-<li><strong>四、Ghost 优化</strong></li>
-</ul>
-<p>页内标签跳转等有空再做吧~</p>
-<hr>
-</div>本教程所使用的环境以及所需材料：
-
-<ul>
-<li>Ubuntu 14.04 VPS 或其他</li>
-<li>一颗折腾的心</li>
-<li>熟练运用搜索引擎的技能</li>
-</ul>
-<h2 id="一、安装所需环境"><a href="#一、安装所需环境" class="headerlink" title="一、安装所需环境"></a>一、安装所需环境</h2><h3 id="1-1-Node-js"><a href="#1-1-Node-js" class="headerlink" title="1.1 Node.js"></a>1.1 Node.js</h3><p>Ghost 构建于 Node.js 平台之上，支持 0.10.* 版本（最新稳定版）的 Node.js。</p>
-<p><strong>什么是 Node.js ？</strong></p>
-<blockquote>
-<p>Node.js 是一个开放源代码、跨平台的、用于服务器端和网络应用的运行环境。Node.js 应用用 JavaScript 语言写成，在 Node.js 运行时运行。Node.js 主要用于编写像 Web 服务器一样的网络应用，提供事件驱动和非阻塞 I&#x2F;O API，可优化应用程序的吞吐量和规模。 From <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Node.js">Wikipedia</a></p>
-</blockquote>
-<p>顺带一提 Node.js 的衍生版本 io.js 也可以，这里就不介绍了。</p>
-<p>直接使用软件包管理器安装 Node.js 即可</p>
-<p>$ sudo apt-get install node.js nodejs-legacy npm</p>
-<p>安装完成后可以使用 <span class="lang:default decode:true crayon-inline ">node -v</span>  和 <span class="lang:default decode:true crayon-inline ">npm -v</span>  查看版本信息 </p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2015/set-up-ghost-blogging-platform-on-ubuntu-server/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3978,7 +3946,7 @@ AND p2.prod_id = &#39;DTNTR&#39;;
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1458</span>
+                  <span class="site-state-item-count">1460</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3989,7 +3957,7 @@ AND p2.prod_id = &#39;DTNTR&#39;;
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">72</span>
+                  <span class="site-state-item-count">73</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -4000,7 +3968,7 @@ AND p2.prod_id = &#39;DTNTR&#39;;
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">890</span>
+                  <span class="site-state-item-count">895</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

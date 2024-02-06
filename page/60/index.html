@@ -274,6 +274,514 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/ubuntu-14-04-change-kernel-to-install-serverspeeder/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/ubuntu-14-04-change-kernel-to-install-serverspeeder/" itemprop="url">Ubuntu 14.04 更换内核以安装锐速</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-08-02T13:59:55+00:00">
+                2015-08-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>想安装锐速，然而窝的俩 VPS 内核都不被锐速支持，只好自己更改内核。DigitalOcean 可以直接在控制面板里更改内核，然而 ConoHa 的控制面板就没有那么强大了，要靠窝们自己手动修改内核 (´_ゝ)</p>
+<h3 id="1-查看当前系统内核"><a href="#1-查看当前系统内核" class="headerlink" title="1.查看当前系统内核"></a>1.查看当前系统内核</h3><p>一般 ssh 登录信息页就可以看到内核信息了，比如窝是：</p>
+<p><em>Welcome to Ubuntu 14.04.2 LTS (GNU&#x2F;Linux 3.16.0-36-generic i686)</em></p>
+<p>或者使用 <code>uname -r</code>  查看</p>
+<h3 id="2-安装新内核"><a href="#2-安装新内核" class="headerlink" title="2.安装新内核"></a>2.安装新内核</h3><p>锐速支持的内核可以在<a target="_blank" rel="noopener" href="http://my.serverspeeder.com/ls.do?m=availables">这里</a>查看，窝要安装的是 <em>3.13.0-24-generic</em></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get install linux-image-extra-3.13.0-24-generic</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-卸载其他内核"><a href="#3-卸载其他内核" class="headerlink" title="3.卸载其他内核"></a>3.卸载其他内核</h3><p>查看系统现有内核 </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ dpkg -l|grep linux-image</span><br></pre></td></tr></table></figure>
+<p>卸载列出的其他内核：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-get purge linux-image-3.16.0-36-generic linux-image-extra-3.16.0-36-generic</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-更新-grub-系统引导文件并重启"><a href="#4-更新-grub-系统引导文件并重启" class="headerlink" title="4.更新 grub 系统引导文件并重启"></a>4.更新 grub 系统引导文件并重启</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo update-grub</span><br><span class="line">$ sudo reboot</span><br></pre></td></tr></table></figure>
+<p>不出意外的话重启后启用的就是新的内核了~</p>
+<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/08/2015-08-02_05-51-37.png"><img src="https://img.prin.studio/images/2015/08/2015-08-02_05-51-37.png" alt="kernel"></a></p>
+<p>安装锐速请看<a target="_blank" rel="noopener" href="https://prinzeugen.net/use-serverspeeder-to-speed-up-your-shadowsocks/">这篇博文</a>~ (σﾟ∀ﾟ)σ</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015-08-01-become-a-tech-leader-summary/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015-08-01-become-a-tech-leader-summary/" itemprop="url">MOI 模型 - 读《成为技术领导者》</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-08-01T04:23:32+00:00">
+                2015-08-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/summary/" itemprop="url" rel="index">
+                    <span itemprop="name">summary</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <img src="/images/become-a-tech-leader-book.jpg" class="">
+
+<p>最近看完了温伯格的 <a target="_blank" rel="noopener" href="http://item.jd.com/11706334.html">《成为技术领导者》</a>，本书英文名叫《Becoming A Technical Leader》。这是一本看起来很快，但是理解起来很慢的书，害怕自己看完书后过一段时间就忘了，于是我还是花时间整理了我阅读时的笔记和摘要。</p>
+<p>图书一共有 24 个章节，分成 5 大部分。有一些章节完全以讲故事的方式展开，另外有一些章节又是以罗列知识点的方式展开讨论。全书结构如下：</p>
+<ul>
+<li>第一大部分：定义。算是总体概括，介绍了领导力的定义以及领导方式模型等内容。</li>
+<li>第二大部分：创新。领导方式模型之一。</li>
+<li>第三大部分：激励。领导方式模型之一。</li>
+<li>第四大部分：组织。领导方式模型之一。</li>
+<li>第五大部分：转变。</li>
+</ul>
+<p>在分享我的流水帐似的笔记之前，先说说给我印象最深的几个书中的观点吧。</p>
+<h2 id="观点一：领导力究竟是什么？"><a href="#观点一：领导力究竟是什么？" class="headerlink" title="观点一：领导力究竟是什么？"></a>观点一：领导力究竟是什么？</h2><blockquote>
+<p>所谓领导力，就是创造这样一个环境，每个人都能在其中发挥出更多的能力。</p>
+</blockquote>
+<p>所以领导力应该注重过程管理而不是管理人，在过程中帮助大家发挥更大的能力。书中打了一个比方，就像园丁培育种子那样，不是揠苗助长，而是催生种子自身的力量。</p>
+<p>领导力就是催生他人身上的创造力和生产力。这对于技术领域的工作更适用，因为在技术团队中，大家的工作量不好衡量，工作细节需要创造力和努力。</p>
+<p>从某种意义上说，技术人员转型做领导，在方面应该是偏弱的，因为创造环境是需要更多的与环境交互，而技术人员更多擅长的是与计算机交互。与环境交互所需要的技能和与计算机交互所需要的技能是完全不一样的。</p>
+<p>所以，对于技术人员来说，成为技术领导的道路并不容易。</p>
+<h2 id="观点二：实践"><a href="#观点二：实践" class="headerlink" title="观点二：实践"></a>观点二：实践</h2><p>作者指出对于管理来说，其实是实践大于理论的，所以作者在「学习成为组织者」一章中，首先就提出了实践，并且指出：组织人的很多理论「表面上看」是相互矛盾的，所以需要实践的指导，才能理解其特定环境下的意义。对于一些当前不是领导的人，作者列出了一些实践的方式，例如：职业协会，社团等。</p>
+<p>光实践不行，还需要思考，观察和试验就是思考的具体方式。观察是说发现社交环境里面的一些「秘密」或规律。试验是说想一些办法来验证自己的假设。</p>
+<p>作者举了一个例子，比如观察大家在开会时坐的位置，出游的时候让孩子收拾行李，观察孩子的行为方式。</p>
+<p>通过观察和试验，可以让自己形成分析和思考的习惯，另一方面，我感觉这也是培养好奇心的方式。</p>
+<h2 id="观点三：写日记"><a href="#观点三：写日记" class="headerlink" title="观点三：写日记"></a>观点三：写日记</h2><p>本书的译者余晟在序言中用「身份证掉了怎么办？捡起来。」来比喻写日记。简单来说，在确定一些事情怎么做之后，简单的重复和坚持就能收获效果。很多事情没有技巧，只有 10000 小时的规律，你坚持在某项事情上投入时间，就能够获得相应的收获。</p>
+<p>总结出来就是 4 个字：切忌浮躁！</p>
+<h2 id="观点四：一些常识"><a href="#观点四：一些常识" class="headerlink" title="观点四：一些常识"></a>观点四：一些常识</h2><p>我在工作中积累了一些「常识」，在本书中得到了更一步的确认，这些常识包括：</p>
+<ul>
+<li>因为具体的 Coding 工作做得少了，做技术领导肯定会影响自己的编程实践能力。</li>
+<li>不要做那些已经分配给别人的任务，即便必须让手下人犯错误。</li>
+<li>不能因为害怕犯错或丢脸就不尝试心中想做的事情。</li>
+<li>讨论问题的时候需要就事论事，不能为了争论赢而争，也不能带有个人情绪。</li>
+</ul>
+<p>这是一本不错的书，推荐大家阅读。</p>
+<h2 id="读书摘要和总结"><a href="#读书摘要和总结" class="headerlink" title="读书摘要和总结"></a>读书摘要和总结</h2><p>以下是详细的每一章的摘要和总结。总结中加入了我自己的思考，不一定正确，仅供参考。</p>
+<h3 id="第一部分：定义"><a href="#第一部分：定义" class="headerlink" title="第一部分：定义"></a>第一部分：定义</h3><h4 id="第一章-领导力究竟是什么"><a href="#第一章-领导力究竟是什么" class="headerlink" title="第一章 领导力究竟是什么"></a>第一章 领导力究竟是什么</h4><p>定义了领导力。</p>
+<p>所谓领导力，就是创造这样一个环境，每个人都能在其中发挥出更多的能力。</p>
+<p>所以领导力应该注重过程管理而不是管理人，在过程中帮助大家发挥更大的能力。书中打了一个比方，就像园丁培育种子那样，不是揠苗助长，而是催生种子自身的力量。</p>
+<p>领导力就是催生他人身上的创造力和生产力。这对于技术领域的工作更适用，因为在技术团队中，大家的工作量不好衡量，工作细节需要创造力和努力。</p>
+<h4 id="第二章-领导方式模型"><a href="#第二章-领导方式模型" class="headerlink" title="第二章 领导方式模型"></a>第二章 领导方式模型</h4><p>介绍了领导方式模型 MOI。</p>
+<p>讲了故事，从学弹玻璃球，说明即使合理的指导也不一定有用。因为人们需要克服自己性格的缺陷。</p>
+<p>领导力 MOI 模型：</p>
+<ul>
+<li>M - 激励 (motivation)：奖品或是磨难</li>
+<li>O - 组织 (organization)：组织结构</li>
+<li>I - 头脑或创新 (ideas, innovation)</li>
+</ul>
+<h4 id="第三章-解决问题的方式"><a href="#第三章-解决问题的方式" class="headerlink" title="第三章 解决问题的方式"></a>第三章 解决问题的方式</h4><p>介绍了解决问题的方式，分三个方面：</p>
+<ul>
+<li>理解问题</li>
+<li>管理思维</li>
+<li>保证质量</li>
+</ul>
+<p>理解问题：</p>
+<ul>
+<li>细心阅读规范</li>
+<li>鼓励成员认真阅读规范</li>
+<li>解决分歧时，要回到最初的问题</li>
+<li>从客户处获得规范清晰的定义和额外信息</li>
+<li>工作进行一段时间之后，能更好理解某些需求的意义时，再回头看看规范。</li>
+</ul>
+<p>这个其实就是产品里面讲的了解真实的、原始数据，基于原始数据做决策。</p>
+<p>管理思维</p>
+<p>这一点更多是想关于想法的交流，作者提出：</p>
+<ul>
+<li>要为了团队，敢于放弃自己原本坚持的想法</li>
+<li>不要为了自负而坚持自己的想法</li>
+<li>如果别人没有充分理解自己的想法理由，则应该坚持表达。</li>
+<li>明确批评想法而不是批评人</li>
+<li>考虑想法实施的时间成本</li>
+<li>根据形势变化，要学会重新考虑以前考虑过的想法</li>
+</ul>
+<p>这一点有一些涉及开会时的交流技巧，有一些涉及工作内容管理。</p>
+<p>保证质量</p>
+<p>作者提出了一些办法，包括进展中测试质量，观察进展速度，动态评估速度等。</p>
+<h4 id="第-4-章-领导的成长"><a href="#第-4-章-领导的成长" class="headerlink" title="第 4 章 领导的成长"></a>第 4 章 领导的成长</h4><p>首先介绍了领导力的成长是阶段性的，刚开始成长很快，然后进入一段平滑期，然后又快速成长。整体是一个阶梯的方式在上升。</p>
+<p>似乎本章就只讲了这个。</p>
+<h4 id="第-5-章-我做不到，因为。。。"><a href="#第-5-章-我做不到，因为。。。" class="headerlink" title="第 5 章 我做不到，因为。。。"></a>第 5 章 我做不到，因为。。。</h4><p>指出了一些借口，比如：</p>
+<p>我不是领导。作者指出领导力和领导是两个概念。<br>我的技术会退步。这个我感同身受呀！文章似乎没有给出答案。只是说这是一个 “艰难的选择”。</p>
+<h3 id="第二部分-创新"><a href="#第二部分-创新" class="headerlink" title="第二部分 创新"></a>第二部分 创新</h3><h4 id="第-6-章-创新的三大障碍"><a href="#第-6-章-创新的三大障碍" class="headerlink" title="第 6 章 创新的三大障碍"></a>第 6 章 创新的三大障碍</h4><p>本章如题，讲了三个障碍：</p>
+<ol>
+<li>不能从旁观者的角度看待自己。学会观察自己和别人是一个好办法。也可以让别人来观察自己，给自己找问题。</li>
+<li>没问题综合症。其实就是需要倾听，了解对方真正想表达的内容。要点：不打断别人，了解清楚对方的需求，不着急下结论或提供解决方案。</li>
+<li>看不见其他办法，以为方法只有一个。</li>
+</ol>
+<p>感觉作者有点绕，转化一下，就是：自省，倾听，开放。</p>
+<h4 id="第-7-章-加深自我了解的工具"><a href="#第-7-章-加深自我了解的工具" class="headerlink" title="第 7 章 加深自我了解的工具"></a>第 7 章 加深自我了解的工具</h4><p>每天花 5 分钟写日记。</p>
+<h4 id="第-8-章-提升创新能力"><a href="#第-8-章-提升创新能力" class="headerlink" title="第 8 章 提升创新能力"></a>第 8 章 提升创新能力</h4><p>别害怕犯错，偷窃（别人的想法）</p>
+<h4 id="第-9-章-眼光"><a href="#第-9-章-眼光" class="headerlink" title="第 9 章 眼光"></a>第 9 章 眼光</h4><p>其实是讲的看问题的角度。以及通过良好的角度看待问题，从而实现的自我的思想控制。</p>
+<h3 id="第三部分：激励"><a href="#第三部分：激励" class="headerlink" title="第三部分：激励"></a>第三部分：激励</h3><h4 id="第-10-章-激励他人的第一大障碍"><a href="#第-10-章-激励他人的第一大障碍" class="headerlink" title="第 10 章 激励他人的第一大障碍"></a>第 10 章 激励他人的第一大障碍</h4><p>这章主要讲交流上容易产生的误解。简单来说，表达沟通要清晰，避免产生误解。<br>如果产生了误解，也应该想办法控制自己的情绪。</p>
+<h4 id="第-11-章-激励他人的第二大障碍"><a href="#第-11-章-激励他人的第二大障碍" class="headerlink" title="第 11 章 激励他人的第二大障碍"></a>第 11 章 激励他人的第二大障碍</h4><p>里面通过讲故事，提了很多经验，包括：</p>
+<ol>
+<li>关系到生存问题时，必须把人放在第一位，别无选择。</li>
+<li>如果不是高度技术化的工作，领导就可以通过威慑来领导，而不需要太强的能力。</li>
+<li>有强大技术背景的人可以把任何任务都转化为技术任务，以逃避他们不想做的事情。（即本来沟通说一句话的事情就可以避免很多开发的活，却不能主动沟通）</li>
+<li>不关心人的领导没有可以领导的人，除非手下人别无选择。</li>
+<li>如果你不能提供什么实质的内容，却假装有内容，那么无论你多么关心别人，都不会吸引他们。</li>
+<li>面向任务的领导往往都高估了自己的成就。</li>
+<li>我们所做的工作，几乎无一真正重要到必须牺牲执行者的未来。</li>
+<li>如果任务很复杂，就没有哪位领导能够保证不会「百密一疏」。</li>
+<li>要成为成功的领导，就不能对人性有细毫抑制。</li>
+<li>如果你是领导，以平常心对待他人就是你的任务， 在此之外，没有其他值得完成的任务。</li>
+</ol>
+<h4 id="第-12-章-帮助其他人会发生的问题"><a href="#第-12-章-帮助其他人会发生的问题" class="headerlink" title="第 12 章 帮助其他人会发生的问题"></a>第 12 章 帮助其他人会发生的问题</h4><p>在帮助的时候明确信息，避免让对方产生误解。</p>
+<h4 id="第-13-章-学会激励他人"><a href="#第-13-章-学会激励他人" class="headerlink" title="第 13 章 学会激励他人"></a>第 13 章 学会激励他人</h4><p>始终真诚（无论你是否刻意），来自《人性的弱点》卡耐基的书。</p>
+<h4 id="第-14-章-力量从何处来"><a href="#第-14-章-力量从何处来" class="headerlink" title="第 14 章 力量从何处来"></a>第 14 章 力量从何处来</h4><p>这部分首先讲了关系的力量和技术的力量。</p>
+<p>然后，作者似图说明，不应该当想着力量，这里的力量似乎是指一个人的权力或影响力。而应该寻求自己真正应该追求的东西，比如团队的表现，大家是否工作舒服。</p>
+<p>本章最后的一些问题比较有意思：</p>
+<ul>
+<li>如果你中了五百万彩票，你要做什么？没有钱的时候，是什么阻止你做这些事情？</li>
+<li>你现在想要掌握什么力量？如果你放弃了，最坏结果是什么？最好结果是什么？</li>
+</ul>
+<h4 id="第-15-章-力量、缺陷与一致"><a href="#第-15-章-力量、缺陷与一致" class="headerlink" title="第 15 章 力量、缺陷与一致"></a>第 15 章 力量、缺陷与一致</h4><p>简单来说，就是要保证自己真正的真诚，一致。如果做得不好，就应该努力改变自己。</p>
+<h3 id="第四部分-组织"><a href="#第四部分-组织" class="headerlink" title="第四部分 组织"></a>第四部分 组织</h3><h4 id="第-16-章-培养组织力"><a href="#第-16-章-培养组织力" class="headerlink" title="第 16 章 培养组织力"></a>第 16 章 培养组织力</h4><p>从头到尾讲了一个力量转换的故事，其实是说了解清楚自己的筹码，用自己筹码投资更有价值的事情，那些可以提升自己能力的事情。</p>
+<p>作为领导，更需要注意用自己的力量为团队成员谋福利，包括成长的机会和更舒服的工作环境。</p>
+<h4 id="第-17-章-团队有效的组织形式"><a href="#第-17-章-团队有效的组织形式" class="headerlink" title="第 17 章 团队有效的组织形式"></a>第 17 章 团队有效的组织形式</h4><p>主要介绍了几种组织的决策形式，并且讨论了各自的优缺点。这些组织形式包括：</p>
+<ul>
+<li>独立解决</li>
+<li>投票</li>
+<li>强势领导（其实就是领导说了算）</li>
+<li>一致意见（大家在充分沟通信息的情况下，共同参与决策）</li>
+</ul>
+<p>结论是没有什么必然最好的组织形式。</p>
+<p>如果讨论的时间充分的话，一致性决策应该是比较好的决策方式。但是并不是所有事情都可以通过一致性意见来决策，比如讨论时间不足以大家达成一致，信息交流不够充分，大家由于知识背景或经验的原因造成观点不一致。</p>
+<p>一个解决问题的组织，他的功能应该是创造一个环境，让大家：</p>
+<ul>
+<li>理解问题</li>
+<li>管理思维</li>
+<li>保证质量</li>
+</ul>
+<h4 id="第-18-章-有效组织的障碍"><a href="#第-18-章-有效组织的障碍" class="headerlink" title="第 18 章 有效组织的障碍"></a>第 18 章 有效组织的障碍</h4><p>作者列出了以下障碍：</p>
+<ul>
+<li>抓大目标，英文原文是 Playing big games，我的理解是简单的下命令，而不关注事情的细节，难点，以及执行者的特点，沟通推进的步骤等。简单来说，就是那种只享受着下命令的爽快，却不关注把事情搞定背后需要的整个过程的细节的人。</li>
+<li>把人当机器，例如搞过多的标准和流程，以为这些规则就可以让事情做成。</li>
+<li>亲自动手，这个是技术人员升到管理人员常常经历的一个时期，刚开始什么都想亲自做，但是领导的职责不是解决单个问题，而是创造一个环境，让许多问题都可以在其中解决。</li>
+<li>奖励低效组织，组织不是要解决问题，而是要避免问题。如果都看见明显的危机了，说明之前的规划就有问题了。这一条说起来容易做起来难，比如安全问题，都是遇到了这方面的问题再解决，如果在要问题出现之前就避免，公司领导会不会觉得安全部门没什么用处？</li>
+</ul>
+<p>解决问题的领导的全部目标就是：创造一个环境，其中每个人都能解决问题，做出决策，再执行这些决策。</p>
+<h4 id="第-19-章-学习成为组织者"><a href="#第-19-章-学习成为组织者" class="headerlink" title="第 19 章 学习成为组织者"></a>第 19 章 学习成为组织者</h4><h5 id="实践"><a href="#实践" class="headerlink" title="实践"></a>实践</h5><p>这方面其实是实践大于理论的，所以本章作者首先就提出了实践，并且指出：组织人的很多理论「表面上看」是相互矛盾的，所以需要实践的指导，才能理解其特定环境下的意义。</p>
+<p>对于一些当前不是领导的人，作者列出了一些实践的方式，例如：职业协会，社团等。</p>
+<h5 id="观察与试验"><a href="#观察与试验" class="headerlink" title="观察与试验"></a>观察与试验</h5><p>光做不行，还需要思考，观察和试验就是思考的具体方式。观察是说发现社交环境里面的一些「秘密」或规律。试验是说想一些办法来验证自己的假设。</p>
+<p>作者举了一个例子，比如观察大家在开会时坐的位置，出游的时候让孩子收拾行李。</p>
+<p>通过观察和试验，可以让自己形成分析和思考的习惯，另一方面，我感觉这也是一种好奇心的方式。</p>
+<h5 id="寻找差异：他们在尽力做到最好"><a href="#寻找差异：他们在尽力做到最好" class="headerlink" title="寻找差异：他们在尽力做到最好"></a>寻找差异：他们在尽力做到最好</h5><p>作者介绍说其实组织的每一个人都在尽力做到最好，组织的组织行式或问题，也可能是在历史中为了解决某一个特定环境下的问题而遗留下来的。</p>
+<p>所以，「理解」现有组织存在的原理是第一步，在理解之后，才可以做改进。</p>
+<h5 id="找出接错的电线"><a href="#找出接错的电线" class="headerlink" title="找出接错的电线"></a>找出接错的电线</h5><p>上一节说老的团队，这一节说新的团队问题一般是理解错误造成的。</p>
+<h5 id="为差异正名"><a href="#为差异正名" class="headerlink" title="为差异正名"></a>为差异正名</h5><p>本节是说每个人都有自己的性格特点。差异是正常的，合理的。比如在信息方面，有人用直觉来获得信息，有人用数据来获得信息。</p>
+<p>文中推荐了 Myers-Briggs 模型，以及《Please Understand me》。但未展开介绍模型和书的内容。</p>
+<h5 id="把自己当做团队的模型"><a href="#把自己当做团队的模型" class="headerlink" title="把自己当做团队的模型"></a>把自己当做团队的模型</h5><p>再一次提到 Myers-Briggs 模型，指出内向的人依靠内部知识来充实自己，向外的人依赖外部资源（可能就是交流吧）来充实自己。</p>
+<h5 id="成功后仍要改变"><a href="#成功后仍要改变" class="headerlink" title="成功后仍要改变"></a>成功后仍要改变</h5><p>一旦建立了有影响力的团队，自己的任何调整会团队的影响都是巨大的，需要更慎重。</p>
+<h3 id="第五部分：转变"><a href="#第五部分：转变" class="headerlink" title="第五部分：转变"></a>第五部分：转变</h3><h4 id="第-20-章-领导要面对的考核"><a href="#第-20-章-领导要面对的考核" class="headerlink" title="第 20 章 领导要面对的考核"></a>第 20 章 领导要面对的考核</h4><p>通过一个老师上课的故事，来介绍老师是如何面对挑战的。</p>
+<p>另外故事中讨论了关于评分的问题，这个和企业中的 KPI 类似，是一个不太好搞的事情，作者介绍了两个观点：</p>
+<ol>
+<li>首先大家需要建立信任。</li>
+<li>自己要相信这套规则。</li>
+</ol>
+<h4 id="第-21-章-通过自己的领导力考验"><a href="#第-21-章-通过自己的领导力考验" class="headerlink" title="第 21 章 通过自己的领导力考验"></a>第 21 章 通过自己的领导力考验</h4><p>其实就是不断自省，找自己做得还不够好的地方。保持学习的饥渴，永不满足现状。</p>
+<h4 id="第-22-章-个人转变计划"><a href="#第-22-章-个人转变计划" class="headerlink" title="第 22 章 个人转变计划"></a>第 22 章 个人转变计划</h4><p>介绍了一些可以提高自己的办法，类似于流行的「逃离舒适区」的概念。就是找一些新鲜的事情，仔细观察，从中尝试看看有没有什么收获。</p>
+<h4 id="第-23-章-时间从哪里来"><a href="#第-23-章-时间从哪里来" class="headerlink" title="第 23 章 时间从哪里来"></a>第 23 章 时间从哪里来</h4><p>介绍了一些做事技巧：</p>
+<h5 id="不要重复你已经布置下去的任务。"><a href="#不要重复你已经布置下去的任务。" class="headerlink" title="不要重复你已经布置下去的任务。"></a>不要重复你已经布置下去的任务。</h5><p>这一点常圳也提到过。如果一件事情你自己已经做得非常熟练了，那么就交给别人来做。这样的好处是：你可以指导新人，新人也可以从中得到锻炼。</p>
+<p>不过这样牺牲的是这件事情本身的完成时间，在指导阶段，你自己直接做花的时间，肯定比让新人做 + 你进行指导的时间少。</p>
+<p>但是长远看来，这样的方式对组织和个人都是有利的，所以还是应该尝试。</p>
+<h5 id="不要争论技术细节来证明你的技术优势"><a href="#不要争论技术细节来证明你的技术优势" class="headerlink" title="不要争论技术细节来证明你的技术优势"></a>不要争论技术细节来证明你的技术优势</h5><p>如果你还需要争论技术细节，就说明你的技术声望还没有建立。所以不要试图通过争论来证明你的技术优势，而是应该通过建立自己的技术声望，来避免在技术细节上进行长时间的争论。</p>
+<h5 id="自己区分事情的主次，不要靠危机来安排你的行为"><a href="#自己区分事情的主次，不要靠危机来安排你的行为" class="headerlink" title="自己区分事情的主次，不要靠危机来安排你的行为"></a>自己区分事情的主次，不要靠危机来安排你的行为</h5><p>想起了《道德经》里面的经典段落：悠兮，其贵言。功成事遂，百姓皆谓 “我自然”。</p>
+<p>好的领导应该避免危机，但是在没有危机的情况下，领导和大家可能都会觉得 “这个人没事干，没什么用 “。</p>
+<p>本章小节：</p>
+<ul>
+<li>不要做那些已经分配给别人的任务，即便必须让手下人犯错误</li>
+<li>不要操心细节</li>
+<li>不要浪费时间证明自己的全知全能</li>
+<li>不要浪费时间争论</li>
+<li>关注自己无事可做的时候在做什么</li>
+<li>分享阅读成果</li>
+<li>充分利用机会进行交流</li>
+<li>倾听他人已经学到的知识</li>
+</ul>
+<h4 id="第-24-章-支持从哪里来"><a href="#第-24-章-支持从哪里来" class="headerlink" title="第 24 章 支持从哪里来"></a>第 24 章 支持从哪里来</h4><p>本章主要介绍大家要学会利用自己的社交网络来构建自己的「支持系统」，这包括：</p>
+<ul>
+<li>自己的技术圈子，需要时可以咨询他们。</li>
+<li>批评者，可以指出自己的问题。</li>
+<li>可以倾述的朋友，或者可以维持自己开心的事情。</li>
+</ul>
+<h4 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h4><p>后记中讲了两个故事，还挺有意思。</p>
+<p>第一个故事是作者的护士为了戒除他住院手术时产生的止痛针（吗啡）的瘾，直接强制拒绝他的要求。</p>
+<p>第二个故事是作者的 IBM 领导，在他提出想做管理的时候，他的上司并不是拒绝，而是让他尝试列出他当前做管理的优点和缺点。作者通过这种方式达到了自省的目的，发现自己当前并不适合做管理，从而暂时放弃了要求。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/use-serverspeeder-to-speed-up-your-shadowsocks/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3305,334 +3813,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/https-get/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/https-get/" itemprop="url">姑且是艹上了 https 。。。</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-07-15T21:12:30+00:00">
-                2015-07-15
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%97%A5%E5%B8%B8/" itemprop="url" rel="index">
-                    <span itemprop="name">日常</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p><strong>Update：</strong>不安全内容解☆决★完☆成~</p>
-<p>感觉速度不慢呐，加上 ssl ctrl+f5 依然可以在8s内打开</p>
-<p>估计是刚才有人在干啥拖母鸡吧 <a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/07/2015-07-15_14-49-46.jpg"><img src="https://img.prin.studio/images/2015/07/2015-07-15_14-49-46.jpg" alt="20150715224933"></a></p>
-<hr>
-<p>但是好慢啊啊啊明明vps配置还可以嘛</p>
-<p><a target="_blank" rel="noopener" href="https://prinzeugen.net/">https://prinzeugen.net</a></p>
-<p>不安全内容还没去搞，先把速度搞上去吧</p>
-<p>难道真像 dalao 说的 conoha tokyo 太弱？</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/move-to-conoha-tokyo/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/move-to-conoha-tokyo/" itemprop="url">全站已搬迁至 conoha 东京机房</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-07-13T11:05:30+00:00">
-                2015-07-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%97%A5%E5%B8%B8/" itemprop="url" rel="index">
-                    <span itemprop="name">日常</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>顶图是 conoha 的看板娘 <a target="_blank" rel="noopener" href="http://みくも.com/">美雲このは</a> 哟~</p>
-<hr>
-<p>被安利了 <a target="_blank" rel="noopener" href="https://www.conoha.jp/referral/?token=Hyo3NTnicLIo3cbI2WwTxiROdkwejqSmtGGr1tm5xlpZ25m.Rao-QWN">conoha</a>（窝的推广链接（笑） 的东京机房，窝去看看了看，费用是 900円&#x2F;月，换算成软妹币差不多45块（安倍经济学大法好 <a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/03/i_f25.png"><img src="https://img.prin.studio/images/2015/03/i_f25.png" alt="i_f25"></a>）。通过别人的推广链接注册还可以送 1000日元。当时咱就无脑注册了一个 vps 玩玩，配置如下：</p>
-<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/07/2015-07-13_02-37-59.png"><img src="https://img.prin.studio/images/2015/07/2015-07-13_02-37-59-1024x86.png" alt="20150712134657"></a></p>
-<p>配置还算不错，而且东京机房应该会比 SFO 机房快一些（对各种线路用户来说</p>
-<p>付完款到手以后，发现IP竟然被！墙！了！ <a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/07/2015-07-11_13-57-54.jpg"><img src="https://img.prin.studio/images/2015/07/2015-07-11_13-57-54.jpg" alt="20150711215742"></a></p>
-<p>本来想发 tickets 的，后来转念一想，反正是月底结算，就删掉了 vps 重建了一个。</p>
-<p>conoha 和 digitalocean 不一样，删掉 vps 重新创建是可以改掉 IP 地址的，新的IP终于可以正常访问了 <a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/03/i_f25.png"><img src="https://img.prin.studio/images/2015/03/i_f25.png" alt="i_f25"></a>，遂将 conoha.prinzeugen.net 解析至 vps 开始折腾~</p>
-<p>lnmp 咱已经不想再搞他了 <a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/06/2015-06-27_15-39-05.jpg"><img src="https://img.prin.studio/images/2015/06/2015-06-27_15-39-05.jpg" alt="QQ图片20150627233807"></a> 这次咱用的是 <a target="_blank" rel="noopener" href="http://amh.sh/">amh面板</a>，6块一个月并不算贵。如果你手头紧就自行搜索破解版吧，咱也不好推荐盗版</p>
-<p>使用 amh 的一键安装脚本很快就可以配置好，而且是用户友好的 gui 界面，配置很方便，咱很快就把ngnix+PHP+mysql的运行环境搭建好了。amh 面板的软件下载页很全，几乎需要用到的环境都可以找到 <a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/07/2015-07-11_13-57-54.jpg"><img src="https://img.prin.studio/images/2015/07/2015-07-11_13-57-54.jpg" alt="20150711215742"></a> 就算是窝也不想天天黑底白字啊</p>
-<p>顺便将NS换成了dnspod ，正捣腾着amh的时候突然出了上篇文那档子事，不过还好晚上12点左右就恢复了。现在又用回了花生壳的 dns 解析。主域名都已经解析至 conoha 的 vps ，原来的破虚机<a target="_blank" rel="noopener" href="http://vhost.prinzeugen.net/">在这里</a></p>
-<p>虽然中途有碰到过各种事，但也不是什么值得记录的，就先这样吧  <a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/05/20150503085737.jpg"><img src="https://img.prin.studio/images/2015/05/20150503085737.jpg" alt="20150503085737"></a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3683,7 +3863,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1458</span>
+                  <span class="site-state-item-count">1460</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3694,7 +3874,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">72</span>
+                  <span class="site-state-item-count">73</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -3705,7 +3885,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">890</span>
+                  <span class="site-state-item-count">895</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

@@ -274,6 +274,402 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016-05-24-migrate-from-oc-to-swift/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016-05-24-migrate-from-oc-to-swift/" itemprop="url">猿题库从 Objective-C 到 Swift 的迁移</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-05-24T14:15:31+00:00">
+                2016-05-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h3 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h3><p>相信没有人会怀疑，Swift 是 iOS 开发未来的主流语言，但是由于 Swift 语言的不断变化以及庞大的迁移成本，真正把项目迁移到 Swift 语言的公司并不多。而猿题库 iOS 客户端是一个超过 3 年的项目，积累了超过 15 万行的 Objective-C 代码，我相信它在迁移过程中的经验对很多人有所帮助。</p>
+<p>蓝晨钰（@晨钰Lancy）是猿题库 iOS 客户端的负责人，他主导了猿题库 iOS 客户端从 Objective-C 到 Swift 的迁移工作。同时他在实践 Swift 的过程中，总结了不少心得，这次他将会在 GMTC 大会上分享这方面的话题，以下是我对他的采访，希望对大家有帮助。</p>
+<h3 id="提问"><a href="#提问" class="headerlink" title="提问"></a>提问</h3><blockquote>
+<p>问题：向读者简单介绍一下自己吧。</p>
+</blockquote>
+<p>我叫蓝晨钰，iOS 开发者，11 年开始接触 iOS 开发，13 年加入猿题库负责 iOS 客户端开发工作，和猿题库一起经历了从无到拥有数千万用户的成长，和我的团队一起完成了数十个版本的迭代。</p>
+<p>我从 14 年底 Apple 发布 Swift 语言开始一直关注和学习其知识理念，并在 15 年初在公司推广和实践 Swift 项目，至今在生产环境实践 Swift 已经超过一年，算是有比较丰富的移动客户端开发经验和 Swift 编程经验吧。个人对 Swift 语言的持乐观态度，在公司内积极推进 Swift 语言的实践，也非常享受 Swift 的编程体验。</p>
+<blockquote>
+<p>问题：听说你这次打算在 GMTC 上分享的话题是：《当泛型遇上协议 —— Generic Programming with Protcol in Swift》，能简单介绍一下为什么选这个主题吗？</p>
+</blockquote>
+<p>泛型编程和面向协议编程都是 Objective-C 语言所没有的特性，作为一个老 iOS 开发者来说，当我第一次接触它们时，我的内心是激动的，我迫不及待的想知道，这些个新特性新技术，会给我们的程序和开发带来怎么样的变化。而经过我们团队的不断学习和实践，我们也的确在这当中找到了很多乐趣，积累了不少经验，我希望能通过这次分享讲它们分享给更多人。</p>
+<blockquote>
+<p>问题：你怎么看待泛型编程和面向协议编程在客户端编程的未来？</p>
+</blockquote>
+<p>泛型编程是许多现代语言所有的特性，在其他语言的实践经验告诉我们，泛型是一个强大的工具，经常能有效的提高编程效率和提高代码的复用程度。面向协议编程则是由 Swift 提出的编程范式，强大的表达力和抽象能力，毫无疑问会变成一项重要工具。而这两者的结合则是一种全新的体验，这也是我这次分享的一个重要部分。</p>
+<p>同时，由于 Swift 语言缺乏类似 objc runtime 的机制，我认为泛型编程和面向协议编程作为实现之前 runtime 所实现功能的替代，将越来越成为 iOS 开发者需要掌握的重要技能。</p>
+<blockquote>
+<p>问题：猿题库当前对 Swift 的使用到什么程度？已经完全迁移到 Swift 了吗？</p>
+</blockquote>
+<p>猿题库有两个客户端项目，分别是老师端和学生端，他们都是 Swift 和 Objective-C 混编的项目，并没有完全迁移到 Swift。其中猿题库老师端是在 Swift 发布之后不久启动的项目，我们在这个项目中开始推行 Swift 语言，所以这个项目是一个 Swift 语言为主的项目，Objective-C 部分主要为复用旧代码。</p>
+<p>而猿题库学生端是我们的主项目，这个项目从 iOS 5 时代开始，一直使用 Objective-C 编写，直到近期 Swift 升到 2.x 之后，我们认为 Swift 已经足够成熟，并且我们在老师端中积累了足够的经验后才开始向 Swift 迁移的。目前学生端的项目中，大部分还是 Objective-C 语言实现，但新实现的页面和功能基本都使用 Swift 语言来编写。</p>
+<blockquote>
+<p>问题：你认为猿题库大概还需要多长时间能够完全迁移到 Swift?</p>
+</blockquote>
+<p>事实上，在生产环境中，几乎没有人愿意在收益甚微的情况下把 Objective-C  代码重写一次，因为重写意味着大量的研发资源和测试资源的消耗，而这基本不会产生实际意义上的产品收益。另外 Apple 在 Swift 和 Objective-C 的桥接上做了相当多的努力，大部分情况下，我们都可以不太费力的在 Swift 中复用 Objective-C 代码。</p>
+<p>所以大部分公司的策略都会是新功能用 Swift 语言实现，旧功能先维持现状，等到产品变动或是架构变动的时候再使用 Swift 语言实现，这也是猿题库所采用的策略。所以我想短时间内不太可能完全迁移到 Swift 吧。如果非要说一个时间的话，我推测大约一年之后大部分业务应该会迁移到 Swift，而整个项目彻底迁移恐怕就需要两到三年以上了。</p>
+<blockquote>
+<p>问题：你认为 Swift 什么时候能够达到 ABI 稳定？</p>
+</blockquote>
+<p>老实说，我也不知道。Swift 的发展很快，我这次主题要讲的泛型相关的实践，在 Swift 1.x 的时候就没法实现。Swift 项目组的 Chris Lattner 也公开表示 Swfit 3.0 不会达到 ABI 稳定并且会缺少一些重要的泛型功能。我们只能期待在 Swift 3.x 或 Swift 4 的时候会有惊喜吧。</p>
+<blockquote>
+<p>问题：对比 Swift 和 Objective-C，你觉得 Swift 最大的优势是什么？</p>
+</blockquote>
+<p>Swift 的优势有很多，我比较喜欢的有几点：更安全的类型，代表更少的 Bug 和更低的崩溃率；更简洁的语法，代表更少的代码和更快的编程速度；强大的函数式、泛型、协议等特性，代表更能发挥程序员的想象力。选一个的话，我选最后一个，强大的特性给了我很大的编程愉悦感。</p>
+<blockquote>
+<p>问题：对于从 Objective-C 迁移到 Swift，你有遇到什么值得分享的坑吗？</p>
+</blockquote>
+<p>从 Objective-C 迁移到 Swift 代表着在很长一段时间内都是处于混编的状态，这里我认为最重要的经验是一定要有一个迁移的规范和指南来约束开发团队哪些部分需要迁移 Swift 而哪些部分不要，接口应该如何设计才能兼顾混编调用。举个例子，由于 Swift 调用 Objective-C 是方便的可靠的，反之则有许多的限制，所以设计接口的时候，需要考虑这个模块会不会被 Objective-C 调用，如果是的话，应该避免使用 Swift 语言的特性，又或是制定一套规则，来 Swift 语言的接口如何转成 Objective-C 兼容的接口。</p>
+<blockquote>
+<p>问题：对于学习 Swift，你有什么推荐的方法或资料吗？</p>
+</blockquote>
+<p>iBooks 上有 Apple 推出的 Swift Programming 系列书籍是所有 iOS 开发者的必读和参考书目。iTunes U 上有 Stanford 的 Developing iOS  Apps with Swift，讲师是 Apple 工程师 Paul Hegarty，推荐新入门的 iOS 开发者学习。</p>
+<p>Objc.io 上的 Advanced Swift 是我最近在读的书，内容绝对对得起 Advanced 这个词，推荐有一定基础 Swift 开发者阅读。此外 Github 上有大量的 Swift 开源项目，可以阅读源码来学习。</p>
+<p>最后，也是最重要的，多写，多想，实践是最好的学习方式。</p>
+<blockquote>
+<p>问题：你对今年 WWDC 有什么期待吗？</p>
+</blockquote>
+<p>最大的期望是能去一次 WWDC（笑），可惜我们公司每年到 6 月高考的时候就是最忙的时候，所以这个愿望只能等以后了。对 WWDC 本身的话，期望 Apple 能弄出一些新东西，比如我很看好的虚拟现实相关的产品和技术。</p>
+<p>另外希望 Apple 能加快 Swift 的推进，比如发布与 Google 合作推进 Swift 语言在 Android 客户端的应用之类。</p>
+<p>全文完。</p>
+<h3 id="广告"><a href="#广告" class="headerlink" title="广告"></a>广告</h3><p>由 InfoQ主办的GMTC全球移动技术大会将于6月24日在北京召开。来自BAT、携程、滴滴和社区的技术专家联袂分享，主题包括应用架构、性能优化、动态化、插件化、Swift、React Native、Weex等。本周移动大会8折最后一周，我的粉丝本周前20人报名享受6折1080的优惠呦，手慢无！手慢无！<br>优惠码：GMTC-TangQiao</p>
+<p>购票链接：<a target="_blank" rel="noopener" href="http://www.bagevent.com/event/27886?bag_track=tangqiao">http://www.bagevent.com/event/27886?bag_track=tangqiao</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016-05-22-swift-gym-6-type-infer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016-05-22-swift-gym-6-type-infer/" itemprop="url">Swift 烧脑体操（六）- 类型推断</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-05-22T05:46:26+00:00">
+                2016-05-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><p>Swift 烧脑系列文章列表：</p>
+<ul>
+<li><a href="/2016/02/27/swift-gym-1-nested-optional/">Swift 烧脑体操（一） - Optional 的嵌套</a></li>
+<li><a href="/2016/02/27/swift-gym-2-function-argument/">Swift 烧脑体操（二） - 函数的参数</a></li>
+<li><a href="/2016/02/27/swift-gym-3-higher-order-function/">Swift 烧脑体操（三） - 高阶函数</a></li>
+<li><a href="/2016/03/05/swift-gym-4-map-and-flatmap/">Swift 烧脑体操（四） - map 和 flatMap</a></li>
+<li><a href="/2016/04/05/swift-gym-5-monad/">Swift 烧脑体操（五）- Monad</a></li>
+<li><a href="/2016/05/22/swift-gym-6-type-infer/">Swift 烧脑体操（六）- 类型推断</a></li>
+</ul>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>前几天，一个朋友在微博上通过私信问了我一个问题，如下的代码，为什么变量 <code>crr</code> 没能把值为 nil 的元素过滤掉？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">let arr:[Int?] = [1, 2, 3, nil, 4, 5]</span><br><span class="line">let brr = arr.flatMap &#123; $0 &#125;</span><br><span class="line">brr</span><br><span class="line">// brr = [1, 2, 3, 4, 5]</span><br><span class="line"></span><br><span class="line">let crr:[Int?] = arr.flatMap &#123; $0 &#125;</span><br><span class="line">crr</span><br><span class="line">// crr = [&#123;Some 1&#125;, &#123;Some 2&#125;, &#123;Some 3&#125;, nil, &#123;Some 4&#125;, &#123;Some 5&#125;]</span><br></pre></td></tr></table></figure>
+
+<p>简单来看，同样是使用 <code>flatMap</code> 函数，brr 变量成功过滤掉了值为 nil 的元素，变量 crr 过滤失败。而 brr 和 crr 的区别就是它们的类型不一样，brr 的类型是 <code>[Int]</code> ，而 crr 的类型是 <code>[Int?]</code>，想必其中原因与此有关，那到底是为什么呢？</p>
+<p>在和一些朋友讨论之后，我大概想明白了，这和类型推断有关系。在 crr 相关的代码中，因为 crr 的类型已经被程序员指定为 <code>[Int?]</code>，所以为了编译通过，编译器需要推断出 <code>flatMap</code> 中的闭包的输入和输出变量类型。我们回顾一下 <code>flatMap</code> 在数据中的定义：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">extension SequenceType &#123;</span><br><span class="line">    public func flatMap&lt;T&gt;(@noescape transform: (Self.Generator.Element) throws -&gt; T?)</span><br><span class="line">                rethrows -&gt; [T]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出，flatMap 返回的结果是 <code>[T]</code>，而闭包 transform 返回的结果是 <code>T?</code>。而在 crr 这个例子中，T 被推断出是 <code>Int?</code> , 因此 tranform 中 <code>T?</code> 就被代入，变成了 <code>(Int?)?</code> 。所以，如果完善一下上面例子的代码，编译器推断出来的类型是这样的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">let crr:[Int?] = arr.flatMap &#123;</span><br><span class="line">    (element: Int?) -&gt; (Int?)? in</span><br><span class="line">    return element</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意这里，返回的变量 element 其实类型并不是 <code>(Int?)?</code>，但是 Optional 是有 conversion 的方法，允许将一个类型的 <code>S</code> 的变量，自动转成 <code>S?</code>，所以转换被自动做了，并没有编译错误发生。</p>
+<p>怎么改这个代码呢？</p>
+<p>有人说把闭包的类型手工指定成 <code>Int?</code>，我试了一下，确实能够正常了，不过我感觉这更像是一个编译器的 Bug，我们再看看这个接口：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">extension SequenceType &#123;</span><br><span class="line">    public func flatMap&lt;T&gt;(@noescape transform: (Self.Generator.Element) throws -&gt; T?)</span><br><span class="line">                rethrows -&gt; [T]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>按照 <code>flatMap</code> 的接口定义，如果闭包返回的是 Int?，那么按照这个定义，最终 <code>flatMap</code> 的结果就必须是 <code>[Int]</code>，而我们要强制要求结果是 <code>[Int?]</code>，除非这里有自动的转换，否则就应该编译失败。而我自己的试验代码失败，确认出并没有从 [Int] 到 <code>[Int?]</code> 的自动转换。所以我暂时认为这么改能正常工作是一个编译器的 Bug（如有错误，欢迎指出）。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">error: cannot convert value of type &#x27;[Int]&#x27; to specified type &#x27;[Int?]&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>另外，也有朋友说，在这种场景下并不应该使用 <code>flatMap</code> 函数。确实是这样，flatMap 函数本来就有着 flat 的作用在里面，在数组的 <code>flatMap</code> 实现中，有两个重载：</p>
+<ul>
+<li>一个重载版本是为了打平嵌套的多维数据。</li>
+<li>另一个重载版本，就是我们刚刚讨论的版本，flat 是为了去掉 Optional 的封包，同时把 nil 元素去掉。</li>
+</ul>
+<p>而这个示例代码调用了 <code>flatMap</code> 函数，却希望仍然得到 Optional 的数组，实在是不应该使用 <code>flatMap</code> 来做这个事情。如果只是为了去掉 Optional 中的 nil 元素，使用 <code>filter</code> 方法可能更为合适一些：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">let arr:[Int?] = [1, 2, 3, nil, 4, 5]</span><br><span class="line">let drr:[Int?] = arr.filter &#123;</span><br><span class="line">    if let _ = $0 &#123;</span><br><span class="line">        return true</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        return false</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">drr</span><br><span class="line">// drr = [&#123;Some 1&#125;, &#123;Some 2&#125;, &#123;Some 3&#125;, &#123;Some 4&#125;, &#123;Some 5&#125;]</span><br></pre></td></tr></table></figure>
+
+<p>其实函数式编程的方法不止 <code>map</code>, <code>flatMap</code>, <code>filter</code> 这些，在一个名为 <a target="_blank" rel="noopener" href="http://reactivex.io/">reactiveX</a> 的网站上，列举了 Reactive 编程实践下的一些 <a target="_blank" rel="noopener" href="http://reactivex.io/documentation/operators.html">常见的函数</a>，里面的很多方法都挺有意思，这些方法也被实现在了 <a target="_blank" rel="noopener" href="https://github.com/ReactiveX/RxSwift">RxSwift</a> 中，感兴趣的同学可以看看。</p>
+<p>祝玩得开心！</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/05/mysql-index/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3573,465 +3969,6 @@ app.get(&#39;/&#39;, apiVersion(&#39;*&#39;), function(req, res) &#123;
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016-04-07-my-password-management-way/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016-04-07-my-password-management-way/" itemprop="url">应该如何管理密码 - 我的密码管理心得</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-04-07T15:59:37+00:00">
-                2016-04-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <img src="/images/password.jpg" class="">
-
-<h2 id="我的密码升级之路"><a href="#我的密码升级之路" class="headerlink" title="我的密码升级之路"></a>我的密码升级之路</h2><p>我最早接触密码这个概念是在高中的时候，那个时候我第一次申请 QQ 号，需要想一个超过 6 位数的密码。于是，我填上了我爸爸的手机号。老实说，手机号作为密码还不算最糟糕的。比起生日来说，手机号更长一些，可能的组合也更多一些。</p>
-<p>我很快就了解了撞库这种攻击方式，你的密码如果在任何平台都用一样的话，如果有一个平台不靠谱，明文存储了密码（在那个年代其实并不少见，CSDN 都曾经存的是明文），那么黑客就可以用这个账号密码尝试登录其它平台。</p>
-<p>于是，我把自己的密码分成了几套，简单的一套用于注册一些不太重要的服务，复杂的一套用于一些比较重要的服务，支付相关的还有一套。</p>
-<p>对于每一套密码，我在密码后面加上了平台的名字。比如 QQ 的密码就是基础密码后面加 qq，网易邮箱的密码就是基础密码后面加 mail。</p>
-<p>用了一段时间之后，我又增加了一些变化，我希望我尾部增加的与平台相关的名字不那么明显，于是，我把平台的首字母简单的取其字典序的下一个字母，然后插入到一个中间的位置。比如 qq 的密码，就是去 q 的下一个字母 r，然后把 r 插入到密码中间位置。因为我的基础密码本来就是一段随机的数字字母（真是随机的，只不过我背下来了），所以要看出规律可能需要爆出两个库才行。</p>
-<p>但是，这么管理密码还是很累。而且，现在不断出现的安全事故让我觉得爆出两个网站被拖库也不算什么让人意外的事情。</p>
-<h2 id="1password"><a href="#1password" class="headerlink" title="1password"></a>1password</h2><p>终于，我尝试购买了 1password，开始用 1password 来管理密码。1password 常常有 5 折的优惠活动，今年春节趁他家 APP 优惠，我开始了我的密码迁移之旅。</p>
-<p>1password 完全采用随机的方式来生成每一个网站的密码，通常推荐的是 12 位的字母数字组合。我花了好几天，才把所有自己在用的账号密码做了更新。</p>
-<p>1password 支持各种方式（iCloud 或 Dropbox）在云端同步你的密码。这样你也不用担心换了电脑找不到密码了。对于云端数据安全，1password 使用的是加密的方式来保存。即使黑客获得了你们密码文件，也需要一个解密的密码来解开它。而这个密码，就是你需要牢牢记住的那最后一个密码。</p>
-<p>使用 1password 之后，每次在 chrome 中需要输入密码时，直接使用 1password 的插件进行自动的填充即可。习惯 Safari 的朋友，1password 也有 safari 的插件。值得一提的是，1password 还支持在 iOS 系统的 Safari 中填充密码，如下所示：</p>
-<img src="/images/safari-1p.jpg" class="">
-
-<p>除去浏览器后，主要需要输入密码的地方就是 Mac 的原生应用和手机 APP 了。对于原生应用和手机 APP，1password 都支持把密码用复制的方式，粘贴到应用的密码输入界面。对了，买了 Mac 版的 1password，手机版的 1password 高级功能也自动解锁了。</p>
-<p>1password 唯一搞不定的是那些不允许粘贴密码的应用，比如支付宝。对于这些应用，我另外有一套密码独立管理，没有放在 1password 管理中。</p>
-<p>有了 1password 之后，一些软件的 License 也可以集中管理了，这还是一件挺爽的事情。1password 可以自动识别出软件的图标，如下所示。</p>
-<img src="/images/1p-license-list.jpg" class="">
-
-<p>反思过来，密码确实是一个非常反人类的事情，因为人们天然怕麻烦，所以大多数人都只有一套密码，并且密码规则非常弱。</p>
-<p>现在我们也慢慢看到越来越多的应用开始抛弃密码，用手机随机短信验证码来登录。还有一次公司，尝试用指纹（比如 iPhone)、声音 (比如微信的声音锁）、头像视频（比如借贷宝的认证）等来作为安全认证的替代品，都是不错的兼顾用户体验和安全的尝试。</p>
-<h2 id="密码被盗"><a href="#密码被盗" class="headerlink" title="密码被盗"></a>密码被盗</h2><p>悲剧的是，就在我刚刚改完各种密码之后，我的百度云账号被盗，而且我通过正常渠道申诉失败。后来发现原因是我百度云账号绑定的网易邮箱被盗了，而那个邮箱我很久没有使用，都忘记了，所以也没有用 1password 改过密码。盗号者盗完我的网易邮箱后，从里面看到了我的注册百度云的确认邮件，于是申请了百度云找回密码，从而重置了我的百度云密码。重置之后，我的绑定邮箱被解绑，于是我就没有方法找回百度云密码了。</p>
-<p>最终多亏在百度的朋友帮忙和担保，我才得以用非正常的渠道申诉成功。看到家里的所有照片失而复得，我第一次感觉到安全问题离自己这么近。</p>
-<p>最后推荐 Mac 的各位朋友都使用 1password 来管理密码，并且对于一些非常重要的账号，用独立的非 1password 密码来管理。</p>
-<p>安全问题，真的就在我们身边，大家还是小心一点。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016-04-05-swift-gym-5-monad/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016-04-05-swift-gym-5-monad/" itemprop="url">Swift 烧脑体操（五）- Monad</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-04-05T14:56:07+00:00">
-                2016-04-05
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p><img src="http://ww2.sinaimg.cn/mw690/65dc76a3gw1f08hrkcyydj20i40cigv2.jpg"></p>
-<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><p>Swift 烧脑系列文章列表：</p>
-<ul>
-<li><a href="/2016/02/27/swift-gym-1-nested-optional/">Swift 烧脑体操（一） - Optional 的嵌套</a></li>
-<li><a href="/2016/02/27/swift-gym-2-function-argument/">Swift 烧脑体操（二） - 函数的参数</a></li>
-<li><a href="/2016/02/27/swift-gym-3-higher-order-function/">Swift 烧脑体操（三） - 高阶函数</a></li>
-<li><a href="/2016/03/05/swift-gym-4-map-and-flatmap/">Swift 烧脑体操（四） - map 和 flatMap</a></li>
-<li><a href="/2016/04/05/swift-gym-5-monad/">Swift 烧脑体操（五）- Monad</a></li>
-<li><a href="/2016/05/22/swift-gym-6-type-infer/">Swift 烧脑体操（六）- 类型推断</a></li>
-</ul>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Swift 其实比 Objective-C 复杂很多，相对于出生于上世纪 80 年代的 Objective-C 来说，Swift 融入了大量新特性。这也使得我们学习掌握这门语言变得相对来说更加困难。不过一切都是值得的，Swift 相比 Objective-C，写出来的程序更安全、更简洁，最终能够提高我们的工作效率和质量。</p>
-<p>Swift 相关的学习资料已经很多，我想从另外一个角度来介绍它的一些特性，我把这个角度叫做「烧脑体操」。什么意思呢？就是我们专门挑一些比较费脑子的语言细节来学习。通过「烧脑」地思考，来达到对 Swift 语言的更加深入的理解。</p>
-<p>这是本体操的第五节，练习前请做好准备运动，保持头脑清醒。</p>
-<p><img src="http://ww4.sinaimg.cn/mw690/65dc76a3gw1f0sz15ou0fj20cx07d0u3.jpg"></p>
-<h2 id="Why-Monad"><a href="#Why-Monad" class="headerlink" title="Why Monad?"></a>Why Monad?</h2><p>因为 Monad 的定义有点复杂，我们先说为什么要理解和学习它。业界对于 Monad 的用处有着各种争论，特别是学术派喜欢用 Haskell 来解释它，因为「Haskell 是纯函数式编程语言」。但这往往让问题更加复杂了—-我为了理解一个概念，还需要先学习一门新语言。</p>
-<p>所以我希望就 Swift 这门语言，分享一下理解 Monad 有什么用。实际上，即使在 Wikipedia 上，<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Monad_(functional_programming)">Monad</a> 也没有被强行用 Haskell 来解释。所以我相信基于 Swift 语言，还是可以把 Monad 的概念讲清楚。</p>
-<p>在我看来，之所以有 Monad 这种结构，实际上是为了链式调用服务的。什么是链式调用呢？我们来看看下面一段代码：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">let tq: Int? = 1</span><br><span class="line">tq.flatMap &#123;</span><br><span class="line">    $0 * 100</span><br><span class="line">&#125;.flatMap &#123;</span><br><span class="line">    &quot;image&quot; + String($0)</span><br><span class="line">&#125;.flatMap &#123;</span><br><span class="line">    UIImage(named: $0)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>所以，如果一句话解释 Monad，那就是：Monad 是一种设计模式，使得业务逻辑可以用链式调用的方式来书写。</p>
-<p>在某些情况下，链式调用的方式组织代码会特别有效，比如当你的调用步骤是异步的时候，很容易写成多层嵌套的 <code>dispatch_async</code>，使用 Monad 可以使得多层嵌套被展开成链式调用，逻辑更加清楚。除了异步调用之外，编程中涉及输入输出、异常处理、并发处理等情况，使用 Monad 也可以使得代码逻辑更清晰。</p>
-<h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><h3 id="封装过的值（wrapped-value"><a href="#封装过的值（wrapped-value" class="headerlink" title="封装过的值（wrapped value)"></a>封装过的值（wrapped value)</h3><p>这个中文词是我自己想出来的，有一些人把它叫做「上下文中的值」（value with a context），有一些人把它叫做「容器中的值」（value in a container)，意思是一样的。</p>
-<p>什么叫做「封装过的值」呢？即把裸露的数据放到另一个结构中。例如：</p>
-<ul>
-<li>数组就是对值的一种封装，因为数组把裸露的元素放到了一个线性表结构中。</li>
-<li>Optional 也是对值的一种封装，因为 Optional 把值和空放到了一个枚举（enum）类型中。</li>
-</ul>
-<p>如果你愿意，你也可以自己封装一些值，比如把网络请求的结果和网络异常封装在一起，做成一个 enum (如下所示）。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">enum Result&lt;T&gt; &#123;</span><br><span class="line">    case Success(T)</span><br><span class="line">    case Failure(ErrorType)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>判断一个数据类型是不是「封装过的值」，有一个简单的办法：就是看这个数据类型能不能「被打开」，拿出里面的裸露的元素。</p>
-<ul>
-<li>数组可以被打开，拿出里面的数组元素。</li>
-<li>Optional 可以被打开，拿出里面的值或者 .None。</li>
-<li>一个 Int 类型的值，无法「被打开」，所以它不是「封装过的值」。</li>
-</ul>
-<p>一个字符串是不是「封装过的值」呢？前提是你如何定义它「被打开」，如果你把它的打开定义成获得字符串里面的每个字符，那么字符串也可以是一个「封装过的值」。</p>
-<!--
-那要这么说，其实 Int 也可以被看作一个「封装过的值」，如果你把它的打开，定义成获得这个 Int 的每个 bit 位的值就行。
--->
-
-<h3 id="flatMap"><a href="#flatMap" class="headerlink" title="flatMap"></a>flatMap</h3><p>在上一篇烧脑文章中我们也提到过，要识别一个类型是不是 Monad，主要就是看它是否实现了 <code>flatMap</code> 方法。但是，如果你像下面这么实现 <code>flatMap</code>，那也不能叫 Monad：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">class TangQiao &#123;</span><br><span class="line">    func flatMap() &#123;</span><br><span class="line">        print(&quot;Hello world&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Monad 对于 <code>flatMap</code> 函数有着严格的定义，在 Haskell 语言中，这个函数名叫 bind，但是定义是一样的，这个函数应该：</p>
-<ul>
-<li>作用在一个「封装过的值」M 上。</li>
-<li>它的参数应该是另一个闭包 F，这个闭包 F：接受一个解包后的值，返回一个「封装过的值」。</li>
-</ul>
-<p>具体在执行的时候，<code>flatMap</code> 会对 M 进行解包得到 C，然后调用闭包 F，传入解包后的 C，获得新的「封装过的值」。</p>
-<p>我们来看看 Optional 的 <code>flatMap</code> 实现，验证一下刚刚说的逻辑。源码地址是：<a target="_blank" rel="noopener" href="https://github.com/apple/swift/blob/master/stdlib/public/core/Optional.swift">https://github.com/apple/swift/blob/master/stdlib/public/core/Optional.swift</a>。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public func flatMap&lt;U&gt;(@noescape f: (Wrapped) throws -&gt; U?) </span><br><span class="line">        rethrows -&gt; U? &#123;</span><br><span class="line">    switch self &#123;</span><br><span class="line">    case .Some(let y):</span><br><span class="line">        return try f(y)</span><br><span class="line">    case .None:</span><br><span class="line">        return .None</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Optional 的 <code>flatMap</code>：</p>
-<ul>
-<li>作用在一个「封装过的值」：<code>self</code> 身上。</li>
-<li>接受一个闭包参数 <code>f</code>，这个 <code>f</code> 的定义是：接受解包后的值，返回一个「封装过的值」: <code>U?</code> 。</li>
-<li>在执行时，<code>flatMap</code> 先对 <code>self</code> 进行解包，代码是 <code>case .Some(let y)</code>。</li>
-<li>如果解包成功，则调用函数 f，得到一个新的「封装过的值」，代码是 <code>try f(y)</code>。</li>
-<li>如果解包出来是 .None，则返回 .None。</li>
-</ul>
-<h2 id="设计背后的追问"><a href="#设计背后的追问" class="headerlink" title="设计背后的追问"></a>设计背后的追问</h2><p><code>flatMap</code> 接受的这个闭包参数，直观看起来很奇怪。接受的是解包的值，返回的又是封装过的值，一点都没有对称的美！</p>
-<p>为什么要这么设计？不这么设计就不能完成链式调用吗？我想了半天，答案就是一个字：懒！</p>
-<p>为什么这么说呢？因为「封装过的值」大多数时候不能直接计算，所以要计算的时候都要先解包，如果我们为了追求「对称的美」，使得函数接受的参数和返回的值都是「封装过的值」，当然是可以的。不过如果这么设计的话，你就会写大量雷同的解包代码。程序设计的时候追求「Don’t Repeat Yourself」原则，这么做当然是不被接受的。</p>
-<h2 id="Functor"><a href="#Functor" class="headerlink" title="Functor"></a>Functor</h2><p>刚刚我们说，在设计上为了复用代码，我们必须保证闭包的参数是解包后的值。</p>
-<p>那么，同样的道理，每次返回之前都封包一下，不一样很重复么？我们返回的值能不能是解包后的原始值，然后自动封装它？</p>
-<p>答案是可以的，但是这就不是 Monad 了，这成了 Functor 了。我们上一讲提到过，Functor 中实现的 <code>map</code> 方法，就是一个接受解包后的值，返回结果仍然是解包后的值。为了保证链式调用，map 会自动把结果再封包一次。</p>
-<p>我们再来回顾一下 <code>map</code> 的源码吧：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public func map&lt;U&gt;(@noescape f: (Wrapped) throws -&gt; U) </span><br><span class="line">        rethrows -&gt; U? &#123;</span><br><span class="line">    switch self &#123;</span><br><span class="line">    case .Some(let y):</span><br><span class="line">        return .Some(try f(y))</span><br><span class="line">    case .None:</span><br><span class="line">        return .None</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在该源码中，函数 <code>f</code> 在被执行完后，结果会被封包成 Optional 类型，相关代码是：<code>.Some(try f(y))</code>。</p>
-<p>所以，Optional 的 <code>map</code> 和 <code>flatMap</code> 差别真的非常非常小，就看你的闭包想不想自己返回封装后的值了。</p>
-<p>在具体业务中，我们也有一些实际的需求，需要我们自己控制返回封装后的值。比如 Optional 在操作的时候，如果要返回 .None，则需要使用 <code>flatMap</code>，错误的使用了 <code>map</code> 函数的话，就会带来多重嵌套 nil 的问题。比如下面这个代码，变量 <code>b</code> 因为是一个两层嵌套的 nil，所以 <code>if let</code> 失效了。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">let tq: Int? = 1</span><br><span class="line">let b = tq.map &#123; (a: Int) -&gt; Int? in</span><br><span class="line">    if a % 2 == 0 &#123;</span><br><span class="line">        return a</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        return nil</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">if let _ = b &#123;</span><br><span class="line">    print(&quot;not nil&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>归根结底，你在编程时使用 Monad 还是 Functor，取决于你的具体业务需求：</p>
-<ul>
-<li>如果你在处理「封装过的值」时，不会（或不需要）返回异常数据，则可以使用 Functor，让数据的封装过程交给 <code>map</code> 函数来处理。</li>
-<li>如果你在处理「封装过的值」时，需要在闭包函数里返回类似 nil（或 ErrorType）一类的数据，则可以使用 Monad，自己返回新的「封装过的值」。</li>
-</ul>
-<h2 id="Applicative"><a href="#Applicative" class="headerlink" title="Applicative"></a>Applicative</h2><p>Swift 语言中并没有原生的 Applicative，但是 Applicative 和 Functor、Monad 算是三个形影不离的三兄弟，另外它们三者的差异都很小，所以干脆一并介绍了。</p>
-<p>刚刚我们讨论 Functor 与 Monad 时，都是说把值放在一个容器里面。但是我们别忘了，Swift 是函数式语言，函数是一等公民，所以，函数本身也是一种值，它也可以放到一个容器里面，而我们要讨论的 Applicative，就是一种关于「封装过的函数」的规则。</p>
-<p>Applicative 的定义是：使用「封装过的函数」处理「封装过的值」。这个「封装过的函数」解包之后的参数类型和 Functor 的要求是一样的。</p>
-<p>按照这个定义，我们可以自己改造数组和 Optional，使它们成为 Applicative，以下代码就是一个示例，来自 <a target="_blank" rel="noopener" href="http://www.mokacoding.com/blog/functor-applicative-monads-in-pictures/">这里</a>。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">extension Optional &#123;</span><br><span class="line">    func apply&lt;U&gt;(f: (T -&gt; U)?) -&gt; U? &#123;</span><br><span class="line">        switch f &#123;</span><br><span class="line">        case .Some(let someF): return self.map(someF)</span><br><span class="line">        case .None: return .None</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">extension Array &#123;</span><br><span class="line">    func apply&lt;U&gt;(fs: [Element -&gt; U]) -&gt; [U] &#123;</span><br><span class="line">        var result = [U]()</span><br><span class="line">        for f in fs &#123;</span><br><span class="line">            for element in self.map(f) &#123;</span><br><span class="line">                result.append(element)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return result</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>我们为数组和 Optional 增加了一个 <code>apply</code> 方法，而这个方法符合 Applicative 的定义。如果和 <code>map</code> 方法对比，它们的唯一差别就是闭包函数是封装过后的了：</p>
-<ul>
-<li>对于 Optional 来说，<code>apply</code> 的闭包函数也变成 Optinoal 的了。</li>
-<li>对于数组来说，<code>apply</code> 的闭包函数也是一个数组（我们之前介绍过，数组也是对数据的一种封装）。</li>
-</ul>
-<h2 id="Monad-的应用"><a href="#Monad-的应用" class="headerlink" title="Monad 的应用"></a>Monad 的应用</h2><p>理论都离不开应用，否则就是「然并卵」了，讲完了概念，我们来看看除了 Swift 语言中的数组和 Optional，业界还有哪些对于 Monad 的应用。</p>
-<h3 id="Promise"><a href="#Promise" class="headerlink" title="Promise"></a>Promise</h3><p><a target="_blank" rel="noopener" href="http://promisekit.org/">PromiseKit</a> 是一个同时支持 Objective-C 和 Swift 的异步库。它用 Promise 来表示一个未来将要执行的操作，使用它可以简化我们的异步操作。因为篇幅有限，本文并不打算展开详细介绍 Promise，我们就看一个实际的使用示例吧。</p>
-<p>假设我们有一个业务场景，需要用户先登录，然后登录成功后发API获取数据，获取数据后更新 UITableView 的内容，整个过程如果有错误，显示相应的错误信息。</p>
-<p>传统情况下，我们需要把每个操作都封装起来，然后我们可以选择：</p>
-<ul>
-<li>方法一：用多层嵌套的 <code>dispatch_async</code> 把逻辑写到一起，但是这样嵌套代码，可读性和可维护性很差。</li>
-<li>方法二：每一步有一个 delegate 回调函数，把业务逻辑分散到各个回调函数中。但是这样不但逻辑分散了，而且关键的函数调用的依赖关系被我们隐藏起来了。</li>
-</ul>
-<p>另外，以上两种方法处理错误逻辑都可能会有多处，虽然我们可以把报错也封装成一个函数，但是在多个地方调用也不太舒服。使用 PromiseKit 之后，刚刚提到的业务场景可以用如下的示意代码来完成：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">login().then &#123;</span><br><span class="line">    return API.fetchKittens()</span><br><span class="line">&#125;.then &#123; fetchedKittens in</span><br><span class="line">    self.kittens = fetchedKittens</span><br><span class="line">    self.tableView.reloadData()</span><br><span class="line">&#125;.catch &#123; error in</span><br><span class="line">    UIAlertView(…).show()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>另外，如果你的逻辑涉及并发，PromiseKit 也可以很好地处理，例如，你希望发两个网络请求，当两个网络请求都结束时，做相应的处理。那就可以让 PromiseKit 的 <code>when</code> 方法与 <code>then</code> 结合工作：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">let search1 = MKLocalSearch(request: rq1).promise()</span><br><span class="line">let search2 = MKLocalSearch(request: rq2).promise()</span><br><span class="line"></span><br><span class="line">when(search1, search2).then &#123; response1, response2 in</span><br><span class="line">    //…</span><br><span class="line">&#125;.catch &#123; error in</span><br><span class="line">    // called if either search fails</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在 PromiseKit 的设计中，<code>then</code> 方法接受的闭包的类型和 <code>flatMap</code> 是一样的，所以它本质上就是 <code>flatMap</code>。Promise 其实就是一种 Monad。</p>
-<h3 id="ReactiveCocoa"><a href="#ReactiveCocoa" class="headerlink" title="ReactiveCocoa"></a>ReactiveCocoa</h3><p>比起 PromiseKit，<a target="_blank" rel="noopener" href="https://github.com/ReactiveCocoa/ReactiveCocoa">ReactiveCocoa</a> 的名气要大得多。最新的 ReactiveCocoa 4.0 同时支持 Objective-C 和 Swift，我们在源码中发现了 RAC 的 <code>SignalType</code> 就是一个 Monad：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">extension SignalType &#123;</span><br><span class="line"></span><br><span class="line">    public func flatMap&lt;U&gt;(strategy: FlattenStrategy, transform: Value -&gt; SignalProducer&lt;U, Error&gt;)</span><br><span class="line">        -&gt; Signal&lt;U, Error&gt; &#123;</span><br><span class="line">        return map(transform).flatten(strategy)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public func flatMap&lt;U&gt;(strategy: FlattenStrategy, transform: Value -&gt; Signal&lt;U, Error&gt;) </span><br><span class="line">        -&gt; Signal&lt;U, Error&gt; &#123;</span><br><span class="line">        return map(transform).flatten(strategy)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>我们再次总结一下 Monad、Functor、Applicative：</p>
-<ul>
-<li>Monad：对一种封装过的值，使用 <code>flatMap</code> 函数。</li>
-<li>Functor：对一种封装过的值，使用 <code>map</code> 函数。</li>
-<li>Applicative：对一种封装过的值，使用 <code>apply</code> 函数。</li>
-</ul>
-<p>我们再对比一下<code>flatMap</code>、<code>map</code> 和 <code>apply</code>：</p>
-<ul>
-<li><code>flatMap</code>：对自己解包，然后应用到一个闭包上，这个闭包：接受一个「未封装的值」，返回一个「封装后的值」。</li>
-<li><code>map</code>：对自己解包，然后应用到一个闭包上，这个闭包：接受一个「未封装的值」，返回一个「未封装的值」。</li>
-<li><code>apply</code>：对自己解包，然后对闭包解包，解包后的闭包：接受一个「未封装的值」，返回一个「未封装的值」。</li>
-</ul>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
-<li><a target="_blank" rel="noopener" href="http://www.mokacoding.com/blog/functor-applicative-monads-in-pictures/">Swift Functors, Applicatives, and Monads in Pictures</a></li>
-<li><a target="_blank" rel="noopener" href="http://blog.leichunfeng.com/blog/2015/11/08/functor-applicative-and-monad/">Functor、Applicative 和 Monad</a></li>
-<li><a target="_blank" rel="noopener" href="https://blog.jcoglan.com/2011/03/11/promises-are-the-monad-of-asynchronous-programming/">Promises are the monad of asynchronous programming</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -4082,7 +4019,7 @@ app.get(&#39;/&#39;, apiVersion(&#39;*&#39;), function(req, res) &#123;
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1458</span>
+                  <span class="site-state-item-count">1460</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -4093,7 +4030,7 @@ app.get(&#39;/&#39;, apiVersion(&#39;*&#39;), function(req, res) &#123;
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">72</span>
+                  <span class="site-state-item-count">73</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -4104,7 +4041,7 @@ app.get(&#39;/&#39;, apiVersion(&#39;*&#39;), function(req, res) &#123;
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">890</span>
+                  <span class="site-state-item-count">895</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

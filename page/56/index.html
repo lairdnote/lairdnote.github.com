@@ -274,6 +274,329 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/one-key-fill-kodexplorer-login-form/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/one-key-fill-kodexplorer-login-form/" itemprop="url">[User Script] 自动填写 KodExplorer 登录表单</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-05T18:05:50+00:00">
+                2015-12-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>应该挺多人知道 <a target="_blank" rel="noopener" href="http://kalcaddle.com/index.html">KodExplorer</a> 吧？一个用 PHP 编写的很棒的在线文件管理器。 因为是文件管理，拥有着 www 用户组的所有权限，自然是一定要用强口令的。然而 KodExplorer 登录页不是用 form 表单提交的，chrome 的自动保存也没用了，每次都输强口令也挺麻烦的，所以写了个脚本一键填写登录表单并提交，放入书签栏即可食用~ KodExplorer 的登录逻辑都在 <code>./static/js/app/src/user/main.js</code> 里，有用的一段在这里：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> e = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> e = $(<span class="string">&quot;#username&quot;</span>).<span class="title function_">val</span>(),</span><br><span class="line">    t = $(<span class="string">&quot;#password&quot;</span>).<span class="title function_">val</span>(),</span><br><span class="line">    a = $(<span class="string">&quot;input[name=rember_password]&quot;</span>).<span class="title function_">attr</span>(<span class="string">&quot;checked&quot;</span>) ? <span class="number">1</span> : <span class="number">0</span>,</span><br><span class="line">    i = <span class="string">&quot;./index.php?user/loginSubmit&amp;name=&quot;</span> + <span class="title function_">urlEncode</span>(e) + <span class="string">&quot;&amp;check_code=&quot;</span> + $(<span class="string">&quot;input.check_code&quot;</span>).<span class="title function_">val</span>() + <span class="string">&quot;&amp;password=&quot;</span> + <span class="title function_">urlEncode</span>(t) + <span class="string">&quot;&amp;rember_password=&quot;</span> + a;</span><br><span class="line">    <span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">href</span> = i</span><br><span class="line">&#125;;</span><br><span class="line">$(<span class="string">&quot;#username&quot;</span>).<span class="title function_">focus</span>(),</span><br><span class="line">$(<span class="string">&quot;#submit&quot;</span>).<span class="title function_">bind</span>(<span class="string">&quot;click&quot;</span>, e),</span><br><span class="line">$(<span class="string">&quot;#username,#password,input.check_code&quot;</span>).<span class="title function_">keyEnter</span>(e)</span><br></pre></td></tr></table></figure>
+
+<p>关键行已高亮标出（话说明文 POST 密码真的好吗。。），下面是脚本代码（Greasemonkey 用户脚本）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ==UserScript==</span></span><br><span class="line"><span class="comment">// @name         KodExplorer Auto Login</span></span><br><span class="line"><span class="comment">// @namespace    https://prinzeugen.net/</span></span><br><span class="line"><span class="comment">// @version      0.1</span></span><br><span class="line"><span class="comment">// @description  自动登录 Kodexplorer</span></span><br><span class="line"><span class="comment">// @author       prin</span></span><br><span class="line"><span class="comment">// @match        https://prinzeugen.net:12450/kodexplorer-14012/index.php?user/login</span></span><br><span class="line"><span class="comment">// @grant        none</span></span><br><span class="line"><span class="comment">// ==/UserScript==</span></span><br><span class="line"><span class="comment">/* jshint -W097 */</span></span><br><span class="line"><span class="meta">&#x27;use strict&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> username = <span class="string">&quot;root&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> password = <span class="string">&quot;NAKAkoi2411explorer&quot;</span>;  <span class="comment">// 自己修改</span></span><br><span class="line"><span class="keyword">var</span> remberPasswd = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;username&quot;</span>) ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line"><span class="keyword">var</span> url = <span class="string">&quot;./index.php?user/loginSubmit&amp;name=&quot;</span> + <span class="built_in">encodeURIComponent</span>(username) + <span class="string">&quot;&amp;check_code=&quot;</span> + <span class="string">&quot;&amp;password=&quot;</span> + <span class="built_in">encodeURIComponent</span>(password) + <span class="string">&quot;&amp;rember_password=&quot;</span> + remberPasswd;</span><br><span class="line"><span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">href</span> = url;</span><br></pre></td></tr></table></figure>
+
+<h3 id="更新日志："><a href="#更新日志：" class="headerlink" title="更新日志："></a>更新日志：</h3><p>2015-12-31 使用 User Script 重写</p>
+<p>以下为原来的书签版本：</p>
+<p>压缩后可以放到书签栏里的版本（记得自己修改用户名，密码）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">javascript</span>:<span class="keyword">var</span> u=<span class="string">&quot;&quot;</span>,p=<span class="string">&quot;&quot;</span>,rp=<span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;username&quot;</span>)?<span class="number">1</span>:<span class="number">0</span>,url=<span class="string">&quot;./index.php?user/loginSubmit&amp;name=&quot;</span>+<span class="title function_">urlEncode</span>(u)+<span class="string">&quot;&amp;check_code=&quot;</span>+<span class="string">&quot;&amp;password=&quot;</span>+<span class="title function_">urlEncode</span>(p)+<span class="string">&quot;&amp;rember_password=&quot;</span>+rp;<span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">href</span>=url;</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E9%9D%92%E9%BB%84%E6%9C%AA%E6%8E%A5%E7%9A%842015/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/%E9%9D%92%E9%BB%84%E6%9C%AA%E6%8E%A5%E7%9A%842015/" itemprop="url">青黄未接的2015</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-01T11:24:18+00:00">
+                2015-12-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%94%9F%E6%B4%BB%E6%84%9F%E6%82%9F/" itemprop="url" rel="index">
+                    <span itemprop="name">生活感悟</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          我每天都坚持早起，因为我不想被这种安逸到近似麻木的生活拔去梦想的翅膀，虽然我在乎的事情没有人懂、更没有人在乎，可我就是不愿做一只温水中的青蛙，因为当危险临近的时候更加不会有人来救我;我固然不愿意离开年迈的父母，我固然不愿意离开生养我的土地，可是对我来说这一切都没有可以选择的余地，每次看到回家看到父母不停地辛劳，我意识到他们渐渐地老了，他们的身体不再像以前那般硬朗，他们的头发一天比一天白，我不愿意他们再为我辛劳下去，留在这座小城市里除了可以经常看到他们以外，对我而言并不会有更好的理由;时光一过不再有，这过去的大半年时间就让它过去吧，在接下来的2016年里，我希望我可以更加勇敢、更加努力，我要更好地把握我的人生，我要变得更加成熟，我要做最初的、最好的自己
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/%E9%9D%92%E9%BB%84%E6%9C%AA%E6%8E%A5%E7%9A%842015/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/2015-11-29-join-leancloud/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3381,388 +3704,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015-10-25-one-on-one-summary/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015-10-25-one-on-one-summary/" itemprop="url">浅析一对一沟通</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-10-25T10:06:42+00:00">
-                2015-10-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>一对一沟通，又被称作一对一会议、One-on-one 等，是互联网公司常用的沟通方式。一对一沟通虽然被广泛使用，但是涉及的文章却很少，我主要通过两本书来获得它的一些知识，这两本书是<a target="_blank" rel="noopener" href="https://book.douban.com/subject/5431183/">《格鲁夫给经理人的第一课》</a>和<a target="_blank" rel="noopener" href="https://book.douban.com/subject/26306686/">《创业维艰》</a>。</p>
-<p>这两本书的作者都非常有名，<a target="_blank" rel="noopener" href="http://baike.baidu.com/view/1659256.htm">格鲁夫</a>是 Intel 公司的总裁，成功带领 Intel 公司完成了从半导体存储器到微处理器的转型。《创业维艰》的作者本·霍洛维茨是硅谷的顶级 VC，投资了 Facebook、Twitter 等公司。</p>
-<p>除此之外，我本人也是一对一沟通的实践者，从刚毕业踏入职场开始，我就经历着一次又一次的一对一沟通。</p>
-<p>在本文中，我们将浅析一对一沟通的细节。</p>
-<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>在<a target="_blank" rel="noopener" href="https://book.douban.com/subject/5431183/">《格鲁夫给经理人的第一课》</a>一书中，格鲁夫对「一对一沟通」的介绍如下：</p>
-<blockquote>
-<p>在英特尔，一对一会议通常是由经理人召集他的部属召开的，这也是维系双方从属关系最主要的方法。一对一会议主要的目的在于互通信息以及彼此学习。经过对特定事项的讨论，上司可以将其技能以及经验传授给下属，并同时建议他切入问题的方式；而下属也能对工作中碰到的问题进行汇报。</p>
-</blockquote>
-<p>在我看来，一对一沟通的意义是可以使得信息从下而上地传递。从而获得在其它渠道不易获得的信息，保证透明。</p>
-<p>讲一个我自己的故事。我有一阵子在开发中饱受产品调整之苦，很多时候刚刚做完一个产品功能的开发，然后产品需求就改了。对于一个对代码「有爱」的人来说，刚刚写完的几千行的代码要删掉，这个心情是非常沮丧的。</p>
-<p>于是我就在一次和郭老大的一对一沟通中提出了这个问题。郭老大在表达同情之后，邀请我参加了一次产品的讨论会。在产品讨论会中，我看到大家都非常努力地在讨论产品方案，从而了解到，产品同事也非常不容易，他们需要在非常有限的时间内做出完整的产品方案，所以难免出现小的调整。而对于创业公司来说，「按时交付」是第一优先级的事情，所以我在这之后，接受产品调整的心态上就好受了很多。</p>
-<p>我想这就是一次成功的一对一沟通。它首先让我的糟糕心情得到了宣泄，另外，它化解了我对于产品同事的抱怨，通过参与产品讨论，我甚至产生了对他们也不容易的「同理心」，能够理解他们也是在不得已的情况下，才调整产品方案的。最终，我们都接受了软件开发中的不完美，为了保证创业中按时交付，快速迭代的做事方式，和产品同事一起努力把事情做好。</p>
-<h2 id="适合讨论的问题"><a href="#适合讨论的问题" class="headerlink" title="适合讨论的问题"></a>适合讨论的问题</h2><p>从我刚刚的故事中，大家可以看到，「倾诉焦虑」适合用来做为一对一沟通的内容。其实，适合作为一对一沟通的内容还包括：</p>
-<ol>
-<li>不成熟的看法</li>
-<li>迫在眉睫的问题</li>
-<li>精彩的想法</li>
-<li>倾诉焦虑</li>
-<li>抱怨</li>
-</ol>
-<p>以上这些内容，除了在一对一沟通中交流之外，很难找到别的渠道来有效解决。比如，对一些公司做事方式的不成熟看法或误解，如果是和同事在私下讨论，可能让误解加深。又比如，在和同事合作中产生的抱怨，如果将抱怨公开，很可能造成不好的影响。</p>
-<p>一对一沟通构造了一个渠道，这个渠道自下而上，使得以上这些内容都能够被倾听，从而被解决。</p>
-<p>因为这是一个「自下而上」的渠道，所以员工的主动性就非常重要。在一对一沟通中，上司多听少说，让员工成为沟通的中心。上司应该引导员工表达他的核心观点（如果有的话）。如果可能，也可以试试让员工来安排一对一沟通。</p>
-<h2 id="建立舒适的沟通环境"><a href="#建立舒适的沟通环境" class="headerlink" title="建立舒适的沟通环境"></a>建立舒适的沟通环境</h2><p>你会对一个陌生人敞开心扉吗？显然不会。那如果上司和员工平常极少聊天和沟通，那他们就不太容易讨论尖锐的问题。所以，上司应该尽可能和员工建立友谊。平时多聊聊天，在休息的时候聊些工作无关的话题，组织团队的 Team Building 活动，都有助于大家成为朋友。</p>
-<p>另外，如果大家沟通的时候是坐在办公室里，那么员工的心情是不那么放松的，因为办公室始终是一个讨论工作的环境，让人无法放松。可能的话，可以尝试找一个公司的休息区，坐在沙发上沟通，或者直接走出公司，找一个咖啡厅点杯饮料，在咖啡厅里面聊天，都是不错的选择。</p>
-<p>如果能请员工吃个饭，然后饭后聊聊天，散散步走一走，那么就更棒了。舒适的沟通环境有助于双方在放松的心情下交流，有助于大家更加平等地对话。</p>
-<h2 id="保持真诚"><a href="#保持真诚" class="headerlink" title="保持真诚"></a>保持真诚</h2><p>沟通要有效，保持真诚是必要的前提，否则员工不可能将心中的问题提出来。</p>
-<p>保持真诚需要不敷衍任何员工提出的问题，不管这个问题有多尖锐。如果你也不知道如何解决这个问题，不妨和员工一起讨论讨论，看看员工能不能一起寻找可行的办法。切忌不要讲空话和套话，一旦员工发现这是一个无效的沟通渠道之后，「自下而上」的通道就被关闭了。</p>
-<p>保持真诚也需要坦白和诚实，坦白使得沟通双方能够尽可能地保证透明。足够的透明才能让员工理解上司的想法，从而达到双方考虑问题的方式一致，进一步言行一致后，大家就会产生近似的处事方式，上司就可以将事情充分授权给员工了。</p>
-<p>但是，坦白也不是说不留秘密，如果一个问题你觉得不方便讨论，就坦白地说不方便讨论，并且如果可能，尽量给出理由。</p>
-<h2 id="适当引导"><a href="#适当引导" class="headerlink" title="适当引导"></a>适当引导</h2><p>并不是每一个员工都懂得一对一沟通的重要性，也不是每一个员工都能主动倾述问题，寻求帮助。很多程序员的性格都是比较内向的，有一些甚至不善于表达自己。</p>
-<p>所以，虽然员工是一对一沟通的「主角」，但是上司也是需要进行适当的引导。对于上司已经发现的员工工作中的困难，可以适当的主动提出来，以便于更好地讨论，这也会让员工感到很体贴。</p>
-<p>如果员工没有问题，一对一沟通也可以用于上司向员工传授工作经验和技巧渠道，这样员工可以向上司学习各种知识。</p>
-<p>如果没有什么谈的，适合用来引导的问题也包括：</p>
-<ul>
-<li>当前产品还有哪些可以提高的地方？</li>
-<li>我们部门的最大问题是什么，为什么？</li>
-<li>如果有，你觉得工作中有哪一点令你感觉不舒服？</li>
-<li>你觉得谁的工作最优秀，为什么？</li>
-<li>假如你是我，你会做何调整？</li>
-<li>我们的产品哪方面不尽如人意？</li>
-<li>我们错失的最大机遇是什么？</li>
-<li>哪些是我们应该做而没有做的？</li>
-<li>你自己希望未来在哪些方面能有提高？</li>
-<li>有什么我能为你做的事情？</li>
-</ul>
-<h2 id="沟通的频率"><a href="#沟通的频率" class="headerlink" title="沟通的频率"></a>沟通的频率</h2><p>一对一沟通应该多久一次？在《创业维艰》一书中，本·霍洛维茨认为一对一沟通需要保证至少一个月一次。而格鲁夫认为，需要根据部属对工作的熟悉度，而进行不同程度的掌控。如果他处理的是新项目，你应该提高和他沟通的频率；反之，如果他对这个项目已经游刃有余，你可能一个月一次就够了。</p>
-<p>另外，格鲁夫还认为，事情变化的速度也是影响一对一沟通频率的因素。比如市场和产品的变化就比技术的变化要快，所以市场部门的一对一沟通可能需要更频繁一些。</p>
-<p>所以，并没有不变的沟通频率，但是几个月都不沟通明显是不太合适的。</p>
-<h2 id="沟通的时长"><a href="#沟通的时长" class="headerlink" title="沟通的时长"></a>沟通的时长</h2><p>一个问题要展开进行讨论和交流，15 分钟肯定是不够的，所以一对一沟通需要留有足够的时间。通常为了保留足够的 buffer，一对一沟通都至少是一个小时，并且可以根据实际讨论的内容有适当地延长。</p>
-<h2 id="沟通的效果"><a href="#沟通的效果" class="headerlink" title="沟通的效果"></a>沟通的效果</h2><p>除了能够帮助员工有效地解决问题之外，一对一沟通还有以下效果。</p>
-<h3 id="成功授权"><a href="#成功授权" class="headerlink" title="成功授权"></a>成功授权</h3><p>格鲁夫称「一对一会议有巨大的杠杆率」，因为这都是通过上司和下属间建立起共同的信息基础，以及近似的处事方式来达成的。这也是要达到「成功授权」的唯一途径。</p>
-<h3 id="相互学习"><a href="#相互学习" class="headerlink" title="相互学习"></a>相互学习</h3><p>如果上司想作好决策，那么他在会议中「从下属身上学到的东西」也同样很重要。格鲁夫说他对于 Intel 的很多决策想法，都是来自于一对一沟通中员工的意见。格鲁夫是一个程序员出行，他不懂制造和供应链，但是不影响他在一对一沟通中，从员工中学习这方面的知识，从而做出相应的决策。</p>
-<h3 id="家庭生活"><a href="#家庭生活" class="headerlink" title="家庭生活"></a>家庭生活</h3><p>格鲁夫说，他有两个正值青春期的女儿，他尝试在家里的餐厅和孩子进行一对一沟通，在那个相对私密的场合，他们可以较严肃地谈一些细微且复杂的事情。</p>
-<p>所以我惊喜地发现，一对一沟通对于家庭成员之间同样有效。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>一对一使得企业里面的组织，产生了自下而上的沟通渠道，从而能够使得组织内的每一个人更加舒服地工作，让团队凝聚力更强。</p>
-<p>本质上来说，一对一沟通就是构建一个私密的、轻松的、真诚的、有效的环境，两个人在一起讨论问题和相互学习。理论上，不管是公司内的管理，还是公司之间的合作，还是朋友之间的相处，还是家庭成员之间的交流，一对一沟通都能够发挥出它的效果。</p>
-<p>看了这篇文章，明天你打算和谁来一场「一对一沟通」？</p>
-<h2 id="版权说明"><a href="#版权说明" class="headerlink" title="版权说明"></a>版权说明</h2><p>本文为 InfoQ 中文站特供稿件，首发地址为：<a target="_blank" rel="noopener" href="http://www.infoq.com/cn/articles/analysis-of-one-to-one-communication#rd">文章链接</a>。如需转载，请与 InfoQ 中文站联系。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/adding-quote-symbol-to-beginning-of-blockquote/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/adding-quote-symbol-to-beginning-of-blockquote/" itemprop="url">在 blockquote 元素首添加引号</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-10-24T18:11:38+00:00">
-                2015-10-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
-                    <span itemprop="name">技术</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>以前似乎看到过这样的样式，但是忘记保存了。于是到处去翻，发现维基百科有类似的样式，但是。。</p>
-<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/10/2015-10-24_09-54-46.png"><img src="https://img.prin.studio/images/2015/10/2015-10-24_09-54-46.png" alt="screenshot1"></a></p>
-<p>WTF，明明俩伪类就可以解决的。。 <a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/10/2015-10-24_09-56-11.jpg"><img src="https://img.prin.studio/images/2015/10/2015-10-24_09-56-11.jpg" alt="emotion1"></a></p>
-<p>想起 <a target="_blank" rel="noopener" href="https://typeblog.net/life/2015/08/21/long-live-shadowsocks.html">Long Live Shadowsocks</a> 这篇文章里似乎有类似的样式，于是去看了看，但还不是窝想要的效果</p>
-<p><a target="_blank" rel="noopener" href="https://img.prin.studio/images/2015/10/2015-10-24_09-58-54.png"><img src="https://img.prin.studio/images/2015/10/2015-10-24_09-58-54.png" alt="screenshot2"></a></p>
-<p>然后就各种找资料，仿照着东拼西凑搞成了差不多满意的样式 qwq</p>
-<blockquote>
-<p><em>The quick brown fox jumps over the lazy dog</em></p>
-</blockquote>
-<p>嘛，还算不赖吧~ </p>
-<p>blockquote { margin-bottom: 7px; quotes: “\201C” “\201D”; padding: 2em 25px 2em 30px; position: relative; overflow: hidden; } blockquote:before { content: open-quote; font-size: 3em; position: absolute; left: 0; top: 0 } blockquote:after { content: close-quote; font-size: 3em; line-height: 1; position: absolute; right: 0; bottom: 0 }</p>
-<p> </p>
-<p>参考资料：</p>
-<p><a target="_blank" rel="noopener" href="https://css-tricks.com/almanac/properties/q/quotes/">https://css-tricks.com/almanac/properties/q/quotes/</a></p>
-<p><a target="_blank" rel="noopener" href="http://stackoverflow.com/questions/4597699/css-3-adding-quote-symbol-to-beginning-of-blockquote">http://stackoverflow.com/questions/4597699/css-3-adding-quote-symbol-to-beginning-of-blockquote</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3813,7 +3754,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1458</span>
+                  <span class="site-state-item-count">1460</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3824,7 +3765,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">72</span>
+                  <span class="site-state-item-count">73</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -3835,7 +3776,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">890</span>
+                  <span class="site-state-item-count">895</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

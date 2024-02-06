@@ -274,6 +274,362 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E4%BD%BF%E7%94%A8dotTrace%E5%AF%B9.NET%E5%BA%94%E7%94%A8%E8%BF%9B%E8%A1%8C%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/%E4%BD%BF%E7%94%A8dotTrace%E5%AF%B9.NET%E5%BA%94%E7%94%A8%E8%BF%9B%E8%A1%8C%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/" itemprop="url">使用 dotTrace 对 .NET 应用进行性能分析与优化</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-11-01T04:19:02+00:00">
+                2020-11-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>前几天，有位朋友问我，你平时都是怎么去排查一个程序的性能问题的啊。不要误会，这位朋友不是我啦，因为我真的有这样一位叫做 Toby 的朋友。说到性能问题，可能大家立马会想到类似<strong>并发数</strong>、<strong>吞吐量</strong>、<strong>响应时间</strong>、<strong>QPS</strong>、<strong>TPS</strong>等等这些指标，这些指标的确可以反映出一个系统性能的好坏。可随着我们的系统结构变得越来越复杂，要找到这样一个性能的“损耗点”，同样会变得越来越困难。在不同的人的眼中，对于性能好坏的评判标准是不一样的，譬如在前端眼中，页面打开速度的快慢代表着性能的好坏；而在后端眼中，并发数、吞吐量和响应时间代表着性能的好坏；而在 DBA 眼中，一条 SQL 语句的执行效率代表着性能的好坏。更不用说，现实世界中的程序要在硬件、网络的世界里来回穿梭了，所以，从 80%的功能堆积到 100%，是件非常容易的事情；而从 80%的性能优化到 85%，则不是件非常轻松的事情。想清楚这一点非常简单，因为我们的系统从来都不是简单的<code>1 + 1 = 2</code>。此时，我们需要一个性能分析工具，而今天给大家分享的是 <code>JetBrains</code> 出品的 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 。</p>
+<h1 id="快速开始-Quick-Start"><a href="#快速开始-Quick-Start" class="headerlink" title="快速开始(Quick Start)"></a>快速开始(Quick Start)</h1><p>安装软件的过程此处不表，这里建议大家同时安装 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 和  <a target="_blank" rel="noopener" href="https://www.jetbrains.com/dotmemory/">dotMemery</a>。因为这都是 <code>JetBrains</code> 全家桶中的软件，安装的时候选一下就可以了，可谓是举手之劳。安装好以后的界面是这样的，可以注意到，它可以对进程中的 .NET 应用、本机的 .NET 应用以及远程的 .NET 应用进行检测，因为这里写一个 .NET Core 应用来作为演示，所以，我们选择 <code>Profile Local App</code>：</p>
+<p><img src="https://i.loli.net/2020/11/01/MJA1avuHhIOSnsZ.png" alt="dotTrace主界面"></p>
+<p>在这里，我们准备了一个简单的控制台程序：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">Program</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] args</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        CPUHack();</span><br><span class="line">        MemeryHack();</span><br><span class="line">    &#125;</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">MemeryHack</span>()</span> &#123;</span><br><span class="line">        Console.ReadLine();</span><br><span class="line">        <span class="keyword">var</span> bytes = GC.GetTotalAllocatedBytes();</span><br><span class="line">        Console.WriteLine(<span class="string">$&quot;AllocatedBytes: <span class="subst">&#123; bytes &#125;</span> bytes&quot;</span>);</span><br><span class="line">        <span class="keyword">var</span> list = <span class="keyword">new</span> List&lt;<span class="built_in">byte</span>[]&gt;();</span><br><span class="line">        <span class="keyword">try</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">              list.Add(<span class="keyword">new</span> <span class="built_in">byte</span>[<span class="number">85000</span>]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (OutOfMemoryException) &#123;</span><br><span class="line">            Console.WriteLine(<span class="keyword">nameof</span>(OutOfMemoryException));</span><br><span class="line">            Console.WriteLine(list.Count);</span><br><span class="line">            bytes = GC.GetTotalAllocatedBytes();</span><br><span class="line">            Console.WriteLine(<span class="string">$&quot;AllocatedBytes: <span class="subst">&#123; bytes &#125;</span> bytes&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Console.ReadLine();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">CPUHack</span>()</span> &#123;</span><br><span class="line">        Parallel.For(<span class="number">0</span>, Environment.ProcessorCount,</span><br><span class="line">            <span class="keyword">new</span> ParallelOptions() &#123;</span><br><span class="line">                MaxDegreeOfParallelism = Environment.ProcessorCount</span><br><span class="line">            &#125;,</span><br><span class="line">            i =&gt; &#123;</span><br><span class="line">              </span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，<code>CPUHack()</code>方法来自：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/weihanli/p/implement-full-cpu.html">打爆你的 CPU</a>; <code>MemeryHack()</code>方法来自：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/weihanli/p/implement-out-of-memory.html">通过代码实现 OutOfMemory</a>。顾名思义，我们将利用这两个方法来分别测试 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 和  <a target="_blank" rel="noopener" href="https://www.jetbrains.com/dotmemory/">dotMemery</a>。</p>
+<p><a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 目前支持以下平台：.NET、.NET Core、WPF、UWP(<strong>Universal Windows Platform</strong>)、ASP.NET、Windows 服务、WCF、Mono 和 Unity。可以注意到它有四种监测方式，即 Sampling、Tracing、Line by Line 以及 Timeline。按照界面上的描述，Sampling 适用于大多数场景下调用时间的精确测量、Tracing 适用于算法复杂度分析场景下调用次数的精确测量、Line by Line 适用于更高级别的使用场景，Timeline 适用于含多线程在内的数据处理的精确测量。所以，我们这里选择好一个可执行文件，然后选择 Sampling，再点击 “Run”：</p>
+<p><img src="https://i.loli.net/2020/11/01/FSvbD5wlE43CJxd.png" alt="对进行程序进行采样、生成快照"></p>
+<p>此时，我们会看到对应程序的的工具栏，我们可以点击 “Get Snapshot and Wait” 进行采样，每次采样会生成一个快照，默认情况下会自动打开生成的快照。我们还可以点击 “Start” 重新进行采样，直至采集到满意的样本为止，而在完成采样后，则可以点击 “Kill” 结束采样。下面来看看生成的快照：</p>
+<p><img src="https://i.loli.net/2020/11/01/NCO8flxrA7c69mB.png" alt="dotTrace性能快照"></p>
+<p>通过这两图，我们可以非常清晰的看到，最耗时的正是我们这里的<code>CPUHack()</code>方法，并且这里一共有四个线程，这是因为博主的计算机使用的是一款 4 核的 i3 处理器，并且在<a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a>中可以直接看到相关的代码片段，当然，这一切的前提是你没有对应用程序做过混淆处理，这样，我们就完成了一个简单的性能分析。类似地，我们启动<a target="_blank" rel="noopener" href="https://www.jetbrains.com/dotmemory/">dotMemery</a>。此时，可以得到下面的结果：</p>
+<p><img src="https://i.loli.net/2020/11/01/JMKZajbkWwGPT3v.png" alt="dotMemery内存分析"></p>
+<p>这里，我们通过<code>&lt;YourApp&gt;.runtimeconfig.json</code>文件，设定了 GC 堆的最大值是 1M，而每次向列表中添加超过 85K 的 byte 数组时，当前对象会被分配到大对象堆上。通过这张图我们可以很清楚的看到，整个曲线中蓝色区域的 LOH 占了绝对的比例，换言之，几乎所有的内存都是分配到大对象堆(<strong>LOH</strong>)上的。此外，有些小对象从 0 代升到了 1 代，在这个例子中，由于可分配的内存不足，最终引发了<code>OutOfMemoryException</code>。而这和我们看到的结果是相符合的：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;runtimeOptions&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;tfm&quot;</span><span class="punctuation">:</span> <span class="string">&quot;netcoreapp3.1&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;framework&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Microsoft.NETCore.App&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;version&quot;</span><span class="punctuation">:</span> <span class="string">&quot;3.1.0&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;configProperties&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line"></span><br><span class="line">      <span class="attr">&quot;System.GC.HeapHardLimit&quot;</span><span class="punctuation">:</span> <span class="number">1048576</span></span><br><span class="line"></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="从-Dump-文件进行分析"><a href="#从-Dump-文件进行分析" class="headerlink" title="从 Dump 文件进行分析"></a>从 Dump 文件进行分析</h1><p>到此为止，关于 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 和  <a target="_blank" rel="noopener" href="https://www.jetbrains.com/dotmemory/">dotMemery</a> 的使用就基本上讲解完啦！可能这时候有些朋友会产生疑问，如果性能问题发生在生产环境怎么办啊。不错，这里我们调试的都是本地的程序，生产环境是没有机会让你这样去搞的。此时，我们可以借助内存转储文件(<strong>Dump</strong>)文件，它是进程的内存镜像，可以把程序的执行状态通过调试器保存在 Dump 文件中，试想一下，如果程序在前一秒崩溃了，而你在这一瞬间获得了当时程序的状态信息，相当于拿到了“故障”遗留在现场的“罪证”。在 Windows 系统中创建 Dump 文件是非常简单的，通过<code>任务管理器</code>-&gt;<code>创建转储文件</code>即可完成，我们继续使用上面提到的例子：</p>
+<p><img src="https://i.loli.net/2020/11/01/fWZ4dGENeUcoOI7.jpg" alt="创建Dump文件"></p>
+<p>其实，拿到 Dump 文件以后，分析它的工具非常多，比如常见的 WinDBG、DebugDiag 等等，这里我们可以直接使用 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/dotmemory/">dotMemery</a> ，因为它本身就支持 Dump 文件的导入，相比前面两种在使用上要更加友好一点。此时，导入这个 Dump 文件，我们就可以获得下面的结果：</p>
+<p><img src="https://i.loli.net/2020/11/02/wa7ok2LcGuVh9v1.png" alt="大对象堆分布情况"></p>
+<p><img src="https://i.loli.net/2020/11/02/upfPZQkhNgTi6nH.png" alt="一、二代GC分布情况"></p>
+<p>这和我们前面分析出的结论是一致的，即，几乎所有的内存都是分配到大对象堆(<strong>LOH</strong>)上的。除此以外，针对.NET Core，官方提供了<br><code>dotnet-dump</code>和<code>dotnet-gcdump</code>两个命令行工具，可以通过下面的命令安装：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dotnet tool install -g dotnet-dump</span><br><span class="line">dotnet tool install -g dotnet-gcdump</span><br></pre></td></tr></table></figure>
+<p>这两个命令同样可以对内存进行分析，关于更多的.NET Core 的诊断教程，请参考：<a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/event-counter-perf">https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/event-counter-perf</a>，这些细节都是针对.NET Core 的，可能不具有普适性，感兴趣的朋友可以自行前去了解。和大多数<code>JetBrains</code>的应用一样，这些程序都有 Visual Studio 的扩展程序，可以直接集成到 Visual Studio 中，这个同样看个人喜好，不再详细讲解。</p>
+<h1 id="本文小结"><a href="#本文小结" class="headerlink" title="本文小结"></a>本文小结</h1><p>结合一个简单的示例程序，本文简单地介绍了来自 <code>JetBrains</code> 的两款软件 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 和  <a target="_blank" rel="noopener" href="https://www.jetbrains.com/dotmemory/">dotMemery</a> 的基本使用，以及如何通过内存转储文件(Dump)对生产环境中的内存进行诊断。在以往的关于程序性能优化的经历中，我个人还使用过 <a target="_blank" rel="noopener" href="https://www.red-gate.com/products/dotnet-development/ants-performance-profiler/">ANTS-Performance-Profiler</a>  这个软件，但体验上感觉还是 <a target="_blank" rel="noopener" href="https://www.jetbrains.com/profiler/">dotTrace</a> 和  <a target="_blank" rel="noopener" href="https://www.jetbrains.com/dotmemory/">dotMemery</a> 稍微好用一点，而对于更一般的代码角度的性能分析，我推荐一个轻量级的项目<a target="_blank" rel="noopener" href="https://miniprofiler.com/">MiniProfiler</a>，性能优化不能靠猜，可是从初中就开始学的“控制变量法”未尝不是一个不错的思路。刷 <a target="_blank" rel="noopener" href="https://leetcode-cn.com/u/qinyuanpei/">LeetCode</a> 的这段时间，一个最大的感悟就是，程序的性能，真的是一点一点的优化出来的，就拿最简单的排序来说，你真的要在上面提交很多次，才能渐渐地明白为什么说有些排序算法是“不稳定”的。也许，现在硬件水平越来越好，我们不必像前辈们一样“锱铢必较”，可这一切其实很都公平，你写代码的时候有多浪费，你玩游戏的时候就有多心疼，这里要特别表扬育碧对叛变这一作的优化。好了，这就是这篇博客的内容啦，谢谢大家，晚安！</p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://www.jetbrains.com/zh-cn/profiler/">https://www.jetbrains.com/zh-cn/profiler/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jetbrains.com/zh-cn/dotmemory">https://www.jetbrains.com/zh-cn/dotmemory</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/debug-linux-dumps">https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/debug-linux-dumps</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/debug-memory-leak">https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/debug-memory-leak</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/debug-highcpu?tabs=windows">https://docs.microsoft.com/zh-cn/dotnet/core/diagnostics/debug-highcpu?tabs=windows</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020-10-31-post07/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020-10-31-post07/" itemprop="url">如何对自己感到更满意一些？</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-10-31T08:28:38+00:00">
+                2020-10-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>多数人对自己的现状或多或少都有不满意的地方<br>不满意的原因不一而足</p>
+<p>当你不满足于现状<br>你可能会试着去改变<br>尝试开始做一些不一样的事情</p>
+<p>目前我觉得让自己对自己更满意一些的方法是：</p>
+<ul>
+<li>试着逼自己写点什么，不包括这一篇，这个月更新了 16 篇文章。写东西会让自己暂时充当一个生产者而非消费者的角色，会让自己觉得可能对这个世界产生了一点影响</li>
+<li>尽可能每天能留出 7 分钟的运动时间，这个月我做了 26 次运动（包含周末的户外跑步）</li>
+<li>在滴答清单中写简短的日记、摘抄语录、记下自己临时想到的东西。之前看过一句话，<strong>LIVE A LIFE YOU WILL REMEMBER</strong>（去过带给你回忆的生活）。如何让以后的自己不忘记某段回忆？一种比较好的方式是借助某种<strong>载体</strong>，它可以是文字，可以是音乐，可以是照片，可以是视频，可以是录音等等</li>
+</ul>
+<p>当然，自己对自己满意的这种状态，它不会布满在过去或当下的每分每秒，有时还是会受到外部的影响：</p>
+<ul>
+<li>你妈和你说某某人的儿子月薪两万</li>
+<li>你妈怨你当初为啥不去读研</li>
+<li>在朋友圈看到别人的好消息</li>
+</ul>
+<p>破坏原先那种状态的根源在于——和别人比较，通过与别人的比较来确定自己的位置，这本质上还是学生时代分数思维的一种延续。（说到比较，父母有时候跟我说到别人家的孩子，本意可能是想借别人的例子来激励我奋起直追，但现实是我身边或者网络上并不缺少优秀的例子）</p>
+<p>人生在世，你说做到完全不和别人比，基本上是不可能，但我们可以选择比较的对象。  </p>
+<p>不少有智慧的人也曾告诉我们，「不要和别人比，只和昨天的自己比」，当你把比较的参照物从别人转移到自己身上，你会摆脱原先的竞争思维，专注于自己的优势，聚焦在自己能改变的事情上，而不是深深地陷入对自己的怀疑或自我否定之中。  </p>
+<p>人生是一场长跑，每个人都有每个人的节奏，日拱一卒，道阻且长，行则将至。</p>
+<h2 id="本月碎碎念"><a href="#本月碎碎念" class="headerlink" title="本月碎碎念"></a>本月碎碎念</h2><p>当我想回顾自己这个月做过什么<br>我会打开滴答清单<br>看一看我在过去的一个月写下的东西<br>其中少了几天的记录<br>可能那几天就是没有想写点什么的欲望</p>
+<h3 id="本月阅读的书（包含未读完的书）："><a href="#本月阅读的书（包含未读完的书）：" class="headerlink" title="本月阅读的书（包含未读完的书）："></a>本月阅读的书（包含未读完的书）：</h3><ul>
+<li>《夜晚的潜水艇》</li>
+<li>《你当像鸟飞往你的山》</li>
+<li>《最好的告别》</li>
+</ul>
+<h3 id="本月的碎片摘录"><a href="#本月的碎片摘录" class="headerlink" title="本月的碎片摘录"></a>本月的碎片摘录</h3><ul>
+<li>凡他人承受的，有很大可能性会落在自己身上，这是一个非常沉痛的人生体会。——读库张立宪（江湖人称老六）</li>
+<li>我做过的事，并不是每件都让我问心无愧，但要是再来一次，我肯定还会那么做的。——电影《遗愿清单》</li>
+<li>人们看电影是为了时间：为了已经流逝、消耗，或者尚未拥有的时间。——安德烈·塔可夫斯基（来自豆瓣日历 2021 扉页）</li>
+<li>我并不是在为自由而战，而是在用自己的存在证明自由并未消失。——Telegram 创始人 Pavel Durov</li>
+<li>世界上最鼓舞人心的，莫过于看到一个都市忙于建设。我们受苦受难，乃是为了拯救未来。——《约翰·克里斯朵夫》</li>
+<li>旅行是最劳顿，最麻烦，叫人本相毕露的时候。经过长期苦旅行而彼此不讨厌的人，才可以结交作朋友……结婚以后的蜜月旅行是次序颠倒的，应该先同旅行一个月，一个月舟车仆仆以后，双方还没有彼此看破，彼此厌恶，还没有吵嘴翻脸，还要维持原来的婚约，这种夫妇保证不会离婚。——钱钟书《围城》  </li>
+<li>完美的相处关系是什么？窝在爱人怀里孤独。——英国心理学家唐纳德·温尼科特</li>
+<li>小时候，我等待思想成熟，等待经验积累，等待抉择坚定，等待成为一个成年人的样子。那个人，或者那个化身，曾经有所归属。我属于那座山，是那座山塑造了我。只是随着年龄的增长，我开始思考，<strong>我的起点是否就是我的终点</strong>——一个人初具的雏形是否就是他唯一真实的样貌。——《你当像鸟飞往你的山》</li>
+</ul>
+<h3 id="后面可能会写的话题"><a href="#后面可能会写的话题" class="headerlink" title="后面可能会写的话题"></a>后面可能会写的话题</h3><ul>
+<li>不要把人物化（来自于知乎的一个问题「你们怎样看待把朋友视为工具的这种人？」）</li>
+<li>每个人的 KPI（爸妈的 KPI、自己的 KPI）</li>
+<li>人生的种种遗憾（这是看到一篇文章后想到的）</li>
+</ul>
+<p>以上，祝秋安。    </p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020-10-28-post06/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3451,476 +3807,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020-09-19-study-of-HUA/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020-09-19-study-of-HUA/" itemprop="url">关于高尿酸的一些研究</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-09-19T13:46:27+00:00">
-                2020-09-19
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <img src="/images/586px-Uric_acid3D.png" class="">
-
-<blockquote><p>题图：尿酸的分子结构。</p>
-</blockquote>
-
-<h2 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h2><p>我因为自己有 5 年的高尿酸（指标大于 550) 的情况，加上最近在服药控制，所以查了一些资料。</p>
-<p>中国的高尿酸比例其实挺高的，<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/MckwgiBW7m_ca2XpbhP6GQ">相关资料</a>显示总体患病率为 13.3%，保守估计有 1.8 亿高尿酸患者，痛风患者达 1700 万。</p>
-<p>如果你也和我有相似的身体情况，希望本文对你也有一些帮助。</p>
-<h2 id="高尿酸是什么"><a href="#高尿酸是什么" class="headerlink" title="高尿酸是什么"></a>高尿酸是什么</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>高尿酸症状的医学说法叫：高尿酸血症（hyperuricemia，简称 HUA）。</p>
-<p>高尿酸是指血液中尿酸的浓度超过了健康人的指标。血尿酸正常值：</p>
-<ul>
-<li>成人男性为 <code>149～416μmol/L</code> ；女性为 <code>89～357μmol/L</code>。</li>
-<li>年龄大于 60 岁的男性为：<code>250～476μmol/L</code>； 女性为：<code>190～434μmol/L</code>。</li>
-</ul>
-<h3 id="危害"><a href="#危害" class="headerlink" title="危害"></a>危害</h3><p>尿酸在血液中的浓度如果过高，就不能完全溶解于血液中，于是就会出现析出结晶。这些结晶在关节处累积，就会诱发痛风。</p>
-<p>通常高尿酸不会那么快导致痛风，也有很多人高尿酸但是一直没有痛风，但是两者的相关性极大。我自己高尿酸 5 年了还没有痛风，但我一个朋友也就 3 年左右就开始痛风了。</p>
-<p><a target="_blank" rel="noopener" href="http://www.china-endo.org/x_uploadfiles/%E9%AB%98%E5%B0%BF%E9%85%B8%E8%A1%80%E7%97%87%E5%92%8C%E7%97%9B%E9%A3%8E%E6%B2%BB%E7%96%97%E7%9A%84%E4%B8%AD%E5%9B%BD%E4%B8%93%E5%AE%B6%E5%85%B1%E8%AF%86.pdf">《高尿酸血症和痛风治疗的中国专家共识》</a> 建议：如果低嘌呤饮食的情况下，高尿酸还在 540 以上，或高于420（男）&#x2F;360（女）持续半年以上，即需要进行降尿酸治疗（下图）。</p>
-<img src="/images/hua-treatment-map.jpg" class="">
-
-<p>我自己在这件事情上还是拖了很多年，其实是不对的。</p>
-<h3 id="来源和排泄"><a href="#来源和排泄" class="headerlink" title="来源和排泄"></a>来源和排泄</h3><p>尿酸（uric acid）是嘌呤的代谢产物。整体上人体的尿酸来自两类：</p>
-<ul>
-<li>内源性。依赖于自身代谢产生，这部分占到体内尿酸总量的 80%。</li>
-<li>外源性。从饮食中直接摄入的，这部分占到体内尿酸总量的 20%。</li>
-</ul>
-<p>尿酸产生之后，主要通过肾脏排泄（占比 70%），其余通过消化道排泄。</p>
-<h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><p>刚刚说到来源和排泄，所以产生高尿酸的原因主要是两种：</p>
-<ul>
-<li>来源来得太多了。主要包括自身代谢紊乱（内源性）或者饮食中摄入（外源性）太多。</li>
-<li>排泄得太少。主要是肾脏排泄能力下降导致。</li>
-</ul>
-<p>当你体检时发现尿酸高的时候，医生或者朋友第一个建议你的事情就是：在饮食上进行控制，进行低嘌呤饮食。嘌呤主要来源于海鲜、内脏以及肉汤。</p>
-<p>但是就像我们刚刚提到的，这部分只占到体内尿酸生成总量的 20%。所以如果是自身代谢紊乱或者肾脏排泄能力下降的话，即便是低嘌呤饮食也无法降低尿酸。</p>
-<p>医生可以通过测量 24 小时尿尿酸来判断是否排泄减少：</p>
-<ul>
-<li>小于 600mg(3.6mmol) 定义为尿酸排泄减少型</li>
-<li>超过 800mg(4.8mmol) 定为尿酸产生过多型</li>
-</ul>
-<p><a target="_blank" rel="noopener" href="http://www.china-endo.org/x_uploadfiles/%E9%AB%98%E5%B0%BF%E9%85%B8%E8%A1%80%E7%97%87%E5%92%8C%E7%97%9B%E9%A3%8E%E6%B2%BB%E7%96%97%E7%9A%84%E4%B8%AD%E5%9B%BD%E4%B8%93%E5%AE%B6%E5%85%B1%E8%AF%86.pdf">研究表明</a>，有 90% 的原发性高尿酸都是排泄减少型。对于排泄减少型，即使你坚持低嘌呤饮食，影响也相当有限。</p>
-<h2 id="监控"><a href="#监控" class="headerlink" title="监控"></a>监控</h2><p>精确地测量尿酸值，需要到医院抽晨血（抽血前不能进食）。我自己研究发现，可以购买尿酸测试仪在家自行测量，用于定期的监控。我买的是三诺的 EA-12 测试仪（下图），别的品牌也没试过。</p>
-<img src="/images/sano.jpg" class="">
-
-<p>我自己在去医院测试的同一天用测试仪也测试，发现这款家用测试仪误差大概在 50 以内，凑合能够接受吧。</p>
-<h2 id="治疗"><a href="#治疗" class="headerlink" title="治疗"></a>治疗</h2><h3 id="低嘌呤饮食"><a href="#低嘌呤饮食" class="headerlink" title="低嘌呤饮食"></a>低嘌呤饮食</h3><p>饮食对于尿酸的影响占比是20%，当患者是代谢或者排泄问题导致高尿酸时，低嘌呤饮食虽然很多时候并不能解决问题，但是对控制尿酸还是有一些帮助的。</p>
-<p>我个人总结的经验是，除了严禁的食物外，其它不用刻意地控制，因为如果真要严格控制，很多东西都吃不了了。严禁的食物是：</p>
-<ul>
-<li>动物内脏，比如鹅肝。</li>
-<li>海鲜。</li>
-<li>浓肉汤和肉汁。</li>
-<li>酒。</li>
-</ul>
-<p>高尿酸鼓励吃的食物是：</p>
-<ul>
-<li>脱脂或低脂奶制品</li>
-<li>鸡蛋</li>
-<li>蔬菜</li>
-<li>低生糖指数谷物</li>
-<li>饮水大于 2000 ML</li>
-</ul>
-<p>可能有一些人还是忍不住想喝酒，现在研究只能证明啤酒和烈酒会引发痛风，而红酒与痛风的相关性<a target="_blank" rel="noopener" href="http://www.360doc.com/content/20/0523/17/31446682_914102994.shtml">证据还不足</a>，所以你如果实在忍不住，就喝红酒吧。</p>
-<h3 id="别嘌醇（Allopurinol）"><a href="#别嘌醇（Allopurinol）" class="headerlink" title="别嘌醇（Allopurinol）"></a>别嘌醇（Allopurinol）</h3><img src="/images/Allopurinol.jpg" class="">
-
-<p>别嘌醇是一个老药了，1966 年在美国被FDA批准上市，到现在已经经过了半个世纪的使用。根据相关<a target="_blank" rel="noopener" href="https://clincalc.com/DrugStats/Drugs/Allopurinol">统计</a>，别嘌醇在美国一年被开的处方次数为 1400 万次，在 2017 年排名第 54 位。</p>
-<img src="/images/allopurinol.png" class="">
-
-<p>别嘌醇的用量：</p>
-<ul>
-<li>初使剂量：50mg，一天1-2次。</li>
-<li>一般剂量：200-300mg 一天。</li>
-<li>最高剂量：600mg 一天。</li>
-</ul>
-<p>别嘌醇对部分人会有超敏反应，严重情况致死。所以服用初期要密切关注身体状况。后来人们研究发现，超敏反应与白细胞 <code>HLA-B5801</code> 基因相关，所以在国内，有条件的医院就会在患者服用别嘌醇前，给他开<code>HLA-B5801</code> 基因的检测（这个检测也是可以走医保的）。</p>
-<p>下图是我的检测结果：</p>
-<img src="/images/HLA5801.jpg" class="">
-
-<p>刚刚我们提到这个药在美国使用得非常普遍，但是在中国使用得很少，这里面有一个重要原因，是白细胞 <code>HLA-B5801</code> 基因在不同种族人群间的差异：</p>
-<ul>
-<li>中国汉族的基因频率为 6%-8%</li>
-<li>白人的基因频率为 2%</li>
-</ul>
-<p>所以即使在美国，如果是给亚裔人群开别嘌醇，都建议先检测 <code>HLA-B5801</code> 基因。</p>
-<p>而中国不是每个医院都有这个基因检测设备，加上有后面两种提到的替代药品，所以如果你不是对那两种药过敏，否则医生默认都不会给你开这个药。</p>
-<p>这个药虽然超敏反应严重，但是也有一个好处，就是特别便宜。一般剂量的情况下，每天的费用只需要花 0.5 - 1 元钱。因为降尿酸的药需要天天吃，所以全年算下来就不算贵。而后面我即将介绍到的非布司他就比较贵，每天的费用大概是别嘌醇价格的 10 倍。</p>
-<h3 id="非布司他（Febuxostat）"><a href="#非布司他（Febuxostat）" class="headerlink" title="非布司他（Febuxostat）"></a>非布司他（Febuxostat）</h3><img src="/images/Febuxostat.jpg" class="">
-
-<p>非布司他相比别嘌醇来说是一个新药，它 2008 年在欧洲上市，2009 年在美国上市，2013年国内上市。整个中国人的药物使用数据还不到 10 年（相比来说别嘌醇有半个世纪的使用历史）。</p>
-<p>非布司他和别嘌醇都同属于抑制身体内部尿酸的合成，以此来达到降尿酸的目的。通常剂量是 40 - 80 mg 每天。</p>
-<p>刚刚也提到非布司他比较贵，每天的费用大概是 10 元钱。</p>
-<p>非布司他刚开始的时候没有发现什么副作用，后来美国 FDA 怀疑它会导致一些心血管疾病加重，但是相关的研究没有证实或证伪这件事情，所以 FDA 在 2017 年前公布了一个警告，建议有心血管疾病的患者慎重选择非布司他。</p>
-<p>这个警告我在「用药助手App」上也查到了，如下图：</p>
-<img src="/images/feb-warning.jpg" class="">
-
-<p>我刚开始也因为这个警告有点担心，但是咨询了多位协和医院的医生，基本上大部分都还是推荐非布司他。所以这个药是我现在正服用的药物。</p>
-<h3 id="苯溴马隆（Benzbromarone）"><a href="#苯溴马隆（Benzbromarone）" class="headerlink" title="苯溴马隆（Benzbromarone）"></a>苯溴马隆（Benzbromarone）</h3><img src="/images/Benzbromarone.jpg" class="">
-
-<p>相对于上面两种药，<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Benzbromarone">苯溴马隆</a>的历史就有点波折了。</p>
-<p>苯溴马隆在 1970 年上市，但是在 2003 年，因为发现了严重的不良反应，所以发明它的公司 Sanofi-Synthélabo 将它从多个国家退市。</p>
-<p>但是在很长一段时间，因为也没有找到它的替代药品，所以包括中国在内，别的一些药厂一直在向市场继续提供苯溴马隆。我查了一下，它的主要不良反应是肝功能异常，在欧美国家的不良反应率是 <code>1/17000</code>，国内还无此项数据公布。</p>
-<p>苯溴马隆的降尿酸原理和前两者都不同，前两种药是尿酸抑制药物，而苯溴马隆是通过促进尿酸排泄来达成降尿酸。因为它将大量的尿酸通过尿液排出，所以为了避免尿液中的尿酸太高形成结石，服药期间需要进行大量的饮水，每天饮水量不少于 2000ML。</p>
-<p>我当时为了测量饮水量还专门买了一个 1升 的巨型水杯，每天喝完两杯就算达标了。</p>
-<p>因为尿酸大量进入到了尿液中，所以尿液的 PH 值会偏酸性，如果 PH 值过低，会影响尿酸的排泄，所以通常我们还需要服用碳酸氢钠片（其实就是小苏打）来碱化尿液。</p>
-<p>但是碳酸氢钠片服用过多对胃还是有一点影响，我当时就感受胃比较胀气，毕竟碳酸氢钠和酸中和的时候会产生气体。和面的时候放小苏打能让面发胀也是这个原理。</p>
-<p>我去年服用过一段时间苯溴马隆，后来主要是3个原因想换药：</p>
-<ol>
-<li>查到这个药在国外退市。</li>
-<li>每天必须喝够 2 升水让人感觉很麻烦和紧张，有时候出差路途不方便喝不了那么多水，就会感觉不方便。</li>
-<li>我对碳酸氢钠有点胀气反应，胃不舒服。</li>
-</ol>
-<p>苯溴马隆的价格介于别嘌醇和非布司他之间，每天服药的费用约为 2.5 元。</p>
-<h2 id="信息对比汇总"><a href="#信息对比汇总" class="headerlink" title="信息对比汇总"></a>信息对比汇总</h2><table>
-<thead>
-<tr>
-<th></th>
-<th>别嘌醇（Allopurinol）</th>
-<th>非布司他（Febuxostat）</th>
-<th>苯溴马隆（Benzbromarone）</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>上市时间</td>
-<td>1966年在美国上市</td>
-<td>2008年欧洲上市、<br>2009年美国上市、<br>2013年国内上市</td>
-<td>1970年上市。<br>2003年从多个国家退市。</td>
-</tr>
-<tr>
-<td>使用风险</td>
-<td>超敏反应，严重情况致死。<br>超敏反应与白细胞HLA-B5801基因相关。</td>
-<td>怀疑有心血管风险，但是没有被证实或证伪。</td>
-<td>肝功能异常</td>
-</tr>
-<tr>
-<td>风险数据统计</td>
-<td>HLA-B5801基因：白人2%，亚裔8%</td>
-<td>几十个怀疑案例</td>
-<td>欧美国家的肝功能异常率为 1&#x2F;17000，国内无数据。</td>
-</tr>
-<tr>
-<td>Wiki</td>
-<td><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Allopurinol">https://en.wikipedia.org/wiki/Allopurinol</a></td>
-<td><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Febuxostat">https://en.wikipedia.org/wiki/Febuxostat</a></td>
-<td><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Benzbromarone">https://en.wikipedia.org/wiki/Benzbromarone</a></td>
-</tr>
-<tr>
-<td>初使用量</td>
-<td>一次50mg 1-2次&#x2F;d</td>
-<td>20-40mg 1次&#x2F;d</td>
-<td>50mg 1次&#x2F;d</td>
-</tr>
-<tr>
-<td>每次递增</td>
-<td>50-100mg</td>
-<td>20mg</td>
-<td>50mg</td>
-</tr>
-<tr>
-<td>一般剂量</td>
-<td>200-300mg 分2-3次服用</td>
-<td>40mg</td>
-<td>50mg</td>
-</tr>
-<tr>
-<td>最高用量</td>
-<td>600mg&#x2F;d</td>
-<td>80mg</td>
-<td>100mg</td>
-</tr>
-<tr>
-<td>处方量统计</td>
-<td><a target="_blank" rel="noopener" href="https://clincalc.com/DrugStats/Drugs/Allopurinol">1400w 一年</a></td>
-<td><a target="_blank" rel="noopener" href="https://clincalc.com/DrugStats/Drugs/Febuxostat">90w 一年</a></td>
-<td>退市</td>
-</tr>
-<tr>
-<td>每天费用</td>
-<td>100mg 约 0.5-1 元</td>
-<td>40mg 约 10 元</td>
-<td>50mg 约 2.5 元</td>
-</tr>
-</tbody></table>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>高尿酸血症是一个内分泌代谢紊乱的病，如果不治疗有可能引发痛风。</p>
-<p>国内最常用的治疗药物是别嘌醇，非布司他和苯溴马隆。</p>
-<p>我自己研究下来，推荐大家有经济条件的话选择非布司他。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
-<li><a target="_blank" rel="noopener" href="http://www.china-endo.org/x_uploadfiles/%E9%AB%98%E5%B0%BF%E9%85%B8%E8%A1%80%E7%97%87%E5%92%8C%E7%97%9B%E9%A3%8E%E6%B2%BB%E7%96%97%E7%9A%84%E4%B8%AD%E5%9B%BD%E4%B8%93%E5%AE%B6%E5%85%B1%E8%AF%86.pdf">《高尿酸血症和痛风治疗的中国专家共识》</a></li>
-<li><a target="_blank" rel="noopener" href="http://www.360doc.com/content/20/0523/17/31446682_914102994.shtml">《痛风及高尿酸血症基层诊疗指南（2019年）》</a></li>
-<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/MckwgiBW7m_ca2XpbhP6GQ">苯溴马隆，您不了解的 “新” 机制</a></li>
-<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/s0NJUWbpIJ2hT1KHJRZ9JQ">24小时尿尿酸检查</a></li>
-<li><a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E5%B0%BF%E9%85%B8%E5%80%BC">尿酸值</a></li>
-<li>Uric acid: <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Uric_acid">https://en.wikipedia.org/wiki/Uric_acid</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/7b1778ee.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/post/7b1778ee.html" itemprop="url">升级 IOS 14 的一些坑</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-09-19T07:37:23+00:00">
-                2020-09-19
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>IOS 14 正式版已经发布差不多一个星期了，也看到社区不少人开始讨论新特性，我当然也要跟上脚步，于是也开始把我的 iPhone 和 iPad 更新了，但这过程中却是踩了不少的坑，先记录下来，让后来者少花一些时间。</p>
-<h2 id="先说结论"><a href="#先说结论" class="headerlink" title="先说结论"></a>先说结论</h2><p>我最终成功更新的过程是：</p>
-<ol>
-<li>在 Windows 下载最新版本的 iTunes</li>
-<li>在 <a target="_blank" rel="noopener" href="https://www.iplaysoft.com/item/ios-ipsw-download">异次元</a> 下载 IOS 14 固件</li>
-<li>打开 <code>Service.msc</code> ，将 <code>Remote Desktop Services</code> 设置为启用和自动</li>
-<li>Windows 连接手机热点，不要连接宽带网络</li>
-<li>在 iTunes 连接手机，按住 Shift 点击更新，选择固件，等待更新</li>
-</ol>
-<p>PS：先备份好手机数据，以防万一！</p>
-<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>收到推送的当天晚上睡觉前我就在手机和平板上都点了更新，然而等我早上起床打算愉快地体验新系统时，却发现没有更新，进入更新界面才发现下载了不到一半，显示「正在预估剩余时间」，第二天晚上再试了一下，结果还是一样。</p>
-<p>既然在手机上更新不了，那就在电脑更新，于是连接到 Mac，点击更新，到最后一步出现「iPad “4Ark 的 iPad” 的软件下载时被损坏，断开后再次连接…」，换了 Windows 也是一样的问题。</p>
-<p>于是我自己在网上找 IOS 14 的固件，最初我打算在官方，想着系统固件还是官方的比较安全，结果发现最新版本还是停留在 IOS 13.7，于是在一个相对比较靠谱的 <a target="_blank" rel="noopener" href="https://www.iplaysoft.com/item/ios-ipsw-download">异次元</a> 里把 IOS 和 iPadOs 固件下载回来。</p>
-<p>因为我是在 Windows 下载的，所以也就在 Windows 最新版的 iTunes 上面更新，连接上手机，按住 Shift 点击更新，选择固件，结果出现「未能更新 iPhone，发生未知错误 53」，在 <a target="_blank" rel="noopener" href="https://discussionschinese.apple.com/thread/251504194">这里</a> 找到了解决方案，主要是电脑上的网络不要连接宽带，而是连接移动网络的热点。</p>
-<p>结果在更新过程中，一直停留在「正在准备 iPhone 以进行软件更新」十几分钟，根据以往的折腾经验，准备工作超过十分钟基本就是有问题的了，于是果然在 <a target="_blank" rel="noopener" href="https://hcwang.pixnet.net/blog/post/40515550">这里</a> 找到了解决方案，主要就是：打开 <code>Service.msc</code> ，将 <code>Remote Desktop Services</code> 设置为启用和自动，重启 iTunes，重新连接手机，这时候终于可以更新了。</p>
-<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>前两天还看到社区里的人都是手机上直接升级的，一睡醒就好了，怎么到我这里就一大堆问题 😩</p>
-<p>但不管怎么说，这些问题我肯定不是第一个，更不可能是最后一个，本文就是为了让大家不要再浪费时间。</p>
-<p>毕竟，周末美好时光，不能白白浪费嘛。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3971,7 +3857,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1458</span>
+                  <span class="site-state-item-count">1460</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3982,7 +3868,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">72</span>
+                  <span class="site-state-item-count">73</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -3993,7 +3879,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">890</span>
+                  <span class="site-state-item-count">895</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

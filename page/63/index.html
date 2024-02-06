@@ -274,6 +274,281 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/2015-05-15-cichorium-routing-framework/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/2015-05-15-cichorium-routing-framework/" itemprop="url">Cichorium: 基于 Promise 的中间件路由框架</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-05-14T16:00:00+00:00">
+                2015-05-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p><a target="_blank" rel="noopener" href="https://github.com/jysperm/Cichorium">Cichorium</a> 的代码仅有 130 行，用 CoffeeScript 风格实现了一个简单的基于中间件的路由框架，其中的异步操作都是以 Promise 风格提供的。</p>
+<p>Cichorium 有一个路由表和一个错误路由表。路由表是一个数组，其中每个元素可以是一个子路由表（数组），或一个中间件（函数）。</p>
+<p>中间件会被按顺序地执行，中间件可以返回一个 Promise 表示这是一个异步中间件，Cichorium 会等待这个 Promise 被 resolve 再执行下一个中间件。在中间件中，可以用 nextRoute 来跳过当前路由表上的其他路由，直接进入父级的下一个路由，条件路由（例如匹配 HTTP 方法或 URL 前缀）就是这么实现的。</p>
+<p>如果执行过程中抛出了异常（或 Promise 被 reject），就会进入错误处理，错误路由表中的路由会按照同样的规则被逐个调用，如果错误处理过程中抛出了新的异常，那么新的异常会替换掉之前的异常，错误处理中间件可以用 errorResolved 来解决这个异常，剩余的中间件就不会再执行了（但如果有多个异常则下个中间件会以之前的一个异常被继续调用）。</p>
+<hr>
+<p>一开始创建这个项目只是想造一个 express 的轮子，后来学习了 Promise 之后觉得 express 和 Promise 的配合有一些麻烦，express 不能识别中间件返回的 Promise, 而必须手动调用 <code>next</code>.</p>
+<p>express 使用 <code>next(&#39;route&#39;)</code> 来跳过剩余的中间件，但我发现用抛出一个特殊的异常（Cichorium 的 nextRoute 就是这么实现的）效果会更好，而且因为有 Promise, 在回调函数中抛出的异常也会被正确地传递回 Cichorium.</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/2015-05-11-rpvhost-will-be-free/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/2015-05-11-rpvhost-will-be-free/" itemprop="url">RP 主机免费计划</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-05-10T16:00:00+00:00">
+                2015-05-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>回想起来 RP 主机已经创建三年多了，一开始是因为初中时我负担不起 Linode 的价格，于是公开出售虚拟主机。后来规模越来越大，自己编写了名为 RootPanel 的面板，最多的时候有三个节点、两百多个付费用户。RP 主机对我的意义非常特殊，它是我坚持最久、用户最多的项目，我也从这个项目赚到了我的第一桶金。</p>
+<p>但最近一年我有了稳定的收入以后，我就没有在使用 RP 主机了，也不是很在乎 RP 主机的那一点点收入了。所以从去年 8 月更新 Node.js 版的 RootPanel 之后，RP 主机就没有过什么更新了，有很多 Bug 到现在也没有解决。现在已经出现了一些好用的 PaaS 服务，而且也不是很贵 ，RP 主机已经没有什么独特的优势了。</p>
+<p>但另一方面，我依然在继续改进 RootPanel 这个开源项目，我依然看好这个项目，只是不想再维护 RP 主机了，因为 RP 主机的用户们的一些咨询，和订单的处理会花费我很多时间。</p>
+<p>于是本来我是想逐步关闭 RP 主机的，但我突然想到其实可以将 RP 主机转变为一个免费服务，这样我对用户就不再负有很大的责任了，我依旧会尽力保证服务的稳定运行，但我可能不会再去回复用户的一些咨询和求助。</p>
+<p>所以我的初步计划是，两到三个月后，RootPanel 会更新一个版本，来提供免费版所需要的功能。届时整个 RP 主机都会变成免费的，大部分功能不会受到影响，会有一些比较小的限制，例如不能使用本地的邮件服务直接发送邮件等。</p>
+<p>现在的付费用户可以按照本文发布时的余额（不含通过活动赠送的余额）进行退款，现在起也不会再接受新的充值。稍后我会单独发邮件通知所有用户，或者你也可以通过工单（请不要通过其他方式）来联系我，提供你的支付宝帐号。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/hostchange/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3398,322 +3673,6 @@ task2 = -&gt;
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E4%BB%8E%E5%A4%8D%E6%B4%BB%E5%92%8C%E6%9A%82%E5%81%9C%E6%81%A2%E5%A4%8D%E8%B0%88%E6%B8%B8%E6%88%8F%E6%95%B0%E6%8D%AE%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/%E4%BB%8E%E5%A4%8D%E6%B4%BB%E5%92%8C%E6%9A%82%E5%81%9C%E6%81%A2%E5%A4%8D%E8%B0%88%E6%B8%B8%E6%88%8F%E6%95%B0%E6%8D%AE%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86/" itemprop="url">从「复活」和「暂停/恢复」谈游戏数据配置管理</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-03-26T18:12:58+00:00">
-                2015-03-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
-                    <span itemprop="name">游戏开发</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          本文将从游戏中的"复活"和"暂停/恢复"这两个应用场景的角度来谈谈在游戏开发中如何对游戏中的数据进行管理和配置;首先我们来从游戏当中的两个常见的应用场景:"复活"和"暂停/恢复"来看看游戏数据配置和管理的重要性;动态数据是指在游戏中会不断变化的数据，比如玩家的得分、玩家的生命值、玩家的经验值等等
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/%E4%BB%8E%E5%A4%8D%E6%B4%BB%E5%92%8C%E6%9A%82%E5%81%9C%E6%81%A2%E5%A4%8D%E8%B0%88%E6%B8%B8%E6%88%8F%E6%95%B0%E6%8D%AE%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86/">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E4%B8%BAHexo%E5%BC%80%E5%8F%91%E4%B8%80%E4%B8%AA%E7%BD%91%E6%98%93%E4%BA%91%E9%9F%B3%E4%B9%90%E7%9A%84%E6%96%87%E7%AB%A0%E6%8F%92%E4%BB%B6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/%E4%B8%BAHexo%E5%BC%80%E5%8F%91%E4%B8%80%E4%B8%AA%E7%BD%91%E6%98%93%E4%BA%91%E9%9F%B3%E4%B9%90%E7%9A%84%E6%96%87%E7%AB%A0%E6%8F%92%E4%BB%B6/" itemprop="url">为 Hexo 开发一个网易云音乐的文章插件</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-03-24T02:32:39+00:00">
-                2015-03-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%8B%AC%E7%AB%8B%E5%8D%9A%E5%AE%A2/" itemprop="url" rel="index">
-                    <span itemprop="name">独立博客</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          这段代码博主在本地使用 NodeJS 测试了没有不过什么问题，大家可以在截图中清楚地看到[music:29713754]已经被替换称了网易云音乐的 Flash 组件，这样在网页中就会显示出网易云音乐的播放器，我们就能听到这熟悉而温暖的旋律了;那么，现在我们其实就是在做这样一件事情，我们在文章中插入这样一个[key:value]的结构，然后通过程序将它替换成相应的 HTML 结构，这样就实现了在 Hexo 的文章中使用[key:value]结构来编写简单插件的功能，如果经历过使用 wordpress 建站的朋友一定知道，在 wordpress 中存在许多这样的类似插件，可以帮助写作者简化某些输入内容;相信经过博主的一番介绍，大家已经对这段代码相当熟悉了吧，这里就是先做判断，判断文章内容中是否有[key:vaule]这样的结构，如果没有就直接输出item.content
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/%E4%B8%BAHexo%E5%BC%80%E5%8F%91%E4%B8%80%E4%B8%AA%E7%BD%91%E6%98%93%E4%BA%91%E9%9F%B3%E4%B9%90%E7%9A%84%E6%96%87%E7%AB%A0%E6%8F%92%E4%BB%B6/">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3764,7 +3723,7 @@ task2 = -&gt;
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1458</span>
+                  <span class="site-state-item-count">1460</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3775,7 +3734,7 @@ task2 = -&gt;
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">72</span>
+                  <span class="site-state-item-count">73</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -3786,7 +3745,7 @@ task2 = -&gt;
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">890</span>
+                  <span class="site-state-item-count">895</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

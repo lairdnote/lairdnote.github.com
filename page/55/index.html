@@ -274,6 +274,517 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/blessing-skin-server-0-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/blessing-skin-server-0-1/" itemprop="url">Blessing Skin Server 0.1 —— 开源 PHP Minecraft 皮肤站</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-01-03T14:24:46+00:00">
+                2016-01-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p><img src="https://img.prin.studio/images/2016/01/2016-01-03_05-22-44.png" alt="bss upload"></p>
+<p>很久以前就有想写一个皮肤站的想法了，但是苦于没有时间且 PHP、前端的 coding 都不熟练，所以一直搁置着，当作一个目标。</p>
+<p>恰逢前几周稍微有点时间（其实是克服了懒癌），就写了一个皮肤站的原型。PHP + MySQL，表单 POST 数据，基本的登录&#x2F;注册&#x2F;上传 功能还是实现了的。但是前端完全没有写，全是 webkit 的默认样式。</p>
+<p>不过盼星星盼月亮终于等到了元旦假期（连上周末三天），于是把整个项目重构了一下，并且用鞋拔子写了个稍微能看的页面。</p>
+<p>前端页面引用的资源&#x2F;库均位于根目录下的 <code>/assets</code> 和 <code>/libs</code>，这是不知道从哪里学来的，总之觉得这样挺好的就这样放了（笑）</p>
+<p>然后是实现了全站 Ajax，登录&#x2F;注册 均 POST 请求 <code>check.php</code> 返回 json，加入了 SQL 注入防护（虽然还没有 sqlmap 测试过），加入了基于 IP 的注册数量限制，支持保存 cookie，token 验证自动登录。token 就是使用普通的用于验证的不可逆算法得到（用户名 + MD5 密码 + 盐，MD5 二次加密）。</p>
+<p>Ajax 文件上传带 token POST 请求 <code>upload.php</code>，同样返回 json，上次后的文件位于 <code>/uploads</code>。（其实窝觉着这俩可以放一个文件里的）</p>
+<p><code>user.php</code> 为用户页面，本来是想用 php 路由到 <code>/user</code> 和 <code>/admin</code> 等子目录的，但是想想还是算了。因为窝对路由之类的理解并不多，边查边写的话窝也没有那么多时间了。准备放在下一个版本里。</p>
+<p><code>user.php</code> 中使用了 djazz 的 <a target="_blank" rel="noopener" href="http://djazz.se/apps/MinecraftSkin/">Minecraft Skin Previewer</a> 实现 3D 皮肤预览（就是 skinme 使用的那个），窝将其封装了一下放入了 three.msp.js 中，可以使用类似 <code>MSP.getStatus()</code>、<code>MSP.changeSkin()</code> 的接口来访问。</p>
+<p>后端就没啥出彩的地方了（话说前端也没有吧），所有使用了数据库连接的操作均封装为函数放在 <code>connect.php</code> 里面。不过感觉这个放根目录不合适就是了。</p>
+<p><code>config.php</code> 中定义了数据库连接信息，站点名称等常量以供调用。这是从 WordPress 那学来的（笑</p>
+<p>遗憾的是由于没有时间，后台管理页面还没写，目前只能通过自己管理数据库和文件的方式来管理用户。而且现在的数据表结构也不支持后台管理 qwq</p>
+<p>而且前端的 JS 和 CSS 都写得乱糟糟的，CSS 选择器一半是 id 一般是 class，文件关系也没处理好，没有响应式设计，有些地方还用了绝对定位 <img src="https://img.prin.studio/images/2015/10/2015-10-24_09-56-11.jpg" alt="emotion1"> </p>
+<p>不过由于时间所限，这些都放到下一个版本吧~</p>
+<hr>
+<p>项目开源在 <a target="_blank" rel="noopener" href="https://github.com/prinsss/blessing-skin-server">GitHub</a> 上，欢迎 Pull Request~ 在线演示：<a target="_blank" rel="noopener" href="https://skin.prinzeugen.net/">https://skin.prinzeugen.net/</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016-01-03-reactive-cocoa-discussion/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016-01-03-reactive-cocoa-discussion/" itemprop="url">ReactiveCocoa 讨论会</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-01-03T07:22:13+00:00">
+                2016-01-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><a target="_blank" rel="noopener" href="https://github.com/ReactiveCocoa/ReactiveCocoa">ReactiveCocoa</a>（其简称为 RAC）是由 <a target="_blank" rel="noopener" href="https://github.com/blog/1107-reactivecocoa-for-a-better-world">Github</a> 开源的一个应用于 iOS 和 OS X 开发的新框架。RAC 具有函数式编程和响应式编程的特性。它主要吸取了 .Net 的 <a target="_blank" rel="noopener" href="http://msdn.microsoft.com/en-us/data/gg577609">Reactive Extensions</a> 的设计和实现。</p>
+<p>但是，相对于传统的 MVC 架构，ReactiveCocoa 的函数式编程方式的学习曲线陡峭，业界也没有丰富的图书资料，这使得大家对这种技术望而却步。这次，我邀请了一些行业内关注和使用 ReactiveCocoa 的内行，进行了一次关于 RAC 的讨论会，会上大家主要聊了 RAC 在使用中的各种问题，我们希望这次讨论会能够让重新全面审视这个开发框架。</p>
+<h2 id="讨论成员"><a href="#讨论成员" class="headerlink" title="讨论成员"></a>讨论成员</h2><p>本次讨论会邀请到的讨论者来自美团，百度，蘑菇街等公司。讨论前为了先相互认识，我让大家自我介绍了一下，并且顺便简单介绍各自所在的团队人数以及使用 RAC 的时长，以下是大家的自我介绍：</p>
+<ul>
+<li><p>臧成威，来自美团，团队基本都在使用 RAC，从 14 年初开始使用 RAC。在美团搞过 RAC 的几期培训，有丰富的经验。</p>
+</li>
+<li><p>李忠 (limboy)，来自蘑菇街。李忠的博客（<a target="_blank" rel="noopener" href="http://limboy.me/">http://limboy.me/</a>）上有很多介绍 RAC 的高质量文章。（这次讨论会李忠当时有事没有参加，事后对相关问题留言表达了自己的看法）</p>
+</li>
+<li><p>唐晓轩 (txx)，来自礼物说，团队四个人，目前 “只有” 礼物说这一款产品。从年初开始使用 RAC，到现在正在安利 Android  团队使用 RXJava。</p>
+</li>
+<li><p>孙源 (sunnyxx)，来自百度，从 13 年年底开始接触 RAC，当时边学边用 RAC 写了一个完整的项目，那时候还没现在这么火（当时 Limboy 的文章看了好几遍），后来在项目中在一个完整模块中尝试使用过，因为大家对函数响应式编程了解程度差别很大，导致代码几乎无法维护，随后重构。现在也有时用到，但都用于某个特定的功能的便捷实现上，无 MVVM，基本不会跨类使用。</p>
+</li>
+<li><p>雷纯锋，来自广州支点网络科技股份有限公司，团队三个人使用 RAC ，从 12 年 6 月份开始使用 RAC ，公司项目一直使用的是 RAC。项目中一直也是用的 MVVM + RAC 的结构，另外我也有在维护一个 MVVM + RAC 的开源项目，叫 MVVMReactiveCocoa。</p>
+</li>
+<li><p>汤圣罡 (lexurs)，来自新味，2 个 iOS。RAC 经验两年。目前在用 Overcoat+Mantle+ReactiveCocoa 实现的网络层，某些逻辑多的页面也喜欢用 RAC 实现。因为想全部改成 Swift，正在投靠 RxSwift 和 PromiseKit 的过程中。</p>
+</li>
+<li><p>李雄略 (听榆大叔)，来自网家缘科技，分 2 个产品，每个产品 2 个 iOS 开发，从 14 年 3 月份开始使用 RAC，已在 3 个项目中使用 RAC。</p>
+</li>
+<li><p>蓝晨钰 (lancy)，来自猿题库，没有在公司项目使用过 RAC。个人喜欢 RAC，私底下写过 RAC 的小项目，读过 RAC 源码，但对 RAC 在大型项目中和团队合作中持谨慎态度，猿题库的架构是类 MVVM 架构，但没有引入 RAC。</p>
+</li>
+<li><p>唐巧（就是本文作者），来自猿题库，团队分 3 个产品，每个产品约 4 个 iOS 开发，没有在公司正式使用过 RAC，自己私下写过几百行 RAC 的代码，对于 RAC 是比较保守的一个人。</p>
+</li>
+</ul>
+<p>好了，以下就是我们具体讨论的一些问题。</p>
+<h3 id="讨论：如何在团队内推广并用「正确的姿势」使用-RAC？"><a href="#讨论：如何在团队内推广并用「正确的姿势」使用-RAC？" class="headerlink" title="讨论：如何在团队内推广并用「正确的姿势」使用 RAC？"></a>讨论：如何在团队内推广并用「正确的姿势」使用 RAC？</h3><p>大家提到在使用 RAC 的时候，出现的一些问题，例如：</p>
+<ul>
+<li>不是太精通 RAC 的同学往往写出来的非常难以维护</li>
+<li>不知道新队友的 RAC 培养路径，Functional Programming -&gt; MVVM -&gt; ….</li>
+</ul>
+<p>对于难以维护的问题，臧成威的意见是：</p>
+<blockquote>
+<p>这个美团这边的解决方案主要是 review，review 可以保证项目中所有人的范式是相同的，大家对于不同的写法都会有充分的讨论，而我们的新手主要是参考旧代码的风格写出新代码，所以并没有发生难以维护这一现象。</p>
+<p>但是前提是需要有很熟悉的人来带领，团队中熟悉 RAC 的人员基数得以保证。而且美团的 RAC 使用还是逐步放量的，从一开始的 UI 层使用，到底层逻辑层的使用，最后才到了 MVVM 的粘合层使用，这样避免了泛滥。</p>
+<p>总结来说，对于 RAC 这样厚重的库，引入的时候的 review 是必要的，否则可控性太差，最后就难以收场了。</p>
+</blockquote>
+<p>总结起来就是：1、review + 有熟练的人带；2、逐步放开使用。</p>
+<p>对于人才的培养，臧成威的意见是：</p>
+<blockquote>
+<p>RAC 的培养，从我这边三期的培训来看，课程的安排是这样的六节： 1. FRP 的思想概要 2. RAC 的 operations 介绍 3. 冷信号与热信号解惑 4. 生命周期指南 5. disposable 和多线程 6. 实战分享</p>
+<p>其中先建立 FRP 的思想，虽然看起来是最远的，但是确实是后续使用和教学的基础。</p>
+<p>一起培训大概有 30-50 人来听，课程一种持续三周，每周 2 节课、课程过后的 2 周，就可以发现代码中的 rac 使用明显提升</p>
+<p>另外补充一点，关于新手学习，最不建议的就是在不了解 FRP 原理和一些基础概念的情况下，盲目的看源代码。我见过太多的同学，花费了很多的时间通览源码，但是根本没有用途。因为从思想到源代码是经历了很多雕琢的。里面有太多的 bugfix，太多的折中。</p>
+<p>所以你看的时候，抛开了本质，一味的查看边界的处理，最后大都觉得痛苦，难用，难以掌握收场。</p>
+<p>唐巧：RAC 确实和其它的开源库性质上差别比较大，思想方面需要学习的比较多。</p>
+<p>是的，关键是思想。所以，一定要先从 “道” 上建立思想，然后从 “术” 上掌握使用，最后才是通览源码，掌握其原理。</p>
+<p>第一节是道的课程，第二节是术的课程。这两节下来就知道能干什么了。</p>
+</blockquote>
+<p>雷纯锋意见也与臧成威一致。</p>
+<p>唐晓轩介绍了一下他自己的学习过程：</p>
+<blockquote>
+<p>我是反着做的，先把 rac 当作 blocks kit 用 之后 看 racstream 的各种 operations，知道 rac 有哪些运算 其次 看 rac 的 uikit 扩展都是怎么实现的 最后才是函数式思维。</p>
+</blockquote>
+<p>我顺着臧成威的回答，问了一下通常使用 RAC 的规范是什么，臧成威回答道：</p>
+<blockquote>
+<p>大家可以参考这样的一条规范来做，首先通过 RACSignal#return RACSignal#createSignal 这类的创建一个 OOP 世界到 FRP 世界的一个转换，从而得到一个 Signal。</p>
+<p>之后 signal 在不接触 OOP 的情况下进行数据的各类变换，注意 FP 的引用透明和变量不可变特性。</p>
+<p>最后用 RAC 宏、RACSignal#subscribe、NSObject+liftSelect 这些操作把 FRP 的世界带回到 OOP 的世界里。</p>
+</blockquote>
+<p>臧成威还很体贴地画了一个示意图，非常给力：</p>
+<img src="/images/fpr_oop_pattern.jpg" class="">
+
+
+<h3 id="讨论：大公司的大型-臃肿-App-是否适合使用-RAC？"><a href="#讨论：大公司的大型-臃肿-App-是否适合使用-RAC？" class="headerlink" title="讨论：大公司的大型 (臃肿) App 是否适合使用 RAC？"></a>讨论：大公司的大型 (臃肿) App 是否适合使用 RAC？</h3><p>由于第一个话题臧成威贡献最多内容，加上美团是大家所知道的使用 RAC 最多的大型 App，所以这个话题还是由臧成威首先回答，以下是他的发言。</p>
+<blockquote>
+<p>越大型的 app，说明内部的逻辑越复杂。而 RAC 从某几方面可以简化逻辑，使得代码从书写到执行都可以较为简化的完成功能</p>
+<p>我大概总结了几个适用的场景。RAC 总结来说就是：数据随着时间而产生，所以能想到的三点比较适合用 RAC：</p>
+<p>一、UI 操作，连续的动作与动画部分，例如某些控件跟随滚动。</p>
+<p>二、网络库，因为数据是在一定时间后才返回回来，不是立刻就返回的。</p>
+<p>三、刷新的业务逻辑，当触发点是多种的时候，业务往往会变得很复杂，用 delegate、notification、observe 混用，难以统一。这时用 RAC 可以保证上层的高度一致性，从而简化逻辑上分层。</p>
+<p>只要有通知的业务逻辑，RAC 都方便有效化解。</p>
+<p>雷纯锋：概括的说，应该就是统一所有异步事件吧。</p>
+<p>不适用的场景，与时间无关的，需要积极求解的计算，例如视图的单次渲染。</p>
+</blockquote>
+<p>接着发言的是百度的孙源：</p>
+<blockquote>
+<p>我这是百度知道，体量比较小，可以随便玩。</p>
+<p>我们现在就用它做点小功能，举个例子吧，聊天页面那个键盘弹出时 input bar 跟随滚动的功能，原来写需要接通知、写回调，现在在一个函数里面用 RAC 就比较方便。</p>
+<p>像这种小功能，主要是方便开发，让 “干一个事儿的代码写在一个地方”。</p>
+</blockquote>
+<p>雷纯锋说他们的使用还是比较多：</p>
+<blockquote>
+<p>基本上异步的事件能用 RAC 的都用的 RAC。</p>
+<p>不过代理方法用 RAC 的比较少，比如 UITableView 的代理方法一般都是直接写了。</p>
+<p>用 RACSubject + RACComand 来简化和统一应用的错误处理逻辑，这个算比较经典的吧。</p>
+<p>臧成威说：UI 交互上的点确实好多，比如下拉刷新、上拉导航条变透明。</p>
+<p>实时响应用户的输入，控制按钮的可用性，这点用 RAC 来实现非常简单。</p>
+</blockquote>
+<p>李雄略说：</p>
+<blockquote>
+<p>我们主要用来处理界面上的数据显示，以及 UI 的交互操作上，不会用来写代理。</p>
+</blockquote>
+<p>对于这个话题，似乎大家的答案还是比较一致，即：大型 App 是适合使用 RAC 的。</p>
+<h3 id="讨论：都说调试-RAC-很痛苦，是否有一些调试技巧和经验分享？"><a href="#讨论：都说调试-RAC-很痛苦，是否有一些调试技巧和经验分享？" class="headerlink" title="讨论：都说调试 RAC 很痛苦，是否有一些调试技巧和经验分享？"></a>讨论：都说调试 RAC 很痛苦，是否有一些调试技巧和经验分享？</h3><p>臧成威说：</p>
+<blockquote>
+<p>的确很痛苦，跟断点有的时候计算堆栈都要等几分钟。</p>
+<p>关于调试，RAC 源码下有 instruments 的两个插件，方便大家使用。</p>
+<p>signalEvents 这个可以看到流动的信号的发出情况，对于时序的问题可以比较好的解决。</p>
+<p>diposable 可以检查信号的 disposable 是否正常</p>
+</blockquote>
+<img src="/images/rac-instrument.jpg" class="">
+
+<p>小伙伴们看了纷纷惊叹，表示以前没有用过这个神器。</p>
+<p>雷纯锋接着分享：</p>
+<blockquote>
+<p>我的理解是一般给信号一个名字，然后通过下面的打印方法来进行调试。</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">/// Logs all events that the receiver sends.</span><br><span class="line">- (RACSignal *)logAll;</span><br><span class="line"></span><br><span class="line">/// Logs each `next` that the receiver sends.</span><br><span class="line">- (RACSignal *)logNext;</span><br><span class="line"></span><br><span class="line">/// Logs any error that the receiver sends.</span><br><span class="line">- (RACSignal *)logError;</span><br><span class="line"></span><br><span class="line">/// Logs any `completed` event that the receiver sends.</span><br><span class="line">- (RACSignal *)logCompleted;</span><br></pre></td></tr></table></figure>
+
+<p>李雄略说：</p>
+<blockquote>
+<p>我是用 log 方法来做的：</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">DExecute((&#123;</span><br><span class="line">    setenv(&quot;RAC_DEBUG_SIGNAL_NAMES&quot;, &quot;RAC_DEBUG_SIGNAL_NAMES&quot;, 0);</span><br><span class="line">    [signalUserGeo setNameWithFormat:@&quot;signalUserGeo&quot;];</span><br><span class="line">    signalUserGeo = [signalUserGeo logAll];</span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+
+<p>李忠的补充：</p>
+<blockquote>
+<p>调试的话，如果是性能调试，主要是经验 +Instruments，经验类似于：少用 RACCommand、RACSequence 这样的，Instruments 可以用它的 Time Profile 来看。</p>
+<p>如果是 Bug 调试，主要还是靠 Log，配合一些 Xcode 插件，比如 MCLog(可以很方便地过滤日志)，如果要还原堆栈的话，就加一个断点。</p>
+</blockquote>
+<p>接下来大家讨论起来：</p>
+<blockquote>
+<p>臧成威：其实 instruments 也差不多，只是第一，不需要提前调用 logAll 这些；第二，可以利用 instruments 的筛选功能，不会看 log 看到眼花。</p>
+<p>雷纯锋：实际调试起来好用吗？</p>
+<p>臧成威：好用的，还可以看到发出 value 的堆栈。</p>
+<p>雷纯锋：使用 instruments 来调试的频率大吗？或者说在什么情况下会去用 instruments 调试呢？</p>
+<p>臧成威：一般调查问题的时候就它来查。比如某个信号接不到输出。</p>
+<p>臧成威：或者输出的值里面有错误的，但是是经过 merge、zip 等好多操作混合出来的，不知道源头是神马。</p>
+<p>雷纯锋：也就是说一般是在有问题，然后分析不出来的时候，才使用吗？</p>
+<p>臧成威：是的，一般是调查问题的时候用的，不是开发的时候用的，因为打开是比较慢的。</p>
+<p>李雄略：为了方便，我们保证一个 RACSignal 只会给订阅者 send 一种类型的 value，所以就手动给 signal 加了部分泛型支持：</p>
+<p>@interface RACSignal&lt;__covariant ObjectType&gt; : RACStream</p>
+<p>RACSignal&lt;NSString *&gt; *signal &#x3D; …</p>
+<p>孙源：用泛型，然后 map 之后呢</p>
+<p>李雄略：map 无法支持</p>
+<p>臧成威：RAC3 里面就有不错的泛型推导，但是是基于 swift 的。</p>
+<p>臧成威：这个我也想过，但是语言不支持，基本上是搞不定的</p>
+<p>孙源：调试这块也就是 log name 了。作者 guide 里面也是这么弄，用 Instrument 已经是高级技巧。</p>
+<p>臧成威：加 log 比较不好的就是容易眼花，还有不好还原当时的堆栈。</p>
+<p>孙源：我一般遇到问题，都是看代码脑补一遍过程，函数式就好在这里，基本上看着对了结果就没错。脑回路逻辑推导。</p>
+<p>臧成威：是的，推导很有道理。我觉得 sunnyxx 说的是王道，所以培训，给大家建立思维很重要。</p>
+<p>雷纯锋：恩，分析清楚整个运算过程是很重要的</p>
+</blockquote>
+<h3 id="讨论：RAC-相比-RxSwift-和-PromiseKit-有哪些优缺点"><a href="#讨论：RAC-相比-RxSwift-和-PromiseKit-有哪些优缺点" class="headerlink" title="讨论：RAC 相比 RxSwift 和 PromiseKit 有哪些优缺点 ?"></a>讨论：RAC 相比 RxSwift 和 PromiseKit 有哪些优缺点 ?</h3><p>臧成威继续分享：</p>
+<blockquote>
+<p>RAC vs RxSwift 的情况是这样：</p>
+<p>从支持度来说，RAC 对 Cocoa 的支持更好。但是从标准性、性能来讲 RxSwift 更胜一筹。</p>
+<p>因为毕竟是 Rx 团队的亲生项目。还有，OC 只有 RAC 支持，RxSwift 搞不定。</p>
+<p>雷纯锋：需要在 Obj-C 下和 Swift 下，分别来比较吧？那 Obj-C 下，用 RAC 应该是没有疑问的了吧，那在 Swift 下呢？</p>
+<p>Swift 场景下，由于 OC 做好的 bridge，所以 RAC3swift，仍然有不错的整合性。例如 notification、observer 这些。但是 RxSwift 与框架无关，所以这些功能需要自己补了。</p>
+<p>但是 RxSwift 比较标准，和 RxJS、RxJava 所有定义统一，所以迁移过来很容易。但 RxJS 和 RxJava 的原始用户比较少，这点不大明显。</p>
+<p>这是 Rx 和 RAC 的对比。</p>
+<p>RAC3 swift 版有个特性，就是热信号传导，这点 RxSwift 没有。对于特定的场景来说，热信号传导更好。</p>
+<p>PromiseKit 是一种异步库，思想和 FRP 不一样。</p>
+<p>PromiseKit 应该和 js 的 promise 库差不多的意思吧，这个我是靠猜的。</p>
+</blockquote>
+<h3 id="讨论：RAC-在工程中使用范围的界限，往往一处-RAC-就会引起和他相关模块的-RAC-化，如何确定界限呢？"><a href="#讨论：RAC-在工程中使用范围的界限，往往一处-RAC-就会引起和他相关模块的-RAC-化，如何确定界限呢？" class="headerlink" title="讨论：RAC 在工程中使用范围的界限，往往一处 RAC 就会引起和他相关模块的 RAC 化，如何确定界限呢？"></a>讨论：RAC 在工程中使用范围的界限，往往一处 RAC 就会引起和他相关模块的 RAC 化，如何确定界限呢？</h3><p>臧成威：这个我觉得有点危言耸听了吧，对上对下是可以有效包装，逐步放量的。</p>
+<p>臧成威：默认作为一种上下模块的通信协议，也不是很危险的事，所以我觉得没有太大的风险。上层拿到一个 RACSignal 就当做一个 BlockKit 的回调方式就可以。这样可以有效控制代码。</p>
+<p>雷纯锋：这个我觉得要看模块之间用什么来通信吧。</p>
+<p>李忠：这个我觉得还是跟使用场景有关。如果只是简单的对外暴露一个 property，外部直接 KVO 即可，甚至不用关心 RAC。但如果在一些比较复杂的场景使用 RAC 的话，很难做到对上层透明，除非内部的封装做得足够彻底。</p>
+<p>李忠：比如网络请求，返回一个 <code>RACSignal</code>，然后外部 <code>subscribeNext</code> 之后，想要取消怎么办？这时只能保存一个 <code>RACDisposable</code> 变量，然后在适当的时机调用 <code>dispose</code> 方法；或者要等待 2 个请求一起完成，再做一些事情（当然可以通过 semaphore &#x2F; dispatch_group 来做，但这样就丢了 RAC 的特性）等等。</p>
+<p>李忠：所以还是要在项目初期就想清楚，如果团队成员对 RAC 都比较熟悉，那自然最好。如果其他人不太了解，甚至抵触，这时就要避免在复杂的场景下使用。</p>
+<h3 id="讨论：有什么学习-RAC-好的资料吗？"><a href="#讨论：有什么学习-RAC-好的资料吗？" class="headerlink" title="讨论：有什么学习 RAC 好的资料吗？"></a>讨论：有什么学习 RAC 好的资料吗？</h3><p>臧成威：李忠的博客不错：<a target="_blank" rel="noopener" href="http://limboy.me/">http://limboy.me/</a></p>
+<p>唐巧：之前雷纯峰特别推荐美团的几篇博客：<a target="_blank" rel="noopener" href="http://tech.meituan.com/tag/ReactiveCocoa">http://tech.meituan.com/tag/ReactiveCocoa</a></p>
+<p>李忠：coursera 上有一门课是讲 Reactive Programming 的 ( <a target="_blank" rel="noopener" href="https://www.coursera.org/course/reactive">https://www.coursera.org/course/reactive</a> ) ，也会讲到 Functional Programming。</p>
+<p>雷纯锋：我写的这篇是范围比较广一点。<a target="_blank" rel="noopener" href="http://blog.leichunfeng.com/blog/2015/12/25/reactivecocoa-v2-dot-5-yuan-ma-jie-xi-zhi-jia-gou-zong-lan/">http://blog.leichunfeng.com/blog/2015/12/25/reactivecocoa-v2-dot-5-yuan-ma-jie-xi-zhi-jia-gou-zong-lan/</a> 《ReactiveCocoa v2.5 源码解析之架构总览》</p>
+<p>另外要关于 Monad 的也有一篇，<a target="_blank" rel="noopener" href="http://blog.leichunfeng.com/blog/2015/11/08/functor-applicative-and-monad/">http://blog.leichunfeng.com/blog/2015/11/08/functor-applicative-and-monad/</a> 《Functor、Applicative 和 Monad》</p>
+<p>雷纯锋：raywenderlich 上的文章：<br><a target="_blank" rel="noopener" href="http://www.raywenderlich.com/62699/reactivecocoa-tutorial-pt1">http://www.raywenderlich.com/62699/reactivecocoa-tutorial-pt1</a>、<br><a target="_blank" rel="noopener" href="http://www.raywenderlich.com/62796/reactivecocoa-tutorial-pt2">http://www.raywenderlich.com/62796/reactivecocoa-tutorial-pt2</a>、<br><a target="_blank" rel="noopener" href="http://www.raywenderlich.com/74106/mvvm-tutorial-with-reactivecocoa-part-1">http://www.raywenderlich.com/74106/mvvm-tutorial-with-reactivecocoa-part-1</a>、<br><a target="_blank" rel="noopener" href="http://www.raywenderlich.com/74131/mvvm-tutorial-with-reactivecocoa-part-2">http://www.raywenderlich.com/74131/mvvm-tutorial-with-reactivecocoa-part-2</a>。</p>
+<p>唐巧：我之前看过一本 《Functional Reactive Programming on iOS》，不过还是不够深入。</p>
+<p>臧成威：话说，看懂 Haskell，理解 RAC 就不是难事了。</p>
+<p>雷纯锋：是的，所以如果要理解 RAC 的思想的话，Haskell 可以学一下。<a target="_blank" rel="noopener" href="http://learnyouahaskell.com/">http://learnyouahaskell.com/</a></p>
+<h3 id="RACSequence-的性能问题"><a href="#RACSequence-的性能问题" class="headerlink" title="RACSequence 的性能问题"></a>RACSequence 的性能问题</h3><p>讨论到最后大家还涉及到了 RACSequence 的性能问题。记录如下：</p>
+<blockquote>
+<p>臧成威：了解了概念后，看源码就很爽了，是 OC 语言的典范。</p>
+<p>臧成威：不过看了 RACSequence 的实现，性能是无法使用的。</p>
+<p>雷纯锋：无法使用？你们不用 RACSequence 吗？</p>
+<p>臧成威：是的，Sequence 的性能很差。</p>
+<p>臧成威：由于 OC 没有引用透明和尾递归优化。</p>
+<p>雷纯锋：你们没有过吗？</p>
+<p>臧成威：你试试 100 个长度的数组进行遍历排序，然后再变回来就明白了。</p>
+<p>臧成威：现在都去掉了。</p>
+<p>雷纯锋：它主要是用来实现懒计算吧。</p>
+<p>雷纯锋：方便集合的转换吧，常规的遍历也不会使用它吧？</p>
+<p>臧成威：就是说集合转换的性能太差了。</p>
+<p>雷纯锋：恩，以后留意一下</p>
+</blockquote>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本次分享内容的主要贡献来自美团的臧成威同学，从美团的实践中我们也能看到，在有充足经验的人指导下，RAC 不但可以应用于大型项目，也可以工作得很舒服。</p>
+<p>最后感谢参加这次讨论会的臧成威、李忠、唐晓轩、孙源、雷纯锋、汤圣罡、李雄略、蓝晨钰，希望他们的分享对大家有所帮助。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016-01-02-2015-summary/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3409,329 +3920,6 @@ UPYUN:
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/one-key-fill-kodexplorer-login-form/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/one-key-fill-kodexplorer-login-form/" itemprop="url">[User Script] 自动填写 KodExplorer 登录表单</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-05T18:05:50+00:00">
-                2015-12-05
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
-                    <span itemprop="name">技术</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>应该挺多人知道 <a target="_blank" rel="noopener" href="http://kalcaddle.com/index.html">KodExplorer</a> 吧？一个用 PHP 编写的很棒的在线文件管理器。 因为是文件管理，拥有着 www 用户组的所有权限，自然是一定要用强口令的。然而 KodExplorer 登录页不是用 form 表单提交的，chrome 的自动保存也没用了，每次都输强口令也挺麻烦的，所以写了个脚本一键填写登录表单并提交，放入书签栏即可食用~ KodExplorer 的登录逻辑都在 <code>./static/js/app/src/user/main.js</code> 里，有用的一段在这里：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> e = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> e = $(<span class="string">&quot;#username&quot;</span>).<span class="title function_">val</span>(),</span><br><span class="line">    t = $(<span class="string">&quot;#password&quot;</span>).<span class="title function_">val</span>(),</span><br><span class="line">    a = $(<span class="string">&quot;input[name=rember_password]&quot;</span>).<span class="title function_">attr</span>(<span class="string">&quot;checked&quot;</span>) ? <span class="number">1</span> : <span class="number">0</span>,</span><br><span class="line">    i = <span class="string">&quot;./index.php?user/loginSubmit&amp;name=&quot;</span> + <span class="title function_">urlEncode</span>(e) + <span class="string">&quot;&amp;check_code=&quot;</span> + $(<span class="string">&quot;input.check_code&quot;</span>).<span class="title function_">val</span>() + <span class="string">&quot;&amp;password=&quot;</span> + <span class="title function_">urlEncode</span>(t) + <span class="string">&quot;&amp;rember_password=&quot;</span> + a;</span><br><span class="line">    <span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">href</span> = i</span><br><span class="line">&#125;;</span><br><span class="line">$(<span class="string">&quot;#username&quot;</span>).<span class="title function_">focus</span>(),</span><br><span class="line">$(<span class="string">&quot;#submit&quot;</span>).<span class="title function_">bind</span>(<span class="string">&quot;click&quot;</span>, e),</span><br><span class="line">$(<span class="string">&quot;#username,#password,input.check_code&quot;</span>).<span class="title function_">keyEnter</span>(e)</span><br></pre></td></tr></table></figure>
-
-<p>关键行已高亮标出（话说明文 POST 密码真的好吗。。），下面是脚本代码（Greasemonkey 用户脚本）：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ==UserScript==</span></span><br><span class="line"><span class="comment">// @name         KodExplorer Auto Login</span></span><br><span class="line"><span class="comment">// @namespace    https://prinzeugen.net/</span></span><br><span class="line"><span class="comment">// @version      0.1</span></span><br><span class="line"><span class="comment">// @description  自动登录 Kodexplorer</span></span><br><span class="line"><span class="comment">// @author       prin</span></span><br><span class="line"><span class="comment">// @match        https://prinzeugen.net:12450/kodexplorer-14012/index.php?user/login</span></span><br><span class="line"><span class="comment">// @grant        none</span></span><br><span class="line"><span class="comment">// ==/UserScript==</span></span><br><span class="line"><span class="comment">/* jshint -W097 */</span></span><br><span class="line"><span class="meta">&#x27;use strict&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> username = <span class="string">&quot;root&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> password = <span class="string">&quot;NAKAkoi2411explorer&quot;</span>;  <span class="comment">// 自己修改</span></span><br><span class="line"><span class="keyword">var</span> remberPasswd = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;username&quot;</span>) ? <span class="number">1</span> : <span class="number">0</span>;</span><br><span class="line"><span class="keyword">var</span> url = <span class="string">&quot;./index.php?user/loginSubmit&amp;name=&quot;</span> + <span class="built_in">encodeURIComponent</span>(username) + <span class="string">&quot;&amp;check_code=&quot;</span> + <span class="string">&quot;&amp;password=&quot;</span> + <span class="built_in">encodeURIComponent</span>(password) + <span class="string">&quot;&amp;rember_password=&quot;</span> + remberPasswd;</span><br><span class="line"><span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">href</span> = url;</span><br></pre></td></tr></table></figure>
-
-<h3 id="更新日志："><a href="#更新日志：" class="headerlink" title="更新日志："></a>更新日志：</h3><p>2015-12-31 使用 User Script 重写</p>
-<p>以下为原来的书签版本：</p>
-<p>压缩后可以放到书签栏里的版本（记得自己修改用户名，密码）：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">javascript</span>:<span class="keyword">var</span> u=<span class="string">&quot;&quot;</span>,p=<span class="string">&quot;&quot;</span>,rp=<span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&quot;username&quot;</span>)?<span class="number">1</span>:<span class="number">0</span>,url=<span class="string">&quot;./index.php?user/loginSubmit&amp;name=&quot;</span>+<span class="title function_">urlEncode</span>(u)+<span class="string">&quot;&amp;check_code=&quot;</span>+<span class="string">&quot;&amp;password=&quot;</span>+<span class="title function_">urlEncode</span>(p)+<span class="string">&quot;&amp;rember_password=&quot;</span>+rp;<span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">href</span>=url;</span><br></pre></td></tr></table></figure>
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E9%9D%92%E9%BB%84%E6%9C%AA%E6%8E%A5%E7%9A%842015/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/%E9%9D%92%E9%BB%84%E6%9C%AA%E6%8E%A5%E7%9A%842015/" itemprop="url">青黄未接的2015</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-12-01T11:24:18+00:00">
-                2015-12-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%94%9F%E6%B4%BB%E6%84%9F%E6%82%9F/" itemprop="url" rel="index">
-                    <span itemprop="name">生活感悟</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          我每天都坚持早起，因为我不想被这种安逸到近似麻木的生活拔去梦想的翅膀，虽然我在乎的事情没有人懂、更没有人在乎，可我就是不愿做一只温水中的青蛙，因为当危险临近的时候更加不会有人来救我;我固然不愿意离开年迈的父母，我固然不愿意离开生养我的土地，可是对我来说这一切都没有可以选择的余地，每次看到回家看到父母不停地辛劳，我意识到他们渐渐地老了，他们的身体不再像以前那般硬朗，他们的头发一天比一天白，我不愿意他们再为我辛劳下去，留在这座小城市里除了可以经常看到他们以外，对我而言并不会有更好的理由;时光一过不再有，这过去的大半年时间就让它过去吧，在接下来的2016年里，我希望我可以更加勇敢、更加努力，我要更好地把握我的人生，我要变得更加成熟，我要做最初的、最好的自己
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/%E9%9D%92%E9%BB%84%E6%9C%AA%E6%8E%A5%E7%9A%842015/">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -3782,7 +3970,7 @@ UPYUN:
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1458</span>
+                  <span class="site-state-item-count">1460</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3793,7 +3981,7 @@ UPYUN:
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">72</span>
+                  <span class="site-state-item-count">73</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -3804,7 +3992,7 @@ UPYUN:
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">890</span>
+                  <span class="site-state-item-count">895</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
