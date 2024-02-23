@@ -274,6 +274,904 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016-02-27-swift-gym-2-function-argument/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016-02-27-swift-gym-2-function-argument/" itemprop="url">Swift 烧脑体操（二） - 函数的参数</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-02-27T01:23:29+00:00">
+                2016-02-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p><img src="http://ww2.sinaimg.cn/mw690/65dc76a3gw1f08hrkcyydj20i40cigv2.jpg"></p>
+<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><p>Swift 烧脑系列文章列表：</p>
+<ul>
+<li><a href="/2016/02/27/swift-gym-1-nested-optional/">Swift 烧脑体操（一） - Optional 的嵌套</a></li>
+<li><a href="/2016/02/27/swift-gym-2-function-argument/">Swift 烧脑体操（二） - 函数的参数</a></li>
+<li><a href="/2016/02/27/swift-gym-3-higher-order-function/">Swift 烧脑体操（三） - 高阶函数</a></li>
+<li><a href="/2016/03/05/swift-gym-4-map-and-flatmap/">Swift 烧脑体操（四） - map 和 flatMap</a></li>
+<li><a href="/2016/04/05/swift-gym-5-monad/">Swift 烧脑体操（五）- Monad</a></li>
+<li><a href="/2016/05/22/swift-gym-6-type-infer/">Swift 烧脑体操（六）- 类型推断</a></li>
+</ul>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Swift 其实比 Objective-C 复杂很多，相对于出生于上世纪 80 年代的 Objective-C 来说，Swift 融入了大量新特性。这也使得我们学习掌握这门语言变得相对来说更加困难。不过一切都是值得的，Swift 相比 Objective-C，写出来的程序更安全、更简洁，最终能够提高我们的工作效率和质量。</p>
+<p>Swift 相关的学习资料已经很多，我想从另外一个角度来介绍它的一些特性，我把这个角度叫做「烧脑体操」。什么意思呢？就是我们专门挑一些比较费脑子的语言细节来学习。通过「烧脑」地思考，来达到对 Swift 语言的更加深入的理解。</p>
+<p>这是本体操的第二节，练习前请做好准备运动，保持头脑清醒。</p>
+<h2 id="准备运动：基础知识"><a href="#准备运动：基础知识" class="headerlink" title="准备运动：基础知识"></a>准备运动：基础知识</h2><p><img src="http://ww3.sinaimg.cn/mw690/65dc76a3gw1f0sz14p1u4j206w0a33zb.jpg"></p>
+<h3 id="面向对象语言的世界观"><a href="#面向对象语言的世界观" class="headerlink" title="面向对象语言的世界观"></a>面向对象语言的世界观</h3><p>对于很多面向对象的编程语言来说，在思考问题时，总是把「对象」作为考虑问题的基本出发点。</p>
+<p>面向对象的程序设计通过以下三大规则，构建出程序设计的基础，它们是：</p>
+<ol>
+<li>封装（Encapsulation），将一个相对独立的逻辑涉及的变量和函数放到一个类中，然后对外暴露少量接口，使其高内聚，低耦合。</li>
+<li>继承（Inheritance），子类可以继承父类的变量和函数，并且可以修改或扩展父类的行为。</li>
+<li>多态（Polymorphism），父类的指针可以指向子类的实例，在运行时程序语言支持找到子类对应的函数实现。</li>
+</ol>
+<p>在以上三大准则的基础上，再引入一些设计原则，比如：</p>
+<ol>
+<li>单一职责原则（Single Responsibility），每个类只应该做一件事情。</li>
+<li>不要重复原则（Don’t Repeat Yourself），相同（或相似）的代码不应该重复两次。</li>
+<li>好的组合优于继承（Better Composition over Inheritance），尽量使用组合而不是继承来设计。</li>
+</ol>
+<p>于是，程序世界就基于这些规则和原则，产生出了设计模式，进而能更加精准地指导我们的编程行为。这就像我们学习几何，先学习几条公理，然后以后的大量定理都通过公理证明而来。</p>
+<p>举个例子，单例模式（Singleton Pattern）其实就是封装和单一职责原则的产物。代理模式（Delegate Pattern) 也是单一职责和封装中的面向接口设计的思想的产物。</p>
+<p>但是，在面向对象语言的世界观里面，函数都是作为一个附属物存在的。函数通常附属于一个具体类的某个方法中。或许有一个函数它根本都不需要任何对象作为容器，为了这个世界的统一，我们还是会构造一个类，把这个函数放进去。比如，在小猿搜题中，我们就有一个叫 ImageUtils 的类，里面放了操作图像的各种各样的静态方法，有一些图象操作函数其实也不太通用，但是总得找一个类放不是。</p>
+<p>在一些面向对象语言的世界中，如果把对象称作 OOP 的一等公民的话，那么函数就是二等公民。</p>
+<h3 id="函数式编程"><a href="#函数式编程" class="headerlink" title="函数式编程"></a>函数式编程</h3><p>在 Swift 的世界中，函数并不是二等公民。是的，Swift 引入了大量函数式编程的特性，使得我们能够把函数当作一等公民来对待。</p>
+<p>一等公民有什么权利呢？那就是函数可以像对象一样，被赋值、被当作参数传递、参与计算或者当作结果被返回。</p>
+<p>我们先来看一段函数被赋值的例子，在下例中，我们将一个函数赋值给一个名为 <code>myFunc</code> 的变量，然后调用它。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">let myFunc = &#123; </span><br><span class="line">    () -&gt; String in</span><br><span class="line">    return &quot;Tang Qiao&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let value = myFunc()</span><br><span class="line">// value 的值为 &quot;Tang Qiao&quot;</span><br></pre></td></tr></table></figure>
+
+<p>我们再来看一个函数被当作运算结果返回的例子。在这个例子中，我们希望构造一个「加法器」工厂，这个工厂能够接受一个参数 addValue，返回一个加法器函数，这个加法器函数能够将传递的参数加 addValue 之后返回。以下是实现的代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">func addFactory(addValue: Int) -&gt; (Int -&gt; Int) &#123;</span><br><span class="line">    func adder(value: Int) -&gt; Int &#123;</span><br><span class="line">        return addValue + value</span><br><span class="line">    &#125;</span><br><span class="line">    return adder</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>有了上面这个函数，我们就可以构造一个 <code>+2</code> 的函数，然后使用它，如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">let add2 = addFactory(2) // 构造一个 +2 的函数</span><br><span class="line">let result = add2(3) // 运算，传入 3，得到 5</span><br></pre></td></tr></table></figure>
+
+<h2 id="函数的参数"><a href="#函数的参数" class="headerlink" title="函数的参数"></a>函数的参数</h2><p>但是在本次「烧脑体操」中，全面介绍函数式编程明显不太现实，所以我们仅从函数的参数来深入学习一下，看看在 Swift 语言中，函数的参数能够有多复杂。</p>
+<!--
+这里多说一句题外话，有部分同学看了「烧脑体操」第一节后，留言说：本来简单的 Swift 语言，被你这么一说，弄得都不敢学了，你是不是在吓大家？还有一些人留言：你搞这么绕还不是为了装逼？
+
+对此，我想回答说：我研究这些仅仅是为了避免在语言细节的地方掉坑里，如果你对此不感兴趣，有一个动作叫做「取消关注」，我写文章并没有收费，如果你不喜欢，取关即可，犯不着在后台留言恶心我吧？
+-->
+
+<h3 id="参数的省略"><a href="#参数的省略" class="headerlink" title="参数的省略"></a>参数的省略</h3><p>我们先来简单看看函数参数的省略吧，因为有类型推导，函数的参数在 Swift 中常常可以被省略掉，特别以匿名函数（闭包）的形式存在的时候。</p>
+<p>我们来看一个数组排序的例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">let array = [1, 3, 2, 4]</span><br><span class="line">let res = array.sort &#123;</span><br><span class="line">    (a: Int, b: Int) -&gt; Bool in</span><br><span class="line">    return a &lt; b</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>如果一个函数返回类型可以通过推导出来，则返回类型可以省略。所以以上代码中的 <code>-&gt; Bool</code> 可以删掉，变成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">let array = [1, 3, 2, 4]</span><br><span class="line">let res = array.sort &#123;</span><br><span class="line">    (a: Int, b: Int) in</span><br><span class="line">    return a &lt; b</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果一个函数的参数类型可以推导出来，则参数的类型可以省略。所以以上代码中的 <code>: Int</code> 可以删掉，变成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">let array = [1, 3, 2, 4]</span><br><span class="line">let res = array.sort &#123;</span><br><span class="line">    (a, b) in</span><br><span class="line">    return a &lt; b</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>如果函数参数的个数可以推导出来，也可以不写参数。那怎么使用这些参数呢？可以用 <code>$0</code>, <code>$1</code> 这样的方式来引用参数。所以以上代码中的 <code>(a, b)</code> 可以删掉，因为这样的话，参数和返回值都省略了，所以<code>in</code>也可以省略了，变成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">let array = [1, 3, 2, 4]</span><br><span class="line">let res = array.sort &#123;</span><br><span class="line">    return $0 &lt; $1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Swift 还有一个规则，如果函数的 body 只有一行，则可以把 <code>return</code> 关键字省略了，所以以上代码可以进一步简化成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">let array = [1, 3, 2, 4]</span><br><span class="line">let res = array.sort &#123;</span><br><span class="line">    $0 &lt; $1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后一个简化规则更加暴力，因为 <code>&lt;</code> 符号也是一个函数，它接受的参数个数，类型和返回值与 sort 函数需要的一样，所以可以直接简化成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">let array = [1, 3, 2, 4]</span><br><span class="line">let res = array.sort( &lt; )</span><br></pre></td></tr></table></figure>
+
+<p>拿这个的方法，同样可以把我们刚刚写的 <code>addFactory</code> 做简化，最后简化成如下的形式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 简化前</span><br><span class="line">func addFactory(addValue: Int) -&gt; (Int -&gt; Int) &#123;</span><br><span class="line">    func adder(value: Int) -&gt; Int &#123;</span><br><span class="line">        return addValue + value</span><br><span class="line">    &#125;</span><br><span class="line">    return adder</span><br><span class="line">&#125;</span><br><span class="line">// 简化后</span><br><span class="line">func addFactory(addValue: Int) -&gt; (Int -&gt; Int) &#123;</span><br><span class="line">    return &#123; addValue + $0 &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="函数参数中的其它关键字"><a href="#函数参数中的其它关键字" class="headerlink" title="函数参数中的其它关键字"></a>函数参数中的其它关键字</h3><p>有些时候，我们的函数接受的参数就是另外一个函数，例如 sort，map，所以我们在看代码的时候，需要具备熟悉这种写法的能力。</p>
+<p>我们来看看数组的 map 函数的定义吧：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public func map&lt;T&gt;(@noescape transform: (Self.Generator.Element) throws -&gt; T) rethrows -&gt; [T]</span><br></pre></td></tr></table></figure>
+
+<p>这个函数定义中出现了几个我们刚刚没提到的关键词，我们先学习一下。</p>
+<h4 id="noescape"><a href="#noescape" class="headerlink" title="@noescape"></a><code>@noescape</code></h4><p><code>@noescape</code>，这是一个从 Swift 1.2 引入的关键字，它是专门用于修饰函数闭包这种参数类型的，当出现这个参数时，它表示该闭包不会跳出这个函数调用的生命期：即函数调用完之后，这个闭包的生命期也结束了。以下是苹果的文档原文：</p>
+<blockquote>
+<p>A new @noescape attribute may be used on closure parameters to functions. This indicates that the parameter is only ever called (or passed as an @noescape parameter in a call), which means that it cannot outlive the lifetime of the call. This enables some minor performance optimizations, but more importantly disables the self. requirement in closure arguments.</p>
+</blockquote>
+<p>什么情况下一个闭包参数会跳出函数的生命期呢？很简单，我们在函数实现内，将一个闭包用 <code>dispatch_async</code> 嵌套，这样这个闭包就会在另外一个线程中存在，从而跳出了当前函数的生命期。这样做主要是可以帮助编译器做性能的优化。</p>
+<p>如果你对此感兴趣，这里有一些更详细的介绍供你学习：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/28427436/noescape-attribute-in-swift-1-2/28428521#28428521">https://stackoverflow.com/questions/28427436/noescape-attribute-in-swift-1-2/28428521#28428521</a></li>
+<li><a target="_blank" rel="noopener" href="http://nshint.io/blog/2015/10/23/noescape-attribute/">http://nshint.io/blog/2015/10/23/noescape-attribute/</a></li>
+</ul>
+<h4 id="throws-和-rethrows"><a href="#throws-和-rethrows" class="headerlink" title="throws 和 rethrows"></a><code>throws</code> 和 <code>rethrows</code></h4><p><code>throws</code> 关键字表示：这个函数（闭包）可能抛出异常。而 <code>rethrows</code> 关键字表示：这个函数如果抛出异常，仅可能是因为传递给它的闭包的调用导致了异常。</p>
+<p><code>throws</code> 关键字的存在大家都应该能理解，因为总有一些异常可能在设计的时候希望暴露给上层，<code>throws</code> 关键字的存在使得这种设计成为可能。</p>
+<p>那么为什么会有 <code>rethrows</code> 关键字呢？在我看来，这是为了简化很多代码的书写。因为一旦一个函数会抛出异常，按 Swift 类型安全的写法，我们就需要使用 try 语法。但是如果很多地方都需要写 try 的话，会造成代码非常啰嗦。 <code>rethrows</code> 关键字使得一些情况下，如果你传进去的闭包不会抛出异常，那么你的调用代码就不需要写 try。</p>
+<p>如果你对此感兴趣，这里有一些更详细的介绍供你学习：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://robnapier.net/re-throws">http://robnapier.net/re-throws</a></li>
+</ul>
+<h3 id="函数作为函数的参数"><a href="#函数作为函数的参数" class="headerlink" title="函数作为函数的参数"></a>函数作为函数的参数</h3><p>刚刚说到，函数作为一等公民，意味着函数可以像对象一样，被当作参数传递或者被当作值返回。对此，我们专门有一个名称来称呼它，叫做<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Higher-order_function">高阶函数（higher-order function）</a>。</p>
+<p>在刚刚那个数组的 map 函数中，我们就看到了它接着另外一个函数作为参数，这个函数接受数组元素类型作为参数，返回一个新类型。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public func map&lt;T&gt;(@noescape transform: (Self.Generator.Element) throws -&gt; T) rethrows -&gt; [T]</span><br></pre></td></tr></table></figure>
+
+<p>有了 map 函数，我们就可以轻松做数组元素的变换了。如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">let arr = [1, 2, 4]</span><br><span class="line">// arr = [1, 2, 4]</span><br><span class="line"></span><br><span class="line">let brr = arr.map &#123;</span><br><span class="line">    &quot;No.&quot; + String($0)</span><br><span class="line">&#125;</span><br><span class="line">// brr = [&quot;No.1&quot;, &quot;No.2&quot;, &quot;No.4&quot;]</span><br></pre></td></tr></table></figure>
+
+<h2 id="烧脑的参数"><a href="#烧脑的参数" class="headerlink" title="烧脑的参数"></a>烧脑的参数</h2><p>好了，现在进入参数烧脑游戏的正式环节。</p>
+<p>我们需要构造一个工厂函数，这个函数接受两个函数作为参数，返回一个新的函数。新函数是两个函数参数的叠加作用效果。</p>
+<p>举一个具体的例子，假如我们有一个 <code>+2</code> 的函数，有一个 <code>+3</code> 的函数，那用这个工厂函数，我们可以得到一个 <code>+5</code> 的函数。</p>
+<p>又比如我们有一个 <code>*2</code> 的函数，有一个 <code>*5</code> 的函数，用这个工厂函数，我们就可以得到一个 <code>*10</code> 的函数。</p>
+<p>那这个函数如何写呢？我们先看答案吧：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">func funcBuild(f: Int -&gt; Int, _ g: Int -&gt; Int) </span><br><span class="line">    -&gt; Int -&gt; Int &#123;</span><br><span class="line">    return &#123;</span><br><span class="line">        f(g($0))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let f1 = funcBuild(&#123;$0 + 2&#125;, &#123;$0 + 3&#125;)</span><br><span class="line">f1(0) // 得到 5</span><br><span class="line">let f2 = funcBuild(&#123;$0 * 2&#125;, &#123;$0 * 5&#125;)</span><br><span class="line">f2(1) // 得到 10</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这个函数充分反映了函数作为一等公民的地位。但是，我们同时也看出来，函数作为参数存在时，对于程序的可读性带来了挑战。好在我们有 <code>typealias</code>，通过 <code>typealias</code>，我们可以将函数的类型写得更加易读，比如上面的代码，就可以修改成如下形式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">typealias IntFunction = Int -&gt; Int</span><br><span class="line"></span><br><span class="line">func funcBuild(f: IntFunction, _ g: IntFunction)</span><br><span class="line">    -&gt; IntFunction &#123;</span><br><span class="line">    return &#123;</span><br><span class="line">        f(g($0))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>现在看看代码，是不是清晰了很多？</p>
+<h2 id="参数中的范型"><a href="#参数中的范型" class="headerlink" title="参数中的范型"></a>参数中的范型</h2><p>当函数中的参数再引入范型之后，函数的功能更加强大，但是可读性进一步下降。比如刚刚的例子，限制函数只能是 <code>Int -&gt; Int</code> 其实是没有必要的，我们将两个函数拼成一个函数，只需要保证一个函数的输出类型，与另一个函数的输入类型匹配即可。所以，刚刚的例子，可以进一步用范型改造：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">func funcBuild&lt;T, U, V&gt;(f: T -&gt; U, _ g: V -&gt; T)</span><br><span class="line">    -&gt; V -&gt; U &#123;</span><br><span class="line">        return &#123;</span><br><span class="line">            f(g($0))</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line">let f3 = funcBuild(&#123; &quot;No.&quot; + String($0) &#125;, &#123;$0 * 2&#125;)</span><br><span class="line">f3(23) // 结果是 &quot;No.46&quot;</span><br></pre></td></tr></table></figure>
+
+<p>在上面这个例子中，我们保证函数 g 的输出类型是 T，函数 f 的输入类型是 T。这样，在例子中，我们将一个 <code>*2</code> 的函数与一个数字转字符串的函数拼接起来，构造出一个先乘 2，再转字符串的函数。</p>
+<p>相应的例子还有很多，比如 WWDC 中就介绍过一个给函数增加缓存机制的代码，在该代码中，任意一个不带缓存功能的函数，经过改造，都可以变成一个带缓存功能的函数。代码如下，大家可以自行学习一下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">func memoize&lt;T: Hashable, U&gt;( body: (T)-&gt;U ) -&gt; (T-&gt;U) &#123;</span><br><span class="line">    var memo = Dictionary&lt;T, U&gt;()</span><br><span class="line">    return &#123; x in</span><br><span class="line">        if let q = memo[x] &#123; return q &#125;</span><br><span class="line">        let r = body(x)</span><br><span class="line">        memo[x] = r</span><br><span class="line">        return r</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总结一下本次烧脑锻炼到的脑细胞：</p>
+<ul>
+<li>Swift 是一个结合面向对象编程和函数式编程特性的语言。</li>
+<li>函数在 Swift 中是一等公民，可以被赋值、被当作参数传递、参与计算、当作结果被返回或被动态创建。</li>
+<li>因为有类型推导，函数的参数有各种省略规则。</li>
+<li>函数作为参数时，有 @noescape，throw 和 rethrow 关键字需要了解。</li>
+<li>函数作为参数时，不易阅读。合理使用 typealias 可以使源码结构更清晰。</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016-02-27-swift-gym-1-nested-optional/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016-02-27-swift-gym-1-nested-optional/" itemprop="url">Swift 烧脑体操（一） - Optional 的嵌套</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-02-27T01:21:32+00:00">
+                2016-02-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p><img src="http://ww2.sinaimg.cn/mw690/65dc76a3gw1f08hrkcyydj20i40cigv2.jpg"></p>
+<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><p>Swift 烧脑系列文章列表：</p>
+<ul>
+<li><a href="/2016/02/27/swift-gym-1-nested-optional/">Swift 烧脑体操（一） - Optional 的嵌套</a></li>
+<li><a href="/2016/02/27/swift-gym-2-function-argument/">Swift 烧脑体操（二） - 函数的参数</a></li>
+<li><a href="/2016/02/27/swift-gym-3-higher-order-function/">Swift 烧脑体操（三） - 高阶函数</a></li>
+<li><a href="/2016/03/05/swift-gym-4-map-and-flatmap/">Swift 烧脑体操（四） - map 和 flatMap</a></li>
+<li><a href="/2016/04/05/swift-gym-5-monad/">Swift 烧脑体操（五）- Monad</a></li>
+<li><a href="/2016/05/22/swift-gym-6-type-infer/">Swift 烧脑体操（六）- 类型推断</a></li>
+</ul>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Swift 其实比 Objective-C 复杂很多，相对于出生于上世纪 80 年代的 Objective-C 来说，Swift 融入了大量新特性。这也使得我们学习掌握这门语言变得相对来说更加困难。不过一切都是值得的，Swift 相比 Objective-C，写出来的程序更安全、更简洁，最终能够提高我们的工作效率和质量。</p>
+<p>Swift 相关的学习资料已经很多，我想从另外一个角度来介绍它的一些特性，我把这个角度叫做「烧脑体操」。什么意思呢？就是我们专门挑一些比较费脑子的语言细节来学习。通过「烧脑」地思考，来达到对 Swift 语言的更加深入的理解。</p>
+<p>这是本体操的第一节，练习前请做好准备运动，保持头脑清醒。</p>
+<h2 id="准备运动：Optional-的介绍"><a href="#准备运动：Optional-的介绍" class="headerlink" title="准备运动：Optional 的介绍"></a>准备运动：Optional 的介绍</h2><p><img src="http://ww3.sinaimg.cn/mw690/65dc76a3gw1f0sz13edhpj209s061mxt.jpg"></p>
+<p>王巍的《Swifter》(<a target="_blank" rel="noopener" href="http://swifter.tips/buy">http://swifter.tips/buy</a>)一书中，介绍了一个有用的命令：在 LLDB 中输入 <code>fr v -R foo</code>，可以查看 <code>foo</code> 这个变量的内存构成。我们稍后的分析将用到这个命令。</p>
+<p>在 Swift 的世界里，一切皆对象，包括 Int Float 这些基本数据类型，所以我们可以这么写：<code>print(1.description)</code>。</p>
+<p>而对象一般都是存储在指针中，Swift 也不例外，这就造成了一个问题，指针为空的情况需要处理。在 Objective-C 中，向一个 nil 的对象发消息是默认不产生任何效果的行为，但是在 Swift 中，这种行为被严格地禁止了。</p>
+<p>Swift 是一个强类型语言，它希望在编译期做更多的安全检查，所以引入了类型推断。而类型推断上如果要做到足够的安全，避免空指针调用是一个最基本的要求。于是，Optional 这种类型出现了。Optional 在 Swift 语言中其实是一个枚举类型：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public enum Optional&lt;Wrapped&gt; : _Reflectable, NilLiteralConvertible &#123;</span><br><span class="line">    case None</span><br><span class="line">    case Some(Wrapped)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Optional-的嵌套"><a href="#Optional-的嵌套" class="headerlink" title="Optional 的嵌套"></a>Optional 的嵌套</h2><p>Optional 类型的变量，在使用时，大多需要用<code>if let</code>的方式来解包。如果你没有解包而直接使用，编辑器通过类型推断会提示你，所以看起来这套机制工作得很好。但是，如果 Optional 嵌套层次太多，就会造成一些麻烦，下面我们来看一个例子。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">let a: Int? = 1</span><br><span class="line">let b: Int?? = a</span><br><span class="line">let c: Int??? = b</span><br></pre></td></tr></table></figure>
+
+<p>在这个机制中，1 这个 Int 值被层层 Optional 包裹，我们用刚刚提到的<code>fr v -R</code>，可以很好的看出来内部结构。如下图：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">(lldb) fr v -R a</span><br><span class="line">(Swift.Optional&lt;Swift.Int&gt;) a = Some &#123;</span><br><span class="line">  Some = &#123;</span><br><span class="line">    value = 1</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">(lldb) fr v -R b</span><br><span class="line">(Swift.Optional&lt;Swift.Optional&lt;Swift.Int&gt;&gt;) b = Some &#123;</span><br><span class="line">  Some = Some &#123;</span><br><span class="line">    Some = &#123;</span><br><span class="line">      value = 1</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">(lldb) fr v -R c</span><br><span class="line">(Swift.Optional&lt;Swift.Optional&lt;Swift.Optional&lt;Swift.Int&gt;&gt;&gt;) c = Some &#123;</span><br><span class="line">  Some = Some &#123;</span><br><span class="line">    Some = Some &#123;</span><br><span class="line">      Some = &#123;</span><br><span class="line">        value = 1</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从这个示例代码中，我们能看出来多层嵌套的 Optional 的具体内存结构。这个内存结构其实是一个类似二叉树一样的形状，如下图所示：</p>
+<p><img src="http://ww3.sinaimg.cn/mw690/65dc76a3gw1f08i00trqpj20ji0ch3ze.jpg"></p>
+<ul>
+<li>第一层二叉树有两个可选的值，一个值是 .None，另一个值类型是 <code>Optional&lt;Optional&lt;Int&gt;&gt;</code>。</li>
+<li>第二层二叉树有两个可选的值，一个值是 .None，另一个值类型是 <code>Optional&lt;Int&gt;</code>。</li>
+<li>第三层二叉树有两个可选的值，一个值是 .None，另一个值类型是 <code>Int</code>。</li>
+</ul>
+<p>那么问题来了，看起来这个 Optional.None 可以出现在每一层，那么在每一层的效果一样吗？我做了如下实验：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">let a: Int? = nil</span><br><span class="line">let b: Int?? = a</span><br><span class="line">let c: Int??? = b</span><br><span class="line">let d: Int??? = nil</span><br></pre></td></tr></table></figure>
+
+<p>如果你在 playground 上看，它们的值都是 nil，但是它们的内存布局却不一样，特别是变量 c 和 变量 d：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">(lldb) fr v -R a</span><br><span class="line">(Swift.Optional&lt;Swift.Int&gt;) a = None &#123;</span><br><span class="line">  Some = &#123;</span><br><span class="line">    value = 0</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">(lldb) fr v -R b</span><br><span class="line">(Swift.Optional&lt;Swift.Optional&lt;Swift.Int&gt;&gt;) b = Some &#123;</span><br><span class="line">  Some = None &#123;</span><br><span class="line">    Some = &#123;</span><br><span class="line">      value = 0</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">(lldb) fr v -R c</span><br><span class="line">(Swift.Optional&lt;Swift.Optional&lt;Swift.Optional&lt;Swift.Int&gt;&gt;&gt;) c = Some &#123;</span><br><span class="line">  Some = Some &#123;</span><br><span class="line">    Some = None &#123;</span><br><span class="line">      Some = &#123;</span><br><span class="line">        value = 0</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">(lldb) fr v -R d</span><br><span class="line">(Swift.Optional&lt;Swift.Optional&lt;Swift.Optional&lt;Swift.Int&gt;&gt;&gt;) d = None &#123;</span><br><span class="line">  Some = Some &#123;</span><br><span class="line">    Some = Some &#123;</span><br><span class="line">      Some = &#123;</span><br><span class="line">        value = 0</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>变量 c 因为是多层嵌套的 nil，所以它在最外层的二叉树上的值，是一个 <code>Optional&lt;Optional&lt;Int&gt;&gt;</code>。</li>
+<li>变量 d 因为是直接赋值成 nil，所以它在最外层的二叉树上的值，是一个 <code>Optional.None</code>。</li>
+</ul>
+<p>麻烦的事情来了，以上原因会造成用 if let 来判断变量 c 是否为 nil 失效了。如下代码最终会输出 <code>c is not none</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">let a: Int? = nil</span><br><span class="line">let b: Int?? = a</span><br><span class="line">let c: Int??? = b</span><br><span class="line">let d: Int??? = nil</span><br><span class="line"></span><br><span class="line">if let _ = c &#123;</span><br><span class="line">    print(&quot;c is not none&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="解释"><a href="#解释" class="headerlink" title="解释"></a>解释</h2><p>在我看来，这个问题的根源是：一个 Optional 类型的变量可以接受一个非 Optional 的值。拿上面的代码举例，a 的类型是 Int?，b 的类型是 Int??，但是 a 的值却可以赋值给 b。所以，变量 b（类型为 Int??），它可以接受以下几种类型的赋值：</p>
+<ol>
+<li>nil 类型</li>
+<li>Int? 类型</li>
+<li>Int?? 类型</li>
+</ol>
+<p>按理说，Swift 是强类型，等号左右两边的类型不完全一样，为什么能够赋值成功呢？我查了一下 Optional 的源码，原来是对于上面第 1，2 种类型不一样的情况，Optional 定义了构造函数来构造出一个 Int?? 类型的值，这样构造之后，等号左右两边就一样了。源码来自 <a target="_blank" rel="noopener" href="https://github.com/apple/swift/blob/master/stdlib/public/core/Optional.swift">https://github.com/apple/swift/blob/master/stdlib/public/core/Optional.swift</a>，我摘录如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">public enum Optional&lt;Wrapped&gt; : _Reflectable, NilLiteralConvertible &#123;</span><br><span class="line">  case None</span><br><span class="line">  case Some(Wrapped)</span><br><span class="line"></span><br><span class="line">  @available(*, unavailable, renamed=&quot;Wrapped&quot;)</span><br><span class="line">  public typealias T = Wrapped</span><br><span class="line"></span><br><span class="line">  /// Construct a `nil` instance.</span><br><span class="line">  @_transparent</span><br><span class="line">  public init() &#123; self = .None &#125;</span><br><span class="line"></span><br><span class="line">  /// Construct a non-`nil` instance that stores `some`.</span><br><span class="line">  @_transparent</span><br><span class="line">  public init(_ some: Wrapped) &#123; self = .Some(some) &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以上代码中，Optional 提供了两种构造函数，完成了刚刚提到的类型转换工作。</p>
+<h2 id="烧脑体操"><a href="#烧脑体操" class="headerlink" title="烧脑体操"></a>烧脑体操</h2><p>好了，说了这么多，我们下面开始烧脑了，以下代码来自傅若愚（<a target="_blank" rel="noopener" href="https://github.com/lingoer">https://github.com/lingoer</a>）在不久前 Swift 大会（<a target="_blank" rel="noopener" href="http://atswift.io/#speaker">http://atswift.io/#speaker</a>）上的一段分享：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">var dict :[String:String?] = [:]</span><br><span class="line">dict = [&quot;key&quot;: &quot;value&quot;]</span><br><span class="line">func justReturnNil() -&gt; String? &#123;</span><br><span class="line">    return nil</span><br><span class="line">&#125;</span><br><span class="line">dict[&quot;key&quot;] = justReturnNil()</span><br><span class="line">dict</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>以下是代码执行结果：</p>
+<p><img src="http://ww2.sinaimg.cn/mw690/65dc76a3gw1f08hcnaidnj20vq06ugni.jpg"></p>
+<p>我们可以看到，我们想通过给这个 Dictionary 设置一个 nil，来删除掉这个 key-value 对。但是从 playground 的执行结果上看，key 并没有被删掉。</p>
+<p>为了测试到底设置什么样的值，才能正常地删掉这个 key-value 键值对，我做了如下实验：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">var dict :[String:String?] = [:]</span><br><span class="line">// first try</span><br><span class="line">dict = [&quot;key&quot;: &quot;value&quot;]</span><br><span class="line">dict[&quot;key&quot;] = Optional&lt;Optional&lt;String&gt;&gt;.None</span><br><span class="line">dict</span><br><span class="line"></span><br><span class="line">// second try</span><br><span class="line">dict = [&quot;key&quot;: &quot;value&quot;]</span><br><span class="line">dict[&quot;key&quot;] = Optional&lt;String&gt;.None</span><br><span class="line">dict</span><br><span class="line"></span><br><span class="line">// third try</span><br><span class="line">dict = [&quot;key&quot;: &quot;value&quot;]</span><br><span class="line">dict[&quot;key&quot;] = nil</span><br><span class="line">dict</span><br><span class="line"></span><br><span class="line">// forth try</span><br><span class="line">dict = [&quot;key&quot;: &quot;value&quot;]</span><br><span class="line">let nilValue:String? = nil</span><br><span class="line">dict[&quot;key&quot;] = nilValue</span><br><span class="line">dict</span><br><span class="line"></span><br><span class="line">// fifth try</span><br><span class="line">dict = [&quot;key&quot;: &quot;value&quot;]</span><br><span class="line">let nilValue2:String?? = nil</span><br><span class="line">dict[&quot;key&quot;] = nilValue2</span><br><span class="line">dict</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>执行结果如下：</p>
+<p><img src="http://ww2.sinaimg.cn/mw690/65dc76a3gw1f08hcj57k0j20vk0lqjxf.jpg"></p>
+<p>我们可以看到，以下三种方式可以成功删除 key-value 键值对：</p>
+<ul>
+<li><code>dict[&quot;key&quot;] = Optional&lt;Optional&lt;String&gt;&gt;.None</code></li>
+<li><code>dict[&quot;key&quot;] = nil</code></li>
+<li><code>let nilValue2:String?? = nil;  dict[&quot;key&quot;] = nilValue2</code></li>
+</ul>
+<p>所以，在这个烧脑之旅中，我们发现，一个 [String: String?] 的 Dictionary，可以接受以下类型的赋值：</p>
+<ul>
+<li>nil</li>
+<li>String</li>
+<li>String?</li>
+<li>String??</li>
+</ul>
+<p>如果要删除这个 Dictionary 中的元素，必须传入 nil 或 <code>Optional&lt;Optional&lt;String&gt;&gt;.None</code> ，而如果传入 <code>Optional&lt;String&gt;.None</code>，则不能正常删除元素。</p>
+<p>好吧，实验出现象了，那这种现象的原因是什么呢？</p>
+<p>还好苹果把它的实现开源了，那我们来一起看看吧，源文件来自：<a target="_blank" rel="noopener" href="https://github.com/apple/swift/blob/master/stdlib/public/core/HashedCollections.swift.gyb">https://github.com/apple/swift/blob/master/stdlib/public/core/HashedCollections.swift.gyb</a>，以下是关键代码。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public subscript(key: Key) -&gt; Value? &#123;</span><br><span class="line">  get &#123;</span><br><span class="line">    return _variantStorage.maybeGet(key)</span><br><span class="line">  &#125;</span><br><span class="line">  set(newValue) &#123;</span><br><span class="line">    if let x = newValue &#123;</span><br><span class="line">      // FIXME(performance): this loads and discards the old value.</span><br><span class="line">      _variantStorage.updateValue(x, forKey: key)</span><br><span class="line">    &#125;</span><br><span class="line">    else &#123;</span><br><span class="line">      // FIXME(performance): this loads and discards the old value.</span><br><span class="line">      removeValueForKey(key)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>所以，当 Dictionary 的 value 类型为 String 时，如果你要设置它的值，它接受的是一个 String? 类型的参数。而因为我们刚刚例子中的 value 类型为 String?，所以正常情况下它需要的是一个 String?? 类型的参数。在上面的失败的例子中，我们传递的是一个 String? 类型的值，具体值为 <code>Optional&lt;String&gt;.None</code>，于是在执行时就会按以下的步骤来进行：</p>
+<ol>
+<li>我们传递一个值为 <code>Optional&lt;String&gt;.None</code>，类型为 String? 的参数。</li>
+<li>因为传的参数类型是 String?，而函数需要的是 String??，所以会执行 Optional 的构造函数，构造一个两层的 Optional。</li>
+<li>这个两层 Optional 的值为 <code>Optional.Some(&lt;Optional&lt;String&gt;.None&gt;)</code></li>
+<li>进入到 Dictionary 的实现时，会用 if let 进行是否为 nil 的判断，因为两层的 Optional，所以 if let 判断它不是 nil。</li>
+<li>所以代码执行到 <code>_variantStorage.updateValue(x, forKey: key)</code>，把 Optional<String>.None 当成值，设置给了相应的 key。</li>
+</ol>
+<p>如果你没理解，可以再翻翻最初我们对多层嵌套 nil 变量的实验和分析。</p>
+<p>我们再看看传递参数是 <code>Optional&lt;Optional&lt;String&gt;&gt;.None</code> 的情况，步骤如下：</p>
+<ol>
+<li>我们传递一个值为 <code>Optional&lt;Optional&lt;String&gt;&gt;.None</code>，类型为 String?? 的参数。</li>
+<li>因为参数类型是 String??，函数需要的类型也是 String??，所以参数不经变换，直接进入函数调用中。</li>
+<li>这个时候参数的值不变，还是 <code>Optional&lt;Optional&lt;String&gt;&gt;.None</code>。</li>
+<li>进入到 Dictionary 的实现时，会用 if let 进行是否为 nil 的判断，<code>Optional&lt;Optional&lt;String&gt;&gt;.None</code> 用 if let 判断，得到它是 nil。</li>
+<li>所以代码执行到 <code>removeValueForKey(key)</code>，Dictionary 删除了相应的 key-value 键值对。</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>好了，「烧脑体操」第一节就做完了，运动一下是不是感觉神清气爽？</p>
+<p>总结一下本次烧脑锻炼到的脑细胞：</p>
+<ul>
+<li>Optional 可以多层嵌套。</li>
+<li>因为 Optional 的构造函数支持，所以可以将一个类型为 T 的值，赋值给一个类型为 T? 的变量。</li>
+<li>因为 Optional 的构造函数支持，所以可以将 nil 赋值给一个任意嵌套层数的 Optional 变量。</li>
+<li>将 Optional 嵌套的内容是 nil 时，大家要小心 if let 操作失效问题。</li>
+<li>多层 Optional 嵌套容易烧脑细胞，尽量避免在工程中使用或触发。</li>
+<li>遇到问题可以翻翻苹果在 Github 开源的 <a target="_blank" rel="noopener" href="https://github.com/apple/swift">Swift 源码</a>。</li>
+</ul>
+<p>愿大家玩得开心！</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/what-did-i-learn-from-development-of-bss/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/what-did-i-learn-from-development-of-bss/" itemprop="url">开发 Blessing Skin Server 所学到的</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-02-25T00:22:00+00:00">
+                2016-02-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>开发这个皮肤站程序也有一段时间了，写篇文章稍微总结一下。挺久以前的草稿了，可能有些过时内容。</p>
+<hr>
+<p>起初接触到 PHP 是在搭建博客的时候，经常因为某种需求而需要对 WordPress 做一些定制。也就是那个时候我写出了人生中 <a target="_blank" rel="noopener" href="https://prinzeugen.net/dont-display-weichuncai-on-mobile-page/">第一行 PHP 代码</a>。</p>
+<p>当时对 PHP 也没太大感觉，因为当时也没接触过 Web 开发。真正开始使用 PHP，是萌发想做一个皮肤站的念头后。</p>
+<p>在开发语言中，我选择了 PHP 而不是喜欢的 Python。一是因为作为模板语言的PHP天生适合写 web 项目，二也是为了能涨点姿势。</p>
+<p>因为基础还算过得去，我也没必要去看什么 PHP 新手入门教程，上手就直接开始写了。依样画葫芦撸了个基本架构就开始写前端逻辑。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/what-did-i-learn-from-development-of-bss/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016-02-16-from-octopress-to-hexo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016-02-16-from-octopress-to-hexo/" itemprop="url">从 Octopress 迁移到 Hexo</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-02-16T11:05:46+00:00">
+                2016-02-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/shell/" itemprop="url" rel="index">
+                    <span itemprop="name">shell</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h2><p>我的博客之前一直使用的是 <a target="_blank" rel="noopener" href="http://octopress.org/">Octopress</a>，不过 Octopress 已经很久没有更新了。而且 Octopress 是基于 Ruby 的，生成博客文章的速度真的是非常非常慢，每次我使用 <code>rake preview</code> 命令时，我的 MacBook 的 CPU 就会狂转。最新的一次我试图在新 MBP 上搭建 Octopress 博客环境失败了，这让我打定主意更换掉它。</p>
+<p>之后我调研了一下，最终决定迁移到 Hexo，主要的原因是：</p>
+<ul>
+<li>Hexo 的原理和 Octopress 一样，都是生成静态文件，这样可以方便地托管到 GitHub 和 GitCafe 上。</li>
+<li>Hexo 是基于 Node 的，而 Node 的速度非常快。</li>
+<li>Hexo 对 Octopress 的迁移很友好，图片引用方式完全一样，所以我的博客文章不需要做什么改动。</li>
+</ul>
+<p>迁移本来应该在春节前就做完的，不过我在选择 Hexo 的主题上犯难了，Hexo 自带的主题丑极了，而我试了将近 10 个主题，都不满意。最终，我发现了 <a target="_blank" rel="noopener" href="http://swift.gg/">SwiftGG</a> 使用的主题 <a target="_blank" rel="noopener" href="https://github.com/wuchong/jacman">Jacman</a>，于是决定就它了！</p>
+<p>整个迁移过程大概如下：</p>
+<h2 id="安装-Hexo"><a href="#安装-Hexo" class="headerlink" title="安装 Hexo"></a>安装 Hexo</h2><p>首先使用如下命令安装 Hexo：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建一个新的博客"><a href="#创建一个新的博客" class="headerlink" title="创建一个新的博客"></a>创建一个新的博客</h2><p>接着我们创建一个新的博客目录：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ hexo init &lt;folder&gt;</span><br><span class="line">$ cd &lt;folder&gt;</span><br><span class="line">$ npm install</span><br></pre></td></tr></table></figure>
+
+<p>以上命令完成后，会在目标目录生成以下的目录结构：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── _config.yml</span><br><span class="line">├── package.json</span><br><span class="line">├── scaffolds</span><br><span class="line">├── source</span><br><span class="line">|   ├── _drafts</span><br><span class="line">|   └── _posts</span><br><span class="line">└── themes</span><br></pre></td></tr></table></figure>
+
+<p>相比 Octopress，Hexo 的目录结构更加简单：</p>
+<ul>
+<li>_config.yml 是博客的配置文件。</li>
+<li>scaffolds 是博客文章模板。</li>
+<li>source 是博客文章目录。</li>
+<li>themes 存放主题风格文件。</li>
+</ul>
+<h2 id="迁移和配置"><a href="#迁移和配置" class="headerlink" title="迁移和配置"></a>迁移和配置</h2><p>迁移起来还是很方便，把以前 Octopress 的 <code>source/_post</code> 目录下的文章，拷贝到 Hexo 的同名目录下即可。</p>
+<p>以前的图片目录，也可以直接拷贝到 <code>source/images</code> 目录下。</p>
+<p>Google 统计相关的设置可以在 jacman 的 _config.yml 文件中配置。我以前用的评论系统太旧了，这次正好换成了<a target="_blank" rel="noopener" href="http://tangqiaoboy.duoshuo.com/">多说</a>，同样也是在 jacman 的配置文件中设置。</p>
+<h2 id="修改界面"><a href="#修改界面" class="headerlink" title="修改界面"></a>修改界面</h2><p>选择 Hexo 的另一个原因就是它的结构很简单，比较方便我定制。我在迁移完博客文章后，对 jacman 主题进行了一些定制。删掉了底部的作者介绍，然后在右侧边栏加上了我的微信公众号介绍。如果你想看看我是如何定制的，可以直接查看我 Fork 出来的 jacman 项目上的 Commits 即可，项目地址在 <a target="_blank" rel="noopener" href="https://github.com/tangqiaoboy/jacman">这里</a>。</p>
+<h2 id="发布文章"><a href="#发布文章" class="headerlink" title="发布文章"></a>发布文章</h2><p>Hexo 支持直接发布到 GitHub，不过我在配置好 <code>_config.yml</code> 文件后，执行 <code>Hexo deploy</code> 一直失败！Hexo 一直卡在生成页面过程中，没有任何报错，这使得我也不知道如何修复它。</p>
+<p>最终，我自己写了一个小脚本来做发布工作：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">#! /bin/zsh</span><br><span class="line"></span><br><span class="line">hexo clean</span><br><span class="line">hexo generate</span><br><span class="line">cd public</span><br><span class="line"></span><br><span class="line">git init</span><br><span class="line">git add .</span><br><span class="line">git commit -m &quot;update at `date` &quot;</span><br><span class="line"></span><br><span class="line">git remote add origin git@github.com:tangqiaoboy/tangqiaoboy.github.com.git &gt;&gt; /dev/null 2&gt;&amp;1</span><br><span class="line">echo &quot;### Pushing to Github...&quot;</span><br><span class="line">git push origin master -f</span><br><span class="line">echo &quot;### Done&quot;</span><br><span class="line"></span><br><span class="line">git remote add gitcafe git@gitcafe.com:tangqiaoboy/tangqiaoboy.git &gt;&gt; /dev/null 2&gt;&amp;1</span><br><span class="line">echo &quot;### Pushing to GitCafe...&quot;</span><br><span class="line">git push gitcafe master:gitcafe-pages -f</span><br><span class="line">echo &quot;### Done&quot;</span><br></pre></td></tr></table></figure>
+
+<p>如果你遇到了和我一样问题的话，把以上脚本稍做修改应该也能很好地工作。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Octopress 已经过时，建议有时间的朋友都可以尝试替换掉它。Hexo 算不上完美，但还算是一个不错的替代方案。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016-02-16-inspired-summary/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3168,705 +4066,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/shoshin-wasuru-bekarazu/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/shoshin-wasuru-bekarazu/" itemprop="url">不忘初心，方得始终</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-01-10T16:15:50+00:00">
-                2016-01-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E9%9A%8F%E7%AC%94/" itemprop="url" rel="index">
-                    <span itemprop="name">随笔</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p>如白驹过隙，2015 年已经悄悄离去，新年的钟声已经敲响。</p>
-<p>虽然早就过了发年终总结的日子，但本着宁缺毋滥的原则，一直捂着草稿没发，我博客第一次的年度总结，总要搞得有逼格一点。</p>
-<h2 id="回首-2015"><a href="#回首-2015" class="headerlink" title="回首 2015"></a>回首 2015</h2><p>2015，毫不夸张的说是我收获最大的一年。去年的 3 月 28 日，不知道哪里来的兴趣，开始折腾起了独立博客。</p>
-<p>我从来不是一个喜欢写文学性文字的人，以前不是，将来也应该不会是。开始搭建博客的理由已经不可考，但是我仍然庆幸当初选择了这条道路。</p>
-<p>2015 年，我高中一年级。真的只是一个平凡的，刚上完一般的高一课程，终于开始习惯了高中生活的死小孩。</p>
-<p>稍微和其他孩子不一样的，也就是我对计算机的兴趣了。嘛，讲的这么高大上，其实就是比起用电脑玩游戏，更喜欢折腾一些乱七八糟的东西。</p>
-<p>我绝对不算早接触计算机的那一批人，我的父母也没有那么高瞻远瞩，不过在 2008 年，我还是碰到了人生中第一台电脑。</p>
-<p>我至今记得她刚刚被父亲抬回家的样子。</p>
-<p>清华同方 真爱 G2000 品牌机，棱角分明，散发出一股冷峻气息的黑色机箱，漂亮的镜面设计的前面板，这么一个酷爆了的铁疙瘩，给那个卧室客厅合一的蜗居和我以后的人生，涂上了浓密重彩的一笔。</p>
-<p>她刚刚被请回家时，我凭借着不知道哪里学来的技能将其正确的与那台 14 吋液晶彩电连在一起并且成功点亮了，不过看到的是一个黑黑的屏幕，上面闪烁着光标与一个字符。我在键盘上乱按一通，它也会显示对应的字母。</p>
-<p>这和我在别人家里玩的不一样啊，我哭着喊着要父亲拿回店里修。知道那是 DOS，已经是几年后的事情了。</p>
-<p>同其他同龄的孩子一样，打 CF 到废寝忘食在我身上也发生过。然而不知道什么时候，甚至连我也没注意到，当我已经把管理 Windows 的文件系统，浏览 system32，折腾美化，优化系统作为一种乐趣的时候，我已经走上了一条不归路。</p>
-<p>初中二年级，照理来说应该是在本子上写写画画人物设定，写写右臂封印着黑炎龙的世界第一勇者流落民间扮猪吃老虎一路装逼如风抱得美人归的小说的年纪，但窝不知道从哪里知道了编程这个词汇，并且发现了吴涛大哥的中文编程语言后，我又在这条不归路上前进了一步。</p>
-<p>易语言，中文编程从入门到精通，海洋出版社出版。这就是当初我书架上最大部头的一本书了。感谢这本书，虽然现在的我再去看，可能会嗤之以鼻，但是这本书给予了我一个起点，给予了我对编程的兴趣，给予了我完成一个作品的满足感。</p>
-<p>感谢这门语言，没有它，就不会有今天的我。愿它可以吸引更多的希望学习编程的中国人初学者踏上这条道路。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016/shoshin-wasuru-bekarazu/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016-01-10-atswift-conference-summary/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016-01-10-atswift-conference-summary/" itemprop="url">首届 Swift 开发者大会见闻</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-01-10T14:31:55+00:00">
-                2016-01-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>今天是中国 iOS 开发者的一次聚会，因为首届 Swift 开发者大会在北京成功举办了。这次会议的质量很高，大会的相关 keynote 和 视频，稍后都会在官网上公开，所以没能参会的同学可以关注官网（ <a target="_blank" rel="noopener" href="http://atswift.io/">http://atswift.io/</a> ）的内容更新。我作为大会的主席（其实基本没出什么力）全程参与了全天的大会，在此记录下一些参会的见闻。</p>
-<p>先说说本次的大会的演讲内容吧。这次大会的 Keynote 可<a target="_blank" rel="noopener" href="https://github.com/atConf/atswift-2016-resources">在此下载</a>。</p>
-<p>2016.02.29更新：中国首届swift开发者大会的视频已经放出：<a target="_blank" rel="noopener" href="http://www.imooc.com/learn/600">http://www.imooc.com/learn/600</a></p>
-<h3 id="Chris"><a href="#Chris" class="headerlink" title="Chris"></a>Chris</h3><p>开场的是 objc.io 的创始人 Chris Eidhof。Chris 是大会演讲者中唯一没有准备 keynote 的人，但是演讲相当精彩。Chris 虽然没有 keynote，但是内容是精心准备过的，他先用 playground 简单介绍了一些 Swift 的内容后，就转到一个游戏 Demo 的重构工作中，整个重构工作包括几点：</p>
-<ol>
-<li>用 typealias 去掉 NSUserDefaults 的依赖。</li>
-<li>用 protocol 来代替继承。</li>
-<li>用 extension 来实现 protocol。</li>
-<li>尽量用 struct。 </li>
-<li>全程用 testcase 来验证重构过程。</li>
-</ol>
-<p>最终，我们看到了一个重构之后的游戏 Demo，相比以前的工程，重构后的项目代码更短，逻辑更清晰。</p>
-<p>人们常说，Talk is cheap, show me the code。 Chris 用行动让我们看到如何写出更好的 Swift 代码。</p>
-<h3 id="傅若愚"><a href="#傅若愚" class="headerlink" title="傅若愚"></a>傅若愚</h3><p>傅若愚来自 thoughtworks，和我一样是成都人。他这次的演讲主题是《越过 OC 与 Swift 间的鸿沟》，对于正在经历从 OC 到 Swift 转型的各位来说，非常实际。</p>
-<p>他从一段代码来引出了大家的好奇，下面这段代码，居然会有两种输出结果，你猜出来是什么原因了吗？</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">someArray = [1, 2, 3]</span><br><span class="line">var result = someArray.map(&#123;&quot;No. \($0)&quot;&#125;)</span><br></pre></td></tr></table></figure>
-
-<p>接着傅若愚介绍了从 OC 转到 Swift 需要注意的地方：</p>
-<ol>
-<li>优先用 protocol 而不是继承</li>
-<li>更多通过 annum, struct, extension 来达成目的。</li>
-</ol>
-<p>最后，他展示了一个利用函数式编程来重构代码的例子。</p>
-<h3 id="Greg"><a href="#Greg" class="headerlink" title="Greg"></a>Greg</h3><p>Greg 是加拿大多伦多的一位 iOS 自由职业者，亚裔，看起来非常像中国人，但是其实他不会说中文。他在为著名 的 raywenderlich.com 撰写博客。本次他分享的是《Swift Style》。</p>
-<p>在介绍了编写易读的代码的重要性之后，他从以下 3 方面介绍了他的 Swift 经验：</p>
-<ol>
-<li>Value types</li>
-<li>Protocol</li>
-<li>Safety</li>
-</ol>
-<p>提问环节的时候，Chris 当托似地问了一个非常有趣的问题：「你最近 1 年在写 Swift 代码上有何转变？」。</p>
-<p>这个问题非常有意思，Greg 说他现在用了更多的 guard 关键词，然后 Greg 也说到，他写习惯 Swift 之后，因为养成了强类型检查的习惯，他偶尔回去写 oc 的时候会不停地 check 各种 nil。</p>
-<h3 id="李洁信"><a href="#李洁信" class="headerlink" title="李洁信"></a>李洁信</h3><p>李洁信是下午第一场，非常犯困的时间。洁信稍微有一些紧张，内容是关于《Swift 中的协议编程》，他把这些内容都梳理得挺好的，讲得挺清楚。</p>
-<h3 id="王巍"><a href="#王巍" class="headerlink" title="王巍"></a>王巍</h3><p>喵神王巍是下午第二场，王巍的主题是《如何打造一个让人愉快的框架》，喵神的准备非常充分，演讲过程中还各种卖萌，实在是非常可爱。喵神主要从以下几个方面介绍了框架的开发：</p>
-<ol>
-<li>静态库和框架的对比</li>
-<li>包和依赖管理</li>
-<li>创建框架</li>
-<li>一些 Tips</li>
-<li>发布框架</li>
-<li>持续集成</li>
-</ol>
-<p>如果你希望基于 Swift 来开发一个 framework，非常值得看看喵神的分享。</p>
-<h3 id="包涵卿"><a href="#包涵卿" class="headerlink" title="包涵卿"></a>包涵卿</h3><p>包涵卿讲的是《Swift 函数式编程实践》，这块其实是挺难讲的，前面的一些函数式编程的基础还好，比如柯里化之类，但是后面估计比较难理解，我不知道现场有多少人听懂了 Monad 的概念，不过这个确实是比较挑战的话题。</p>
-<h3 id="翁阳"><a href="#翁阳" class="headerlink" title="翁阳"></a>翁阳</h3><p>这场话题茶歇回去之后听了一半，所以没怎么整理出来笔记。有些遗憾。</p>
-<h3 id="周楷雯"><a href="#周楷雯" class="headerlink" title="周楷雯"></a>周楷雯</h3><p>周楷雯的分享里介绍了各种性能优化的技巧。可惜他当时手机变砖，有一些着急，讲得比较快，很多点感觉展开讲会更好一些。</p>
-<h3 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h3><p>这次 Swift 大会中还做了一些有趣的调查，在此将数据分享给大家：</p>
-<ol>
-<li>这次有 3&#x2F;4 的听众来自外地！</li>
-<li>现场有 1&#x2F;3 的听众已经开始将 Swift 应用于公司项目开发中。</li>
-</ol>
-<p>这次大会的组委会都很棒，包括梁杰、裕波、王臣汉、陈雨恒、李涛（还有一些我没能记住名字的同学）都对这次大会付出了大量心血。作为一个非赢利性的 Swift 大会，我觉得他们做到了内容的高质量，期待明年的第二届大会如期进行！</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E6%89%A9%E5%B1%95Unity3D%E7%BC%96%E8%BE%91%E5%99%A8%E7%9A%84%E8%84%9A%E6%9C%AC%E6%A8%A1%E6%9D%BF/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/%E6%89%A9%E5%B1%95Unity3D%E7%BC%96%E8%BE%91%E5%99%A8%E7%9A%84%E8%84%9A%E6%9C%AC%E6%A8%A1%E6%9D%BF/" itemprop="url">扩展 Unity3D 编辑器的脚本模板</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-01-08T05:58:44+00:00">
-                2016-01-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Unity3D/" itemprop="url" rel="index">
-                    <span itemprop="name">Unity3D</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          现在解决了创建资源的问题，我们接下来只要调用 ProjectWindowUtil 的 StartNameEditingIfProjectWindowExists 方法即可，该方法需要传入一个继承自 EndNameEditAction 的类的实例、目标文件路径和模板文件的路径;好了，第二个参数作为一个验证的标志，如果该标志为 true，意味着我们定义的静态方法是一个验证方法在执行静态方法前会首先对方法进行验证，这个我们暂且不管，因为今天我们这个来自星星的黑科技主要和第三个参数有关，第三个参数表示一个优先级，它表示菜单项在菜单栏中的展示顺序，优先级大的菜单项会展示在优先级小的菜单项下面，由此我们就明白了了模板文件名中的类似 81、83 这样的数字的真实含义，注意到模板文件的排列顺序和编辑器中的菜单项顺序是一样的，我们做一个尝试，编写下面的代码：;Unity3D 默认的脚本模版位于/Editor/Data/Resources/ScriptTemplates/目录下，注意该目录相对 Unity3D 的安装目录而言，在这个目录中我们可以找到 Unity3D 中脚本模板的某些蛛丝马迹，首先，脚本模板是一个简单的文本文件，这个文本文件中预先填充了内容，我们在编辑器中创建模脚本或者 Shader 的时候实际上是读取这些文件然后在写入项目中的指定路径的
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/%E6%89%A9%E5%B1%95Unity3D%E7%BC%96%E8%BE%91%E5%99%A8%E7%9A%84%E8%84%9A%E6%9C%AC%E6%A8%A1%E6%9D%BF/">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/C_CPP_notes/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/C_CPP_notes/" itemprop="url">C/C++笔记</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-01-03T15:44:00+00:00">
-                2016-01-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index">
-                    <span itemprop="name">编程</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p>菜鸟笔记，私房菜。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/C_CPP_notes/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/53/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/53/">53</a><span class="page-number current">54</span><a class="page-number" href="/page/55/">55</a><span class="space">&hellip;</span><a class="page-number" href="/page/73/">73</a><a class="extend next" rel="next" href="/page/55/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/53/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/53/">53</a><span class="page-number current">54</span><a class="page-number" href="/page/55/">55</a><span class="space">&hellip;</span><a class="page-number" href="/page/74/">74</a><a class="extend next" rel="next" href="/page/55/">&gt;</a>
   </nav>
 
 
@@ -3912,7 +4116,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1460</span>
+                  <span class="site-state-item-count">1464</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3934,7 +4138,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">895</span>
+                  <span class="site-state-item-count">910</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

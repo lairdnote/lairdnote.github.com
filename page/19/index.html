@@ -274,6 +274,716 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E6%B8%A9%E6%95%85%E8%80%8C%E7%9F%A5%E6%96%B0%EF%BC%8C%E7%94%B1ADO.NET%E4%B8%8EDapper%E6%89%80%E8%81%94%E6%83%B3%E5%88%B0%E7%9A%84/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/%E6%B8%A9%E6%95%85%E8%80%8C%E7%9F%A5%E6%96%B0%EF%BC%8C%E7%94%B1ADO.NET%E4%B8%8EDapper%E6%89%80%E8%81%94%E6%83%B3%E5%88%B0%E7%9A%84/" itemprop="url">温故而知新，由 ADO.NET 与 Dapper 所联想到的</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-12-30T04:49:47+00:00">
+                2020-12-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p> 这段时间在维护一个“遗产项目”，体验可以说是相当地难受，因为它的数据持久化层完全由 ADO.NET 纯手工打造，所以，你可以在项目中看到无所不在的 DataTable，不论是读操作还是写操作。这个 DataTable 让我这个习惯了 Entity Framework 的人感到非常别扭，我并不排斥写手写 SQL 语句，我只是拥有某种自觉并且清醒地知道，自己写的 SQL 语句未必就比 ORM 生成的 SQL 语句要好。可至少应该是像 Dapper 这种程度的封装啊，因为关系型数据库天生就和面向对象编程存在隔离，所以，频繁地使用 DataTable 无疑意味着你要写很多的转换的代码，当我看到<code>DbConnection</code>、<code>DbCommand</code>、<code>DbDataReader</code>、<code>DbDataAdapter</code>这些熟悉的“底层”的时候，我意识到我可以结合着 Dapper 的实现，从中梳理出一点改善的思路，所以，这篇博客想聊一聊<strong>ADO.NET</strong>、<strong>Dapper</strong>和<strong>Dynamic</strong>这三者间交叉的部分，希望能给大家带来新的启发。</p>
+<h1 id="重温-ADO-NET"><a href="#重温-ADO-NET" class="headerlink" title="重温 ADO.NET"></a>重温 ADO.NET</h1><p>相信大家都知道，我这里提到的<code>DbConnection</code>、<code>DbCommand</code>、<code>DbDataReader</code>、<code>DbDataAdapte</code>以及<code>DataTable</code>、<code>DataSet</code>，实际上就是 ADO.NET 中核心的组成部分，譬如<code>DbConnection</code>负责管理数据库连接，<code>DbCommand</code>负责 SQL 语句的执行，<code>DbDataReader</code>和<code>DbDataAdapter</code>负责数据库结果集的读取。需要注意的是，这些类型都是抽象类，而各个数据库的具体实现，则是由对应的厂商来完成，即我们称之为“驱动”的部分，它们都遵循同一套接口规范，而<code>DataTable</code>和<code>DataSet</code>则是“装”数据库结果集的容器。关于 ADO.NET 的设计理念，可以从下图中得到更清晰的答案：</p>
+<p><img src="https://i.loli.net/2020/12/31/dEN2tajehboDiTl.png" alt="ADO.NET架构"></p>
+<p>在这种理念的指引，使用 ADO.NET 访问数据库通常会是下面的画风。博主相信，大家在各种各样的<code>DbHelper</code>或者<code>DbUtils</code>中都见过类似的代码片段，在更复杂的场景中，我们会使用<code>DbParameter</code>来辅助<code>DbCommand</code>，而这就是所谓的<strong>SQL 参数化查询</strong>。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> fileName = Path.Combine(Directory.GetCurrentDirectory(), <span class="string">&quot;Chinook.db&quot;</span>);</span><br><span class="line"><span class="keyword">using</span> (<span class="keyword">var</span> connection = <span class="keyword">new</span> SQLiteConnection(<span class="string">$&quot;Data Source=<span class="subst">&#123;fileName&#125;</span>&quot;</span>))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (connection.State != ConnectionState.Open) connection.Open();</span><br><span class="line">    <span class="keyword">using</span> (<span class="keyword">var</span> command = connection.CreateCommand())</span><br><span class="line">    &#123;</span><br><span class="line">        command.CommandText = <span class="string">&quot;SELECT AlbumId, Title, ArtistId FROM [Album]&quot;</span>;</span><br><span class="line">        command.CommandType = CommandType.Text;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//套路1：使用DbDataReader读取数据</span></span><br><span class="line">        <span class="keyword">using</span> (<span class="keyword">var</span> reader = command.ExecuteReader())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">while</span> (reader.Read())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">//各种眼花缭乱的写法:)</span></span><br><span class="line">                Console.WriteLine(<span class="string">$&quot;AlbumId=<span class="subst">&#123;reader.GetValue(<span class="number">0</span>)&#125;</span>&quot;</span>);</span><br><span class="line">                Console.WriteLine(<span class="string">$&quot;Title=<span class="subst">&#123;reader.GetFieldValue&lt;<span class="built_in">string</span>&gt;(<span class="string">&quot;Title&quot;</span>)&#125;</span>&quot;</span>);</span><br><span class="line">                Console.WriteLine(<span class="string">$&quot;ArtistId=<span class="subst">&#123;reader.GetInt32(<span class="string">&quot;ArtistId&quot;</span>)&#125;</span>&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//套路2：使用DbDataAdapter读取数据</span></span><br><span class="line">        <span class="keyword">using</span> (<span class="keyword">var</span> adapter = <span class="keyword">new</span> SQLiteDataAdapter(command))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> dataTable = <span class="keyword">new</span> DataTable();</span><br><span class="line">            adapter.Fill(dataTable);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里经常会引发的讨论是，<code>DbDataReader</code>和<code>DbDataAdapter</code>的区别以及各自的使用场景是什么？简单来说，前者是按需读取&#x2F;只读，数据库连接会一直保持；而后者是一次读取，数据全部加载到内存，数据库连接用完就会关掉。从资源释放的角度，听起来后者更友好一点，可显然结果集越大占用的内存就会越多。而如果从易用性上来考虑，后者可以直接填充数据到<code>DataSet</code>或者<code>DataTable</code>，前者则需要费一点周折，你看这段代码是不是有点秀操作的意思：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//各种眼花缭乱的写法:)</span></span><br><span class="line">Console.WriteLine(<span class="string">$&quot;AlbumId=<span class="subst">&#123;reader.GetValue(<span class="number">0</span>)&#125;</span>&quot;</span>);</span><br><span class="line">Console.WriteLine(<span class="string">$&quot;Title=<span class="subst">&#123;reader.GetFieldValue&lt;<span class="built_in">string</span>&gt;(<span class="string">&quot;Title&quot;</span>)&#125;</span>&quot;</span>);</span><br><span class="line">Console.WriteLine(<span class="string">$&quot;ArtistId=<span class="subst">&#123;reader.GetInt32(<span class="string">&quot;ArtistId&quot;</span>)&#125;</span>&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>在这个“遗产项目”中，<code>DbDataReader</code>和<code>DbDataAdapter</code>都有所涉猎，后者在结果集不大的情况下还是可以的，唯一的遗憾就是<code>DataTable</code>和<code>LINQ</code>的违和感实在太强烈了，虽然可以勉强使用<code>AsEnumerable()</code>拯救一下，而前者就有一点魔幻了，你能看到各种<code>GetValue(1)</code>、<code>GetValue(2)</code>这样的写法，这简直就是成心不想让后面维护的人好过，因为加字段的时候要小心翼翼地，确保字段顺序不会被修改。明明这个世界上有<a target="_blank" rel="noopener" href="https://github.com/StackExchange/Dapper">Dapper</a>、<a target="_blank" rel="noopener" href="https://github.com/donet5/SqlSugar">SqlSugar</a>、<a target="_blank" rel="noopener" href="https://smartsql.net/">SmartSql</a>这样优秀的 ORM 存在，为什么就要如此执著地写这种代码呢？是觉得 MyBatis 在 XML 里写 SQL 语句很时尚吗？</p>
+<p>所以，我开始尝试改进这些代码，我希望它可以像 Dapper 一样，提供<code>Query&lt;T&gt;()</code>和<code>Execute()</code>两个方法足矣！如果要把结果集映射到一个具体的类型上，大家都能想到使用反射，我更想实现的是 Dapper 里的<code>DapperRow</code>，它可以通过“·”或者字典的形式来访问字段，现在的问题来了，你能实现类似 Dapper 里 DapperRow 的效果吗？因为想偷懒的时候，dynamic 不比 DataRow 更省事儿吗？那玩意儿光转换类型就要烦死人了，更不用说要映射到某个 DTO 啦！</p>
+<h1 id="实现-DynamicRow"><a href="#实现-DynamicRow" class="headerlink" title="实现 DynamicRow"></a>实现 DynamicRow</h1><p>通过阅读 Dapper 的源代码，我们知道，Dapper 中用<a target="_blank" rel="noopener" href="https://github.com/StackExchange/Dapper/blob/main/Dapper/SqlMapper.DapperTable.cs">DapperTable</a>和<a target="_blank" rel="noopener" href="https://github.com/StackExchange/Dapper/blob/main/Dapper/SqlMapper.DapperRowMetaObject.cs">DapperRow</a>替换掉了 DataTable 和 DataRow，可见这两个玩意儿有多不好用，果然，英雄所见略同啊，哈哈哈！其实，这背后的一切的功臣是<a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/dotnet/api/system.dynamic.idynamicmetaobjectprovider?view=net-5.0">IDynamicMetaObjectProvider</a>，通过这个接口我们就能实现类似的功能，我们熟悉的<code>ExpendoObject</code>就是最好的例子：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">dynamic</span> person = <span class="keyword">new</span> ExpandoObject(); </span><br><span class="line">person.FirstName = <span class="string">&quot;Sherlock&quot;</span>; </span><br><span class="line">person.LastName = <span class="string">&quot;Holmes&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//等价形式</span></span><br><span class="line">(person <span class="keyword">as</span> IDctionary&lt;<span class="built_in">string</span>, <span class="built_in">object</span>&gt;)[<span class="string">&quot;FirstName&quot;</span>] = <span class="string">&quot;Sherlock&quot;</span>;</span><br><span class="line">(person <span class="keyword">as</span> IDctionary&lt;<span class="built_in">string</span>, <span class="built_in">object</span>&gt;)[<span class="string">&quot;LastName&quot;</span>] = <span class="string">&quot;Holmes&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这里，我们用一种简单的方式，让 DynamicRow 继承者 DynamicObject，下面一起来看具体的代码：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">DynamicRow</span> : <span class="title">DynamicObject</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> IDataRecord _record;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DynamicRow</span>(<span class="params">IDataRecord <span class="keyword">record</span></span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _record = <span class="keyword">record</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">bool</span> <span class="title">TryGetMember</span>(<span class="params">GetMemberBinder binder, <span class="keyword">out</span> <span class="built_in">object</span> result</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> index = _record.GetOrdinal(binder.Name);</span><br><span class="line">        result = index &gt; <span class="number">0</span> ? _record[binder.Name] : <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">return</span> index &gt; <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">        </span><br><span class="line">    <span class="comment">//支持像字典一样使用</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">object</span> <span class="keyword">this</span>[<span class="built_in">string</span> field] =&gt;</span><br><span class="line">       _record.GetOrdinal(field) &gt; <span class="number">0</span> ? _record[field] : <span class="literal">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于<code>DynamicObject</code>这个类型而言，里面最重要的两个方法其实是<code>TryGetMember()</code>和<code>TrySetMember()</code>，因为这决定了这个动态对象的读和写两个操作。因为我们这里不需要反向地去操作数据库，所以，我们只需要关注<code>TryGetMember()</code>即可，一旦实现这个方法，我们就可以使用类似<code>foo.bar</code>这种形式访问字段，而提供一个索引器，则是为了提供类似<code>foo[&quot;bar&quot;]</code>的访问方式，这一点同样是为了像 Dapper 看齐，无非是 Dapper 的 DynamicRow 本来就是一个字典！</p>
+<p>现在，我们来着手实现一个简化版的 Dapper，给<code>IDbConnection</code>这个接口扩展出<code>Query&lt;T&gt;()</code>和<code>Execute()</code>两个方法，我们注意到<code>Query&lt;T&gt;()</code>需要用到<code>DbDataReader</code>或者<code>DbDataAdapter</code>其一，对于<code>DbDataAdapter</code>而言，它的实现完全由具体的子类决定，所以，对于<code>IDbConnection</code>接口而言，它完全不知道对应的子类是什么，此时，我们只能通过判断<code>IDbConnection</code>的类型来返回对应的 DbDataAdapter。读过我之前<a target="_blank" rel="noopener" href="https://blog.yuanpei.me/posts/3086300103/">博客</a>的朋友，应该对 Dapper 里的数据库类型的字典有印象，不好意思，这里历史要再次上演啦！</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IEnumerable&lt;<span class="built_in">dynamic</span>&gt; <span class="title">Query</span>(<span class="params"><span class="keyword">this</span> IDbConnection connection, <span class="built_in">string</span> sql, </span></span></span><br><span class="line"><span class="params"><span class="function">  <span class="built_in">object</span> param = <span class="literal">null</span>, IDbTransaction trans = <span class="literal">null</span></span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> reader = connection.CreateDataReader(sql);</span><br><span class="line">    <span class="keyword">while</span> (reader.Read())</span><br><span class="line">        <span class="function"><span class="keyword">yield</span> <span class="keyword">return</span> <span class="keyword">new</span> <span class="title">DynamicRow</span>(<span class="params">reader <span class="keyword">as</span> IDataRecord</span>)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="title">IEnumerable</span>&lt;<span class="title">T</span>&gt; <span class="title">Query</span>&lt;<span class="title">T</span>&gt;(<span class="params"><span class="keyword">this</span> IDbConnection connection, <span class="built_in">string</span> sql,</span></span></span><br><span class="line"><span class="params"><span class="function">  <span class="built_in">object</span> param = <span class="literal">null</span>, IDbTransaction trans = <span class="literal">null</span></span>) </span></span><br><span class="line"><span class="function">  <span class="keyword">where</span> T : <span class="keyword">class</span>, <span class="keyword">new</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> reader = connection.CreateDataReader(sql);</span><br><span class="line">    <span class="keyword">while</span> (reader.Read())</span><br><span class="line">        <span class="function"><span class="keyword">yield</span> <span class="title">return</span> (<span class="params">reader <span class="keyword">as</span> IDataRecord</span>).<span class="title">Cast</span>&lt;<span class="title">T</span>&gt;()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的<code>CreateDataReader()</code>和<code>Cast()</code>都是博主自定义的扩展方法：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> IDataReader <span class="title">CreateDataReader</span>(<span class="params"><span class="keyword">this</span> IDbConnection connection, <span class="built_in">string</span> sql</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> command = connection.CreateCommand();</span><br><span class="line">    command.CommandText = sql;</span><br><span class="line">    command.CommandType = CommandType.Text;</span><br><span class="line">    <span class="keyword">return</span> command.ExecuteReader();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> T <span class="title">Cast</span>&lt;<span class="title">T</span>&gt;(<span class="params"><span class="keyword">this</span> IDataRecord <span class="keyword">record</span></span>) <span class="keyword">where</span> T:<span class="keyword">class</span>, <span class="keyword">new</span>()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> instance = <span class="keyword">new</span> T();</span><br><span class="line">    <span class="keyword">foreach</span>(<span class="function"><span class="keyword">var</span> property <span class="keyword">in</span> <span class="title">typeof</span>(<span class="params">T</span>).<span class="title">GetProperties</span>())</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> index = <span class="keyword">record</span>.GetOrdinal(property.Name);</span><br><span class="line">        <span class="keyword">if</span> (index &lt; <span class="number">0</span>) <span class="keyword">continue</span>;</span><br><span class="line">        <span class="keyword">var</span> propertyType = property.PropertyType;</span><br><span class="line">        <span class="keyword">if</span> (propertyType.IsGenericType &amp;&amp; </span><br><span class="line">          propertyType.GetGenericTypeDefinition() == <span class="keyword">typeof</span>(Nullable&lt;&gt;))</span><br><span class="line">            propertyType = Nullable.GetUnderlyingType(propertyType);</span><br><span class="line">        property.SetValue(instance, </span><br><span class="line">          Convert.ChangeType(<span class="keyword">record</span>[<span class="title">property.Name</span>], <span class="title">propertyType</span>));</span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> instance;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而<code>Execute()</code>方法则要简单的多，因为从<code>IDbConnection</code>到<code>IDbCommand</code>的这条线，可以直接通过<code>CreateCommand()</code>来实现：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">int</span> <span class="title">Execute</span>(<span class="params"><span class="keyword">this</span> IDbConnection connection, <span class="built_in">string</span> sql, </span></span></span><br><span class="line"><span class="params"><span class="function">  <span class="built_in">object</span> param = <span class="literal">null</span>, IDbTransaction trans = <span class="literal">null</span></span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> command = connection.CreateCommand();</span><br><span class="line">    command.CommandText = sql;</span><br><span class="line">    command.CommandType = CommandType.Text;</span><br><span class="line">    <span class="keyword">return</span> command.ExecuteNonQuery();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="实现参数化查询"><a href="#实现参数化查询" class="headerlink" title="实现参数化查询"></a>实现参数化查询</h1><p>大家可以注意到，我这里的参数 param 完全没有用上，这是因为<code>IDbCommand</code>的<code>Paraneters</code>属性显然是一个抽象类的集合。所以，从<code>IDbConnection</code>的角度来看这个问题的时候，它又不知道这个参数要如何来给了，而且像 Dapper 里的参数，涉及到集合类型会存在<code>IN</code>和<code>NOT IN</code>以及批量操作的问题，比普通的字符串替换还要稍微复杂一点。如果我们只考虑最简单的情况，它还是可以尝试一番的：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">SetDbParameter</span>(<span class="params"><span class="keyword">this</span> IDbCommand command, <span class="built_in">object</span> param = <span class="literal">null</span></span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (param == <span class="literal">null</span>) <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">if</span> (param <span class="keyword">is</span> IDictionary&lt;<span class="built_in">string</span>, <span class="built_in">object</span>&gt;)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//使用字典作为参数</span></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> arg <span class="keyword">in</span> param <span class="keyword">as</span> IDictionary&lt;<span class="built_in">string</span>, <span class="built_in">object</span>&gt;)</span><br><span class="line">        &#123;</span><br><span class="line">              <span class="keyword">var</span> newParam = command.CreateParameter();</span><br><span class="line">              newParam.ParameterName = <span class="string">$&quot;@<span class="subst">&#123;arg.Key&#125;</span>&quot;</span>;</span><br><span class="line">              newParam.Value = arg.Value;</span><br><span class="line">              command.Parameters.Add(newParam);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//使用匿名对象作为参数</span></span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> property <span class="keyword">in</span> param.GetType().GetProperties())</span><br><span class="line">        &#123;</span><br><span class="line">              <span class="keyword">var</span> propVal = property.GetValue(param);</span><br><span class="line">              <span class="keyword">if</span> (propVal == <span class="literal">null</span>) <span class="keyword">continue</span>;</span><br><span class="line">              <span class="keyword">var</span> newParam = command.CreateParameter();</span><br><span class="line">              newParam.ParameterName = <span class="string">$&quot;@<span class="subst">&#123;property.Name&#125;</span>&quot;</span>;</span><br><span class="line">              newParam.Value = propVal;</span><br><span class="line">              command.Parameters.Add(newParam);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>相应地，为了能在<code>Query&lt;T&gt;()</code>和<code>Execute()</code>两个方法中使用参数，我们需要修改相关的方法：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">int</span> <span class="title">Execute</span>(<span class="params"><span class="keyword">this</span> IDbConnection connection, <span class="built_in">string</span> sql, </span></span></span><br><span class="line"><span class="params"><span class="function">  <span class="built_in">object</span> param = <span class="literal">null</span>, IDbTransaction trans = <span class="literal">null</span></span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> command = connection.CreateCommand();</span><br><span class="line">    command.CommandText = sql;</span><br><span class="line">    command.CommandType = CommandType.Text;</span><br><span class="line">    command.SetDbParameter(param);</span><br><span class="line">    <span class="keyword">return</span> command.ExecuteNonQuery();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> IDataReader <span class="title">CreateDataReader</span>(<span class="params"><span class="keyword">this</span> IDbConnection connection, <span class="built_in">string</span> sql, </span></span></span><br><span class="line"><span class="params"><span class="function">  <span class="built_in">object</span> param = <span class="literal">null</span></span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">var</span> command = connection.CreateCommand();</span><br><span class="line">    command.CommandText = sql;</span><br><span class="line">    command.CommandType = CommandType.Text;</span><br><span class="line">    command.SetDbParameter(param);</span><br><span class="line">    <span class="keyword">return</span> command.ExecuteReader();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在，唯一的问题就剩下<code>DbType</code>和<code>@</code>啦，前者在不同的数据库中可能对应不同的类型，后者则要面临 Oracle 这朵奇葩的兼容性问题，相关内容可以参考在这篇博客：<a target="_blank" rel="noopener" href="https://blog.yuanpei.me/posts/3086300103/">Dapper.Contrib 在 Oracle 环境下引发 ORA-00928 异常问题的解决</a>。到这一步，我们基本上可以实现类似 Dapper 的效果。当然，我并不是为了重复制造轮子，只是像从 Dapper 这样一个结果反推出相关的技术细节，从而可以串联起整个 ASO.NET 甚至是 Entity Framework 的知识体系，工作中解决类似的问题非常简单，直接通过 NuGet 安装 Dapper 即可，可如果你想深入了解某一个事物，最好的方法就是亲自去探寻其中的原理。现在基础设施越来越完善了，可有时候我们再找不回编程的那种快乐，大概是我们内心深处放弃了什么……</p>
+<p>考虑到，从微软的角度，它鼓励我们为每一家数据库去实现数据库驱动，所以，它定义了很多的抽象类。而从 ORM 的角度来考虑，它要抹平不同数据库的差异，Dapper 的做法是给<code>IDbConnection</code>写扩展方法，而针对每个数据库的“方言”，实际上不管什么 ORM 都要去做这部分“脏活儿”，以前是分给数据库厂商去做，现在是交给 ORM 设计者去做，我觉得 ADO.NET 里似乎缺少了一部分东西，它需要提供一个 IDbAdapterProvider 的接口，返回 IDbAdapter 接口，这样就可以不用关心它是被如何创建出来的。你看，同样是设计接口，可微软和 ServiceStack 俨然是两种不同的思路，这其中的差异，足可窥见一斑矣！实际上，Entity Framework 就是在以 ADO.NET 为基础发展而来的，在这个过程中，还是由厂商来实现对应的 Provider。此时此刻，你悟到了我所说的“温故而知新”了嘛？</p>
+<h1 id="本文小结"><a href="#本文小结" class="headerlink" title="本文小结"></a>本文小结</h1><p>本文实则由针对 DataSet&#x2F;DataTable 的吐槽而引出，在这个过程中，我们重新温习了 ADO.NET 中<code>DbConnection</code>、<code>DbCommand</code>、<code>DbDataReader</code>、<code>DbDataAdapter</code>这些关键的组成部分，而为了解决 DataTable 在使用上的种种不变，我们想到了借鉴 Dapper 中的 DapperRow 来实现“动态查询”，由此引出了.NET 中实现 dynamic 最重要的一个接口：<code>IDynamicMetaObjectProvide</code>，这使得我们可以在查询数据库的时候返回一个 dynamic 的集合。而为了更接近 Dapper 一点，我们基于扩展方法的形式为<code>IDbConnection</code>编写了<code>Query&lt;T&gt;()</code>和<code>Execute()</code>方法，在数据库读写层面上彻底终结了 DataSet&#x2F;DataTable 的生命。最后，我们实现了一个简化版本的参数化查询，同样是借鉴 Dapper 的思路。这说明一件什么事情呢？<strong>当你在一个看似合理、结局固定的现状中无法摆脱的时候，“平躺”虽然能让你获得一丝喘息的机会，但与此同时，你永远失去了跳出这个层级去看待事物的机会</strong>，就像我以前吐槽同事天天用<code>StringBuider</code>拼接字符串一样，一味地吐槽是没有什么用的，重要的是你会选择怎么做，所以，后来我向大家推荐了<a target="_blank" rel="noopener" href="https://github.com/dotliquid/dotliquid">Linquid</a>，<strong>2021 年已经来了，希望你不只是增长了年龄和皱纹</strong>，晚安！</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020/12/hexo-to-docker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/12/hexo-to-docker/" itemprop="url">使用Docker轻松部署Hexo博客系统</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-12-27T06:00:00+00:00">
+                2020-12-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" itemprop="url" rel="index">
+                    <span itemprop="name">系统设计</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>我的 <a target="_blank" rel="noopener" href="https://www.fanhaobai.com/">博客</a> 停服已经有几个月了，主要原因是使用的 <a target="_blank" rel="noopener" href="https://cloud.google.com/free/">Google Cloud</a> 免费服务器已经到期了，而整个博客系统的迁移成本很大，因此迟迟没有开启服务。</p>
+<p><img src="//www.fanhaobai.com/2020/12/hexo-to-docker/704035c6-348e-439b-9048-d05a2a18ef1f.png" alt="预览图">
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2020/12/hexo-to-docker/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020-12-26-how-to-apply-international-bank-card/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020-12-26-how-to-apply-international-bank-card/" itemprop="url">如何申请境外银行卡</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-12-26T00:36:21+00:00">
+                2020-12-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/summary/" itemprop="url" rel="index">
+                    <span itemprop="name">summary</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>老有人问我怎么申请的境外银行卡，今天就给大家分享一下我知道的境外银行卡开户方式。</p>
+<h2 id="一、肉身出境办理"><a href="#一、肉身出境办理" class="headerlink" title="一、肉身出境办理"></a>一、肉身出境办理</h2><p>现在因为疫情出境游受限，其实平时大家可能都有境外游的机会，这个时候可以考虑直接在当地办卡。香港地区可以直接下卡，也没有资产的限制，美国我几年前旅游的时候，在当地的唐人街中国银行问了一下，只需要提供护照及一个当地固定的接收帐单地址，也可以直接办卡。</p>
+<p>这种办理的方法的好处是不用受一些限制，你可以比较随意挑银行来办。性价比最高的应该就是去香港办理了。</p>
+<h2 id="二、国内银行"><a href="#二、国内银行" class="headerlink" title="二、国内银行"></a>二、国内银行</h2><p>国内比较大的银行也可以申请办理境外银行卡，比如招商，中行，不过限制都比较多。比如招商银行需要有 500 万的资产在招行才可以办理。中国银行我几年前问的时候，说名额有限，需要预约，然后我登记之后就一直没有消息了。</p>
+<p>现在招商银行有针对我司的特别政策，如果是猿辅导的员工，即可办理境外账户的开立服务。包含招商永隆银行（借记卡账户）+招银国际（证券账户）。</p>
+<p>除了境外账户的开户，招行还提供了针对性的私人银行服务（无限次机场贵宾厅服务+PP卡）和金葵花理财服务。该两项服务有硬性的资产要求，但都有相关办理的优惠。</p>
+<p>所以你也可以考虑<a target="_blank" rel="noopener" href="http://hr.yuanfudao.com/apply/fenbi/29#/">加入猿辅导</a>。</p>
+<img src="/images/pp-card.jpeg" class="">
+
+<h2 id="三、境外银行的国内机构"><a href="#三、境外银行的国内机构" class="headerlink" title="三、境外银行的国内机构"></a>三、境外银行的国内机构</h2><p>恒生、汇丰、花旗等银行在国内设有机构网点，所以其实可以去这类银行办理，相关的条件会比国内银行要低得多。</p>
+<p>我个人就是在颐堤港的恒生银行办理的香港卡（下图）。2年前的要求是需要办 10 万块的非保本理财（挂钩恒生指数）或者办理 50 万的保本理财。这两种理财均为一年，到期后即可以转出。</p>
+<img src="/images/hengseng.jpg" class="">
+
+<p>现在应该这类银行也有政策，不过具体的条件我很久没有关注了，或许有变化。</p>
+<h2 id="四、华美银行-Velo"><a href="#四、华美银行-Velo" class="headerlink" title="四、华美银行 Velo"></a>四、华美银行 Velo</h2><img src="/images/velo.jpg" width="300px" />
+
+<p>我有一个同事成功办理了这个银行卡。华美银行是设立在美国，但是专门为华人服务的银行，可以直接在网上申请它的银行卡。华美银行相对于上面那些银行较小，但也是纳斯达克上市公司（股票代号：EWBC）。</p>
+<p>具体的申请方式可以参考华美银行的 <a target="_blank" rel="noopener" href="https://www.velobank.com/cn.html">Velo官网</a>。</p>
+<h2 id="五、其它"><a href="#五、其它" class="headerlink" title="五、其它"></a>五、其它</h2><h3 id="管理费"><a href="#管理费" class="headerlink" title="管理费"></a>管理费</h3><p>就我所知，似乎所有境外卡在卡内余额小于一定数额时，都会收取一定的小额管理费。不同银行政策不太一样。管理费每月大概需要 100 元人民币左右。</p>
+<h3 id="风险提示"><a href="#风险提示" class="headerlink" title="风险提示"></a>风险提示</h3><p>依据中华人民共和国法律法规，中国大陆境内个人办理购汇业务时不得用于境外买房、证券投资、购买人寿保险和投资性返还分红类保险等尚未开放的资本项目。</p>
+<p>所以，即使你有境外卡，外汇的来源也需要注意合法合规。</p>
+<h2 id="六、小结"><a href="#六、小结" class="headerlink" title="六、小结"></a>六、小结</h2><p>从办理门槛来看，我个人推荐的是恒生银行或者<a target="_blank" rel="noopener" href="https://www.velobank.com/cn.html">华美银行</a>。</p>
+<p>从使用体验来看，我推荐有条件的人选择去香港亲自办理，或者在国内的招行、中行办理。</p>
+<p>当然，如果你恰好特别巧想换工作又对猿辅导感兴趣，也可以考虑<a target="_blank" rel="noopener" href="http://hr.yuanfudao.com/apply/fenbi/29#/">加入我们</a>，办理招行的永隆银行卡。</p>
+<p>就酱~</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E8%A7%86%E9%A2%91%E6%98%AF%E4%B8%8D%E8%83%BDP%E7%9A%84%E7%B3%BB%E5%88%97%EF%BC%9AOpenCV%E4%BA%BA%E8%84%B8%E6%A3%80%E6%B5%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/%E8%A7%86%E9%A2%91%E6%98%AF%E4%B8%8D%E8%83%BDP%E7%9A%84%E7%B3%BB%E5%88%97%EF%BC%9AOpenCV%E4%BA%BA%E8%84%B8%E6%A3%80%E6%B5%8B/" itemprop="url">视频是不能 P 的系列：OpenCV 人脸检测</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-12-25T14:49:47+00:00">
+                2020-12-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>恍惚间，2020 年已接近尾声，回首过去这一年，无论是疫情、失业还是“996”，均以某种特殊的方式铭刻着这一年的记忆。也许，是这个冬天的西安雾霾更少一点。所以，有时透过中午的一抹冬阳，居然意外地觉得春天的脚步渐渐近了，甚至连圣诞节这种“洋节日”都感到亲切而且期待，我想，这大概是我丧了一段时间的缘故吧！可不管怎样，人们对未来的生活时常有一种“迷之自信”，果然生还还是要继续下去的呀！趁着最近的时间比较充裕，我决定开启一个信息的系列：视频是不能 P 的。这是互联网上流传的一个老梗了，正所谓“视频是不能 P 的，所以是真的”。其实，在如今这个亦真亦假的世界里，哪里还有什么东西是不能 PS 的呢？借助人工智能“改头换面”越来越轻而易举，而这背后关于隐私和伦理的一连串问题随之而来，你越来越难以确认屏幕对面的那个是不是真实的人类。所以，这个系列会以 OpenCV 作为起点，去探索那些好玩、有趣的视频&#x2F;图像处理思路，通过技术来证明视频是可以被 PS 的。而作为这个系列的第一篇，我们将从一个最简单的地方开始，它就是人脸检测。</p>
+<h1 id="第一个入门示例"><a href="#第一个入门示例" class="headerlink" title="第一个入门示例"></a>第一个入门示例</h1><p>学习 OpenCV 最好的方式，就是从官方的示例开始，我个人非常推荐的两个教程是 <a target="_blank" rel="noopener" href="https://docs.opencv.org/3.4/db/d28/tutorial_cascade_classifier.html">OpenCV: Cascade Classifier</a> 和 <a target="_blank" rel="noopener" href="https://pythonexamples.org/python-opencv/">Python OpenCV Tutorial</a>，其次是 <a target="_blank" rel="noopener" href="https://blog.csdn.net/poem_qianmo">浅墨大神</a> 的<a target="_blank" rel="noopener" href="https://blog.csdn.net/poem_qianmo/category_9262318.html">【OpenCV】入门教程</a>，不同的是， <a target="_blank" rel="noopener" href="https://blog.csdn.net/poem_qianmo">浅墨大神</a> 的教程主要是使用 C++，对于像博主这样的“不学无术”的人，这简直无异于从入门到放弃，所以，建议大家结合自己的实际情况，选择适合自己的“难度”。好了，思绪拉回我们这里，在 OpenCV 中实现人脸检测，主要分为以下三个步骤，即，首先，定义联级分类器<strong>CascadeClassifier</strong>并载入指定的模型文件；其次，对待检测目标进行灰度化和直方图均衡化处理；最后，对灰度图调用<code>detectMultiScale()</code>方法进行检测。下面是一个简化过的入门示例，使用世界上最省心的 Python 语言进行编写：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"></span><br><span class="line"><span class="comment"># 步骤1: 定义联级分类器CascadeClassifier并载入指定的模型文件</span></span><br><span class="line">faceCascade = cv2.CascadeClassifier(<span class="string">&#x27;./haarcascades/haarcascade_frontalface_alt2.xml&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 步骤2: 对待检测目标进行灰度化和直方图均衡化处理</span></span><br><span class="line">target = cv2.imread(<span class="string">&#x27;target.jpg&#x27;</span>)</span><br><span class="line">target_gray = cv2.cvtColor(target, cv2.COLOR_BGR2GRAY)</span><br><span class="line">target_gray = cv2.equalizeHist(target_gray)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 步骤3: 人脸检测</span></span><br><span class="line">faces = faceCascade.detectMultiScale(target_gray)</span><br><span class="line"><span class="keyword">for</span> (x,y,w,h) <span class="keyword">in</span> faces:</span><br><span class="line">    cv2.rectangle(target, (x, y), (x + w, y + h), (<span class="number">0</span>, <span class="number">255</span>, <span class="number">0</span>), <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 步骤4: 展示结果</span></span><br><span class="line">cv2.imshow(<span class="string">&#x27;Face Detection&#x27;</span>, target)</span><br><span class="line">cv2.waitKey(<span class="number">0</span>)</span><br><span class="line">cv2.destroyAllWindows() </span><br></pre></td></tr></table></figure>
+<p>正常情况下，你会得到下面的结果，这里选取的素材是经典日剧《半泽直树》：</p>
+<p><img src="https://i.loli.net/2020/12/25/DcQRW32aUTBx5lY.png" alt="OpenCV人脸检测效果展示"></p>
+<p>怎么样？是不是被 OpenCV 的强大给震惊到了？下面我们针对每个步骤做更详细的说明：</p>
+<ul>
+<li>第 1 行引入 OpenCV，需要我们安装 OpenCV 的<a target="_blank" rel="noopener" href="https://pypi.org/project/opencv-python/">Python 版本</a>。</li>
+<li>第 4 行实例化级联分类器 CascadeClassifier，关于这个级联分类器，它是 OpenCV 下做目标检测的模块，内置<strong>Haar</strong>、<strong>HOG</strong>和<strong>LBP</strong>三类特性算法，而所谓“级联”，则是指它通过多个强分类器串联实现最终分类的思路。在初始化级联分类器的时候，需要载入指定的模型文件，这些模型文件是官方提前训练好的，可以从<a target="_blank" rel="noopener" href="https://github.com/opencv/opencv/tree/master/data/haarcascades">Github</a>上进行下载，不同的模型文件对应不同的功能，这里使用的<code>haarcascade_frontalface_alt2.xml</code>主要针对面部检测，而像<code>haarcascade_eye_tree_eyeglasses.xml</code>则可以对眼睛进行检测。除此之外，我们还通过训练获得自己的模型文件，当然，这一切都是后话啦！</li>
+<li>第 7~9 行，我们载入了一张图片素材，并对其进行了灰度化和直方图均衡化处理。这里需要关注的三个函数是：<a href=".">imread</a>、<a target="_blank" rel="noopener" href="https://docs.opencv.org/3.4/d8/d01/group__imgproc__color__conversions.html#ga397ae87e1288a81d2363b61574eb8cab">cvtColor</a> 和 <a target="_blank" rel="noopener" href="https://docs.opencv.org/3.4/d6/dc7/group__imgproc__hist.html#ga7e54091f0c937d49bf84152a16f76d6e">equalizeHist</a>，它们的作用分别是读取图片、转换颜色和直方图均衡化处理。其中，对人脸检测而言，灰度图是必要的条件，而直方图均衡化则是可选的一个过程。</li>
+<li>第 12~14 行，通过 <a target="_blank" rel="noopener" href="https://docs.opencv.org/3.4/d1/de5/classcv_1_1CascadeClassifier.html#aaf8181cb63968136476ec4204ffca498">detectMultiScale</a> 方法我们就可以对待检测目标进行检测，关于它的参数，常用的有 scaleFactor、minNeighbors、minSize、maxSize，它可以对人脸检测做进一步的细节上控制，对于我们而言，我们更关心检测的结果，这里我们将检测到的人脸区域以矩形的方式绘制出来。</li>
+<li>第 17~19 行，主要是为了方面大家观察结果，实际使用中可能会输出为文件或者实时渲染，这里需要关注的重点函数是：<a target="_blank" rel="noopener" href="https://docs.opencv.org/3.4/df/d24/group__highgui__opengl.html#gaae7e90aa3415c68dba22a5ff2cefc25d">imshow</a>，顾名思义，它可以让图片展示在窗口中，类似我们这个示例中的效果。</li>
+</ul>
+<h1 id="柴犬界的“网红”"><a href="#柴犬界的“网红”" class="headerlink" title="柴犬界的“网红”"></a>柴犬界的“网红”</h1><p>曾经，有“好事者”分析过微信和 QQ 的年度表情，表情包文化流行的背后，实际上表达方式多样化的一种体现，例如：“笑哭”这一符号，固然有哭笑不得的含义在里面，可又何尝不是<strong>二十多岁人生总是边哭边笑的真实写照</strong>呢？而“捂脸”这一符号在我看来更多的是一种无可奈何，甚至有一种自我嘲讽的意味在里面。至于“呲牙”，<strong>朴实无华的微笑背后，大抵是看惯了庭前花开花落，可以“不以物喜，不以己悲”地笑对人生吧</strong>！其实，在这许许多多地表情里，我最喜欢的是微博里的“Doge”，这个眉清目秀的“狗头”能表达出各种丰富的含义，相比之下，微信里的“Doge”就有一点拙劣的模仿的意味了，俗话说<strong>“狗头保命”</strong>，在一个互联网信仰缺失的时代，用这样一种表情作为人类的保护色，又是不是一种反讽呢？而大家都知道，这个“Doge”表情，实际上是源于一个叫做<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/Homestar%20Runner">Homestar Runner</a>的网上动画系列，其原型则来源于一只名为<a target="_blank" rel="noopener" href="https://baijiahao.baidu.com/s?id=1567521374438179&wfr=spider&for=pc">Kabosu</a>的柴犬，由于它融合了萌宠和故意搞笑两大特点，因此在网络上迅速走红，并由此衍生出一系列二次创作。</p>
+<p><img src="https://i.loli.net/2020/12/26/i3OZfYwHvugT6JU.png" alt="微信年度表情"></p>
+<p><img src="https://i.loli.net/2020/12/26/lN9ZgjuXxfs54cF.jpg" alt="QQ年度表情"></p>
+<p>现在，让我们唤醒身体里的中二灵魂，通过 OpenCV 让这个柴犬界的网红出现在我们面前。这里的思路是，在检测到人脸后，在人脸区域绘制一个“狗头”表情，为此，我们需要定义一个<code>copyTo()</code>函数，它可以将一张小图(MaskImage)绘制到大图(SrcImage)的指定位置，我们一起来看它的具体实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">copyTo</span>(<span class="params">srcImage, maskImage, x, y, w, h</span>):</span><br><span class="line">    <span class="comment"># 按照区域大小对maskImage进行缩放</span></span><br><span class="line">    img_h, img_w, _ = maskImage.shape</span><br><span class="line">    img_scale = h / img_h</span><br><span class="line">    new_w = <span class="built_in">int</span>(img_w * img_scale)</span><br><span class="line">    new_h = <span class="built_in">int</span>(img_h * img_scale)</span><br><span class="line">    img_resize = cv2.resize(maskImage ,(new_w ,new_h))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># “粘贴”小图到大图的指定位置</span></span><br><span class="line">    <span class="keyword">if</span> (srcImage.shape[<span class="number">2</span>] != maskImage.shape[<span class="number">2</span>]):</span><br><span class="line">        y1, y2 = y, y + img_resize.shape[<span class="number">0</span>]</span><br><span class="line">        x1, x2 = x, x + img_resize.shape[<span class="number">1</span>]</span><br><span class="line">        alpha_s = img_resize[:, :, <span class="number">3</span>] / <span class="number">255.0</span></span><br><span class="line">        alpha_l = <span class="number">1.0</span> - alpha_s</span><br><span class="line">        <span class="keyword">for</span> c <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">3</span>):</span><br><span class="line">            srcImage[y1:y2, x1:x2, c] = (</span><br><span class="line">                alpha_s * img_resize[:, :, c] + alpha_l * srcImage[y1:y2, x1:x2, c]</span><br><span class="line">            )</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        srcImage[y:y + img_resize.shape[<span class="number">0</span>], x:x + img_resize.shape[<span class="number">1</span>]] = img_resize</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> srcImage</span><br></pre></td></tr></table></figure>
+<p>在这里，我们首先要关注这样一件事情，即 OpenCV 默认使用的是由 R、G、B 组成的三通道，可对于像 PNG 这种格式的图片，它会含有一个 Alpha 通道。这样，当我们尝试把一张含 Alpha 通道的小图，“粘贴”到只有 R、G、B 三个通道的大图上时，就会出现通道数对不上的问题，所以，这个函数实际上对这种情况做了特殊处理。其次，每一个 OpenCV 中的图片，即 Mat，其 shape 属性是一个由三个元素组成的元组，依次为图片高度、图片宽度和图片通道数。“黏贴”的过程实际上是修改对应位置处的像素信息。好了，现在，我们来修改一下第一版的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 步骤1: 定义联级分类器CascadeClassifier并载入指定的模型文件</span></span><br><span class="line">faceCascade = cv2.CascadeClassifier(<span class="string">&#x27;./haarcascades/haarcascade_frontalface_alt2.xml&#x27;</span>)</span><br><span class="line"><span class="comment"># cv2.IMREAD_UNCHANGED表示保留Alpha通道信息</span></span><br><span class="line">doge = cv2.imread(<span class="string">&#x27;doge-4.png&#x27;</span>, cv2.IMREAD_UNCHANGED) </span><br><span class="line"></span><br><span class="line"><span class="comment"># 步骤2: 对待检测目标进行灰度化和直方图均衡化处理</span></span><br><span class="line">target = cv2.imread(<span class="string">&#x27;target.jpg&#x27;</span>)</span><br><span class="line">target_gray = cv2.cvtColor(target, cv2.COLOR_BGR2GRAY)</span><br><span class="line">target_gray = cv2.equalizeHist(target_gray)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 步骤3: 人脸检测</span></span><br><span class="line">faces = faceCascade.detectMultiScale(target_gray)</span><br><span class="line"><span class="keyword">for</span> (x,y,w,h) <span class="keyword">in</span> faces:</span><br><span class="line">    target = copyTo(target, doge, x, y, w, h) <span class="comment"># 粘贴“狗头”表情至每一个面部区域</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 步骤4: 展示结果</span></span><br><span class="line">cv2.imshow(<span class="string">&#x27;Face Detection&#x27;</span>, target)</span><br><span class="line">cv2.waitKey(<span class="number">0</span>)</span><br><span class="line">cv2.destroyAllWindows() </span><br></pre></td></tr></table></figure>
+
+<p>此时，我们就可以得到下面的结果：</p>
+<p><img src="https://i.loli.net/2020/12/26/Y9Al67cnvtgWmBz.png" alt="全员Doge!"></p>
+<p>其实，我本人更喜欢这张，一张充满精神污染意味的图片：</p>
+<p><img src="https://i.loli.net/2020/12/26/8QaJlR5XIxLftCo.png" alt="来自神烦狗的精神污染"></p>
+<h1 id="视频级-PS-入门"><a href="#视频级-PS-入门" class="headerlink" title="视频级 PS 入门"></a>视频级 PS 入门</h1><p>OK，相信到这里为止，各位读者朋友，都已经顺着博主的思路实现了图片级别的“PS”，既然我们这个系列叫<strong>做视频是不能 P 的</strong>，那么大家要问了，视频到底能不能 P 呢？答案显然是可以，不然博主写这个系列就不是“人脸检测”而是“人肉打脸”啦！下面，我们来继续对今天的这个例子做一点升级。考虑在 OpenCV 中，<strong>VideoCapture</strong>可以通过摄像头捕捉视频画面，所以，我们只需要把这个“狗头”绘制到每一帧画面上，就可以实现视频级别的 PS 啦！</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 步骤1: 定义联级分类器CascadeClassifier并载入指定的模型文件</span></span><br><span class="line">faceCascade = cv2.CascadeClassifier(<span class="string">&#x27;./haarcascades/haarcascade_frontalface_alt2.xml&#x27;</span>)</span><br><span class="line">doge = cv2.imread(<span class="string">&#x27;doge-4.png&#x27;</span>, cv2.IMREAD_UNCHANGED)</span><br><span class="line">cap = cv2.VideoCapture(<span class="number">0</span>) <span class="comment">#笔记本自带摄像头</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (<span class="literal">True</span>):</span><br><span class="line">    ret, frame = cap.read() </span><br><span class="line">    <span class="keyword">if</span> (ret == <span class="literal">False</span>):</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 步骤2: 对待检测目标进行灰度化和直方图均衡化处理</span></span><br><span class="line">    <span class="comment"># 读取视频中每一帧</span></span><br><span class="line">    target = frame</span><br><span class="line">    target_gray = cv2.cvtColor(target, cv2.COLOR_BGR2GRAY)</span><br><span class="line">    target_gray = cv2.equalizeHist(target_gray)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 步骤3: 人脸检测</span></span><br><span class="line">    faces = faceCascade.detectMultiScale(target_gray)</span><br><span class="line">    <span class="keyword">for</span> (x,y,w,h) <span class="keyword">in</span> faces:</span><br><span class="line">        target = copyTo(target, doge, x, y, w, h)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 步骤4: 展示结果</span></span><br><span class="line">    cv2.imshow(<span class="string">&#x27;Face Detection&#x27;</span>, target)</span><br><span class="line">    <span class="comment"># 按Q退出</span></span><br><span class="line">    <span class="keyword">if</span> cv2.waitKey(<span class="number">1</span>) &amp; <span class="number">0xFF</span> == <span class="built_in">ord</span>(<span class="string">&#x27;q&#x27;</span>):</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">cap.release() </span><br><span class="line">cv2.destroyAllWindows() </span><br></pre></td></tr></table></figure>
+
+<p>一起来看看实现的效果吧！可能当你看完这篇博客的时候，你会觉得我写这玩意儿到底有什么用？不好意思，这玩意儿还真有用！它解决了像博主这样腼腆、不敢在公开场合抛头露面的人的困惑。暴走大事件里“王尼玛”一直戴着头罩，所以，很多人都好奇他本人到底长什么样子，如果当时能考虑这个思路的话，是不是可以不用一直戴着头罩。同样地，还有在浪客剑心真人版里饰演志志雄真实的藤原龙也，全身上下缠满绷带的造型其实对演员来说是非常不友好的，如果当时能考虑这个思路的话，是不是演员可以不用受那么大的罪。如果说这些都有些遥远的话，那么，至少在采访后期希望保护受访者隐私的场景下，这个思路是完全可行的，就像大家看到的它可以完全的遮挡住我的脸，而类似的打马赛克等等技术，本质上还是对图像进行处理，甚至美颜相机里的各种特效，底层都离不开 OpenCV 里的这些算法。怎么样？现在有没有觉得博主其实是一个非常有趣的人，哈哈!</p>
+<p><img src="https://i.loli.net/2020/12/26/CZi4SYOgzsoy8Qk.gif" alt="视频级别的“PS”"></p>
+<h1 id="本文小结"><a href="#本文小结" class="headerlink" title="本文小结"></a>本文小结</h1><p>这篇博客主要分享了 OpenCV 在人脸检测方面的简单应用，OpenCV 中的 CascadeClassifier 整合<strong>Haar</strong>、<strong>HOG</strong>和<strong>LBP</strong>三类特性算法，通过预置的模型文件可以实现不同程度的目标检测功能，而在人脸检测的基础上，我们可以通过训练来实现简单的人脸识别，正如今年爆发的新冠疫情让人脸识别出现新的挑战一样，虽然人脸识别的场景正在变得越来越复杂，可作为一个世界上最流行的计算机视觉库，OpenCV 中的各种模块、算法还是一如既往的经典。结合 imread()、resize()、cvtColor()等等的方法，我们可以将“狗头”表情贴到图片或者视频中的人脸区域，而这个思路可以为人脸遮挡相关的场景做一点探索。</p>
+<p>在一个流行美颜的时代，人们对于别人甚至自己的期望在无限拔高，像博主本人一直不怎么喜欢拍照，有时候我们埋怨别人没有把我们拍得好看一点，可那究竟是你眼中的自己还是别人眼中的自己呢？正如相亲的时候，人们总喜欢把最好的、美化过的一面展示给别人，因为只有这样才能让别人对你产生兴趣，可往往现实的落差会让这种来得快的兴趣消失得更快。所以，我想说，虽然在技术面前万物似乎皆可“PS”，可对于我们自己而言，你是否了解真正的自己呢？关于我博客的写作风格，我一直不确定是要用偏严谨还是偏活泼的方式来表达，因为眼看着被后浪们一点点超越，这实在是种难以言说的感觉，欢迎大家在评论区留下你对博客内容或者观点的想法，祝大家周末愉快，一个人一样要活得浪漫！</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020-12-24-2020summary/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3376,760 +4086,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020/2020-11-04-my-opensource-nas-build/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/2020-11-04-my-opensource-nas-build/" itemprop="url">我的 NAS 选型与搭建过程（基于开源方案）</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-11-03T16:00:00+00:00">
-                2020-11-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>在 2016 年我拥有了第一台 NAS —— 群晖的 DS215J，其实在之后的很长一段时间其实并没有派上多大用场，因为我的数据并不多，大都存储在云端，更多的是体验一下 NAS 的功能和工作流。</p>
-<p>直到最近我才开始真正地将 NAS 利用上，于是准备升级一下，但考虑到群晖的性价比实在太低，再加上去年配置 Linux 软路由让我对基于「原生 Linux」的开源解决方案信心和兴趣大增，于是准备自己 DIY 一台 NAS，计划解决未来十年的存储需求。</p>
-<p>我依然选择了我最熟悉的 Ubuntu 作为操作系统、Ansible 作为配置管理工具，因此这个 NAS 的大部分配置都可以在我的 <a target="_blank" rel="noopener" href="https://github.com/jysperm/playbooks/tree/master/roles">GitHub</a> 上找到。</p>
-<blockquote>
-<p>注意这个仓库中的 Ansible 配置仅供参考，不建议直接运行，因为我在编写这些配置时并未充分考虑兼容性和可移植性。</p>
-</blockquote>
-<h2 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h2><p>对于一台 NAS 来说最重要的当然是文件系统，不需要太多调研就可以找到 <a target="_blank" rel="noopener" href="https://openzfs.github.io/openzfs-docs/index.html">ZFS</a> —— 可能是目前在数据可靠性上下功夫最多的单机文件系统了，于是我的整个选型就围绕 ZFS 展开了。</p>
-<p>ZFS 既是文件系统，同时又是阵列（RAID）管理器，这为它带来了一些其他文件系统难以提供的能力：</p>
-<ul>
-<li>ZFS 为每个块都存储了校验和，同时会定期扫描整个硬盘，从 RAID 中的其他硬盘修复意外损坏的数据（如宇宙射线导致的比特翻转）。</li>
-<li>在 RAID 的基础上可以 <a target="_blank" rel="noopener" href="https://docs.oracle.com/cd/E19253-01/819-5461/gevpg/index.html">指定某些目录以更多的份数冗余存储</a>，对于重要的数据即使损坏的硬盘超过了 RAID 方案的限制，依然有可能找回。</li>
-</ul>
-<p>ZFS 还支持数据加密、压缩和去重，这三项功能以一种巧妙的顺序工作，并不会互相冲突，同时这些所有选项都可以设置在目录（dataset）级别、可以随时更改（只对新数据生效）。</p>
-<p>ZFS 当然也支持快照，快照可以被导出为二进制流，被存储到任何地方。这个功能可以让你在不丢失任何元信息的情况下对 ZFS 的文件系统进行备份、传输和恢复。</p>
-<h2 id="硬件"><a href="#硬件" class="headerlink" title="硬件"></a>硬件</h2><p>我并不擅长淘硬件，于是就选择了 HPE 的 MicroServer Gen10，一个四盘位的成品微型服务器，CPU 是 AMD X3421 ，8G ECC 内存，也是标准的 x86 通用硬件，应该不太容易遇到坑。</p>
-<p><img src="https://r2-lc-cn.jysperm.me/pictures/2020/nas-gen-10.png"></p>
-<p>我用转接卡在 PCI-E 插槽上装了一块 NVME SSD，用作系统盘和 ZFS 的读缓存（L2ARC，不过从后面的统计来看效果并不明显），数据盘则暂时用的是旧的硬盘，最终会升级到四块 4T 的硬盘。这里需要注意的是因为 ZFS 不支持更改 RAID 的结构，所以必须在一开始就配置足够的硬盘来占位，后续再升级容量，我甚至用 USB 接了一块移动硬盘来凑数。</p>
-<h2 id="ZFS"><a href="#ZFS" class="headerlink" title="ZFS"></a>ZFS</h2><p>因为是四盘位，所以我采用了 raidz1（RAID5），冗余一块盘作为校验，如果最终所有的盘都升级到 4T，一共是 12T 的实际可用容量。</p>
-<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">root@infinity:~# zpool status</span><br><span class="line">  pool: storage</span><br><span class="line"> state: ONLINE</span><br><span class="line">config:</span><br><span class="line">    NAME                                 STATE     READ WRITE CKSUM</span><br><span class="line">    storage                              ONLINE       0     0     0</span><br><span class="line">      raidz1-0                           ONLINE       0     0     0</span><br><span class="line">        sda                              ONLINE       0     0     0</span><br><span class="line">        sdb                              ONLINE       0     0     0</span><br><span class="line">        sdc                              ONLINE       0     0     0</span><br><span class="line">        sdd                              ONLINE       0     0     0</span><br><span class="line">    cache</span><br><span class="line">      nvme0n1p4                          ONLINE       0     0     0</span><br><span class="line"></span><br><span class="line">root@infinity:~# zpool list</span><br><span class="line">NAME      SIZE  ALLOC   FREE  CKPOINT   FRAG    CAP  DEDUP    HEALTH</span><br><span class="line">storage  7.27T  3.52T  3.75T        -    10%    48%  1.00x    ONLINE</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>通常认为 RAID5 在出现硬盘故障的恢复过程中存在着较高的风险发生第二块盘故障、最终丢失数据的的情况；或者硬盘上的数据随着时间推移发生比特翻转导致数据损坏。但考虑到 ZFS 会定期做数据校验来保证数据的正确性，再综合考虑盘位数量和容量，我认为这个风险还是可以接受的，后面也会提到还有异地备份作为兜底措施。</p>
-</blockquote>
-<p>我开启了 ZFS 的加密功能，但这带来了一个问题：我不能把密钥以明文的方式存储在 NAS 的系统盘 —— 否则密钥和密文放在一起的话，这个加密就失去意义了。所以每次 NAS 重启后，都需要我亲自输入密码、挂载 ZFS 的 dataset，然后再启动其他依赖存储池的服务。</p>
-<p>我还开启了 ZFS 的数据压缩，默认的 lz4 只会占用少量的 CPU 却可以在一些情况下提高 IO 性能 —— 因为需要读取的数据量变少了。因为去重对资源的需求较高，相当于需要为整个硬盘建立一个索引来找到重复的块，我并没有开启去重功能。</p>
-<blockquote>
-<p>一些评论认为 ZFS 对内存的需求高、必须使用 ECC 内存。这其实是一种误解：更多的内存可以提升 ZFS 的性能，ECC 则可以避免系统中所有应用遇到内存错误，但这些并不是必须的，即使没有更多的内存或 ECC，ZFS 依然有着不输其他文件系统的性能和数据完整性保证。</p>
-</blockquote>
-<h2 id="存储服务"><a href="#存储服务" class="headerlink" title="存储服务"></a>存储服务</h2><blockquote>
-<p>小知识：SMB 是目前应用得最广泛的局域网文件共享协议，在主流的操作系统中都有内建的支持。CIFS 是微软（Windows）对 SMB 的一个实现，而我们会用到的 Samba 是另一个实现了 SMB 协议的自由软件。</p>
-</blockquote>
-<p><img src="https://r2-lc-cn.jysperm.me/pictures/2020/nas-samba.png"></p>
-<p>作为 NAS 最核心的功能就是通过 SMB 协议向外提供存储服务，所有的成品 NAS 都有丰富的选项来配置 SMB 的功能，但我们就只能直接去编辑 Samba 的配置文件了，Samba 直接采用了 Linux 的用户和文件权限机制，配置起来也不算太麻烦：</p>
-<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"># 可以在 path 中使用占位符来为每个用户提供单独的 Home 目录</span><br><span class="line"># 可以在 valid users 中使用用户组来控制可访问的用户</span><br><span class="line">[Home]</span><br><span class="line">path = /storage/private/homes/%U</span><br><span class="line">writeable = yes</span><br><span class="line">valid users = @staff</span><br><span class="line"></span><br><span class="line"># Samba 默认以登录用户创建文件，但 NextCloud 以 www-data 运行，可以用 force user 覆盖为特定的用户</span><br><span class="line">[NextCloud]</span><br><span class="line">path = /storage/nextcloud/data/%U/files</span><br><span class="line">writeable = yes</span><br><span class="line">valid users = @staff</span><br><span class="line">force user = www-data</span><br><span class="line"></span><br><span class="line"># 通过这些设置可以让 macOS 的 TimeMachine 也通过 SMB 进行备份</span><br><span class="line"># 详见 https://www.reddit.com/r/homelab/comments/83vkaz/howto_make_time_machine_backups_on_a_samba/</span><br><span class="line">[TimeMachine]</span><br><span class="line">path = /storage/backups/timemachines/%U</span><br><span class="line">writable = yes</span><br><span class="line">valid users = @staff</span><br><span class="line">durable handles = yes</span><br><span class="line">kernel oplocks = no</span><br><span class="line">kernel share modes = no</span><br><span class="line">posix locking = no</span><br><span class="line">vfs objects = catia fruit streams_xattr</span><br><span class="line">ea support = yes</span><br><span class="line">inherit acls = yes</span><br><span class="line">fruit:time machine = yes</span><br><span class="line"></span><br><span class="line"># 对于共享的目录可以用 force group 覆盖文件的所属组、用 create mask 覆盖文件的权限位</span><br><span class="line">[VideoWorks]</span><br><span class="line">path = /storage/shares/VideoWorks</span><br><span class="line">writeable = yes</span><br><span class="line">valid users = @staff</span><br><span class="line">force group = staff</span><br><span class="line">create mask = 0775</span><br><span class="line"></span><br><span class="line"># 还可以设置游客可读、指定用户组可写的公开目录</span><br><span class="line">[Resources]</span><br><span class="line">path = /storage/public/Resources</span><br><span class="line">guest ok = yes</span><br><span class="line">write list = @staff</span><br><span class="line">force group = +staff</span><br><span class="line">create mask = 0775</span><br></pre></td></tr></table></figure>
-
-<p>从上面的配置中也可以看到这些共享目录分散在几个不同的路径，为了匹配不同的数据类型、方便在目录级别进行单独设置，我划分了几个 dataset:</p>
-<ul>
-<li><code>db</code> 存放应用的数据库文件，将 recordsize 设置为了 8k（默认 128k）。</li>
-<li><code>nextcloud</code> NextCloud 的数据目录，也可被 SMB 访问。</li>
-<li><code>private</code> 每个用户的个人文件。</li>
-<li><code>shares</code> 家庭内部共享的文件（如拍摄的视频）。</li>
-<li><code>public</code> 可以从互联网上下载到的文件，不参与异地备份。</li>
-<li><code>backups</code> 备份（Time Machine 等），不参与异地备份。</li>
-</ul>
-<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">root@infinity:~# zfs list</span><br><span class="line">NAME                USED  AVAIL     REFER  MOUNTPOINT</span><br><span class="line">storage            2.27T   286G      169K  /storage</span><br><span class="line">storage/backups     793G   286G      766G  /storage/backups</span><br><span class="line">storage/db          741M   286G      339M  /storage/db</span><br><span class="line">storage/nextcloud   207G   286G      207G  /storage/nextcloud</span><br><span class="line">storage/private    62.2G   286G     62.2G  /storage/private</span><br><span class="line">storage/public      648G   286G      613G  /storage/public</span><br><span class="line">storage/shares      615G   286G      609G  /storage/shares</span><br></pre></td></tr></table></figure>
-
-<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><p>首先我安装了 <a target="_blank" rel="noopener" href="https://github.com/netdata/netdata">Netdata</a>，这是一个开箱即用的监控工具，在仅占用少量资源的情况下提供秒级精度的大量统计指标，非常适合用于监控单台服务器的性能瓶颈。</p>
-<p><img src="https://r2-lc-cn.jysperm.me/pictures/2020/nas-netdata.jpg"></p>
-<p>其余的应用都被我运行在了 Docker 中（使用 docker-compose 来管理），这样可以隔离应用的运行环境，提升宿主机的稳定性，安装、升级、卸载应用也会更方便。</p>
-<p>其中最重要的一个应用是 <a target="_blank" rel="noopener" href="https://nextcloud.com/">NextCloud</a>，这是一个开源的同步盘，我主要看中它的 iOS 应用和 iOS 有不错的整合，可以正确地同步 Live Photo，也可以在 iOS 的文件应用中被调用。</p>
-<p><img src="https://r2-lc-cn.jysperm.me/pictures/2020/nas-nextcloud.jpg"></p>
-<p>NextCloud 服务端会直接读写文件系统中的文件，而不是将文件存储在数据库里，这意味着 NextCloud 的数据目录同时也可以通过 Samba 来访问，这一点非常方便（不过需要一个定时任务来刷新 NextCloud 数据库中的元信息）。</p>
-<p>我还在 Docker 中运行了这些服务，它们都是开源的：</p>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://miniflux.app/">Miniflux</a>，一个 RSS 服务端，通过 Fever API 支持绝大部分的 RSS 客户端。</li>
-<li><a target="_blank" rel="noopener" href="https://github.com/dani-garcia/bitwarden_rs">Bitwarden</a>（非官方实现），一个密码管理器，提供有各平台的客户端和浏览器插件。</li>
-<li><a target="_blank" rel="noopener" href="https://transmissionbt.com/">Transmission</a>，一个 BitTorrent 客户端，提供基于 Web 的管理界面。</li>
-</ul>
-<h2 id="外部访问"><a href="#外部访问" class="headerlink" title="外部访问"></a>外部访问</h2><p>如果要真正地用 NAS 来替代网盘的话，还是需要保证不在家里的内网的时候也可以访问到文件的。</p>
-<p>通常的做法是使用 DDNS（动态 DNS）将一个域名解析至家庭宽带的 IP，这要求家庭宽带有公网 IP，而且运营商允许在 80 或 443 端口提供 Web 服务。我不想依赖这一点，所以想到了用 <a target="_blank" rel="noopener" href="https://github.com/fatedier/frp">frp</a> 来进行「反向代理」，如果你确实有公网 IP 的话，也可以使用 DDNS 的方案，这样会省去一个中转服务器，也可以有更好的速度。</p>
-<p>为了让 NextCloud 能有一个固定的地址（如 <code>https://nextcloud.example.com</code>）我将域名在内外网分别进行了解析，在家时解析到内网地址，在外解析到中转服务器。无论是内外网，数据流都会经过 Let’s Encrypt 的 SSL 加密，这样就不需要中转服务器有较高的安全保证。</p>
-<p>虽然不需要先拨一个 VPN 确实很方便，但将 NextCloud 开放在公网上 <a target="_blank" rel="noopener" href="https://www.cvedetails.com/vulnerability-list/vendor_id-15913/Nextcloud.html">并不安全</a>，在社区中已有用户 <a target="_blank" rel="noopener" href="https://github.com/nextcloud/ios/issues/847">要求 NextCloud 客户端支持双向 SSL 认证</a>，我也非常期待这个功能，可以在公网访问上提供更好的安全性。</p>
-<p>我还在 NAS 上安装了 <a target="_blank" rel="noopener" href="https://www.wireguard.com/">WireGuard</a>，这是一个内建在 Linux 内核中的 VPN 模块，同样通过 frp 暴露在外网，除了 NextCloud 之外的服务，如 SMB、SSH 和 Nextdata 都可以通过 WireGuard 来访问。</p>
-<p>如果你不执着于开源方案的话，也可以试试 <a target="_blank" rel="noopener" href="https://www.zerotier.com/">ZeroTier</a>，它提供了 NAT 穿透的能力，让你的设备和 NAS 之间可以不借助中转服务器直接传输，改善连接速度。</p>
-<h2 id="备份和数据完整性"><a href="#备份和数据完整性" class="headerlink" title="备份和数据完整性"></a>备份和数据完整性</h2><p>在 raidz1 的基础上，我设置了定时任务让 ZFS 每天生成一个快照，还写了一个脚本来按照类似 Time Machine 的规则来清理备份：保留最近一周的每天快照、最近一个月的每周快照、最近一年的每月快照、以及每年的快照。</p>
-<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">root@infinity:~# zfs list storage/nextcloud -t snapshot</span><br><span class="line">NAME                           USED  AVAIL     REFER  MOUNTPOINT</span><br><span class="line">storage/nextcloud@2020-09-05  83.9M      -      182G  -</span><br><span class="line">storage/nextcloud@2020-09-15  35.2M      -      207G  -</span><br><span class="line">storage/nextcloud@2020-09-21  30.2M      -      207G  -</span><br><span class="line">storage/nextcloud@2020-09-23  29.7M      -      207G  -</span><br><span class="line">storage/nextcloud@2020-09-26  29.3M      -      207G  -</span><br><span class="line">storage/nextcloud@2020-09-27  28.2M      -      207G  -</span><br><span class="line">storage/nextcloud@2020-09-28  28.2M      -      207G  -</span><br><span class="line">storage/nextcloud@2020-09-29  29.1M      -      207G  -</span><br><span class="line">storage/nextcloud@2020-09-30  33.5M      -      207G  -</span><br></pre></td></tr></table></figure>
-
-<p>快照主要是为了防止人工的误操作，除了单纯的、当场就能发现的手滑之外，有时你会误以为你不会用到这个文件而将它删除，直到很久之后才发现并非如此。</p>
-<p>同时每周会有定时任务使用 <a target="_blank" rel="noopener" href="https://restic.net/">restic</a> 备份一个快照到 <a target="_blank" rel="noopener" href="https://www.backblaze.com/b2/cloud-storage.html">Backblaze B2</a> 作为异地备份，这是一个价格较低的对象存储，非常适合备份。restic 支持增量的快照备份，也支持加密。出于成本考虑，异地备份仅包括由我产生的数据，并不包括 public 和 backups 目录。</p>
-<p>我曾考虑过直接在远端运行一个 ZFS 来进行备份，zfs send &#x2F; recv 支持以二进制流的形式传输一个快照 —— 不需要远端安装其他任何的工具，只需要用 shell 的管道操作符将 zfs send 的字节流重定向到 ssh 命令即可。这个方案非常具有技术美感，但考虑到块存储的价格是对象存储的十倍以上，最后还是放弃了这个方案。</p>
-<h2 id="成本核算"><a href="#成本核算" class="headerlink" title="成本核算"></a>成本核算</h2><p>硬件上其实我预算并不紧张，留的余量也比较大，如果换一些性价比更高的硬件的话，价格还可以下降很多。</p>
-<ul>
-<li>主机（主板、CPU、内存、系统盘） 3500 元</li>
-<li>硬盘（4 * 4T） 2200 元（其实目前只买了一块，其他三块是旧的）</li>
-</ul>
-<p>考虑到我之前的群辉用了五年，新的 NAS 设计使用寿命定在十年：</p>
-<ul>
-<li>硬件成本折合每年 570 元</li>
-<li>电费（35W）每年 110 元</li>
-<li>远程访问每年 100 元（国内年付促销服务器，如有公网 IP 使用 DDNS 则无需此项）</li>
-<li>异地备份每年 415 元（按量付费，这里按 1T 需要异地备份的数据计算）</li>
-</ul>
-<p>总共 12T 的容量每年 1195 元，折合 1T 每月 8 元，如果去掉远程访问和异地备份的话则是 1T 每月 5 元。</p>
-<h2 id="为什么要用自部署方案"><a href="#为什么要用自部署方案" class="headerlink" title="为什么要用自部署方案"></a>为什么要用自部署方案</h2><p>相比于使用云服务，第一个理由自然是对数据的「掌控感」，虽然没有什么确凿的理由说云服务就一定不安全，但有些人就是喜欢这种对个人数据的掌控感。</p>
-<p>还有一个技术原因是部署在家中内网的 NAS 可以通过 SMB 简单地支持一些「在线编辑」，如直接加载 NAS 上的素材进行视频剪辑、甚至将整个工程文件都直接放在 NAS 上。使用云服务的话一方面是没有 SMB 协议的支持，即使支持延迟对于在线编辑来说也是无法接受的。</p>
-<p>另外一个不能忽略的话题就是成本，在这里我们只考虑以容量为计价方案的网盘服务，iCloud、Google Drive、Dropbox 的价格方案都非常接近，在超过 200G（大概 $3）这一档之后就直接跳到了 2T（大概 $10），这时云服务按量付费的优势其实就没有了，是一个切换到自部署方案的一个不错的时间点，一次性投入之后只需 2 - 3 年即可回本。</p>
-<p>当然最重要的一点是兴趣，在这个折腾的过程中你需要做很多决定、遇到很多困难，最后搭建出来一个几乎是独一无二的自部署方案。如果你能在这个过程中找到乐趣的话，那当然是非常值得的；反过来如果你没有兴趣，算上投入的时间成本，自部署方案的性价比将会非常低。</p>
-<p>任何自部署的方案都需要长期的维护才能保持工作，对后端运维完全没有兴趣怎么办，不如了解一下 <a target="_blank" rel="noopener" href="https://www.leancloud.cn/">LeanCloud</a>，领先的 BaaS 提供商，为移动开发提供强有力的后端支持。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/edb9a744.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/post/edb9a744.html" itemprop="url">十月总结</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-11-03T13:49:33+00:00">
-                2020-11-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h2 id="几篇新文章"><a href="#几篇新文章" class="headerlink" title="几篇新文章"></a>几篇新文章</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://4ark.me/posts/hsts-problem-solving-experience.html">记一次因 HSTS 导致跨域问题的经历</a></li>
-<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/269036804">浏览器通知推送服务选型</a></li>
-<li><a target="_blank" rel="noopener" href="https://4ark.me/posts/hui-guang-zhou-yi-nian-you-gan.html">回广州一年有感</a></li>
-</ul>
-<h2 id="最近在折腾什么"><a href="#最近在折腾什么" class="headerlink" title="最近在折腾什么"></a>最近在折腾什么</h2><h3 id="ish-shell"><a href="#ish-shell" class="headerlink" title="ish shell"></a>ish shell</h3><p>最近 <a target="_blank" rel="noopener" href="https://github.com/ish-app/ish">ish</a> 上架 app store，趁着暂时还没收费，赶紧在手机和 iPad 装上体验一波，玩了一下发现好像还真的只能当个玩具…</p>
-<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/20201103220016.jpg"></p>
-<h2 id="最近在看什么书"><a href="#最近在看什么书" class="headerlink" title="最近在看什么书"></a>最近在看什么书</h2><h3 id="史记"><a href="#史记" class="headerlink" title="史记"></a>史记</h3><p>其实今年开始对历史感兴趣，之前也看过几本历史相关的书，例如《中国大历史》、《中国近代史》，还有《明朝那些事儿》（这个是听的），然而如果对中国历史感兴趣，那自然绕不过《史记》，这本巨著的伟大之处，想必无须我多说，最近决定拜读。</p>
-<p>起初，我想看繁体版的原版，那感觉会更有味道，奈何学识有限，最后只能决定先看一遍白话文的版本，以后再来重新读原版。</p>
-<h3 id="苏菲的世界"><a href="#苏菲的世界" class="headerlink" title="苏菲的世界"></a>苏菲的世界</h3><p>这本书有多经典，同样不需要我多说，它可以说是最好的一本哲学入门书，很多人在学生阶段已经读过。</p>
-<p>其实我原本对哲学并不是很感兴趣，但是我的偶像黄子华，他是读哲学的，他的偶像李小龙也是同样读哲学的，那我自然也不得不对哲学产生兴趣。</p>
-<h2 id="谷歌测试之道-重新定义团队"><a href="#谷歌测试之道-重新定义团队" class="headerlink" title="谷歌测试之道 &amp; 重新定义团队"></a>谷歌测试之道 &amp; 重新定义团队</h2><p>这两本书是和公司的小伙伴一起读的，每人轮流读一章，由于这些书都比较贴近我们的日常工作，看看谷歌的团队是如何做项目测试、怎么样工作的，也经常能够从中获得一些灵感。</p>
-<h3 id="一些杂书"><a href="#一些杂书" class="headerlink" title="一些杂书"></a>一些杂书</h3><p>除此之外，我也在看以下的书：</p>
-<ul>
-<li>半小时漫画 xxx 系列</li>
-<li>把时间当做朋友</li>
-<li>我的奋斗（罗永浩）</li>
-</ul>
-<p>其实上面这些书我并不是很正式地看，我是通过它们的 epub 版本转换到 html，然后制作成了 rss 订阅源，每天推送一章，慢慢地就能读完了，当然这种阅读方式仅适用于那些不需要怎样做笔记，看过了就算的书。</p>
-<h2 id="还是不够慎重"><a href="#还是不够慎重" class="headerlink" title="还是不够慎重"></a>还是不够慎重</h2><p>最近做了个不大不小的决定，事后才发现自己其实还有很多东西没有考虑清楚，当时只看到眼前的利益，却忽略了一些更重要的事情，以至于突然醒悟后的心理落差，让我又开始怀疑自己做的这个决定到底是对是错。</p>
-<p>一方面，自己还是太过图样，阅历不够，还需继续修炼，希望能够吃一鳖长一智。</p>
-<p>另一方面，下次再遇到这种需要抉择的情况，哪怕我心里已有答案，我也会先找几个信任的朋友商量，避免再次出现这种当局者迷旁观者清的情况。</p>
-<h2 id="最后说几句"><a href="#最后说几句" class="headerlink" title="最后说几句"></a>最后说几句</h2><p>一年又准备到头了，一方面希望这种苦逼的日子早点过去，另一方面又感慨时间真得过得好快，转眼间，又快到 2021 年了，我曾经许下的无数诺言，还不知道何日能够兑现。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020-11-3-post08/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020-11-3-post08/" itemprop="url">锁定微信防别人偷看，苹果电脑上的微信有何不同？</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-11-03T00:07:38+00:00">
-                2020-11-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>这是临时想到的一个题目，就想简单写一下苹果电脑的 Mac 版微信与 Windows 版本有何不同。    </p>
-<h2 id="锁定微信"><a href="#锁定微信" class="headerlink" title="锁定微信"></a>锁定微信</h2><p>当你在电脑上登录微信后，移动端的微信首页顶部会显示「Windows&#x2F;Mac 微信已登录」。</p>
-<p>如果你是在 Mac 上登录微信，点击顶部的登录状态，相比在 Windows 上登录，菜单中会多出「<strong>锁定</strong>」的选项。</p>
-<p><img src="http://cdn.penghh.fun/mweb/IMG_6997.jpeg" alt="IMG_6997"><br>点击锁定，Mac 上的微信会呈现下图的状态，当你离开座位且不锁定屏幕时，就可以很好地保护你的个人隐私。</p>
-<p>这个功能还有个小细节：锁定和解锁 Mac 微信会有两个不同的<strong>音效</strong>，微信在声音设计上还下足了功夫。</p>
-<p><img src="http://cdn.penghh.fun/mweb/16043344708914.jpg" alt="-w866"></p>
-<h2 id="服务号消息收纳到订阅号中"><a href="#服务号消息收纳到订阅号中" class="headerlink" title="服务号消息收纳到订阅号中"></a>服务号消息收纳到订阅号中</h2><p>公众号主要分为两类，一类是订阅号，一类是服务号，这两类的区别在于，服务号给你发送推文或模板消息时，你会像收到微信好友消息一样收到通知，它推送的内容属于一种<strong>强通知</strong>。</p>
-<p>而订阅号则位于「订阅号消息」或「公众号」中，所有订阅号推送的内容都被收纳到这个「盒子」里，相比服务号，它推送内容对用户的打扰更少。</p>
-<p><img src="http://cdn.penghh.fun/mweb/16043612333771.jpg" alt="-w866"><br>在 Mac 微信上，每当收到新的微信消息时，桌面右上角都会弹出消息提醒，这个通知方式继承了微信移动端的设计。</p>
-<p><img src="http://cdn.penghh.fun/mweb/16043622506897.jpg" alt="-w411"><br>可能是为了减少服务号这类强通知对用户的打扰，Mac 微信将服务号也收纳到了订阅号中，如此一来，当服务号给你推送内容时，它推送的内容就会出现在「公众号」这个盒子里，不会出现一个新消息的红点提醒。</p>
-<p><img src="http://cdn.penghh.fun/mweb/%E5%BE%AE%E4%BF%A1%E6%9C%8D%E5%8A%A1%E5%8F%B7.png" alt="微信服务号"></p>
-<h2 id="在微信中使用苹果自带的-Emoji"><a href="#在微信中使用苹果自带的-Emoji" class="headerlink" title="在微信中使用苹果自带的 Emoji"></a>在微信中使用苹果自带的 Emoji</h2><p>和 iPhone 一样，在 Mac 上同样可以使用苹果自带的 Emoji，快捷键为「Control + Command + 空格」。</p>
-<p>你可以在任何可以输入内容的地方，使用快捷键调出 Emoji 面板，例如微信的聊天窗口、微信的搜索栏等等。</p>
-<p><img src="http://cdn.penghh.fun/mweb/16043636759293.jpg" alt="-w382"></p>
-<h2 id="管理微信聊天数据"><a href="#管理微信聊天数据" class="headerlink" title="管理微信聊天数据"></a>管理微信聊天数据</h2><p>在微信的设置中，Windows 和 Mac 微信都可以找到管理聊天数据的选项，区别在于：</p>
-<p>Mac 上的管理界面更加<strong>人性化</strong>，继承了移动端的设计，它可以很清楚地让你看到过往聊天中产生的数据量，而不是像 Windows 客户端会打开存放聊天数据的源文件夹，让用户一脸懵逼、摸不着头脑。</p>
-<p><img src="http://cdn.penghh.fun/mweb/16043641460853.jpg" alt="-w456"></p>
-<h2 id="应用商店的微信-VS-官网下载的微信"><a href="#应用商店的微信-VS-官网下载的微信" class="headerlink" title="应用商店的微信 VS 官网下载的微信"></a>应用商店的微信 VS 官网下载的微信</h2><p>从 Mac 应用商店下载的微信，是一个阉割版的微信，它使用不了微信小程序，这是苹果而非微信的锅，微信为了上架应用商店不得不向苹果妥协。</p>
-<p>如果你想在 Mac 上使用功能完整的微信，请前往微信官网下载。  </p>
-<h2 id="状态栏的更多功能"><a href="#状态栏的更多功能" class="headerlink" title="状态栏的更多功能"></a>状态栏的更多功能</h2><p>Mac 上的每个软件，在屏幕左上角的状态栏都会有相应的菜单，微信也不例外，如下图的「文件」、「编辑」、「显示」和「窗口」。</p>
-<p>以「窗口」菜单为例，里面就会有与 Mac 相关的操作或功能，例如：</p>
-<ul>
-<li>窗口操作「将窗口拼贴到屏幕左侧」</li>
-<li>Mac 的随航功能，将微信窗口移动到 iPad 上</li>
-</ul>
-<p>但说实话，状态栏的微信菜单我并不常用，这里仅作提及，感兴趣的朋友可以去点开看看。</p>
-<p><img src="http://cdn.penghh.fun/mweb/16043646540173.jpg" alt="-w491">    </p>
-<p>以上，希望有帮助。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020-11-02-manage-work-book-summary/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020-11-02-manage-work-book-summary/" itemprop="url">埃森哲的工作法 - 《掌控工作》</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-11-02T02:14:36+00:00">
-                2020-11-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>埃森哲作为一家咨询公司，对外输出了很多人才和工作法。这次我读到的，是前埃森哲的员工邵文瀚的作品《掌控工作》。他将一个问题的解决过程进行了层层梳理和拆解，帮助我们用一个固定的流程来思考复杂的问题，以下是我的一些笔记。</p>
-<h2 id="掌控工作四步法"><a href="#掌控工作四步法" class="headerlink" title="掌控工作四步法"></a>掌控工作四步法</h2><p>作者首先抛出了咨询师的问题梳理流程：</p>
-<ul>
-<li>界定问题</li>
-<li>拆解问题</li>
-<li>执行解决</li>
-<li>总结复盘</li>
-</ul>
-<h3 id="界定问题"><a href="#界定问题" class="headerlink" title="界定问题"></a>界定问题</h3><p>面对一个新的陌生领域，界定问题分成以下三步：</p>
-<ul>
-<li>熟悉和理解专业术语。作者推荐的方法包括：<ul>
-<li>案头研究。即自己查阅搜索引擎、国家统计局资料、专门书籍、知网数据库、行为研究报告。</li>
-<li>访谈类研究。包括专家访谈、用户访谈、实地走访。</li>
-</ul>
-</li>
-</ul>
-<p>在案头研究方面，作者推荐了很多权威的数据收集渠道，比如：</p>
-<ul>
-<li>国家统计局。有大部分的人口、产值、贸易数据。</li>
-<li>海关总署网站。可以找到进出口情况。</li>
-<li>教育部网站。可以查到招生人数，毕业人数。</li>
-</ul>
-<p>作者还介绍了一种 what-else 的研究方法。拿 iOS 开发举例，如果你不懂 iOS 开发，你可以这么来研究：</p>
-<ul>
-<li>(what)什么是 iOS 开发？然后你可能通过查找资料发现这是一种移动开发技术。</li>
-<li>(else)还有哪些是移动开发。你可能找到 Android开发，Windows Mobile 开发等。</li>
-<li>(what)Android 是什么？然后你可能查到这是 Google 出的移动开发技术。</li>
-<li>(else)Google 家还出了哪些开发语言？然后你可能查到 Flutter。</li>
-</ul>
-<h3 id="拆解问题"><a href="#拆解问题" class="headerlink" title="拆解问题"></a>拆解问题</h3><p>在完成问题的界定之后，我们就需要着手拆解问题。</p>
-<p>假如我们的问题是“iOS开发如何提高”，那么我们就可以从“输入”和“输出”两个角度来拆解它。</p>
-<ul>
-<li>输入方面：我们可以拆解成阅读博客，阅读图书，看相关的视频，听相关的分享，参加相关的会议，找同事请教等。</li>
-<li>输出方面：我们可以拆解成写总结的文章，代码练习，分享等。</li>
-</ul>
-<p>我们还可以进一步拆解，比如代码练习又可以拆解成：工作上的代码优化、面试题目代码的练习、开源项目的参与等。</p>
-<p>下图是一个示例：</p>
-<img src="/images/manage-work-2.jpg" class="">
-
-
-<p>拆解问题讲就 MECE 原则，这是《金字塔原理》那本书首次提到的，即不重不漏。</p>
-<p>拆解问题作者介绍了自上而下，自下而上两种方法，同时建议我们在遇到一些不确定的问题，使用“假设驱动”的方法来寻找关键点。</p>
-<p>拆解问题后我们需要注意的是采用 28原则 来将关键问题定位。因为这种拆解很容易让我们陷入大量的 Todo 中去，不知道做什么，哪个也做不好。所以我们应该聚焦关键问题，把别的问题排除掉。</p>
-<p>又回到刚刚说的“iOS开发如何提高”这个问题上。其实借助工作上的问题，进行相关的代码优化，就是最高效的提升方法。因为这个方法是有实际的产出做检验，也有实际的回报做出激励，很多工作也有时间限制，让我们能够有紧张感来推进工作，大部分时候把这个做好就能提升很多很多。</p>
-<h3 id="执行解决"><a href="#执行解决" class="headerlink" title="执行解决"></a>执行解决</h3><p>执行的起来，作者建议如下 4 步的规划：</p>
-<ul>
-<li>第一步：确定工作目标，估算工作量。</li>
-<li>第二步：对工作进行优先级排序。</li>
-<li>第三步：确定时间规划，把工作指派给各项目负责人。</li>
-<li>第四步：考虑项目可能的风险点，并提出预案。</li>
-</ul>
-<p>规划好之后，就开始执行了。执行的时候肯定不是一帆风顺的。所以我们要定期进行进度的同步。定期同步可以是邮件或者会议的形式，主要关注关键目标和时间点的达成情况。</p>
-<p>书中介绍了不少提高个人执行力的手段，比如我自己也常使用的番茄工作法。</p>
-<h3 id="总结复盘"><a href="#总结复盘" class="headerlink" title="总结复盘"></a>总结复盘</h3><p>复盘是非常重要的环节，一个复盘的流程分为以下 4 步：</p>
-<ul>
-<li>第一步：回顾目标</li>
-<li>第二步：评估结果</li>
-<li>第三步：原因分析</li>
-<li>第四步：优化改善</li>
-</ul>
-<p>对于一些新的领域，如果通过复盘形成一些总结或者方法论，从而推进成为团队执行的一些潜在标准，则是更好的事情。</p>
-<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>《掌控工作》是作者从咨询公司的 7 步工作法提炼总结出来的日常工作常见的工作原则。通过界定问题、拆解问题、执行解决、总结复盘四个大的步骤，将所有工作问题的解决框定在这个范围内。</p>
-<p>本书非常适合职场新人来梳理自己的工作框架，推荐给大家。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/18/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><span class="page-number current">19</span><a class="page-number" href="/page/20/">20</a><span class="space">&hellip;</span><a class="page-number" href="/page/73/">73</a><a class="extend next" rel="next" href="/page/20/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/18/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><span class="page-number current">19</span><a class="page-number" href="/page/20/">20</a><span class="space">&hellip;</span><a class="page-number" href="/page/74/">74</a><a class="extend next" rel="next" href="/page/20/">&gt;</a>
   </nav>
 
 
@@ -4175,7 +4136,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1460</span>
+                  <span class="site-state-item-count">1464</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -4197,7 +4158,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">895</span>
+                  <span class="site-state-item-count">910</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

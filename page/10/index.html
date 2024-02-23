@@ -274,6 +274,1050 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/hg-hooks.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/post/hg-hooks.html" itemprop="url">Hg hooks 实践历程</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-03-16T16:00:00+00:00">
+                2022-03-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="故事的开始"><a href="#故事的开始" class="headerlink" title="故事的开始"></a>故事的开始</h2><blockquote>
+<aside> 💬 提交代码前记得 lint</aside>
+<aside> 💬 又有人没跑测试就提交代码</aside>
+<aside> 💬 project-config 有改动，麻烦 yarn setup 一下</aside>
+</blockquote>
+<p>相信使用 Hg 的同学们已经非常熟悉上面这几句话了，我们每次在提交或者拉取代码时总需要手动执行某些命令，实在繁琐。</p>
+<p>但现在已经 2022 年了，难道就没有更好的解决方法吗？</p>
+<p>有的，我们知道，在 Git 有个东西叫做 hooks（钩子），可以在特定事件发生之前或之后执行特定动作。</p>
+<p>同样的，Hg 也有 <a target="_blank" rel="noopener" href="https://www.mercurial-scm.org/wiki/hook">hooks</a>，不过并不像 Git 一样生态蓬勃发展，也没有太多现有的开源工具可供大家使用。</p>
+<p>本文就来介绍一下我们从 0 到 1 的 Hg hooks 实践过程，同时也希望能够起到抛砖引玉的作用。</p>
+<h2 id="石器时代"><a href="#石器时代" class="headerlink" title="石器时代"></a>石器时代</h2><p>在没有引入 Hg hooks 之前，我们常常会面对几种情况：</p>
+<ol>
+<li>有同学在提交代码时忘记执行 <code>yarn lint</code>、<code>yarn test</code></li>
+<li>修改了 <code>project-config</code> 的常量，却忘记通知大家，或者有人错过了这条信息。</li>
+</ol>
+<p>这都有可能会导致其他小伙伴拉取代码后，发现页面上的某个功能突然异常，花费一段时间排查才发现原来是没有执行 <code>yarn setup</code>。</p>
+<p>可能有部分同学会想到，那我自定义一个命令在提交或者拉取代码时自动做这件事不就好了吗？</p>
+<p>比如这样：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; yarn lint &amp;&amp; hg commit -m <span class="string">&quot;xxx&quot;</span></span><br><span class="line"></span><br><span class="line">&gt; hg pull --update &amp;&amp; yarn setup</span><br></pre></td></tr></table></figure>
+
+<p>这样也不是不行，但是会存在一些问题：</p>
+<ol>
+<li>由于每个人的拉取代码的命令不一样，如果项目开发流程发生变化，则每个人都需要同步修改</li>
+<li>有些同学习惯使用图形化界面，比如 SourceTree、vscode-hg 等，则无法自定义操作命令</li>
+</ol>
+<p>因此，我们另辟蹊径，寻找更好的解决方案。</p>
+<h2 id="青铜时代"><a href="#青铜时代" class="headerlink" title="青铜时代"></a>青铜时代</h2><p>我们最主要想解决的问题就是：</p>
+<ol>
+<li>在提交代码前自动执行 <code>yarn lint</code>、<code>yarn test</code>，不通过则直接终止提交。</li>
+<li>在拉取代码后，检测到如果 project-config 目录发生改动，则自动执行 <code>yarn setup</code>。</li>
+<li>还有更多：<ol>
+<li>检查 commit message 规范</li>
+<li>统一代码的格式化风格</li>
+</ol>
+</li>
+</ol>
+<p>这些都可以通过 Hg hooks 解决，所以开始之前，我们先对 Hg hooks 做一个简单的认识。</p>
+<h3 id="Hg-hooks-介绍"><a href="#Hg-hooks-介绍" class="headerlink" title="Hg hooks 介绍"></a>Hg hooks 介绍</h3><p>Hg hooks 能做什么，这次再介绍一遍：<strong>它可以在特定事件发生之前或之后执行特定动作。</strong></p>
+<p>特定事件，指的就是我们在对 Hg 仓库进行操作时的一些钩子，比如提交前（precommit）、提交后（commit），可以在这里查看全部 hooks 列表：<a target="_blank" rel="noopener" href="https://www.mercurial-scm.org/repo/hg/help/hgrc">hooks</a>。</p>
+<p>下面介绍一下如何使用 hook，我们可以通过以下两个文件进行配置：</p>
+<ol>
+<li><code>~/.hgrc</code>：全局的，将对所有 hg 仓库起作用。</li>
+<li>项目根目录的 <code>.hg/hgrc</code> ：仅对当前仓库起作用。</li>
+</ol>
+<p>比如我们想要实现一个简单的需求：在提交代码前进行 <code>yarn lint</code>。</p>
+<p>首先编辑 <code>.hg/hgrc</code>文件：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">hooks</span>]</span><br><span class="line"><span class="string">precommit</span> <span class="string">=</span> <span class="string">./bin/hooks/precommit.sh</span> <span class="comment"># 这个路径是相对于项目根目录的</span></span><br></pre></td></tr></table></figure>
+
+<p>然后编写脚本 <code>bin/hooks/precommit.sh</code>（也可以使用 python）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line">PATH=/usr/local/bin:/opt/homebrew/bin:<span class="variable">$PATH</span></span><br><span class="line"></span><br><span class="line">yarn lint</span><br><span class="line"></span><br><span class="line"><span class="comment"># lint 没有通过直接退出</span></span><br><span class="line"><span class="keyword">if</span> [ $? -ne 0 ]; <span class="keyword">then</span> <span class="built_in">exit</span> 1; <span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+
+<p>这里需要特别指出，之所以需要重新声明 <code>PATH</code> 变量：</p>
+<ol>
+<li>hooks 脚本的运行环境取决于同学提交代码的地方，比如通过 SourceTree 提交，由于环境不一样，就可能会出现 <code>yarn: command not found</code> 的报错，参见：<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/22883197/git-command-not-found-in-the-custom-action-for-sourcetree">‘Git Command Not found’ in the custom action for SourceTree - Stack Overflow</a>。</li>
+<li>每个同学安装 hg 的方式可能不一样，有通过 brew、pip、甚至自己手动编译的，它们的可执行文件路径不一样。<ul>
+<li>可以通过 <code>which hg</code> 查看这个命令的可执行文件路径。</li>
+</ul>
+</li>
+</ol>
+<p>这样，一个简单的 hook 就配置完成了，这时候提交代码就会触发 <code>precommit.sh</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; hg commit -m <span class="string">&quot;ci: precommit hooks&quot;</span></span><br><span class="line"></span><br><span class="line">$ eslint <span class="string">&#x27;**/*.js&#x27;</span> --cache --fix</span><br></pre></td></tr></table></figure>
+
+<p>当 hook 脚本的 exit code 不为 0 的时候，则会终止当前的 Hg 操作，对于某些具有事务性的 hook（e.g. pretxncommit），还会自动进行回滚。</p>
+<p>可以通过以下链接对 Hg hooks 进行更深入地学习：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.mercurial-scm.org/wiki/hookExamples">hookExamples</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.mercurial-scm.org/wiki/Usefulhooks">Usefulhooks</a></li>
+<li><a target="_blank" rel="noopener" href="http://hgbook.red-bean.com/read/handling-repository-events-with-hooks.html">Chapter 10. Handling repository events with hooks (red-bean.com)</a></li>
+</ul>
+<h3 id="Hg-hooks-实践"><a href="#Hg-hooks-实践" class="headerlink" title="Hg hooks 实践"></a>Hg hooks 实践</h3><h4 id="提交代码前（precommit）"><a href="#提交代码前（precommit）" class="headerlink" title="提交代码前（precommit）"></a>提交代码前（precommit）</h4><p>这里需要用到的 hook 是 precommit，它的运行时机在提交之前，exit code 非 0 时将终止提交。</p>
+<p> <code>precommit.sh</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line">PATH=/usr/local/bin:/opt/homebrew/bin:<span class="variable">$PATH</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$SKIP_LINT</span>&quot;</span> = <span class="string">&quot;1&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">exit</span> 0</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 需要 lint 的项目</span></span><br><span class="line">apps=(</span><br><span class="line">    <span class="string">&#x27;miniprogram&#x27;</span></span><br><span class="line">    <span class="string">&#x27;dashboard&#x27;</span></span><br><span class="line">    <span class="string">&#x27;core&#x27;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> app <span class="keyword">in</span> <span class="string">&quot;<span class="variable">$&#123;apps[@]&#125;</span>&quot;</span>; <span class="keyword">do</span></span><br><span class="line">    <span class="comment"># 判断是否修改该项目，无则跳过 lint</span></span><br><span class="line">    has_change=$(hg status | grep <span class="string">&quot;<span class="variable">$&#123;app&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> [ -z <span class="string">&quot;<span class="variable">$has_change</span>&quot;</span> ]; <span class="keyword">then</span> <span class="built_in">continue</span>; <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">cd</span> <span class="string">&quot;<span class="variable">$app</span>&quot;</span> || <span class="built_in">exit</span> 1</span><br><span class="line"></span><br><span class="line">    yarn &amp;&amp; yarn lint</span><br><span class="line"></span><br><span class="line">    <span class="comment"># lint 是否报错，是则直接退出脚本</span></span><br><span class="line">    <span class="keyword">if</span> [ $? -ne 0 ]; <span class="keyword">then</span> <span class="built_in">exit</span> 1; <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">cd</span> -</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 针对当前修改或新增的文件批量进行 prettier 格式化</span></span><br><span class="line">hg status | grep -E <span class="string">&quot;^(M|A).*.(js|json|wxss)$&quot;</span> | sed <span class="string">&#x27;s|^M||g; s|^A||g&#x27;</span> | xargs ./node_modules/.bin/prettier --write &gt;/dev/null 2&gt;&amp;1</span><br></pre></td></tr></table></figure>
+
+<p>比较浅显易懂，由于是 Monorepo 架构，所以仅针对当前改动的子项目执行 <code>yarn lint</code> ，当 lint 不通过时终止提交；然后仅对当前变更的文件做 prettier 格式化，并且忽略这行命令的输出和错误。</p>
+<p>ps：其实这里的 prettier 机制有点问题，原本的目的是仅格式化当前提交的文件，但 Hg 没有 staging area 的概念，故只能粗暴处理，如果有更好的解决方法欢迎指教。</p>
+<ul>
+<li>hg commit 可以只提交指定的部分文件，所以是有 changed files 和 commited files 两个概念，但是没有找到办法获取 commited files，参见：<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/24565802/mercurial-pre-commit-hook-how-to-tell-apart-changed-and-committed-files">Mercurial pre-commit hook: How to tell apart changed and committed files - Stack Overflow</a></li>
+<li>另一种思路：使用 pretxncommit 钩子，就可通过 $Hg_NODE 变量拿到当前 commit 的信息，但缺点是 pretxncommit 阶段将不能再对文件进行改动，则格式化后需要重新提交一遍。</li>
+</ul>
+<p>随着版本迭代，在 precommit 钩子中增加了检测 utils、test 目录改动则自动执行单元测试 ：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 修改以下文件需要执行单元测试</span></span><br><span class="line">apps=(</span><br><span class="line">    <span class="string">&#x27;miniprogram/utils miniprogram/test&#x27;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> app <span class="keyword">in</span> <span class="string">&quot;<span class="variable">$&#123;apps[@]&#125;</span>&quot;</span>; <span class="keyword">do</span></span><br><span class="line">    <span class="built_in">dir</span>=(<span class="variable">$app</span>)</span><br><span class="line">    pass=0</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> d <span class="keyword">in</span> <span class="string">&quot;<span class="variable">$&#123;dir[@]&#125;</span>&quot;</span>; <span class="keyword">do</span></span><br><span class="line">        <span class="comment"># 判断是否修改工具方法、测试用例，无则跳过</span></span><br><span class="line">        has_change=$(hg status | grep <span class="string">&quot;<span class="variable">$&#123;d&#125;</span>&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> [ -z <span class="string">&quot;<span class="variable">$has_change</span>&quot;</span> ]; <span class="keyword">then</span> <span class="built_in">continue</span>; <span class="keyword">fi</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment"># 同一个项目只执行一次</span></span><br><span class="line">        [ <span class="variable">$pass</span> -eq 1 ] &amp;&amp; <span class="built_in">break</span></span><br><span class="line"></span><br><span class="line">        <span class="built_in">cd</span> <span class="string">&quot;<span class="variable">$d</span>&quot;</span> || <span class="built_in">exit</span> 1</span><br><span class="line">        yarn &amp;&amp; yarn <span class="built_in">test</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># test 是否报错，是则直接退出脚本</span></span><br><span class="line">        <span class="keyword">if</span> [ $? -ne 0 ]; <span class="keyword">then</span> <span class="built_in">exit</span> 1; <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">        pass=1</span><br><span class="line"></span><br><span class="line">        <span class="built_in">cd</span> -</span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="拉取代码后（changegroup）"><a href="#拉取代码后（changegroup）" class="headerlink" title="拉取代码后（changegroup）"></a>拉取代码后（changegroup）</h4><p>主要想解决的问题是：当拉取代码后，检测到 project-config 目录发生变更，则执行 <code>yarn setup</code>。</p>
+<p>首先要解决第一点，如何获取从远端拉取代码所改动的文件？有下面几种方法：</p>
+<ol>
+<li><p><a target="_blank" rel="noopener" href="https://backend.bolt80.com/hgdoc/hg-incoming.html">hg incoming</a>：显示远端中的新 commit</p>
+<ul>
+<li>缺点：该方法只是显示新的 commit，后面仍需要再进行一次 pull 才能将新 commit 拉取下来，导致拉取代码时间翻倍。</li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://backend.bolt80.com/hgdoc/hg-pull.html">hg pull</a>：在拉取代码之后、进行 update 或 rebase 之前，通过 <code>hg log</code> 对比本地 head 和 远端拉取下来的 head。</p>
+</li>
+<li><p>hooks：</p>
+<ol>
+<li>update：工作目录发生改变时，所以只要进行提交、储藏、切换分支都会触发，<strong>不考虑</strong>。</li>
+<li>incoming：每一个新的 commit 被传入时都会触发一次，过于频繁，<strong>不考虑</strong>。</li>
+<li>changegroup：在 push、pull、unbundle 时都会触发，但多个 commit 被传入也只会触发一次，<strong>可考虑</strong>。</li>
+<li>还有一些不太满足的 hooks 不一一介绍了。</li>
+</ol>
+</li>
+</ol>
+<p>在一开始，我们曾尝试使用第二种方法解决该问题：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">hgpl</span></span>() &#123;</span><br><span class="line">    no_shelve=$(hg shelve | grep <span class="string">&quot;nothing changed&quot;</span>)</span><br><span class="line"></span><br><span class="line">    hg pull</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 改动文件</span></span><br><span class="line">    regex=<span class="string">&#x27;\bproject-config&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获取本次 pull 变更集的改动文件列表，判断是否有改动相关文件</span></span><br><span class="line">    <span class="comment"># @link：https://stackoverflow.com/questions/3277334/what-files-will-be-changed-vs-added-when-i-do-an-hg-pull-and-hg-update</span></span><br><span class="line">    has_change=$(hg <span class="built_in">log</span> --verbose -r .:tip | grep <span class="string">&quot;files:&quot;</span> | grep -E <span class="string">&quot;<span class="variable">$regex</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 参考 hg update --rebase 的实现，先尝试 rebase，如果不需要 rebase，则直接 update</span></span><br><span class="line">    <span class="comment"># @link：https://stackoverflow.com/questions/35327163/what-is-the-rebase-command-used-in-hg-pull-rebase</span></span><br><span class="line">    <span class="comment"># @link：https://www.mercurial-scm.org/repo/hg/file/tip/hgext/rebase.py#l2172</span></span><br><span class="line">    has_rebase=$(hg rebase -b . -d <span class="string">&#x27;last(branch(.))&#x27;</span> | grep <span class="string">&quot;nothing to rebase&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> [ ! -z <span class="string">&quot;<span class="variable">$has_rebase</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">        hg update</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 有改动相关文件，需要执行 yarn setup</span></span><br><span class="line">    <span class="keyword">if</span> [ ! -z <span class="string">&quot;<span class="variable">$has_change</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">        yarn setup</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 如果之前有 shelve，需要恢复 shelve</span></span><br><span class="line">    <span class="keyword">if</span> [ -z <span class="string">&quot;<span class="variable">$no_shelve</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">        hg unshelve</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个方法可以很好地工作，它可以满足：</p>
+<ul>
+<li>拉取代码时自动储藏、恢复本地改动</li>
+<li>当两端都同时修改 project-config 时，可以 update 或者 rebase 后再统一 <code>yarn setup</code></li>
+</ul>
+<p>后来发现使用 changegroup  hook 配合 <code>hg log</code> 一样可以解决问题，于是就有了 <code>changegroup.sh</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line">PATH=/usr/local/bin:/opt/homebrew/bin:<span class="variable">$PATH</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 改动文件</span></span><br><span class="line">regex=<span class="string">&#x27;\bproject-config&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取本次变更集的改动文件列表，判断是否有改动相关文件</span></span><br><span class="line"><span class="comment"># @see：https://stackoverflow.com/questions/3277334/what-files-will-be-changed-vs-added-when-i-do-an-hg-pull-and-hg-update</span></span><br><span class="line">has_change=$(hg <span class="built_in">log</span> -v -r <span class="variable">$Hg_NODE</span>: | grep <span class="string">&quot;files:&quot;</span> | grep -E <span class="string">&quot;<span class="variable">$regex</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 有改动相关文件，需要执行 yarn setup</span></span><br><span class="line"><span class="keyword">if</span> [ ! -z <span class="string">&quot;<span class="variable">$has_change</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">cd</span> $(hg root) || <span class="built_in">exit</span> 1</span><br><span class="line">    yarn setup</span><br><span class="line">    <span class="built_in">cd</span> -</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+
+<p> 因此 <code>hgpl</code> 可以精简成这样：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">hgpl</span></span>() &#123;</span><br><span class="line">    has_shelve=$(hg shelve | grep <span class="string">&quot;nothing changed&quot;</span>)</span><br><span class="line"></span><br><span class="line">    hg pull --rebase</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 如果之前有 shelve，需要恢复 shelve</span></span><br><span class="line">    <span class="keyword">if</span> [ -z <span class="string">&quot;<span class="variable">$has_shelve</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">        hg unshelve</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="commit-message-检查（pretxncommit）"><a href="#commit-message-检查（pretxncommit）" class="headerlink" title="commit message 检查（pretxncommit）"></a>commit message 检查（pretxncommit）</h4><p>使用 pretxncommit 钩子可对当前提交信息进行检查，如检查 commit message：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line">PATH=/usr/local/bin:/opt/homebrew/bin:<span class="variable">$PATH</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$SKIP_LINT</span>&quot;</span> = <span class="string">&quot;1&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">exit</span> 0</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">shelve_user=<span class="string">&quot;shelve@localhost&quot;</span></span><br><span class="line"></span><br><span class="line">commit_user=$(hg tip --template &#123;user&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 因为 hg shelve 也会触发 pretxncommit 钩子，所以要进行忽略</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$commit_user</span>&quot;</span> == <span class="string">&quot;<span class="variable">$shelve_user</span>&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">exit</span> 0</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">commit_message=$(hg tip --template &#123;desc&#125;)</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;[msg] <span class="variable">$commit_message</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$commit_message</span>&quot;</span> | ./node_modules/.bin/commitlint</span><br></pre></td></tr></table></figure>
+
+<h2 id="铁器时代？"><a href="#铁器时代？" class="headerlink" title="铁器时代？"></a>铁器时代？</h2><p>这个标题之所以打上一个问号，是因为该方案仍在 POC 阶段，尚未落地实施，但也可作为一个对未来的展望。</p>
+<p>迄今为止，我们的 Hg hooks 已经能够满足大部分场景了，那还存在些什么问题呢？</p>
+<p>相信不少同学已经发现这样操作会存在有一个很明显的问题，那就是：hooks 配置如何同步？</p>
+<p>我们知道 <code>.hg</code> 目录是不会加入版本控制的，这是非常合理且必要的，因为 hooks 本身是一些权限极高的可执行脚本，所以出于安全考虑（你也不想你 clone 一个仓库后，它会自动执行某些你不想执行的命令），<strong>因此是不会有任何一个 VSC 会将 hooks 加入版本控制的。</strong></p>
+<p>可是这就会导致：</p>
+<ol>
+<li>假如项目新增了一个 hook，需要通知项目成员同步修改本地的 hooks 配置。</li>
+<li>新成员加入项目，需要手动配置 hooks。</li>
+</ol>
+<p>如果这个问题不能得到解决，那归根到底还是无法绕过通知项目成员手动操作的过程。</p>
+<p>所幸，以上问题在 Git 中同样存在，并且已经有很多非常成熟的方案，如： <a target="_blank" rel="noopener" href="https://github.com/typicode/husky">huksy</a>、<a target="_blank" rel="noopener" href="https://pre-commit.com/">pre-commit</a> 。</p>
+<p>那有没有人在 Hg 生态上解决这个问题呢？粗略找到了两个：</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://github.com/TobiasTimm/husky-hg">husky-hg</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/theylom/tdog-husky-hg">tdog-husky-hg</a>（前者的 fork</li>
+</ol>
+<p>都是基于 husky <a target="_blank" rel="noopener" href="https://github.com/tobiastimm/husky-hg/commit/fcd100f4f1a7bdf04c05f51ddd80af9f87687ddc#diff-7ae45ad102eab3b6d7e7896acd08c427a9b25b346470d7bc6507b6481575d519R2">v0.14.3</a> 改造的，最后提交时间都在三年前（2019），然而 husky 现在已经迭代到 <a target="_blank" rel="noopener" href="https://github.com/typicode/husky/releases/tag/v7.0.4">v7</a> 版本了，这 3 年间经过无数迭代，使用方式和实现原理都发生翻天覆地的变化，于是我们决定基于 husky v7 自行改造。</p>
+<p>但是在此之前，我们先了解一下 Git 如何配置 hooks：</p>
+<ol>
+<li>在以前的 Git 版本中，如果要配置一个 hooks 则需要在 <code>.git/hooks</code> 目录新增一个 hook 同名的可执行文件，并且出于前面说的安全考虑， <code>.git</code>  目录是不会被加入版本控制的，<strong>因此也存在上面所说的问题</strong>。</li>
+<li>在 Git v2.9 以后，支持通过配置 core.hooksPath 自定义项目的 hooks 的存放路径，也即意味着可将 hooks 加入版本控制，项目成员只需要在第一次配置 core.hooksPath 即可，后续增删 hooks 都可直接使用。</li>
+</ol>
+<p>因为 Git 支持 core.hooksPath ，所以 husky 直接采用了新的实现原理重构：</p>
+<ol>
+<li><p>在 huksy v4 的时候，由于 Git hooks 目录无法被加入版本控制，它们是这样解决这个问题的：</p>
+<ol>
+<li>在初始化的时候就在 <code>.git/hooks</code> 目录预先创建所有的 hooks 可执行文件，然后在 hooks 文件中执行定义在 <code>package.json</code> 中的 hooks 命令。</li>
+<li>这样很显然可以解决 hooks 无法同步的问题，但是这个实现原理也被不少人诟病，见 <a target="_blank" rel="noopener" href="https://github.com/typicode/husky/issues/260">#260</a> 。</li>
+</ol>
+</li>
+<li><p>由于 Git v2.9 的升级，在 husky v7 中使用了新的实现方式：</p>
+<ol>
+<li>将 hooks 可执行文件存放在一个可以被进行版本控制的目录（默认是 <code>.husky</code>），然后初始化的时候只需要配置  core.hooksPath 即可。</li>
+</ol>
+</li>
+</ol>
+<p>显然，v7 的实现方式更加方便快捷了，除此之外，它们的使用方式也有很大的不同：</p>
+<ol>
+<li>在 v4 中，通过在 <code>package.json</code>  中配置 <code>husky</code> 字段来定义 hooks。</li>
+<li>在 v7 中，<strong>它不再仅限于 Node.js 项目</strong>，可以直接通过 CLI 的方式进行配置，参见：<a target="_blank" rel="noopener" href="https://blog.typicode.com/husky-git-hooks-javascript-config/">Why husky has dropped conventional JS config</a>。</li>
+</ol>
+<p>在深入了解背后的实现原理后，我们得出了结论：</p>
+<ol>
+<li>v4 版本的代码<strong>有较多历史包袱，不利于改造，故基于 v7 版本修改</strong>。</li>
+<li>但 v7 版本的实现方式对 Hg 并不完全适用，所以需要继续沿用 v4 的部分实现方式，所以这样设计：<ol>
+<li>将 hooks 脚本存放在可被版本控制的 <code>.husky</code> 目录</li>
+<li>但不通过预注册所有的 hooks 的方式，而是采用按需配置，初始化时根据 <code>.husky</code> 的 hooks 可执行文件列表注入 hooks 配置。<ol>
+<li>比如在 Node.js 项目中可以通过 npm 的 <a target="_blank" rel="noopener" href="https://docs.npmjs.com/cli/v8/using-npm/scripts#prepare-and-prepublish">prepare</a> 钩子来自动初始化。</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>因此，使用方式与 husky <a target="_blank" rel="noopener" href="https://typicode.github.io/husky/">文档</a> 中基本一致。<ol>
+<li><code>husky install</code>、<code>husky add .husky/pre-commit</code></li>
+</ol>
+</li>
+</ol>
+<p>以上的心路历程、改造进展可以通过这个 <a target="_blank" rel="noopener" href="https://github.com/gd4Ark/husky/pull/1">PR</a> 查看，感兴趣的同学可自行尝试：</p>
+<ol>
+<li>clone 项目，安装依赖，执行 npm link。</li>
+<li>参考  husky <a target="_blank" rel="noopener" href="https://typicode.github.io/husky/">文档</a> 进行使用。</li>
+</ol>
+<h2 id="背后的一些二三事"><a href="#背后的一些二三事" class="headerlink" title="背后的一些二三事"></a>背后的一些二三事</h2><p>最后分享一些我们在实践 Hg hooks 时的小插曲。</p>
+<h3 id="一个隐藏字符引发的前端事故"><a href="#一个隐藏字符引发的前端事故" class="headerlink" title="一个隐藏字符引发的前端事故"></a>一个隐藏字符引发的前端事故</h3><p>有一天下午，在群里收到这么一个反馈：</p>
+<img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images202203191549957.jpg"  alt="2471647676117_.pic" style="margin-left: 0;" />
+
+<p>点开大图一看，好家伙！赫然一个「口」字就这么明目张胆地贴在页面的左下角，看它「浓眉大眼」的。</p>
+<p>到底是哪里出了问题呢？</p>
+<p>仔细看清楚，才发现它其实不是一个「口」字，而是「□」，学名叫做 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-hans/%E8%99%9A%E7%BC%BA%E5%8F%B7">虚缺号</a>，通俗地讲就是一个特殊字符。</p>
+<p>于是打开对应的代码文件，果然一个红底白色 BS 字符引入眼帘：</p>
+<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images202204042021847.png"></p>
+<h4 id="这是-VSCode-的锅？"><a href="#这是-VSCode-的锅？" class="headerlink" title="这是 VSCode 的锅？"></a>这是 VSCode 的锅？</h4><p>在网上有一番搜寻后，发现早就已经有不少人遇到过这个问题：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/wangduanduan/wangduanduan.github.io/issues/158">vscode控制字符引起的问题以及解决思路</a></li>
+<li><a target="_blank" rel="noopener" href="https://jiangxiaokun.com/css/2018/11/15/ghost_chars/">隐藏字符引发的血案</a></li>
+</ul>
+<p>看下他们提供的复现过程：</p>
+<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images202203191703719.gif" alt="hmmm"></p>
+<p>直接说下这个 Bug 的结论：</p>
+<ol>
+<li>VSCode 开启 webview 的情况下，使用中文输入法时按下退格键，就会导致出现退格符。</li>
+<li>VSCode 底层是 Electron，Electron 底层用的 chromium，这个 BUG 是 chromium 的。</li>
+<li>该 BUG 已经在 VSCode v1.4.0 得到修复，参见这个 <a target="_blank" rel="noopener" href="https://github.com/microsoft/vscode/issues/37114#issuecomment-544236959">issue</a>。</li>
+</ol>
+<p>但既然该问题在 2019 年已经修复，那为什么在 2022 年的今天还会出现这个退格符呢？</p>
+<p>由于已经复现不了，根源追求也就只能不了了之，但影响又如此之大，所以我们应该怎么去规避它呢？</p>
+<h4 id="规避方案"><a href="#规避方案" class="headerlink" title="规避方案"></a>规避方案</h4><h5 id="利用-VSCode-扩展自动删除"><a href="#利用-VSCode-扩展自动删除" class="headerlink" title="利用 VSCode 扩展自动删除"></a>利用 VSCode 扩展自动删除</h5><p>有一个 VSCode 扩展 <a target="_blank" rel="noopener" href="https://github.com/satokaz/vscode-bs-ctrlchar-remover">Remove backspace control character</a> 专门用于解决此类问题，安装后我们只需要在 setting.json 添加如下配置：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;[wxml]&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;editor.formatOnSave&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;editor.defaultFormatter&quot;</span><span class="punctuation">:</span> <span class="string">&quot;satokaz.vscode-bs-ctrlchar-remover&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>即可在保存代码的时候自动移除这些特殊的隐藏字符。</p>
+<p>实现方式主要是通过正则去匹配这类隐藏字符：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/[\u0000]|[\u0001]|[\u0002]|[\u0003]|[\u0004]|[\u0005]|[\u0006]|[\u0007]|[\u0008]|[\u000b]|[\u000c]|[\u000d]|[\u000e]|[\u000f]|[\u0010]|[\u0011]|[\u0012]|[\u0013]|[\u0014]|[\u0015]|[\u0016]|[\u0017]|[\u0018]|[\u0019]|[\u001a]|[\u001b]|[\u001c]|[\u001d]|[\u001e]|[\u001f]|[\u001c]|[\u007f]/gm</span><br></pre></td></tr></table></figure>
+
+<p>在这里查看所有字符的介绍：<a target="_blank" rel="noopener" href="https://www.techonthenet.com/unicode/chart.php">Unicode</a>，本文所出现的 BS 正是 [\u0008]，也就是退格符。</p>
+<h5 id="提交代码前自动删除"><a href="#提交代码前自动删除" class="headerlink" title="提交代码前自动删除"></a>提交代码前自动删除</h5><p>更好的方式是：我们可以在 precommit 钩子自动做这件事：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">find . -name <span class="string">&quot;*.wxml&quot;</span> -<span class="built_in">exec</span> perl -i -p -e <span class="string">&quot;s/[\x08]//g&quot;</span> &#123;&#125; +</span><br><span class="line"></span><br><span class="line"><span class="comment"># 这行命令的 time total</span></span><br><span class="line">0.10s user 0.80s system 93% cpu 0.953 total</span><br></pre></td></tr></table></figure>
+
+<h3 id="让-vscode-hg-提交代码时显示-ESLint-报错的规则"><a href="#让-vscode-hg-提交代码时显示-ESLint-报错的规则" class="headerlink" title="让 vscode-hg 提交代码时显示 ESLint 报错的规则"></a>让 vscode-hg 提交代码时显示 ESLint 报错的规则</h3><p>起因是某位同学反映在 vscode-hg 提交代码的时候，无法显示 ESLint 校验不通过的规则提示：</p>
+<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images202203201415448.png" alt="image-20220320141520784"></p>
+<p>通常我们提交代码时，如果 yarn lint 不通过，会输出如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ eslint <span class="string">&#x27;**/*.js&#x27;</span> --cache --fix</span><br><span class="line"></span><br><span class="line">/Users/4ark/project/helper/404.js</span><br><span class="line">  9:7  error  <span class="string">&#x27;a&#x27;</span> is assigned a value but never used  no-unused-vars</span><br><span class="line"></span><br><span class="line">✖ 1 problem (1 error, 0 warnings)</span><br><span class="line"></span><br><span class="line">error Command failed with <span class="built_in">exit</span> code 1.</span><br><span class="line">info Visit https://yarnpkg.com/en/docs/cli/run <span class="keyword">for</span> documentation about this <span class="built_in">command</span>.</span><br><span class="line">abort: pre-commit hook exited with status 1</span><br></pre></td></tr></table></figure>
+
+<p>而 vscode-hg 只输出如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">error Command failed with <span class="built_in">exit</span> code 1.</span><br><span class="line">abort: pre-commit hook exited with status 1</span><br></pre></td></tr></table></figure>
+
+<p>不过经测试在 VSCode 中进行 Git 代码提交时并不存在该问题，所以猜测是 vscode-hg 这个扩展的原因。</p>
+<p>于是抱着怀疑的态度看一下源码，发现果然如此：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/hg.ts#L620</span></span><br><span class="line"><span class="keyword">if</span> (options.<span class="property">logErrors</span> !== <span class="literal">false</span> &amp;&amp; result.<span class="property">stderr</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="title function_">log</span>(<span class="string">`<span class="subst">$&#123;result.stderr&#125;</span>\n`</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里只输出了 stderr，但是 ESLint 的规则输出是 stdout。</p>
+<p>于是我们为了更好地使用 Hg hooks，让它支持了输出 ESLint 规则，见 <a target="_blank" rel="noopener" href="https://github.com/mrcrowl/vscode-hg/issues/185">#185</a>。</p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>以上就是我们在实践 Hg hooks 过程的一些经历和心得，未必是最佳解决方案，正如文本开头所说，撰写本文的目的是希望能起到抛砖引玉的作用，与大家一起进一步的深入探讨。</p>
+<p>对于本文的实践思路、代码实现有任何的意见和建议，都请不吝指教。</p>
+<p>最后感谢大家的阅读。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2022-03-12-central-bank/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022-03-12-central-bank/" itemprop="url">央行是干嘛的 - 读《金融的本质》</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-03-12T12:35:36+00:00">
+                2022-03-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/summary/" itemprop="url" rel="index">
+                    <span itemprop="name">summary</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <img src="/images/financial-crisus.jpg" class="">
+
+<h2 id="一、序"><a href="#一、序" class="headerlink" title="一、序"></a>一、序</h2><p>最近读完了<a target="_blank" rel="noopener" href="https://item.jd.com/12169610.html#none">《金融的本质》</a>，作者是美国的央行—-<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%81%94%E9%82%A6%E5%82%A8%E5%A4%87%E7%B3%BB%E7%BB%9F">美联储</a>的前主席 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%9C%AC%C2%B7%E4%BC%AF%E5%8D%97%E5%85%8B">伯南克</a> 。</p>
+<p>伯南克任职期间为 06 ~ 14 年，他任期内美国及全球爆发了严重的经济危机，而他通过降低利率、量化宽松，以及承担最后贷款人职责等手段，有效降低了经济危机对美国的影响。</p>
+<p>以下是我的一些笔记。</p>
+<h2 id="二、央行的使命"><a href="#二、央行的使命" class="headerlink" title="二、央行的使命"></a>二、央行的使命</h2><p>央行是一个特殊的机构，在伯南克看来，央行主要有两大使命：</p>
+<ul>
+<li>1、保持经济的稳定增长</li>
+<li>2、维持金融的稳定</li>
+</ul>
+<p>这里面，<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E7%BB%8F%E6%B5%8E/403149">经济</a>和<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E9%87%91%E8%9E%8D">金融</a>的差别困扰了我一阵子，原来它俩不是一个意思：</p>
+<ul>
+<li>经济一般是人类的价值创造过程。所以“保持经济的稳定增长”主要就是指 GDP 能够持续增长，保证就业率，同时维持低通胀。</li>
+<li>金融是指对经济活动中对资金本身的一些“交易”，比如银行、证券、保险、债券。所以”金融稳定”就是指各种借贷关系是正常的，没有大面积的违约。</li>
+</ul>
+<p>那央行有什么特殊的技能，能够达成这两个使命呢？这主要靠国家赋予它的两个特殊的权力：</p>
+<ul>
+<li>1、制定经济活动中各种规则的能力。比如：调节利率、存款保证金比例、中期借贷便利（MLF）等等。</li>
+<li>2、承担最后贷款人责任，为各种金融资产兜底。</li>
+</ul>
+<p>下面我展开说说我对这两个职责的理解。</p>
+<h2 id="三、保持经济的稳定增长"><a href="#三、保持经济的稳定增长" class="headerlink" title="三、保持经济的稳定增长"></a>三、保持经济的稳定增长</h2><p>经济衰退肯定是不好的，因为经济衰退情况下会有大量的失业，通货紧缩。在通货紧缩的时候，因为钱升值了，借贷的人就会发现钱越来越值钱，但是他以前借的 100 万还是需要还 100 万，相当于他的债务内在价值越来越高。这种现象会使得大家更不愿意花钱，带动整体经济进一步下滑。</p>
+<h3 id="3-1-降低利率"><a href="#3-1-降低利率" class="headerlink" title="3.1 降低利率"></a>3.1 降低利率</h3><p>面对经济衰退，央行通常的办法就是降低利率，同时减少社会融资成本。美国 08 年经济危机，美联储为了减少社会融资成本，把长期利率降成了 0%。</p>
+<h3 id="3-2-量化宽松"><a href="#3-2-量化宽松" class="headerlink" title="3.2 量化宽松"></a>3.2 量化宽松</h3><p>然后美国施行了多轮的量化宽松政策，具体的做法是购买了大量的国债。大量的国债被购买后，市场上流通的债券就只剩利率更低的企业债等产品，这样就可以带动社会各种借贷的利率下降，从而刺激经济活动。</p>
+<p>在本书中，伯南克否认量化宽松政策是“直接印钱”（书中第132页），因为：</p>
+<ul>
+<li>钱是从存款保证金余额中借出来的。</li>
+<li>量化宽松主要购买的是国债，国债到期后可以将本金及利息收回。</li>
+</ul>
+<p>但是，量化宽松到期后能不能把钱全部收回，也取决于到时的政府财政状态，如果经济没有好转，大家还是缺钱，这样就只能到期继续购买国债，相当于往市场中注入了收不回来的现金。</p>
+<h3 id="3-3-直接印钱"><a href="#3-3-直接印钱" class="headerlink" title="3.3 直接印钱"></a>3.3 直接印钱</h3><p>刺激经济的手段还有直接印钱。</p>
+<p>印来的钱可以直接发给大家。比如：2020 年，美国总统特朗普的 2 万亿美元的财政刺激计划里面，就有 2500 亿发给了个人。其中年收入低于 7.5 万美元的单身人员将获得 1200 美元。</p>
+<p>印来的钱也可以用来加大基础建设投资，我国面对 08 年金融危机时提出的 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%9B%9B%E4%B8%87%E4%BA%BF%E6%8A%95%E8%B5%84%E8%AE%A1%E5%88%92">四万亿投资计划</a> 就是这样的例子。</p>
+<p>基础建设的投资可以带动上下游产业，从而把印出来的钱转变成大家的工资，进而刺激消费。但是这种行为多少还是会带来一定程度的通货膨胀。我为此专门查了一下中国的 CPI 数据，当时 CPI 在 08 年上升到 5.9%，但是后面迅速回落了，可见政府对价格的调整做得还是挺好的。</p>
+<img src="/images/china-cpi.jpg" class="">
+
+
+<h3 id="3-4-对面经济泡沫"><a href="#3-4-对面经济泡沫" class="headerlink" title="3.4 对面经济泡沫"></a>3.4 对面经济泡沫</h3><p>经济过热也是不好的，如果央行觉得经济泡沫太多，就会想办法抑制投资，给经济降温。常见的办法就是刺激经济的逆操作：加息，提高存款保证金，退出量化宽松政策等。</p>
+<h3 id="3-5-CPI-多少是合适的"><a href="#3-5-CPI-多少是合适的" class="headerlink" title="3.5 CPI 多少是合适的"></a>3.5 CPI 多少是合适的</h3><p>书中关于这个有不少讨论，但并没有提供详细的精算过程。核心就是：既要保证为波动留够安全边际，保证不会通缩；又要不能太高，带来泡沫。最终实践出来的物价稳定的低通胀率是 2%。</p>
+<p>拿这个标准来看，中国过去 5 年做得都是比较优秀的，除了疫情等原因外，中国在 16 - 19年的 CPI 都稳定在 2% 左右。</p>
+<img src="/images/china-cpi-2.jpg" class="">
+
+<h2 id="四、最后贷款人"><a href="#四、最后贷款人" class="headerlink" title="四、最后贷款人"></a>四、最后贷款人</h2><p>最后贷款人是一种安全机制，让大家可以安心地把钱放在各种金融机构中。</p>
+<p>我稍微展开解释一下：</p>
+<blockquote>
+<p>银行收到大家的存款后，其实是会借贷给需要的企业或个人，大家的存款很多是短期的，而借贷很多是长期的。比如我自己的房贷，就是 30 年的，但是我存在银行的定期，大多是一年期的。这就造成了资金的错配。</p>
+<p>资金的错配使得如果大家都到银行挤兑的话，银行是不可能拿出那么多现金来的。如果银行为了强行付钱来快速变卖资产或债务，就会造成资产价格的下降，进一步冲击经济。</p>
+<p>所以，央行就承担起最后贷款人的责任，当真的发生挤兑的时候，央行可以直接拿银行的资产当作抵押，为银行提供现金。</p>
+</blockquote>
+<p>以上只是一种理论情况。当你相信央行会行使最后贷款人责任的时候，你就建立了资金的安全感，从而挤兑行为就不会发生了。</p>
+<p>在实操中，国内确实出现过银行倒闭的现象：2020 年<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%8C%85%E5%95%86%E9%93%B6%E8%A1%8C">包商银行</a> 破产，央行就承担起了最后贷款人责任，为民众的存款提供保障。</p>
+<p>但是根据<a target="_blank" rel="noopener" href="http://www.gov.cn/zhengce/content/2015-03/31/content_9562.htm">《存款保险条例》</a>，存款保险实行限额偿付，最高偿付限额为人民币 50 万元。所以超过 50 万以上的存款还是无法赔付。个人如果有大量的存款，可以考虑分散到多家银行中。</p>
+<p>另外保险和理财产品大多数是银行代销，其实并不属于银行的自营业务，在发生风险的时候，也无法按照《存款保险条例》赔付。</p>
+<p>比如之前大量的 P2P 理财产品暴雷，就不能指望央行来承担最后贷款人责任。</p>
+<h2 id="五、小结"><a href="#五、小结" class="headerlink" title="五、小结"></a>五、小结</h2><p>作为独立机构，央行的使命是维持经济和金融稳定，保证就业率和低通胀率。它通过调节利率、调节存款保证金、逆回购、调节 MLF、购买国债、增发货币、承担最后贷款人等方式来实现以上目标。</p>
+<h2 id="六、参考资料"><a href="#六、参考资料" class="headerlink" title="六、参考资料"></a>六、参考资料</h2><ul>
+<li>经济的定义：<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E7%BB%8F%E6%B5%8E/403149">https://baike.baidu.com/item/%E7%BB%8F%E6%B5%8E/403149</a></li>
+<li>金融的定义：<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E9%87%91%E8%9E%8D">https://zh.wikipedia.org/wiki/%E9%87%91%E8%9E%8D</a></li>
+<li>量化宽松的定义：<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E9%87%8F%E5%8C%96%E5%AE%BD%E6%9D%BE/9019987">https://baike.baidu.com/item/%E9%87%8F%E5%8C%96%E5%AE%BD%E6%9D%BE/9019987</a></li>
+<li>中央人民政府网站公布的核心经济数据：<a target="_blank" rel="noopener" href="http://www.gov.cn/shuju/hgjjyxqk/detail.html?q=1">http://www.gov.cn/shuju/hgjjyxqk/detail.html?q=1</a></li>
+<li>四万亿投资计划：<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%9B%9B%E4%B8%87%E4%BA%BF%E6%8A%95%E8%B5%84%E8%AE%A1%E5%88%92">https://zh.wikipedia.org/wiki/%E5%9B%9B%E4%B8%87%E4%BA%BF%E6%8A%95%E8%B5%84%E8%AE%A1%E5%88%92</a></li>
+<li>常听到的“MLF操作”，对我们到底有啥影响: <a target="_blank" rel="noopener" href="https://m.21jingji.com/article/20210522/herald/ff87816c4132382ef27b46127121c1a1.html">https://m.21jingji.com/article/20210522/herald/ff87816c4132382ef27b46127121c1a1.html</a></li>
+<li>逆回购：<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/%E9%80%86%E5%9B%9E%E8%B4%AD/2612290">https://baike.baidu.com/item/%E9%80%86%E5%9B%9E%E8%B4%AD/2612290</a></li>
+<li>《存款保险条例》: <a target="_blank" rel="noopener" href="http://www.gov.cn/zhengce/content/2015-03/31/content_9562.htm">http://www.gov.cn/zhengce/content/2015-03/31/content_9562.htm</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-weekly" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/weekly-04.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/post/weekly-04.html" itemprop="url">周刊第4期：独立思考</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-03-11T16:00:00+00:00">
+                2022-03-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="本周做了啥"><a href="#本周做了啥" class="headerlink" title="本周做了啥"></a>本周做了啥</h2><p>给日常使用的 <a target="_blank" rel="noopener" href="https://github.com/mrcrowl/vscode-hg">vscode-hg</a> 扩展提了两个没什么技术含量的 PR，顺便蹭了一个 contributor：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/mrcrowl/vscode-hg/pull/184">docs: typo lineAnnotationEnabled option</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/mrcrowl/vscode-hg/pull/185">feat: output stdout</a></li>
+</ul>
+<h2 id="分享文章"><a href="#分享文章" class="headerlink" title="分享文章"></a>分享文章</h2><blockquote>
+<p>一些本周阅读过的好文章、以及我的一些总结和个人思考；非常建议你直接阅读原文，毕竟一千个读者就有一千个哈姆雷特，而且我的理解可能是错的。</p>
+</blockquote>
+<h3 id="useMemo-和-useCallback-之间的深入比较"><a href="#useMemo-和-useCallback-之间的深入比较" class="headerlink" title="useMemo 和 useCallback 之间的深入比较"></a><a target="_blank" rel="noopener" href="https://www.chakshunyu.com/blog/a-deep-dive-comparison-between-usememo-and-usecallback/">useMemo 和 useCallback 之间的深入比较</a></h3><p><em>原文地址：<a target="_blank" rel="noopener" href="https://www.chakshunyu.com/blog/a-deep-dive-comparison-between-usememo-and-usecallback/">《A Deep Dive Comparison Between useMemo And useCallback》 | Technical Blog</a></em></p>
+<ul>
+<li>它们的目的：都是通过缓存提高性能，避免组件重复渲染</li>
+<li>相似之处：<ul>
+<li>用法一致：与所有 hooks 一样，只能在组件的顶层调用</li>
+<li>接收的参数一致：第一个为函数，第二个为依赖项</li>
+<li>功能一致：返回缓存过的值，检测到依赖性发生时重新计算并缓存</li>
+</ul>
+</li>
+<li>区别：<ul>
+<li>它们表面上没有真正的区别</li>
+<li>它们的内部实现也基本一致</li>
+<li>使用场景的区别：<code>useCallback</code> 缓存函数，而 <code>useMemo</code> 缓存其它类型</li>
+<li>实现原理的区别：<code>useCallback</code> 是缓存函数本身，而 <code>useMemo</code> 是缓存函数的返回值。</li>
+</ul>
+</li>
+</ul>
+<p>以下是它们的实现方式：</p>
+<ul>
+<li>useCallback</li>
+</ul>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> updateCallback&lt;T&gt;(<span class="attr">callback</span>: T, <span class="attr">deps</span>: <span class="title class_">Array</span>&lt;mixed&gt; | <span class="keyword">void</span> | <span class="literal">null</span>): T &#123;</span><br><span class="line">  <span class="keyword">const</span> hook = <span class="title function_">updateWorkInProgressHook</span>();</span><br><span class="line">  <span class="keyword">const</span> nextDeps = deps === <span class="literal">undefined</span> ? <span class="literal">null</span> : deps;</span><br><span class="line">  <span class="keyword">const</span> prevState = hook.<span class="property">memoizedState</span>;</span><br><span class="line">  <span class="keyword">if</span> (prevState !== <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (nextDeps !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> <span class="attr">prevDeps</span>: <span class="title class_">Array</span>&lt;mixed&gt; | <span class="literal">null</span> = prevState[<span class="number">1</span>];</span><br><span class="line">      <span class="keyword">if</span> (<span class="title function_">areHookInputsEqual</span>(nextDeps, prevDeps)) &#123;</span><br><span class="line">        <span class="keyword">return</span> prevState[<span class="number">0</span>];</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  hook.<span class="property">memoizedState</span> = [callback, nextDeps];</span><br><span class="line">  <span class="keyword">return</span> callback;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>useMemo</li>
+</ul>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> updateCallback&lt;T&gt;(<span class="attr">callback</span>: T, <span class="attr">deps</span>: <span class="title class_">Array</span>&lt;mixed&gt; | <span class="keyword">void</span> | <span class="literal">null</span>): T &#123;</span><br><span class="line">  <span class="keyword">const</span> hook = <span class="title function_">updateWorkInProgressHook</span>();</span><br><span class="line">  <span class="keyword">const</span> nextDeps = deps === <span class="literal">undefined</span> ? <span class="literal">null</span> : deps;</span><br><span class="line">  <span class="keyword">const</span> prevState = hook.<span class="property">memoizedState</span>;</span><br><span class="line">  <span class="keyword">if</span> (prevState !== <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (nextDeps !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> <span class="attr">prevDeps</span>: <span class="title class_">Array</span>&lt;mixed&gt; | <span class="literal">null</span> = prevState[<span class="number">1</span>];</span><br><span class="line">      <span class="keyword">if</span> (<span class="title function_">areHookInputsEqual</span>(nextDeps, prevDeps)) &#123;</span><br><span class="line">        <span class="keyword">return</span> prevState[<span class="number">0</span>];</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  hook.<span class="property">memoizedState</span> = [callback, nextDeps];</span><br><span class="line">  <span class="keyword">return</span> callback;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="初级开发人员如何为新团队提供价值"><a href="#初级开发人员如何为新团队提供价值" class="headerlink" title="初级开发人员如何为新团队提供价值"></a><a target="_blank" rel="noopener" href="https://www.chakshunyu.com/blog/how-you-as-a-junior-developer-can-immediately-provide-value-when-joining-a-team/">初级开发人员如何为新团队提供价值</a></h3><p><em>原文地址：<a target="_blank" rel="noopener" href="https://www.chakshunyu.com/blog/how-you-as-a-junior-developer-can-immediately-provide-value-when-joining-a-team/">《How You As a Junior Developer Can Immediately Provide Value When Joining a Team》 | Technical Blog</a></em></p>
+<ul>
+<li><strong>初级开发人员并不意味着不能提供价值：</strong>相反，初级开发人员可以给团队带来很多东西。</li>
+<li><strong>质疑现状：</strong>如果一个团队长期合作，人们会开始接受彼此的缺点，习惯于某种风格和工作方式，也就会陷入舒适区，这可能会使团队停滞不前。所以你需要保持批判性，寻找团队懒惰、坏习惯、效率低下或者可以改进的地方，并且付诸行动去改变现状。</li>
+<li><strong>新鲜血液：</strong>任何一个项目组都不可能每时每刻使用最新的技术、工具，可能会使得团队成员没有动力跟上最先进的技术，陷入一种恶性循环之中。你作为一个团队的新成员，可能你反而会在当前领域了解更多最先进的技术和工具，从而打破团队的恶性循环。</li>
+<li><strong>意识到团队沟通的问题：</strong>长期合作的团队可能面临习惯现有的沟通方式，会自动忽略对方的缺陷，导致缺乏真正的沟通。而你能够意识到这些问题，并帮助团队提高这方面的效率。</li>
+<li><strong>挑战团队现有的知识</strong>：每个团队内部都有一些的解决方案或流程，并且习惯于此，而你可以提出更多潜在的替代方案，帮助团队寻找更优的解决方案。</li>
+</ul>
+<h4 id="个人思考"><a href="#个人思考" class="headerlink" title="个人思考"></a>个人思考</h4><p>作为一名初级开发人员可能认为自己只能负责最简单的一部分业务，并没有意识到自己能给团队带来这么多价值，但其实你可以通过你作为一个新成员的位置，去发现你刚加入的团队一些不好的习惯，通过正确的心态和行动去改变现状。</p>
+<h3 id="你的代码不必完美无缺"><a href="#你的代码不必完美无缺" class="headerlink" title="你的代码不必完美无缺"></a><a target="_blank" rel="noopener" href="https://www.chakshunyu.com/blog/your-code-doesnt-have-to-be-perfect/">你的代码不必完美无缺</a></h3><p><em>原文地址：<a target="_blank" rel="noopener" href="https://www.chakshunyu.com/blog/your-code-doesnt-have-to-be-perfect/">《Your Code Doesn’t Have to Be Perfect》 | Technical Blog</a></em></p>
+<p>作者通过一段经历，讲述他在实现某个功能时，由于想要实现最佳的解决方案，一开始就花费了大量的时间去进行完美的设计、抽象和封装，结果一个星期的时间没有任何真正的业务产出。</p>
+<p>以下是作者一些教训：</p>
+<ul>
+<li><strong>不要从开始就重构：</strong>不需要刚开始就寻找最优的实现方式，这会让你过早地陷入到某个细节当中，把大量的时间花费在无意义的抽象中。</li>
+<li><strong>复制粘贴还不错：</strong>我们应该坚持 DRY（不要重复你自己），但这不应该是起点，而是最终目标。可以在刚开始时通过复制粘贴实现功能，但这不意味着它就是最终上线的代码，而是在这个功能工作之后，再通过重构来提高代码质量。</li>
+<li><strong>真正的重构需要适当的知识：</strong>通过改进现有的代码会使你的重构过程更加高效，因为这时候你已经掌握了更多的信息，可以更好地了解哪些代码是有意义的抽象。</li>
+</ul>
+<h4 id="个人思考-1"><a href="#个人思考-1" class="headerlink" title="个人思考"></a>个人思考</h4><p>每个开发者都经历过这个阶段，想要一开始就设计好所有的细节、编写最完美的代码，但这是不可能的，所有代码都是经过不断地重构。你的代码不必在一开始就完美无缺，在生产项目中更是如此，毕竟不存在没有 deadline 的项目，只要懂得这个道理，你的工作效率会大大提高。</p>
+<h3 id="关于编写可读代码的最重要的事情"><a href="#关于编写可读代码的最重要的事情" class="headerlink" title="关于编写可读代码的最重要的事情"></a><a target="_blank" rel="noopener" href="https://www.chakshunyu.com/blog/the-most-important-thing-i-learned-about-writing-readable-code/">关于编写可读代码的最重要的事情</a></h3><p>原文地址：<a target="_blank" rel="noopener" href="https://www.chakshunyu.com/blog/the-most-important-thing-i-learned-about-writing-readable-code/">《The Most Important Thing I Learned About Writing Readable Code》</a></p>
+<p>编写代码时最重要的是可读性，一段难以理解的代码，即使你已经知道它的目的，你也很难理解它。所以编写具有可读性的代码是非常必要的。</p>
+<p>已经有非常多的经典书籍在探讨这个话题，例如：</p>
+<ul>
+<li>《代码大全》</li>
+<li>《重构》</li>
+<li>《代码整洁之道》</li>
+</ul>
+<p>本文作者之前也写过几篇关于代码可读性的文章，不过我认为大部分已经是老生常谈了：</p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://blog.logrocket.com/write-more-readable-react-code/">《如何编写更具可读性的 React 代码》</a></p>
+<ul>
+<li><strong>代码长度：</strong>更短的代码通常更容易阅读，但有时候并非如此。所以要根据场景，代码并不是越短越好。</li>
+<li><strong>代码分组：</strong>将特定上下文的代码组合在一起，使得阅读性更高。React 的自定义组件、Hook 就是做这件事情。</li>
+<li><strong>复杂的 JavaScript 结构：</strong>不是所有人都完全熟悉 JavaScript 的语言特性，如果依赖某些特性的固定或隐式行为，会使某些对 JavaScript 不太熟悉的开发人员难以理解这些代码。作者还特地拿 <code>Array.reduce</code> 来举了个例子，认为使用 <code>Array.reduce</code> 虽然可以让代码更加紧凑，但内部需要跟踪太多细节，如果直接使用 <code>for-loop</code> 会使代码更具有可读性。</li>
+<li><strong>条件运算符 &amp;&amp;：</strong>这种短路的隐式行为没有 if-else 的可读性高。</li>
+<li><strong>一次处理多种情况：</strong>例如在同一个 <code>useEffect</code> 处理多个 deps，会使代码更加混乱。</li>
+<li><strong>变量命名：</strong>计算机两大难题之一，这个命题有点大。</li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.chakshunyu.com/blog/6-concrete-tips-that-will-make-your-react-pull-requests-easier-to-review/">《6 个技巧使你的 PR 更容易被 Review》</a></p>
+<ul>
+<li><strong>PR 的用途</strong>：Why、How</li>
+<li><strong>分享视觉变化的屏幕截图</strong>：根据代码变更很难想象视觉的变化，所以展示一个截图可以帮助 Reviewer 更快地知道界面变化。</li>
+<li><strong>列出功能要求</strong>：列出你想要实现的功能预期，否则很难通过代码上下文去预测你的实现是否正确、或者还有更优的解决方案。</li>
+<li><strong>列出新的依赖</strong>：如果新增了依赖，你是如何决定采用哪一个库的。</li>
+<li><strong>避免复杂的代码实现</strong></li>
+<li><strong>提供有关如何 Review 的其他说明</strong>：告诉 Reviewer 从哪里开始 Review。</li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.chakshunyu.com/blog/this-is-my-10-questions-react-code-reviewing-routine/">《帮助你对 React 代码进行 Review 的 10 个问题》</a></p>
+<ul>
+<li>代码是否正常工作？</li>
+<li>我明白了发生了什么吗？</li>
+<li>代码是否可读？</li>
+<li>组件或 Hook 是否做得太多？</li>
+<li>这必须是组件或者 Hook 吗？</li>
+<li>这个 API 设计可以简化吗？</li>
+<li>有测试吗？</li>
+<li>测试有意义吗？</li>
+<li>这个功能的辅助功能方面如何？</li>
+<li>是否更新了相应的文档？</li>
+</ul>
+</li>
+</ul>
+<p>但作者认为有一件更重要的事情被忽略了，那就是：<strong>沟通。</strong></p>
+<p>每个人对于「代码是否具有可读性」的理解都不一样，所以日常中经常会出现下面这种对话：</p>
+<ul>
+<li>“你觉得这段代码非常难以阅读，但我认为它很容易。”</li>
+<li>“我不同意，我经常使用这种实现方式，但理解它并没有难度。”</li>
+<li>“使用这种方式实现，而不是你提供的那种方式实现，意味着我们不需要担心 xxx，可以使代码更短。”</li>
+</ul>
+<p>这种回答并非完全没有道理的，但它们都有共同点：<strong>他们之所以不同意使用这种实现会使代码可读性更差，是因为他们觉得自己能够理解这样的代码。</strong></p>
+<p>的确，他们确实非常熟悉这段代码是如何工作的，但他们搞错了一件事：<strong>他们认为我是因为理解不了这段代码，才觉得这段代码难以阅读。</strong></p>
+<p>然而事实并非如此，因为问题的根本在于：<strong>代码的可读性与你无关，而是与其他人有关，准确地说，是与未来接手这段代码的人有关，甚至这个人很可能就是六个月后的自己。</strong></p>
+<p>所以，你要为他们编写具有可读性的代码。</p>
+<h4 id="个人思考-2"><a href="#个人思考-2" class="headerlink" title="个人思考"></a>个人思考</h4><p>首先我需要说明，我并不认同作者提到的「 <code>for-loop</code> 可读性比 <code>Array.reduce</code> 好」这个结论，我认为 <code>Array.reduce</code> 与 <code>forEach</code>、<code>map</code> 这些标准方法并无不同，不是 JavaScript 的糟粕，甚至是精华部分；另外 <code>Array.reduce</code>  真正需要考虑的细节也不多，只要熟悉递归思想，它其实很好理解。</p>
+<p>除此之外的大部分观点我都是非常认同的，特别是本文讲到的「沟通」二字。我曾待过一个团队，当时合并代码前是需要两人交叉 Review 的，也遇到过几次关于「这样实现的可读性好不好」的问题展开讨论，基本都是各执一词，往往这种时候都需要一个第三者来进行判断，由这个人决定采用哪一种实现。</p>
+<p>还记得有一次更离谱，某位同学酷爱使用位运算符，他对此给出的理由是：这样实现会使代码更快。</p>
+<p>首先我并不认同这种说法，因为他没有给出专业的对比分析，即便这是真的，但在我们负责的这种 Web 项目中，这种速度的提升简直是可以忽略不计的，所以我就「可读性」本身这件事与他讨论，结果他开始和我解释这个位运算符是如何工作的，这位同学就犯了上面提到的问题，其实我不是不理解位运算符如何工作，我还曾写过一篇《<a target="_blank" rel="noopener" href="https://4ark.me/post/learn-bitwise-operators.html">深入理解按位操作符</a>》的文章，我只是单纯认为不应该在项目中使用位运算符罢了。</p>
+<h2 id="有趣的链接"><a href="#有趣的链接" class="headerlink" title="有趣的链接"></a>有趣的链接</h2><ul>
+<li><p><a target="_blank" rel="noopener" href="https://www.aisixiang.com/">爱思想</a>：华语圈内最具原创性和思想性的公益纯学术网站，有人文社科各领域、人品和作品均有一定高度的学者的大量访谈记录、论文等，可帮助你提高独立思考的能力。</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://www.allhistory.com/">全历史</a>：在全历史 App 或网站里，你可以按照时间轴、关系图谱、时间地图查看各国，各个历史时期的历史相关内容。</p>
+</li>
+<li><p>在信息爆炸的今天，充斥着大量的虚假信息，这里推荐一些事实核查网站帮助你快速辨别信息真伪：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://chinafactcheck.com/">有据</a></li>
+<li><a target="_blank" rel="noopener" href="https://tfc-taiwan.org.tw/">台湾事实核查中心</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.politifact.com/">PolitiFact</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.truthorfiction.com/">Truth or Fiction</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.factcheck.org/">FactCheck.org</a></li>
+<li><a target="_blank" rel="noopener" href="https://factcheck.afp.com/">Fact Check</a></li>
+</ul>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2022-03-10-china-revolution-insight/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022-03-10-china-revolution-insight/" itemprop="url">理解改革开放 - 读《置身事内》</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-03-10T15:04:38+00:00">
+                2022-03-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/summary/" itemprop="url" rel="index">
+                    <span itemprop="name">summary</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="一、序"><a href="#一、序" class="headerlink" title="一、序"></a>一、序</h2><p>最近看完了一本讲中国政府与经济发展的书，叫<a target="_blank" rel="noopener" href="https://book.douban.com/subject/35546622/">《置身事内》</a>，作者是复旦大学经济学院副教授兰小欢。</p>
+<p>这本书一开始看就停不下来了。原来过去几十年，中国遇到了这么多发展问题，中央政府通过不停地改革试错，摸着石头过河，保证了中国经济的持续发展。</p>
+<p>了解完当时的背景，“置身事内”之后，你很容易就理解各种政策背后的原因了，有一种恍然大悟的感觉。</p>
+<p>以下是一些笔记。</p>
+<h2 id="二、从财政包干到分税制"><a href="#二、从财政包干到分税制" class="headerlink" title="二、从财政包干到分税制"></a>二、从财政包干到分税制</h2><p>书中详细介绍了国内改革开放后，做得比较成功的经济改革。</p>
+<p>第一次改革，是 1985 年开始的财政包干制度。不同于之前的大锅饭，全国各地搞承包责任制，提高生产积极性。</p>
+<p>大锅饭因为干好干坏一个样，极大地损害了大家的劳动积极性。所以很容易就想到了通过多劳多得来刺激大家的积极性。</p>
+<p>但这样的制度落地，其实也是不容易的。因为当年这种行为被左派指责为走资本主义。邓小平的用“不管黑猫白猫，抓到耗子就是好猫”来鼓励大家尝试，让大家把重点放到如何有效改善人民的生活水平上。</p>
+<p>于是，在 20 世纪 80 年代，农村搞土地承包，城市搞企业承包，政府搞财政承包。</p>
+<p>在那个年代，财政包干制度有效促进了经济发展。但是到了 90 年代，承包制的问题开始凸显：</p>
+<ul>
+<li>承包制让地方收入越来越大，中央缺钱。</li>
+<li>地方有隐匿收入的动力。通过计划外收入，违规减税等方式将企业利润留给自己，不分给中央。</li>
+<li>因为地方企业所得税归地方，造成地方保护主义盛行，不利于构建全国统一市场。</li>
+</ul>
+<p>以上的问题主要是体现在增值税和企业所得税。具体的改革如下：</p>
+<ul>
+<li>1994 年进行了增值税的改革。增值税以前由地方独占，改成中央 75%，地方 25%。并且中央通过“返还”保证不比以前少。</li>
+<li>2002 年进行了企业所得税改革。地方企业税收以前归地方，现在改成中央 60%，地方 40%。中央通过“返还”过渡。</li>
+</ul>
+<p>分税制是 20 世纪 90 年代推行的根本性改革之一，也是最为成功的改革之一。改革扭转了“两个比重”不断下滑的趋势：</p>
+<ul>
+<li>中央占全国预算收入的比重从改革前的 22％ 一跃变成 55%，并长期稳定在这一水平；</li>
+<li>国家预算收入占 GDP 的比重也从改革前的 11％ 逐渐增加到了 20％ 左右。</li>
+</ul>
+<p>最近正值两会召开，从政府工作报告中，我们能看到 2021 年的国家预算收入 20 万亿，占 114 万亿 GDP 的 17%。可见分税制改革一直有效地保证着国家预算收入的稳定。</p>
+<p>经济改革一直在持续，书中没有提到的是：在 2016 年，为了避免重复多次计税，减轻制造业的税赋压力，国家将营业税改为增值税，同时将增值税的分成改成中央和地方各 50%，进一步刺激经济健康发展。</p>
+<h2 id="三、从分税制到土地财政"><a href="#三、从分税制到土地财政" class="headerlink" title="三、从分税制到土地财政"></a>三、从分税制到土地财政</h2><p>全国预算收入是不包括卖地收入，卖地收入被统计在政府性基金收入中，从《2021年财政收支情况》来看，2021 年有 8.7 万亿的国有土地出让收入。</p>
+<p>分税制改革使得中央有钱了，但是地方却很缺钱。这个时候，1998 年的两项改革：取消福利分房和地方政府垄断国有土地出让，使得卖地收入成为地方政府的主要收入来源。</p>
+<p>土地财政使得中国加速向城镇化方向发展，同时地方政府可以通过廉价出让工业用地来招商引资，刺激经济、增加税收、解决就业。</p>
+<p>因为地方政府需要刺激经济，通过卖地获得的收入，可以通过政府主导的投资，来达成招商引资的目标，带动经济进一步增长。所以，地方政府可以深入介入经济活动中。书中举了京东方等企业的故事，说明政府对于集中力量发展重点产业的优势。</p>
+<p>类似的例子我们不断地可以见到，比如特斯拉落户上海的超级工厂，就是一次成功的政府主导的招商引资，带动新能源上下游产业链成长的案例。</p>
+<h2 id="四、中国的政治架构"><a href="#四、中国的政治架构" class="headerlink" title="四、中国的政治架构"></a>四、中国的政治架构</h2><p>书中还介绍了中国的政治架构：党委、政府、人大、政协。从中央到省、市、县层层复制同样的架构。党委领导政府、政府具体施政、人大决定法律、政协提意见和建议。</p>
+<p>最近北京在开“两会”，就是指全国的人民代表大会和政治协商会议。人大班子每 5 年换届一次，现在是到了第十三届，而人大会议每年开一次，今年（2022年）是第五次会议。</p>
+<p>党委和政府的官员通常都是交叉任职，但是又不是绝对的人事重合关系。你可以理解成两个大的不完全相交的圆。</p>
+<h2 id="五、小结"><a href="#五、小结" class="headerlink" title="五、小结"></a>五、小结</h2><p>中国改革开放几十年来取得了空前的成功，离不开我们在经济发展上的不断创新和改进。</p>
+<p>《置身事内》介绍了中国发展中的历次经济政策调整以及带来的效果，让读者能够理解并且认同到改革的巨大价值。</p>
+<p>本书不但有助于大家理解各种经济运行的原理，也有助于理解中国特色社会主义经济环境下，各种改革如何落地。</p>
+<p>如果再对比上过去几十年别的国家的经济发展速度，本书还能让读者建立起较强的民族自信和自豪感。因为照搬美国发展模式的一些国家（比如乌克兰），事实证明发展得并不顺利。</p>
+<h2 id="六、参考资料"><a href="#六、参考资料" class="headerlink" title="六、参考资料"></a>六、参考资料</h2><p>从本书出发，我也查了一些政府网站的资料，一并分享给大家：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://www.stats.gov.cn/tjsj/ndsj/2018/html/zb07.htm">《全国预算收入定义》</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.npc.gov.cn/npc/c30834/202008/08bd6bb3168e4916a2da92ac68771386.shtml">《我国的中央和地方财政关系》 </a></li>
+<li><a target="_blank" rel="noopener" href="http://gks.mof.gov.cn/tongjishuju/202201/t20220128_3785692.htm">《2021年财政收支情况》 </a></li>
+<li><a target="_blank" rel="noopener" href="https://finance.sina.cn/2019-03-21/detail-ihtxyzsk9155411.d.html?vt=4&pos=108">《全国土地收入去年6.5万亿 钱都花去哪了？》</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.chinatax.gov.cn/n810341/n810765/n812171/n812680/c1190924/content.html">《中华人民共和国消费税暂行条例》</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2022/63-%E5%8C%85%E4%B8%80%E9%A1%BF%E8%8A%B9%E8%8F%9C%E9%A5%BA%E5%AD%90%E8%A7%A3%E8%A7%A3%E9%A6%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3449,702 +4493,11 @@ INFO[0351] $ mkdir -p .kube &amp;&amp; limactl cp minikube:.kube/config .kube/co
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/weekly-idea.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/post/weekly-idea.html" itemprop="url">我为什么要写周刊</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-02-13T16:00:00+00:00">
-                2022-02-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h2 id="为什么想写周刊"><a href="#为什么想写周刊" class="headerlink" title="为什么想写周刊"></a>为什么想写周刊</h2><p>自从养成了阅读 RSS 的习惯以后，作为我获取信息的主要渠道，我每天都会花费 1 - 2 个小时去阅读大量的 RSS 订阅源，这其中的大部分基本都是只瞄一眼标题，或者快速阅读一下内容，而对于一些吸引我注意的标题，才会通过浏览器打开原文仔细阅读，当然这么多文章是无法一次性读完的，这时候会通过 <a target="_blank" rel="noopener" href="https://chrome.google.com/webstore/detail/onetab/chphlpgkkbolifaimnlloiipkdnihall">OneTab</a> 扩展先保存起来，也就是充当稍后阅读的工具（题外话：我在 OneTab 上常年保存着 200+ 以上的标签页），如果读到觉得不错的文章，就会通过 <a target="_blank" rel="noopener" href="https://chrome.google.com/webstore/detail/save-to-notion/ldmmifpegigmeammaeckplhnjbbpccmm">Save to Notion</a> 这个扩展保存到我的 Notion 页面中，使用这个扩展可以很方便地对文章进行分类、原文剪藏，方便后续快速索引。</p>
-<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images202202121723977.png?imageMogr2/format/webp"></p>
-<p>但是后面我发现，大部分文章读完就忘了，能记下来的往往只有少部分，这是因为我没有针对文章的内容做总结，也就是用自己的话去输出这些文章的核心内容、以及一些更深入的思考，以此加深自己的理解。</p>
-<p>于是，我又开了一个 Notion 页面，利用 Relation 字段去关联文章，大概长这样：</p>
-<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images202202121826436.png?imageMogr2/format/webp"></p>
-<p>但就这样「单机」玩，很难坚持下去，所以就索性把这个 Weekly 挂在 Blog 上，虽然也是基本没人看：）</p>
-<p>但这意义就不一样了呀！无论是对保持更新频率、提高博客逼格都能提到一些帮助（不是吗？）。</p>
-<p>所以，你会发现在 Blog 的顶部菜单栏里面多一个 Weekly 的栏目，当然也提供了 RSS 订阅。</p>
-<h2 id="只是记录阅读吗"><a href="#只是记录阅读吗" class="headerlink" title="只是记录阅读吗"></a>只是记录阅读吗</h2><p>以上的确是我想办这个周刊的初衷，但我并不会局限于此，如果只是分享我阅读过的文章就未免显得过于学术性（流水账），我还是希望我这个周刊既有专业性的内容、也有我个人的一些思考在里面，毕竟有一些琐碎的事情不想专门开一篇文章来长篇大论，就特别适合写在我的周刊里面。还是那句话，我这个周刊的主要读者是我自己，所以这里也充当我一个定时输出我不成熟观点的地方。</p>
-<p>其实已经有不少人在做这件事，就国内而言，最著名的莫过于阮一峰老师的 <a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/weekly/">《科技爱好者周刊》</a>，截止本文编写之时，已经更新到 194 期了，几乎坚持每周一更（没有经过仔细核实）。虽然他是一个相对有争议的人，但我还是非常敬佩他，相信很多人和我一样，是通过他的文章来入门前端技术的，所以尊称他一声老师并不为过。</p>
-<p>我不是他最早的一批读者，这当然是因为我比较年轻：），但是我曾经把他博客上所有的文章从头开始读了一遍，从 03 年最早一篇文章开始（可能还是更早），这么多年写作风格自然也有很大的转变，从以前一名愤青，写作文章主要都是关注一些社会、文学、经济等问题，到后来开始转行计算机，主要写一些技术入门、科技新闻的文章。但无论如何，就从他坚持做这件事二十年来看，这种态度非常值得我们学习。</p>
-<p>也有人和我一样，刚刚开始做这件事，这不，前几天就看到了这个：<a target="_blank" rel="noopener" href="https://www.codedump.info/post/20220116-weekly-1/">周刊第 1 期：开刊，数字化生活数据</a>。</p>
-<p>总之，我希望和他们一样，通过这种方式来分享自己看到的东西、观点，多给自己一个与外界沟通的渠道。</p>
-<h2 id="开刊日"><a href="#开刊日" class="headerlink" title="开刊日"></a>开刊日</h2><p>由于之前的比较零散，就从 2022 年 2 月 14 号这一天作为这个周刊的开始吧。</p>
-<p>因为这一天意义非凡，首先当然是情人节，另外也是计算机的生日，不过更重要的是这一天也是我生日：）</p>
-<p>可惜我们老家那边普遍过农历生日，所以要每隔 19 年才会碰上同一天生日，这周刊开在三年前就更有意义了。</p>
-<p>不过每次想起我诞生于本世纪第一个情人节，还跟计算机同一天生日，想必我是一个无论在计算机还是感情方面都应该会有很高造诣的人，然而事实证明是我在这两方面都非常菜。</p>
-<p>感谢阅读。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2022-2-13-picsee/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022-2-13-picsee/" itemprop="url">图片管理+截图+图片编辑+图片格式转换，这个神器让我直呼内行｜Picsee</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-02-12T16:30:00+00:00">
-                2022-02-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>本文首发于我的公众号「<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/JeS3ergTmhGknZACv0b61w">效率工具指南</a>」<br>文&#x2F;彭宏豪</p>
-<p>Hello 各位好，这里是效率工具指南。<br>我是小豪。  </p>
-<p>很久之前介绍过一款电脑上的图片管理工具 Eagle（说起来我也很久没用过这个工具了），功能很强大，可以将本地图片、网络图片（截图）、字体、视频、音频集中到一处，通过文件夹、标签、创建筛选条件等进行分类管理。   </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446619958775.jpg"></p>
-<p>唯一不足的地方在于，这款软件是付费应用——买断制 199 元，如果你日常对图片管理的需求不高，可能不一定下得了手👋。   </p>
-<p>但是别急，有需求的产品就会有替代品。  </p>
-<p>国内的开发者 @chitaner 开发了一款可称作 Eagle 替代品的软件——<strong>Picsee</strong>。</p>
-<p>它并没有完全复刻 Eagle，而是在 Eagle 管理图片的基础上，增加了差异化的设计，例如：  </p>
-<ul>
-<li>增加了截图功能，可作为系统级别的截图工具，免去安装其他的截图工具   </li>
-<li>简单的图片编辑 &amp; 标注功能  </li>
-<li>增加了智能筛选的功能，可以自动找出电脑上重复的照片，节省宝贵的磁盘空间  </li>
-<li>将图片上传到图床，方便在博客或其他平台引入图片</li>
-</ul>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446642617690.jpg"></p>
-<p>Picsee 官网：<br><a target="_blank" rel="noopener" href="https://picsee.chitaner.com/">https://picsee.chitaner.com/</a></p>
-<h2 id="管理的图片来源"><a href="#管理的图片来源" class="headerlink" title="管理的图片来源"></a>管理的图片来源</h2><p>Picsee 管理的图片主要有 3 种来源：  </p>
-<ul>
-<li>电脑本地的图片，在 Mac 上图片来自于照片 App</li>
-<li>浏览器插件捕获的「整页截图」</li>
-<li>Picsee 截图功能截取的图片</li>
-</ul>
-<p>和 Eagle 一样，Picsee 提供了可保存浏览器图片的剪藏插件，插件有两个选项：批量收藏和整页截图。  </p>
-<p>整页截图类似于截图软件的「滚动截图」，可以将整个页面以长图的形式保存到 Picsee 中。  </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446660402452.jpg"></p>
-<p>目前这个插件未上架到应用商店，可以从软件官网提供的链接下载。  </p>
-<p>Picsee Extension 插件下载地址：<br><a target="_blank" rel="noopener" href="https://picsee.chitaner.com/webExtension/">https://picsee.chitaner.com/webExtension/</a></p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446690459364.jpg"></p>
-<p>对比 Eagle 剪藏插件，Picsee 插件少了「选择区域截图」和「可视区域截图」的选项。  </p>
-<p>表面上看 Picsee 无法自由截取保存局部区域，但实际上它把这个功能<strong>单独做成了截图功能</strong>，可在多个场景下使用，并不局限于浏览器中。   </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446712647750.jpg"></p>
-<p>点击状态栏的 Picsee 图标，或者使用快捷键 Shift + Command + X，可以触发 Picsee 的截图功能。   </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446717747414.jpg"></p>
-<p>下图是 Picsee 截图界面，选取截取的区域后，右下角提供了简单的标注工具、滚动截图、贴图和复制到剪贴板等选项。  </p>
-<p>这与 Mac 上的第三方截图软件，例如 iShot 或者 Xnip 大同小异，如果你还没安装这些截图工具，可以<strong>考虑使用 Picsee 作为截图工具</strong>，管理图片和截图两不误。 </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446719885771.jpg"></p>
-<p>截取的图片复制到剪贴板，切换到 Picsee 客户端，使用 Cmd + V 粘贴图片，可以将剪贴板的图片保存到 Picsee 中，这样就能实现类似 Eagle 插件「选择区域截图」的效果啦。</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446749265477.jpg"></p>
-<h2 id="预览图片-视频"><a href="#预览图片-视频" class="headerlink" title="预览图片&#x2F;视频"></a>预览图片&#x2F;视频</h2><p>保存在 Picsee 中的视频，左上角会显示视频格式，例如下图中的多个 mp4 的小字。  </p>
-<p><strong>将鼠标移动到视频上方，会自动播放视频</strong>，且会播放声音，如果是在办公室使用，且电脑带有扬声器，预览视频之前，请记得先关闭声音。  </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446598488239.jpg"></p>
-<p>视频可以用鼠标快速预览，此外还有一种预览图片&#x2F;视频的方法：选中图片&#x2F;视频，按下<strong>空格键</strong>。  </p>
-<p>下图是一张图片的预览页面，电脑上安装过第三方「图片浏览器」的朋友，会不会觉得似曾相识呢？  </p>
-<p>点击预览界面底部的编辑按钮，可以对图片进行简单的编辑。   </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446762567731.jpg"></p>
-<p>在 Picsee 中可以对图片进行简单的编辑，也是它区别于 Eagle 的一个优点，想得真周到，在此为开发者点个赞👍。  </p>
-<h2 id="图片导出"><a href="#图片导出" class="headerlink" title="图片导出"></a>图片导出</h2><p>在图片预览状态下，点击下方的「导出」按钮，可以打开导出面板。  </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446607599471.jpg"></p>
-<p>不同于一些软件的导出功能就是单纯的导出，Picsee 的导出面板提供了一些额外的选项：  </p>
-<ul>
-<li>导出时转换为其他图片格式，包含 bmp、jpeg、png 和 tiff </li>
-<li>若导出格式为 JPG，可以调整图片质量（即压缩强度） </li>
-<li>清除图片的 EXIF 信息，这可以去除图片包含的位置信息，保护个人隐私</li>
-</ul>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446605621218.jpg"></p>
-<h2 id="智能筛选"><a href="#智能筛选" class="headerlink" title="智能筛选"></a>智能筛选</h2><p>除了图片编辑和格式转换，Picsee 中还有一个实用的功能：<strong>找出电脑上重复的照片</strong>，为磁盘腾出空间。  </p>
-<p>点击左侧栏「智能任务」右侧的 + ，选择「创建智能任务」。</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446770770282.jpg"></p>
-<p>这里的「智能任务」，就是借助软件内置的程序，帮我们自动找出相似的照片。  </p>
-<p>下图的「范围」是选定要查找可能存在重复照片的位置，勾选的位置越多，程序查找起来，花费的时间也会增加。  </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446809012846.jpg"></p>
-<p>创建好智能任务后，等待程序运行完毕，就能看到相册中存在的重复照片。   </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446812247859.jpg"></p>
-<p>由于苹果自带照片 App 的限制，无法直接在 Picsee 中删除重复的照片。  </p>
-<p>这里提供一个删除重复照片的小技巧：选中两种重复的照片，右击鼠标，选择「<strong>在 Finder 中显示</strong>」，在 Finder 中就可以删除重复的照片啦。   </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446813310018.jpg"></p>
-<h2 id="导入素材包"><a href="#导入素材包" class="headerlink" title="导入素材包"></a>导入素材包</h2><p>最后，还要给各位安利一下 Picsee 的作者 @chitaner 为用户整理的<strong>必应壁纸</strong>素材包，共计 7000 多张高清壁纸。   </p>
-<blockquote>
-<p>软件作者的话：偶尔上Bing搜索，经常被它的背景页，惊讶到，太美了！从网上搜索发现，有搜集这些图片，拿来做桌面壁纸的，也专门有人利用Bing作源做壁纸应用，壁纸网站的，微软也围绕这一点自己单独出了个壁纸应用。这次，从网络上搜集了Bing2009年到目前为止的，7000多张的壁纸，共6G左右大小，做成了Picsee素材包，方便分享下载研究学习使用，公开使用注意版权。  </p>
-</blockquote>
-<p>想要的朋友，可以从 Picsee 官网下载：<br><a target="_blank" rel="noopener" href="https://sourl.cn/5iZvEg">https://sourl.cn/5iZvEg</a>  </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446818322269.jpg"></p>
-<p>将素材包下载到本地后，点击顶部工具栏的按钮，选择「导入素材包」，导入后就可以看到所有的必应壁纸啦。   </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/13/16446822477006.jpg"></p>
-<p>写完真累，还没有夜宵，有帮助的话，请多多点赞或分享～   </p>
-<h2 id="欢迎关注"><a href="#欢迎关注" class="headerlink" title="欢迎关注"></a>欢迎关注</h2><p>以上，就是本次想和你分享的内容，希望能够对你有一点帮助。     </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png" alt="公众号：效率工具指南">     </p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2022-2-11-bilibili/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022-2-11-bilibili/" itemprop="url">如何将b站上的视频下载到本地？5个下载B站视频的好用工具！</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-02-11T02:57:00+00:00">
-                2022-02-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>本文首发于微信公众号「效率工具指南」<br>文&#x2F;彭宏豪     </p>
-<h2 id="贝贝BiliBili"><a href="#贝贝BiliBili" class="headerlink" title="贝贝BiliBili"></a>贝贝BiliBili</h2><p>这是一个在线下载 B 站视频的工具，只要有网就可以使用，不限制特定的平台。 </p>
-<p>在网站顶部粘贴要下载的视频链接，输入验证码，点击右侧的「解析视频」。  </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/11/16445897825726.jpg"></p>
-<p>解析得到视频后，将鼠标移动到视频上方右击，选择「视频存储为」，确定保存视频的位置，等待视频完成下载。  </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/11/16445898557084.jpg"></p>
-<p>贝贝BiliBili 网址：<br><a target="_blank" rel="noopener" href="https://xbeibeix.com/api/bilibili/">https://xbeibeix.com/api/bilibili/</a></p>
-<h2 id="MikuTools"><a href="#MikuTools" class="headerlink" title="MikuTools"></a>MikuTools</h2><p>除了贝贝BiliBili，还有另外一个好用的多功能在线网站——<strong>MikuTools</strong>，这个网站聚合了多种常用的小工具，包含我们这里要用到的 B 站视频下载工具。  </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/11/16445905220528.jpg"></p>
-<p>MikuTools 网址：<br><a target="_blank" rel="noopener" href="https://tools.miku.ac/bilibili_video_downloader/">https://tools.miku.ac/bilibili_video_downloader/</a>  </p>
-<p>这个工具有一个不太好的地方在于，<strong>下载的视频格式为 flv</strong>，在导入一些剪辑软件之前，可能要先转换为 mp4 格式。  </p>
-<p>如果你需要转换视频格式，可以使用之前介绍过的另外一款工具 QuickCut：  </p>
-<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzAxMjY0NTY5OA==&mid=2649919194&idx=1&sn=d51a53be3d5bdcb2f1c520800d55810e&chksm=83a88af7b4df03e137de5e218348c7f0cf34408d502605574b7ef859b28e4530b4c0dc8d37c4&token=855337760&lang=zh_CN#rd">多功能视频工具箱，免费良心还好用｜Quick Cut</a>       </p>
-<h2 id="浏览器插件「B站下载助手」"><a href="#浏览器插件「B站下载助手」" class="headerlink" title="浏览器插件「B站下载助手」"></a>浏览器插件「B站下载助手」</h2><p>插件名称：B站下载助手</p>
-<p>这是我一直以来使用的方法，到目前为止还未失效。</p>
-<p>安装插件之后，在视频页面右下角会多出一个和小破站主色调相同的按钮。  </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/11/16445814939730.jpg"></p>
-<p>点击按钮，会打开一个面板，下载的视频清晰度取决于播放时选择的清晰度。</p>
-<p>其他的两个选项「下载模式」和「合并下载」保持默认即可，点击底部的「<strong>合并下载</strong>」，就可以下载视频啦。  </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/11/16445850605450.jpg"></p>
-<p>目前这款浏览器插件已从应用商店下架，无法直接安装，有需要的朋友，可以扫描下方的二维码，在公众号「效率工具指南」后台回复「B站」，获取插件安装包。        </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png" alt="公众号：效率工具指南">     </p>
-<h2 id="Downie"><a href="#Downie" class="headerlink" title="Downie"></a>Downie</h2><p>Downie，可能是 Mac 上最强大的视频下载工具，可以下载多个视频网站的内容。  </p>
-<p>它使用起来也非常简单：复制想要下载的视频链接，切换到 Downie，按下 Command + V 粘贴链接，就可以下载视频啦。   </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2022/02/11/16445865620008.jpg"></p>
-<p>Downie 用起来非常方便，省时又省力，是一个非常值得购入的工具，软件为买断制，79 元，一次付费可长期使用。  </p>
-<p>Downie 官网：<br><a target="_blank" rel="noopener" href="https://software.charliemonroe.net/downie/">https://software.charliemonroe.net/downie/</a></p>
-<h2 id="其他的工具"><a href="#其他的工具" class="headerlink" title="其他的工具"></a>其他的工具</h2><p>除了本文介绍的工具，我之前在另外一篇文章中，还介绍其他的下载 B 站视频的方法，感兴趣的可以戳下方👇的链接：</p>
-<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzAxMjY0NTY5OA==&mid=2649908756&idx=1&sn=3b0d554a0cb7e228adb3b21fdc2eab1d&chksm=83a86239b4dfeb2f2a9aa85501bd61ed373070a802baee26f51d92faa2e963b21a9189b114a5&token=855337760&lang=zh_CN#rd">以为是使用浏览器的高手，看了这些才知道我是个弟弟</a>    </p>
-<h2 id="欢迎关注"><a href="#欢迎关注" class="headerlink" title="欢迎关注"></a>欢迎关注</h2><p>以上，就是本次想和你分享的内容，希望能够对你有一点帮助。     </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png" alt="公众号：效率工具指南">     </p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E7%83%9F%E6%B3%A2%E6%A2%A6%E5%BD%B1%EF%BC%8C%E4%BB%8E%E5%A4%A9%E5%9B%BD%E7%8E%8B%E6%9C%9D%E5%88%B0%E5%88%BA%E5%AE%A2%E4%BF%A1%E6%9D%A1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/%E7%83%9F%E6%B3%A2%E6%A2%A6%E5%BD%B1%EF%BC%8C%E4%BB%8E%E5%A4%A9%E5%9B%BD%E7%8E%8B%E6%9C%9D%E5%88%B0%E5%88%BA%E5%AE%A2%E4%BF%A1%E6%9D%A1/" itemprop="url">烟波梦影，从天国王朝到刺客信条</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-02-03T10:30:45+00:00">
-                2022-02-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%94%9F%E6%B4%BB%E6%84%9F%E6%82%9F/" itemprop="url" rel="index">
-                    <span itemprop="name">生活感悟</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>最近看了一部叫做<a target="_blank" rel="noopener" href="https://movie.douban.com/subject/1309071/">《天国王朝》</a>的电影，主要讲述了第三次十字军东征时期的一段故事：法兰克铁匠巴利安，因为受到失散多年的父亲的召唤，亦是为了替自杀而死的妻子寻求救赎，来到了三教圣城——耶路撒冷。其间，父亲亡故，巴利安承袭了爵位和封地，甚至得到了西贝拉公主的青睐，可这依然无法阻止他深陷十字军的政治漩涡。当时，身染麻风病的耶路撒冷王鲍德温四世与阿拉伯传奇英雄萨拉丁，维持着基督教与伊斯兰教之间脆弱的和平；而以居伊和雷纳德为首的好战势力，则通过袭击穆斯林的方式不断挑起争端。战争终于不可避免地爆发了，这正是历史上著名的哈丁之战。此后，狮心王理查一世独自面对东方世界的滚滚黄沙，东西方的军事、宗教和文化碰撞出火花，更是堪比双子星一般的存在。</p>
-<p><img src="/P9832764530.jpg" alt="天国王朝中的巴利安男爵形象"></p>
-<h1 id="圣城耶路撒冷"><a href="#圣城耶路撒冷" class="headerlink" title="圣城耶路撒冷"></a>圣城耶路撒冷</h1><p>熟悉刺客信条系列的朋友，此刻应该会想到，这个系列的第一部作品，正是取材于第三次十字军东征时期，主角阿泰尔则是活跃在该时期的一名叙利亚刺客。因为电影中出现了刺客的敌对势力——<a target="_blank" rel="noopener" href="https://baike.sogou.com/v74701.htm">圣殿骑士(团)</a>。所以，我觉得透过历史去打通电影和游戏会是一件非常有趣的事情。也许，中世纪时期发生的事情，到今天已然无法做到存伪去真，可正如我曾经迷恋过亚瑟王从石头中拔出(伊甸)圣剑的故事一样，圆桌骑士或者说骑士本身，在一个(中二)男人眼中是接近武侠小说里侠客的存在。所以，在一个武侠没落的时代，你就不难理解，我为什么会喜欢上刺客信条这样一款游戏。虽然，这些骑士相当迷信，动辄要通过决斗让上帝来裁决，可就像塞万提斯笔下的<a target="_blank" rel="noopener" href="https://book.douban.com/subject/24854061/">堂·吉诃德</a>一样，当他准备大战风车的那一刻，你又会觉得他是一个英雄。</p>
-<p><img src="/Alta%C3%AFr.png" alt="刺客信条中阿泰尔施展信仰之跃"></p>
-<p>故事要从哪里说起呢？我想，应该从鲍德温四世那场著名的战役——蒙吉萨之战说起。那一年，年仅16岁的鲍德温四世，率领3000人击败了20000人的萨拉丁军队。这段历史带给我的震撼，丝毫不亚于中国历史上的官渡之战和淝水之战。如果你对此毫无概念，不妨对比一下孙权的合肥之战，当时的孙权号称有100000人的兵力，而张辽只有800人，史称“孙十万与张八百”。这一场战役令鲍德温四世获得了极好的威望，而雷纳德则因为参与了这场战役而成为主战派的首领。可惜，这场堪称为传奇的胜利仅仅为耶路撒冷换来了两年的和平。1779年鲍德温四世兵败泉水谷，病情的恶化令他的身体每况愈下，到1785年他因麻风病去世的时候，他只有24岁，电影里始终以面具示人的就是鲍德温四世。后期的耶路撒冷王国，基本是由他的姐夫居伊以及雷蒙德三世把持，朝局的不稳定无疑加速了耶路撒冷王国的覆灭。</p>
-<p><img src="/P2355584352.jpg" alt="天国王朝中的鲍德温四世形象"></p>
-<p>相传，鲍德温四世出生时，是由其伯父鲍德温三世主持洗礼的。当时，国王鲍德温三世决定把自己的名字作为礼物赠送给这个新生儿，一旁的大臣开玩笑地说道，“作为一国之王，如果只是赠送一个名字，是否显得太过吝啬了呢？”。国王听完以后，大笑一声，指着圣(真)十字架说道，“那我就再送一份礼物给他——耶路撒冷之王”。后来，鲍德温三世突然得了重症，而他又没有子女。于是，他的侄子，即鲍德温四世继承了他的王位，成为了新一任的国王。对于历史而言，我们永远无法假设，我们无法想象这个16岁就击萨拉丁的少年，如果没有染上麻风病，又会在历史上留下怎么样的故事？本片的男主角巴利安，其原型在历史上被称为“伊贝林的巴利安男爵”，曾经参与过蒙吉萨之战，支持雷蒙德三世摄政，基本可以认为是主和派。电影中主张袭击穆斯林的，主要是居伊、雷纳德以及圣殿骑士团。</p>
-<h1 id="十字军与圣殿骑士"><a href="#十字军与圣殿骑士" class="headerlink" title="十字军与圣殿骑士"></a>十字军与圣殿骑士</h1><p>好了，现在总算和刺客信条产生某种联系了。在刺客信条第一部中，圣殿骑士主要是以十字军的形象出现。事实上，十字军东征是由天主教教会发起的解放圣地耶路撒冷的一项运动，因为按照基督教、伊斯兰教、犹太教各自的说法，耶路撒冷都是它们心目中的圣地。可是，从十一世纪末开始，耶路撒冷及其周边的拜占庭地区，一直都被穆斯林占领。因此，罗马教廷以解放圣地的名义发动了多次东征，这些东征的军队服饰均以红十字作为标志，故而称为“十字军”。十字军占领耶路撒冷以后，很多欧洲人前往圣地朝圣，为了保护这些朝圣者的安全、攻击异教徒，1名法国贵族和8名骑士建立了军事性质的修会，因为其地点位于所罗门神殿的遗址上，故又称为圣殿骑士团。类似的组织，还有医院骑士团、条顿骑士团。其实，在初代刺客信条中，阿泰尔的刺杀对象里就有医院骑士团的成员。</p>
-<p><img src="/P2355584519.jpg" alt="天国王朝中的十字军形象"></p>
-<p>从今天的角度来看，所谓的“讨伐异教徒”的圣战，其本身并不见得有多么神圣，神殿骑士团侵略和掠夺的成分更多一点，反倒是育碧用自由和秩序的命题，让圣殿骑士多了一点人性的光辉，从三代开始，圣殿骑士和刺客都不再是那种非黑即白的设定，甚至到法国大革命前夕，双方都意识到合作的可能性，可惜，这一切终究毁在各自阵营里的狂热分子手上，就像耶路撒冷王国是毁在一个毫无军事素养的居伊一样。法国刺客<a target="_blank" rel="noopener" href="https://assassinscreed.huijiwiki.com/wiki/%E9%98%BF%E5%B0%94%E8%AF%BA%C2%B7%E5%A4%9A%E9%87%8C%E5%AE%89">亚诺·多利安</a>不无遗憾地说到，“<strong>现在我懂了，诸行并非都得到允许，而是教条本身即为一种警告</strong>”。我们继续说回电影，截止到1187年，通过著名的哈丁之战，萨拉丁终于夺回圣地耶路撒冷，甚至缴获了钉死过耶稣的真十字架，他凭借自己出色的军事才能，一举收复了包括阿卡在内的众多港口城市，彻底切断了十字军在海上的补给线。</p>
-<p><img src="/P7297435160.jpg" alt="天国王朝中的萨拉丁形象"></p>
-<p>当然，不甘心的十字军，决定以英格兰国王理查一世(狮心王)和 法兰西国王腓力二世为主力，开始积极筹备又一次的十字军东征，大战一触即发。这一年，阿泰尔22岁，此时的他尚未成为刺客大师，但已然成为组织中的骨干力量。直到1191年，26岁的阿泰尔，被导师阿尔莫林派去所罗门圣殿遗址取得金苹果时，年轻而高傲的阿泰尔准备高调刺杀圣殿骑士罗伯特，这一举动把兄弟会成员马利克等彻底暴露在危险之中。而后面的故事我们都知道了，阿泰尔被剥夺了等级和武器，去完成刺杀9个圣殿骑士的任务。历史上的罗伯特，正是在前一年跟随狮心王舰队参与第三次十字军东征，甚至在1192年受封圣殿骑士团大师，可惜当他遇到阿泰尔的时候，这条仕途注定要永远地停留在1193年9月23日那一天。而这，大概就是，袖剑之下，众生平等，万物为虚，万事皆允。</p>
-<h1 id="世界的十字路口"><a href="#世界的十字路口" class="headerlink" title="世界的十字路口"></a>世界的十字路口</h1><p>转眼间，时间来到12世纪，狮心王和萨拉丁，西方和东方，基督教和伊斯兰教，都在这一刻走向了对立面。如果说，土耳其的伊斯坦布尔是亚洲和欧洲的十字路口。那么，毫无疑问，这将会两个当世雄主间的终极对决。1191年9月7日，狮心王理查在阿苏夫会战中击败萨拉丁，在十字军进军耶路撒冷的途中，萨拉丁不断派出穆斯林骑兵进行袭扰，直到1192年1月，十字军抵达贝特努巴城堡，此时，距离圣地耶路撒冷只剩下12英里，耶路撒冷唾手可得。历史更像是一种巧合，那一年萨拉丁的埃及援军从南部抵达战场，狮心王理查一世在英国的统治地位随时都有可能被颠覆，战争顿时陷入了焦灼状态。1192年8月，互相怀有敬意的双方，在雅法城签署停战协定，史称“雅法合约”，正是从那一刻起，声势浩大的第三次十字军东征悄然落下帷幕。</p>
-<p><img src="/P2307353790.jpg" alt="狮心王理查一世影视形象"></p>
-<p>萨拉丁是否归还了真十字架，后世的我们已无从得知。我只知道，从那一刻开始，这对惺惺相惜、势均力敌的对手，再没有等来交手的机会，一年后萨拉丁去世，而理查一世则在回国途中被奥地利公爵扣押。直到1194年，经过英、奥双方多次谈判，理查一世终于获释。可这个拥有狮子般雄心壮志的传奇将领，永远都选择冲锋陷阵、选择身先士卒，获释后不久，他就再次陷入了英法战争的泥潭，于1199年战死沙场。以我狭隘的历史观，后世能匹敌理查一世这次东征运动的将领，也许，只有先后在莫斯科损兵折将的拿破仑和希特勒。在育碧的世界观中，马西亚夫最终没能挡住成吉思汗西征的步伐，原因是成吉思汗手中或许掌握着某种伊甸碎片。1222年，成吉思汗攻下花拉子模汗国首都撒马尔罕，丘处机远赴西域“止杀”，那一年阿泰尔57岁，他已经离开马西亚夫，开始长达20多年的“自我流放”。</p>
-<p><img src="/Alta%C3%AFr-1.png" alt="结束隐居生活的阿泰尔"></p>
-<p>谁能想到，丘处机路过牛家村的那一年，他的父亲奥马尔正准备潜入萨拉丁的营地，结果在回来的时候不慎触发警报，不得不杀死一名贵族。那一年，萨拉丁大军围攻马西亚夫，在萨拉丁的逼迫之下，奥马尔以生命为代价，从萨拉丁手中换回俘虏艾哈迈德·索菲安以及萨拉丁的撤军。那一年，阿泰尔11岁，几乎在同一天，阿泰尔和阿巴斯同时失去了父亲。阿巴斯不愿意接受父亲叛变的事实，并把一切都归咎于阿泰尔的父亲，两个人内心的芥蒂自此种下。这份怨恨直到阿巴斯死去都没能放下，那一年，阿泰尔80岁，利用从金苹果中学到的知识，阿泰尔研制出了袖枪，而这段故事，我们曾在启示录中，以艾吉欧·奥迪托雷的身份亲眼见证过。对于整个第三次十字军东征而言，阿泰尔的故事更像是惊鸿一瞥，可正是这段难辨真伪的传奇故事，让刺客信条系列成为此后育碧旗下最广为人知的游戏IP，万物为虚，万事皆允，耕耘于黑暗，服侍光明，这就是刺客。</p>
-<h1 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h1><p>育碧说，<strong>History Is Our Playground</strong>，电影里的故事真真假假，游戏里的故事更不必说，甚至是我这些未曾考据过的文过饰非，可这恰恰是历史最为迷人的地方，一个人的形象，其实是由无数个人的记忆拼凑出来的，你可以去肆意地想象你心目中的鲍德温四世、萨拉丁，亦或者是狮心王理查一世、传奇刺客阿泰尔，只要这一切都能自圆其说。所以，育碧选择用阴谋论、用自由与秩序来填补那些虚构的情节，听起来像一款游戏对不对？可玫瑰岛这个社会实验告诉我们，这一切还真的就是一款游戏，毕竟，意大利唯一一场打赢的战争，对手是一座面积只有400平米的小岛，试想，如果西泽尔·波奇亚泉下有知，怕是连胡子都要气得歪掉？当然，请记住一句话，<strong>我说的都是错的！</strong></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/9/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/73/">73</a><a class="extend next" rel="next" href="/page/11/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/9/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/74/">74</a><a class="extend next" rel="next" href="/page/11/">&gt;</a>
   </nav>
 
 
@@ -4190,7 +4543,7 @@ INFO[0351] $ mkdir -p .kube &amp;&amp; limactl cp minikube:.kube/config .kube/co
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1460</span>
+                  <span class="site-state-item-count">1464</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -4212,7 +4565,7 @@ INFO[0351] $ mkdir -p .kube &amp;&amp; limactl cp minikube:.kube/config .kube/co
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">895</span>
+                  <span class="site-state-item-count">910</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

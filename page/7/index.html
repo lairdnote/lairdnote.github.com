@@ -274,6 +274,703 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2022-10-19-vue_emelentplus/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022-10-19-vue_emelentplus/" itemprop="url">Vue前端项目集成element-plus组件库：全局引入和按需引入</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-10-19T01:06:00+00:00">
+                2022-10-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <blockquote>
+<p>注：标题的「按需引入」可细分为 2 种，<strong>按需引入</strong>和<strong>按需自动引入</strong>，更推荐使用后一种。      </p>
+</blockquote>
+<p>element-plus，基于 Vue 3.0 的桌面端<strong>组件库</strong>。      </p>
+<p>element-plus 的使用方式和很多其他的组件库是一样的，所以学会 element-plus，其他类似 ant-design-vue、NaiveUI、VantUI 都是差不多的。   </p>
+<p>安装 element-plus 库：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install element-plus</span><br></pre></td></tr></table></figure>
+
+<p>在项目中集成 element-plus，有两种方式：  </p>
+<ul>
+<li>全局引用：所有的组件全部集成，优点是集成比较简单，缺点是全部组件会打包到项目代码中       </li>
+<li>按需引用：优点是打包生成的代码会小一些，缺点是引用起来麻烦一些</li>
+</ul>
+<h3 id="全局引用"><a href="#全局引用" class="headerlink" title="全局引用"></a>全局引用</h3><p>在入口文件 <code>main.ts</code> 中导入安装的 element-plus 和 CSS 样式；     </p>
+<p>在下方通过 <code>app.use</code> 安装插件。   </p>
+<p><img src="https://img.penghh.fun/2022/10/19/16658023949845.jpg"></p>
+<p>接着就能直接在 <code>App.vue</code> 中使用 element-plus 中封装好的各种组件，例如下图的 el-button 按钮组件。    </p>
+<p>由于这是<strong>全局引用 element-plus</strong>，相应地里面包含的<strong>组件也是全局注册</strong>的，因此我们不需要在 <code>App.vue</code> 的 script 中引用和注册组件。   </p>
+<p><img src="https://img.penghh.fun/2022/10/19/16658032948529.jpg"></p>
+<h3 id="按需引用"><a href="#按需引用" class="headerlink" title="按需引用"></a>按需引用</h3><p>按需引用，配置起来稍微有一点麻烦，我们需要在用到 element-plus 组件的 vue 文件中同时<strong>引入组件和用到的 CSS 样式</strong>。   </p>
+<p>这里引入 <code>base.css</code> 文件是必须的，否则 button 组件的 CSS 文件 <code>el-button.css</code> 不会生效。     </p>
+<p><img src="https://img.penghh.fun/2022/10/19/16658089071674.jpg"></p>
+<p>但是这样我们在开发时每次使用都要手动引入对应的 CSS 样式，使用起来会比较麻烦，我们还可以使用另外一种方法：<strong>按需自动引入</strong>。   </p>
+<h3 id="按需自动引入"><a href="#按需自动引入" class="headerlink" title="按需自动引入"></a>按需自动引入</h3><p>首先要安装两款插件 <code>unplugin-vue-components</code> 和 <code>unplugin-auto-import</code>：     </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -D unplugin-vue-components unplugin-auto-import</span><br></pre></td></tr></table></figure>
+
+<p>接着还要修改 Webpack 的配置，对于我们这个项目，要修改的就是 <code>vue.config.js</code> 文件，导入相应的模块，并在 configureWebpack 的 plugin 字段配置安装的 2 个插件。    </p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title class_">AutoImport</span> = <span class="built_in">require</span>(<span class="string">&#x27;unplugin-auto-import/webpack&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> <span class="title class_">Components</span> = <span class="built_in">require</span>(<span class="string">&#x27;unplugin-vue-components/webpack&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> &#123; <span class="title class_">ElementPlusResolver</span> &#125; = <span class="built_in">require</span>(<span class="string">&#x27;unplugin-vue-components/resolvers&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123;</span><br><span class="line">    <span class="attr">configureWebpack</span>: &#123;</span><br><span class="line">        <span class="attr">plugin</span>: [</span><br><span class="line">            <span class="title class_">AutoImport</span>(&#123;</span><br><span class="line">        <span class="attr">resolvers</span>: [<span class="title class_">ElementPlusResolver</span>()]</span><br><span class="line">      &#125;),</span><br><span class="line">      <span class="title class_">Components</span>(&#123;</span><br><span class="line">        <span class="attr">resolvers</span>: [<span class="title class_">ElementPlusResolver</span>()]</span><br><span class="line">      &#125;)</span><br><span class="line">        ]</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>完成上面的配置后，再回到 <code>App.vue</code> 文件，<strong>不需要引入和注册组件</strong>，我们就能直接在 vue 文件的 template 模板使用 el-button 组件。    </p>
+<p><img src="https://img.penghh.fun/2022/10/19/16658190884582.jpg"></p>
+<p>老师在视频课程中安装的插件(Babel 相关的插件)和这里安装的插件不一致，babel 插件配置起来更麻烦，还要在入口文件 <code>main.ts</code> 中引入和<strong>注册全局组件</strong>，才能实现在任意的 vue 文件中使用 el-button 组件。   </p>
+<p><img src="https://img.penghh.fun/2022/10/19/16658192180100.jpg"></p>
+<h2 id="扫码加入我在知识星球上创建的社群「效率工具指南」"><a href="#扫码加入我在知识星球上创建的社群「效率工具指南」" class="headerlink" title="扫码加入我在知识星球上创建的社群「效率工具指南」"></a>扫码加入我在知识星球上创建的社群「效率工具指南」</h2><p>如果你觉得本文帮到了你，想支持我做得更好，欢迎戳下方图片，加入我的知识星球。     </p>
+<p>关于社群「效率工具指南」的介绍，可以查看我在语雀文档上发布的文档：<a target="_blank" rel="noopener" href="https://www.yuque.com/penghonghao/af0aai/glwrg2dl0dqlegi6?singleDoc#">知识星球「效率工具指南」简介</a>    </p>
+<p><img src="https://img.penghh.fun/2023/03/25/48844555552858t2.JPG" alt="48844555552858T2">   </p>
+<h2 id="欢迎关注"><a href="#欢迎关注" class="headerlink" title="欢迎关注"></a>欢迎关注</h2><p>以上，就是本次想和你分享的内容，希望能够对你有一点帮助。     </p>
+<p><img src="https://img.penghh.fun/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png" alt="公众号：效率工具指南">       </p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2022-10-17-macdynamicwallpaper/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022-10-17-macdynamicwallpaper/" itemprop="url">Mac电脑动态壁纸软件推荐【效率工具指南】</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-10-17T15:55:00+00:00">
+                2022-10-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>本文首发于微信公众号「<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/ldfKFPrUIj8uYTHpzqH_qQ">效率工具指南</a>」<br>文&#x2F;彭宏豪    </p>
+<p>Hello 各位好，我是小豪。  </p>
+<p>今天来推荐 2 个 Mac 电脑上的动态壁纸软件：  </p>
+<ul>
+<li>Plash   </li>
+<li>Dynamic Wallpaper</li>
+</ul>
+<blockquote>
+<p>使用 Windows 系统的朋友，可以使用很出名的 Wallpaper Engine，或是查看我之前发布过的一篇文章：<br><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzAxMjY0NTY5OA==&mid=2649894479&idx=1&sn=54d67edb1e4117c11089d34d0bcaf53f&chksm=83a82a62b4dfa37414214aa0b576ae746bb435d70b2e38cb8bf5e10c444c3a7f7a3d3d7dcaa9&token=487665104&lang=zh_CN#rd">史上第二全的壁纸下载攻略，以后别再找人要壁纸了</a>    </p>
+</blockquote>
+<h2 id="Plash"><a href="#Plash" class="headerlink" title="Plash"></a>Plash</h2><p>Plash，一款可以把任意网页设置为桌面壁纸的软件，软件开源免费，可从 Mac App Store 下载。   </p>
+<p>如果你添加的网页带有交互效果，那么把网页设置为桌面壁纸后，就能直接在桌面上与网页发生交互。   </p>
+<p>就像是下图我添加的液态星球网站，在桌面上移动鼠标指针，桌面的液态星球也会跟着移动。    </p>
+<p><img src="https://img.penghh.fun/2022/10/16/16659319082190.jpg"></p>
+<p>具体效果可以查看我录制的一个视频，扫码即可查看：<br><img src="https://img.penghh.fun/2022/10/16/qrcodea--a1-1.jpg" alt="QRcode_A — a1 -1-"></p>
+<p>Plash 这款软件，与我之前介绍过的一款 Windows 上的免费动态壁纸软件 Lively Wallpaper 很像。  </p>
+<p>话说回来，我之所以能发现 Plash 这款软件，还得归功于有人在 Lively Wallpaper GitHub 项目的 Issues 的分享，正巧有人在下方询问：有没有 Mac 版的 Lively Wallpaper，就有网友分享了 Plash。   </p>
+<p>Plash GitHub 项目地址：<br><a target="_blank" rel="noopener" href="https://github.com/sindresorhus/Plash">https://github.com/sindresorhus/Plash</a>   </p>
+<p>Plash 官网地址：<br><a target="_blank" rel="noopener" href="https://sindresorhus.com/plash">https://sindresorhus.com/plash</a>   </p>
+<p>顺便一提，开发 Plash 这款应用的作者，是一个<strong>全职的开源应用程序开发者</strong>，我数了一下，他的官网列出了 29 个 App，我没有一一去确认是否所有应用都是免费的，但看每一款 App 的图标，就觉得这是一个非常用心的开发者。   </p>
+<p><img src="https://img.penghh.fun/2022/10/16/16659336913775.jpg"></p>
+<p><img src="https://img.penghh.fun/2022/10/16/16659335386442.jpg"></p>
+<h2 id="Dynamic-Wallpaper"><a href="#Dynamic-Wallpaper" class="headerlink" title="Dynamic Wallpaper"></a>Dynamic Wallpaper</h2><p>Dynamic Wallpaper，一款付费的动态壁纸软件，价格为 18 元，可从应用商店下载。  </p>
+<p>这款应用与 Windows 上非常出名的 Wallpaper Engine 很像，软件内置了不同类别的视频，如下图左下角所示，也支持使用关键字进行搜索。     </p>
+<p>在筛选视频时，可选择视频分辨率(内置的视频最高分辨率应该是 4K)、是否带有声音。  </p>
+<p><img src="https://img.penghh.fun/2022/10/16/16659338924434.jpg"></p>
+<p>如果在内置的壁纸库中没有找到自己喜欢的壁纸，还可以点击顶部状态栏的图标，选择「<strong>导入本地视频</strong>」，将本地视频设置为桌面壁纸。     </p>
+<p><img src="https://img.penghh.fun/2022/10/16/16659344499462.jpg"></p>
+<p>这款软件不仅可用于设置动态壁纸，还可以将视频应用到屏保。   </p>
+<p>不过这个功能我暂时还没有体验，目前用的还是之前安装的动态屏保，感兴趣的朋友可以自行尝试。    </p>
+<p><img src="https://img.penghh.fun/2022/10/16/16659341787420.jpg"></p>
+<h2 id="扫码加入我在知识星球上创建的社群「效率工具指南」"><a href="#扫码加入我在知识星球上创建的社群「效率工具指南」" class="headerlink" title="扫码加入我在知识星球上创建的社群「效率工具指南」"></a>扫码加入我在知识星球上创建的社群「效率工具指南」</h2><p>如果你觉得本文帮到了你，想支持我做得更好，欢迎戳下方图片，加入我的知识星球。     </p>
+<p>关于社群「效率工具指南」的介绍，可以查看我在语雀文档上发布的文档：<a target="_blank" rel="noopener" href="https://www.yuque.com/penghonghao/af0aai/glwrg2dl0dqlegi6?singleDoc#">知识星球「效率工具指南」简介</a>    </p>
+<p><img src="https://img.penghh.fun/2023/03/25/48844555552858t2.JPG" alt="48844555552858T2">   </p>
+<h2 id="欢迎关注"><a href="#欢迎关注" class="headerlink" title="欢迎关注"></a>欢迎关注</h2><p>以上，就是本次想和你分享的内容，希望能够对你有一点帮助。     </p>
+<p><img src="https://img.penghh.fun/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png" alt="公众号：效率工具指南">       </p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2022-10-16-Gif/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022-10-16-Gif/" itemprop="url">免费制作Gif的软件或网站【效率工具指南】</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-10-16T00:55:00+00:00">
+                2022-10-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>Hello 各位好，我是小豪。</p>
+<p>用过免费最强大的Gif制作软件或网站，当属<a target="_blank" rel="noopener" href="https://ezgif.com/">EZGif</a>，老外开发的网站，免费无套路：  </p>
+<p><img src="https://img.penghh.fun/2022/10/16/16658806728435.jpg"></p>
+<p>EZGif 顶部的导航栏列出了这款工具的各项功能——  </p>
+<blockquote>
+<p>图片中的中文是用浏览器插件翻译的，不太准确。  </p>
+</blockquote>
+<ul>
+<li>GIF Maker：GIF制作</li>
+<li>Vide to GIF：视频转换为 GIF</li>
+<li>Resize：重新调整大小</li>
+<li>Rotato：旋转   </li>
+<li>Crop：画面裁剪      </li>
+<li>Cut：剪辑（剪去多余的片段）   </li>
+<li>Optimize：压缩优化    </li>
+<li>Effects：添加特效    </li>
+<li>Split：切割   </li>
+<li>Add text：添加文本</li>
+</ul>
+<p>点击每一项，下面还细分出了多项小功能，以「视频转GIF」为例，包含了：   </p>
+<ul>
+<li>视频转GIF   </li>
+<li>Rotato video：旋转视频   </li>
+<li>Resize：调整大小   </li>
+<li>Reverse：反转（视频倒放）     </li>
+<li>Cut video：剪辑视频   </li>
+<li>Crop video：裁剪视频画面大小    </li>
+<li>Video speed：更改视频播放速度   </li>
+<li>Mute：静音   </li>
+<li>Merge：合并   </li>
+<li>Video to JPG：视频到JPG图片   </li>
+<li>Video to PNG：视频到PNG图片</li>
+</ul>
+<p>这么多项功能，你说良心不？而且是完全免费，比国内许多宣称免费、但实际上很多套路的工具，良心多了，快去尝试一下吧！        </p>
+<p><img src="https://img.penghh.fun/2022/10/16/16658806833865.jpg"></p>
+<p>另外，如果你想找一款<strong>本地的Gif压缩&#x2F;制作工具</strong>，推荐下面这些：  </p>
+<ul>
+<li>Mac：Gif Brewery 或者 Gifox  </li>
+<li>Windows：HoneyCam   </li>
+<li>iPhone&#x2F;iPad：ImgPlay（未付费的情况下导出会包含有水印）         </li>
+<li>Android：Gif录制助手</li>
+</ul>
+<p>HoneyCam 的介绍，可以查看我录制过的一期视频：  </p>
+<p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1xS4y1v7x1/">超好用的Gif动图录制工具HoneyCam，用过的都夸好【效率工具指南】</a></p>
+<h2 id="Gif-Brewery"><a href="#Gif-Brewery" class="headerlink" title="Gif Brewery"></a>Gif Brewery</h2><p>Gif Brewery，苹果电脑上一款付费的 Gif 录制工具，可以用来录制 Gif，也可以缩小 Gif 图片尺寸。    </p>
+<p>点击第一个按钮「<strong>Open Video</strong>」，这个按钮的表面意思是<strong>打开视频</strong>，但其实也可以打开 Gif。     </p>
+<p><img src="https://img.penghh.fun/2022/10/16/16463206527819.jpg"></p>
+<p>打开需要调整尺寸的 Gif 图后，点击左上角的按钮「Resize」。   </p>
+<p><img src="https://img.penghh.fun/2022/10/16/16463209971327.jpg"></p>
+<p>中间会弹出一个小窗口，向左👈拖拽顶部的 Scale 滑钮，就可以在保持 Gif <strong>长宽比</strong>不变的情况下，缩小 Gif 图片的尺寸。     </p>
+<p>我一般是把 Gif 的宽度缩小到 1000-1200px 之间的任意数字，供参考，你可以按需自行调整。    </p>
+<p><img src="https://img.penghh.fun/2022/10/16/16463210378434.jpg"></p>
+<h2 id="扫码加入我在知识星球上创建的社群「效率工具指南」"><a href="#扫码加入我在知识星球上创建的社群「效率工具指南」" class="headerlink" title="扫码加入我在知识星球上创建的社群「效率工具指南」"></a>扫码加入我在知识星球上创建的社群「效率工具指南」</h2><p>如果你觉得本文帮到了你，想支持我做得更好，欢迎戳下方图片，加入我的知识星球。     </p>
+<p>关于社群「效率工具指南」的介绍，可以查看我在语雀文档上发布的文档：<a target="_blank" rel="noopener" href="https://www.yuque.com/penghonghao/af0aai/glwrg2dl0dqlegi6?singleDoc#">知识星球「效率工具指南」简介</a>    </p>
+<p><img src="https://img.penghh.fun/2023/03/25/48844555552858t2.JPG" alt="48844555552858T2">   </p>
+<h2 id="欢迎关注"><a href="#欢迎关注" class="headerlink" title="欢迎关注"></a>欢迎关注</h2><p>以上，就是本次想和你分享的内容，希望能够对你有一点帮助。     </p>
+<p><img src="https://img.penghh.fun/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png" alt="公众号：效率工具指南">       </p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2022-10-11-mubuexport/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2022-10-11-mubuexport/" itemprop="url">思维导图软件幕布导出Markdown【效率工具指南】</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-10-11T07:03:00+00:00">
+                2022-10-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>本文首发于微信公众号「<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/ZWxbw10b_I-M_Q0stszXYw">效率工具指南</a>」<br>文&#x2F;彭宏豪      </p>
+<p>Hello 各位好，我是小豪。    </p>
+<p>继之前写过<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzAxMjY0NTY5OA==&mid=2649920142&idx=1&sn=88f4acce321bb7917a7313c85e6148d8&chksm=83a896a3b4df1fb53feead145913aba5803f69bf5a37504f1c3c901caf0c424dc7e293e4b4ec&token=237325951&lang=zh_CN#rd">石墨文档批量导出</a>之后，今天我想对许久没更新的思维导图软件「幕布」动手了——<strong>从幕布中批量导出 Markdown 文件</strong>，预防之后幕布可能关停带来的数据丢失。         </p>
+<p>先来看一下从幕布导出前后的对比：   </p>
+<p>下图左侧是导出前的幕布文件，右侧是导出后在 Markdown 编辑器 MWeb 打开的 Markdown 文件。   </p>
+<p>对比了导出前后的文件，发现导出的部分 Markdown 文件存在<strong>文本丢失</strong>的问题，这个问题会出现在某一行文本带有<strong>粗体</strong>样式的时候，导出的 Markdown 只保留了粗体样式中的文本。          </p>
+<p><img src="https://img.penghh.fun/2022/10/11/16654635347301.jpg"></p>
+<p>不过我发现，<strong>文本丢失的问题，目前只出现在创建时间比较早的文档上</strong>，我猜测是在幕布推出 Markdown 功能之前创建的文档，导出时所在的行如果带有粗体样式，就会发生内容丢失，而如果是之后创建的文档，就不会出现这个问题。          </p>
+<p>上面在幕布中创建的读书笔记，是纯粹的文本内容，为了更全面地了解这个导出工具的能力，我还测试了<strong>导出带有图片</strong>的幕布文件。   </p>
+<p>下图是带有图片的幕布文件导出前后的对比：  </p>
+<p>导出的 Markdown 文件会生成一个压缩包，里面带有原文件中附带的图片，因此使用 MWeb 打开的 Markdown 文件(下图右侧)，图片也能正常显示，但有个小小的不足——幕布中插入的 gif 动画会变成一张静态的 jpg 图片。             </p>
+<p><img src="https://img.penghh.fun/2022/10/11/16654657992107.jpg"></p>
+<p>总体而言，我对这个导出工具还是比较满意的，虽然多少存在一些问题，但能把我放在幕布中的大部分内容导出，我就很满意了。    </p>
+<h2 id="幕布导出器-Mubu-Dumper"><a href="#幕布导出器-Mubu-Dumper" class="headerlink" title="幕布导出器 - Mubu Dumper"></a>幕布导出器 - Mubu Dumper</h2><p>前面用到的幕布批量导出 Markdown 工具，就是下图的浏览器插件：<strong>幕布导出器 - Mubu Dumper</strong>。</p>
+<p>这个插件目前只上架到了 Chrome Web Store，还没上架 Edge 的插件商店。        </p>
+<p>有意思的是，我还留意到了这个插件名称下方的域名 <code>xmind.app</code>，用过国内另外一款思维导图软件 XMind 的朋友，想必对这个域名并不陌生。   </p>
+<p><img src="https://img.penghh.fun/2022/10/11/16654667162953.jpg"></p>
+<p>浏览器插件「幕布导出器 - Mubu Dumper」安装地址：<br><a target="_blank" rel="noopener" href="https://chrome.google.com/webstore/detail/%E5%B9%95%E5%B8%83%E5%AF%BC%E5%87%BA%E5%99%A8-mubu-dumper/nhpebeoohnmbgeigmojaebjfliekikkb/related">https://chrome.google.com/webstore/detail/%E5%B9%95%E5%B8%83%E5%AF%BC%E5%87%BA%E5%99%A8-mubu-dumper/nhpebeoohnmbgeigmojaebjfliekikkb/related</a> </p>
+<p>安装插件后，在浏览器打开网页版的幕布，点击浏览器右上角的插件图标，在弹出的面板，可以选择导出 所有文件、单个文件夹或是单个文件。       </p>
+<p><img src="https://img.penghh.fun/2022/10/11/16654678724168.jpg"></p>
+<p>勾选☑️ 文件之后，点击下方的「导出」按钮，在弹出的二级菜单，可以选择导出的文件格式：  </p>
+<p>默认导出 xmind 格式的文件，不过下方也提供了更通用的 Markdown 格式。      </p>
+<p>这里之所以提供了 Markdown 格式，不确定是不是只提供 xmind 格式的话，会让人看起来是在「明目张胆」地撬幕布的墙角，所以出于体面一些的考虑，这里也提供了更通用的 Markdown 格式。     </p>
+<p><img src="https://img.penghh.fun/2022/10/11/16654683129332.jpg"></p>
+<p>不过，撬别人墙角，在国内很多产品都可以看到，不独有 XMind 一家：   </p>
+<ul>
+<li>国内很多模仿 XMind 的思维导图软件：支持导入 xmind 文件    </li>
+<li>国内很多模仿 Figma 的设计软件：支持导入 Figma 文件      </li>
+<li>国内很多模仿 Visio 的绘图软件：支持导入 Visio 文件</li>
+</ul>
+<p>不仅如此，有些产品的「帮助文档」中，还明目张胆地列出了如何将其他产品的文件导入自己产品的方法，你说会有多少人注意到呢？       </p>
+<p>绝大多数用户都不会在意这些事情，因为这些下三滥的操作多了，原本不正确的事情也会变成是理所当然。   </p>
+<p><img src="https://img.penghh.fun/2022/10/11/16654689727150.jpg"></p>
+<p>看到这里，你说：       </p>
+<p>情怀有用吗？<br>体面有用吗？<br>体面能当饭吃吗？<br>产品理念有用吗？<br>团队气质有用吗？     </p>
+<p>在没有赚到钱让产品或团队可持续地活下来，扯那么多虚的，有用吗？    </p>
+<p>少谈情怀，多干正事。        </p>
+<h2 id="扫码加入我在知识星球上创建的社群「效率工具指南」"><a href="#扫码加入我在知识星球上创建的社群「效率工具指南」" class="headerlink" title="扫码加入我在知识星球上创建的社群「效率工具指南」"></a>扫码加入我在知识星球上创建的社群「效率工具指南」</h2><p>如果你觉得本文帮到了你，想支持我做得更好，欢迎戳下方图片，加入我的知识星球。     </p>
+<p>关于社群「效率工具指南」的介绍，可以查看我在语雀文档上发布的文档：<a target="_blank" rel="noopener" href="https://www.yuque.com/penghonghao/af0aai/glwrg2dl0dqlegi6?singleDoc#">知识星球「效率工具指南」简介</a>    </p>
+<p><img src="https://img.penghh.fun/2023/03/25/48844555552858t2.JPG" alt="48844555552858T2">   </p>
+<h2 id="欢迎关注"><a href="#欢迎关注" class="headerlink" title="欢迎关注"></a>欢迎关注</h2><p>以上，就是本次想和你分享的内容，希望能够对你有一点帮助。     </p>
+<p><img src="https://img.penghh.fun/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png" alt="公众号：效率工具指南">       </p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2022-9-25-vue3learnnote5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3669,785 +4366,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2022-7-27-mac_screenshot/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022-7-27-mac_screenshot/" itemprop="url">Mac电脑上好用的2款截图工具</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-26T16:54:00+00:00">
-                2022-07-26
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>本文首发于微信公众号「<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/3MvaOFrIdSz7-K7-6gRrpw">效率工具指南</a>」<br>文&#x2F;彭宏豪     </p>
-<p>Hello 各位好，我是小豪。  </p>
-<p>今天来简单聊聊 Mac 电脑上好用的两款截图软件——Xnip 和 iShot。   </p>
-<h2 id="Xnip"><a href="#Xnip" class="headerlink" title="Xnip"></a>Xnip</h2><p>Xnip，是我目前在用的截图软件，我日常会有的截图需求——截图、长截图、简单的标注（添加红色文字、矩形或者马赛克）、贴图、拾取颜色，Xnip 都能做到。 </p>
-<p>Xnip 还有一个我不常用的功能——<strong>高亮</strong>（快捷键为数字 9），效果如下图所示，高亮的区域会保持原本的亮度，非高亮的部分亮度则会变暗，就像是「红花配绿叶」，非高亮的部分作为衬托，来凸显出高亮的区域。  </p>
-<p><img src="https://img.penghh.fun/2022/07/27/16588503052776.jpg"></p>
-<p>Xnip 可从 Mac 应用商店免费下载，应用包含内购，在不付费的情况下，其实也不影响使用。  </p>
-<p>免费版主要有两个限制，一个是长截图的时候会在图片顶部带有软件的水印，水印这一点其实也不影响最终的长截图的外观；另一个是无法在下面的「评估窗口」给截取的图片添加标注。  </p>
-<p>其实评估窗口我也极少使用，我一般都是在截完图片的状态下随手给图片添加标注，而不是再单独打开下面的窗口进行标注。   </p>
-<p><img src="https://img.penghh.fun/2022/07/27/16588510621149.jpg"></p>
-<p>说明：打开 Xnip 评估窗口的快捷键为 W。  </p>
-<p>虽然极少使用 Xnip 的评估窗口，但这个窗口还有一个很<strong>隐蔽的用法</strong>——可以用来设置标注工具的默认样式。     </p>
-<p>说实话，我最开始并不知道这个用法，以至于我很长一段时间，都因为 Xnip 标注工具中的矩形描边太细，而不得不每次用到矩形的时候，都得手动去提高描边的数值。  </p>
-<p>直到有一次在 Xnip 作者的动态下方留言，才找到了这个隐蔽的设置项。      </p>
-<p><img src="https://img.penghh.fun/2022/07/27/16588514948516.jpg"></p>
-<p>调整标注工具默认样式的方法如下：   </p>
-<p>打开 Xnip 的评估窗口，点击顶部对应的标注工具，调整右侧的参数，例如下图的「描边粗细」，调整好之后点击「设为默认样式」，这样就可以将自己觉得舒服的样式设置为软件的默认值，而不需要每次都去手动调整，我真的太蠢了。     </p>
-<p><img src="https://img.penghh.fun/2022/07/27/16588514542052.jpg"></p>
-<h2 id="iShot"><a href="#iShot" class="headerlink" title="iShot"></a>iShot</h2><p>其实用 Xnip 之前，我用的截图软件是 iShot，但用 iShot 的过程中，遇到了一个可能是 bug 的问题：  </p>
-<p>有些想叠加多层马赛克遮掉的区域，iShot 反而会把添加的多层马赛克变成半透明的，导致本来想遮掉的东西反而录出来了。     </p>
-<p>今天重新试了一下 iShot 的马赛克功能，这个问题已经解决了。   </p>
-<p>相比 Xnip，iShot 的功能更多，感觉已经超出了一款截图软件的能力范围了，功能如下图所示：  </p>
-<blockquote>
-<p>截图、标注、贴图、取色、录屏、录音、OCR（文字识别）、截图翻译。  </p>
-</blockquote>
-<p><img src="https://img.penghh.fun/2022/07/27/16588524917641.jpg"></p>
-<p>在使用 iShot 拖拽截取局部区域时，截取的图片<strong>默认会带有圆角</strong>，效果如下图所示。   </p>
-<p>有公众号运营经验的朋友，想必对「圆角」并不陌生，有些公众号为了给文章中的图片都加上圆角的效果，还得额外安装一个浏览器插件，而现在使用 iShot，也能实现同样的效果了。    </p>
-<p><img src="https://img.penghh.fun/2022/07/27/16588528371492.jpg"></p>
-<p>此外，iShot 在今年还加入了一个在我看来非常不错的功能——<strong>带壳截图</strong>，效果如下图所示，iShot 会进行全屏截图，并自动给截图最外层加上一个苹果电脑的样机（Mockup）。    </p>
-<p>不确定这个灵感，是不是从手机上的截图应用 Picsew 上获得的？真棒👍          </p>
-<p><img src="https://img.penghh.fun/2022/07/27/ishot20220727002016.png" alt="iShot_2022-07-27_00.20.16"></p>
-<p>当然，iShot 内置的功能并不是可以完全免费使用的，这里说免费版的两个限制：</p>
-<p>一个是带壳截图会带有水印，一个是 OCR 文字识别功能需要付费后才能使用。  </p>
-<p>iShot 提供了两种付费模式，一种是订阅，一种是买断，买断价格为 78 元。如果选择买断，则需要下载另外一个新的应用 iShot Pro，如果选择订阅，应该是使用老的 iShot 就可以了。     </p>
-<p><img src="https://img.penghh.fun/2022/07/27/16588525617540.jpg"></p>
-<h2 id="扫码加入我在知识星球上创建的社群「效率工具指南」"><a href="#扫码加入我在知识星球上创建的社群「效率工具指南」" class="headerlink" title="扫码加入我在知识星球上创建的社群「效率工具指南」"></a>扫码加入我在知识星球上创建的社群「效率工具指南」</h2><p>如果你觉得本文帮到了你，想支持我做得更好，欢迎戳下方图片，加入我的知识星球。     </p>
-<p>关于社群「效率工具指南」的介绍，可以查看我在语雀文档上发布的文档：<a target="_blank" rel="noopener" href="https://www.yuque.com/penghonghao/af0aai/glwrg2dl0dqlegi6?singleDoc#">知识星球「效率工具指南」简介</a>    </p>
-<p><img src="https://img.penghh.fun/2023/03/25/48844555552858t2.JPG" alt="48844555552858T2">   </p>
-<h2 id="欢迎关注"><a href="#欢迎关注" class="headerlink" title="欢迎关注"></a>欢迎关注</h2><p>以上，就是本次想和你分享的内容，希望能够对你有一点帮助。     </p>
-<p><img src="https://img.penghh.fun/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png" alt="公众号：效率工具指南">       </p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015-08-22-reverse-book-summary/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015-08-22-reverse-book-summary/" itemprop="url">盛极而衰，过犹不及 - 读《逆转》</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-24T12:48:06+00:00">
-                2022-07-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <img src="/images/reverse-book.jpg" class="">
-
-<p>文章写于 2015.8.22，更新于 2022.7.24 。</p>
-<h3 id="一、序言"><a href="#一、序言" class="headerlink" title="一、序言"></a>一、序言</h3><blockquote>
-<p>子贡问：“师与商也孰贤？” 子曰：“师也过，商也不及。” 曰：“然则师愈与？” 子曰：“过犹不及。”<br>—- 《论语·先进》</p>
-</blockquote>
-<p>最近看完了《逆转》这本书，作者是格拉德威尔（Gladwell）。这本书的作者格拉德威尔的另外两本书相对来说名气更大，分别是《引爆点》和《异类》。</p>
-<p>这三本书的写作风格类似，作者是一个非常擅长讲故事的人，所以全书都是各种故事，在故事中再加上一些作者的观点。</p>
-<p>在本书中，作者的观点非常简单，拿「过犹不及」四个字就可以概括。作者认为，任何优势，如果强大到一定程度，过了那个临界点，优势就会逆转，从另外一个角度看，优势甚至变成了劣势。</p>
-<p>为了证实这个观点，作者讲了很多有趣的故事，我给大家分享几个比较有意思的。</p>
-<h3 id="二、改变游戏玩法的故事"><a href="#二、改变游戏玩法的故事" class="headerlink" title="二、改变游戏玩法的故事"></a>二、改变游戏玩法的故事</h3><p>故事一：大卫和歌利亚的故事。大卫身材瘦小，歌利亚身材高大，但是在决斗中大卫利用自己移动快速和可以远距离投石攻击的特点，战胜了歌利亚。</p>
-<p>故事二：篮球里面的全场紧逼故事。一个工程师爸爸，为了自己身材瘦小的女儿能够在篮球比赛中获胜，通过强化体能锻炼和全场紧逼策略，最终获胜。</p>
-<p>以上两个是通过改变游戏玩法，来达到弱智胜强的故事。罗辑思维里面解释得比较好，即游戏规则其实很简单，但是社会里面的强者通常会在规则外面再包一层规则。比如说决斗，本来就是谁活谁胜，但是很多社会要求决斗的 “公平”，如果大卫真的和歌利亚 “公平” 的较量力量的话，那肯定是输的。</p>
-<p>其实在互联网行业的人才招聘上，就出现过很多改变游戏玩法的类似故事。比如说，由于现在创业公司很多，风投的资金投入也很大，很多创业公司就利用 BAT 薪资涨幅无法快速决策的弱点，以高于 50% 的待遇来挖这些 BAT 的人。这样使得 BAT 在人才流动上相当被动，因为他们的薪酬体系造成他们无法通过快速决策来调整薪水。</p>
-<h3 id="三、资源越多就越好吗？"><a href="#三、资源越多就越好吗？" class="headerlink" title="三、资源越多就越好吗？"></a>三、资源越多就越好吗？</h3><p>故事三：小班教育的故事。美国一些地区为了提高教育质量，施行 10 人左右的小班教育。结果发现，由于在小班里面大家很难形成社会一样的兴趣相投、性格互补的小团体，而造成这些学生在社交能力上反倒变弱了。而社交上的缺失会造成一些学生更加厌学。</p>
-<p>故事四：有钱人教育的故事。有钱人在家教教育上，更难让孩子感受到资源缺乏，从而无法进行有效选择和决策，也很容易产生浪费资源的现象。中国有句古话叫「富不过三代」，其实就是这个意思。</p>
-<p>「富二代」因为由「富一代」亲手教育，多少还是有一些价值观念能够传递下去，但是三代之后，第四代人很难拥有第一代人挣钱不易，生活艰辛的感受，那么在教育中让他学会到选择，放弃，节俭，合作等能力都相对来说更加困难。</p>
-<p>我老婆是学教育的，她也告诉我过一个故事。很多家长认为，给小孩买的玩具越多越好，但其实不是的。小孩小时候专注力的培养特别重要，如果一下子给他太多玩具，他会感觉到无所适从，无法集中玩一件玩具。</p>
-<p>而专注力如果不能在小时候进行有效培养，就会影响孩子的学习。因为在学习中，孩子需要在长达几十分钟的时间内保持专注。英国牛津大学教育心理学教授也指出，那些家境优越、玩具成山的小朋友智力水平往往比玩具较少的同龄孩子的智力水平低些。</p>
-<p>这算是我听到过的最贴近身边的，资源过多产生逆转的故事。</p>
-<h3 id="四、资源越少就越差吗？"><a href="#四、资源越少就越差吗？" class="headerlink" title="四、资源越少就越差吗？"></a>四、资源越少就越差吗？</h3><p>书中讲到美国律师博伊斯的故事，因为从小有阅读障碍，博伊斯一直成绩平平。但是因为他的阅读障碍，所以使得他在听力上锻炼出来惊人的能力。</p>
-<p>在博伊斯的经典案件中，博伊斯可以通过和对方证人的现场提问交流，从对方的语气和语速中体会到对方的紧张程度，从而对他觉得有所隐瞒的细节进行追问。这个能力实在太强大了，就相当于一台精准的人工「测谎仪」，于是博伊斯能找到对方人证的有所隐瞒的地方。</p>
-<p>作者的《异类》一本书中，提到过微弱优势通过多年选拔和累积，成为巨大优势的故事。但本书的故事说明，一些巨大的「缺陷」（比如阅读障碍症），也可能使得一个人被迫在另一方面不断强化，从而形成优势。</p>
-<p>我自己也想到一个例子：假如有两个演员，一个长得比较帅，一个长得比较丑，那么长得帅的演员可以做偶像派，也可以做演技派，长得丑的人只能做演技派。这样的资源不平衡，会不会使得长得丑的人更加专注于提高自己的演技水平，从而在演技上更容易成功呢？我觉得从概率上来看，应该是的。</p>
-<h3 id="五、利用逆转原理的斗争"><a href="#五、利用逆转原理的斗争" class="headerlink" title="五、利用逆转原理的斗争"></a>五、利用逆转原理的斗争</h3><p>书中重点讲了美国黑人领袖马丁路德金的故事，马丁路德金为了争取黑人的权益，有意识地利用各种方式来激化黑人和白人的矛盾，最终使得美国国会通过了《1964 年民权法》。这里面甚至有很多「不太光彩」的手法。在奥尔巴尼州，当地警察局长看破了马丁路德金的伎俩，采用了非常克制的方式，使得他花了 9 个月时间毫无进展。但马丁路德金换了一个州，最终在伯明翰州最科激化了矛盾。</p>
-<!--
-
-### 一些随想
-
-在现在这个互联网时代，作为一个技术人员，访问 Google, Github, Stackoverflow 已经成为工作必需的能力，而 Twitter 也是学习国外技术咨讯的最佳场所。但是在中国，我们总无法回避墙的存在。我们总是抱怨，抱怨，再抱怨。
-
-但是，在看了《逆转》这本书后，我觉得在国家强调「互联网+」的时代，墙扮演的破坏力越大，越只会加速它的死亡。因为封锁过于严重，就会极大地影响人们的工作，生活以及商业上的创新和公平竞争。这一切都是对国家利益不利的。所以我反而希望大局域网早日建成，因为它建成的那一天，就是它灭亡的那一天。
-
--->
-
-<h3 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h3><p>这两年，逆转的故事越来越多。今天你还是网红一哥，因为大家都关注你，明天你就可能因为不小心犯的错误被封禁。今天你还处在火爆的行业，明天可能就因为环境原因变得没人搭理。</p>
-<p>反过来，像罗永浩、新东方这样，今天你可能跌入底谷，不放弃的话，明天又​可能再次成功。</p>
-<p>如果要说《逆转》这本书教会了我什么，我觉得就是要用辩证的角度看待事情，思考的角度越多，就越容易还原事情的真相。</p>
-<p>另外，遇事不大喜大悲，专注做好每一件有价值的事情，做长期的价值主义者​，也是当下的生存之道。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2022-7-23-Notion/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2022-7-23-Notion/" itemprop="url">笔记软件 Notion 更新了什么？</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-23T09:50:00+00:00">
-                2022-07-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>本文首发于微信公众号「<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/ogUwVNFb2d5MXm5ELkMtyg">效率工具指南</a>」<br>文&#x2F;彭宏豪     </p>
-<p>Hello 各位好，我是小豪。  </p>
-<p>好久没写 Notion 相关的文章了，主要也是我有好长一段时间没有用 Notion 了，现在用的最多还是 flomo，在网上随处看见点什么、或是摘抄一下读书笔记，都会把它们扔进 flomo 中。   </p>
-<p>说回 Notion，昨晚用 Notion 发现更新了一个新功能，打开数据库中的页面时，增加了一个侧边查看页面内容的视图：   </p>
-<p>官网把这个视图称之为 Side peek，这个设计确实不错，在不改变页面层级的情况下，可以在右侧直接查看页面中的内容，减少了切换页面的操作，当然也支持在这个视图下编辑页面的内容。    </p>
-<p><img src="https://img.penghh.fun/2022/07/23/16585661518440.jpg"></p>
-<p>点击上方的视图切换按钮，可以将当前的侧视图切换到之前的视图模式：居中视图和整页。    </p>
-<p><img src="https://img.penghh.fun/2022/07/23/16585665266290.jpg"></p>
-<p>点击上&#x2F;下切换按钮，可以在保持当前视图的情况下，切换到数据库中的下一个页面。    </p>
-<p><img src="https://img.penghh.fun/2022/07/23/16585667331992.jpg"></p>
-<p>如果你不喜欢这种新的视图模式，可以点击 database 右上角的「…」，在展开的菜单选择 Layout，点击其中的「Open pages in」，将其更换为原来的 Center peek 或者 Full page。     </p>
-<p><img src="https://img.penghh.fun/2022/07/23/16585668971421.jpg"></p>
-<h2 id="行内链接预览"><a href="#行内链接预览" class="headerlink" title="行内链接预览"></a>行内链接预览</h2><p>如下图，当我们把鼠标移动到链接上方时，下方会弹出一个预览窗口，让我们在打开链接之前，可以提前预览一下链接的内容。   </p>
-<p><img src="https://img.penghh.fun/2022/07/23/16585648491882.jpg"></p>
-<p>不过，行内链接预览并不支持所有的链接或应用，从 Notion 更新说明看到的，目前只支持 Jira、GitHub、Figma 等应用。  </p>
-<p>想查看 Notion 支持链接预览的所有应用，可在 Notion 页面中输入 <code>/link</code>，弹出的菜单所展示的应用，插入的链接应该就可以在 Notion 中预览。  </p>
-<p>应用列表名称：Figma、Hex、GRID、Jira、GitHub、Trello、Slack、Asana、Pitch、OneDrive、Zoom、Dropbox、Amplitude。  </p>
-<p><img src="https://img.penghh.fun/2022/07/23/16585652892061.jpg"></p>
-<p>如果你粘贴到 Notion 的链接来自上面的其中一款应用，弹出的菜单与普通链接也存在着区别，这里提供了 3 个选项：   </p>
-<ul>
-<li>预览（即前面说到的行内链接预览）</li>
-<li>提及（在链接末尾附上链接的域名）  </li>
-<li>普通的链接</li>
-</ul>
-<p><img src="https://img.penghh.fun/2022/07/23/16585641579604.jpg"></p>
-<p>作为对比，我们来看下，在 Notion 中粘贴普通的链接，例如 Vue3 中文文档链接，它弹出的选项：  </p>
-<ul>
-<li>普通链接    </li>
-<li>创建书签</li>
-<li>嵌入</li>
-</ul>
-<p><img src="https://img.penghh.fun/2022/07/23/16585641917243.jpg"></p>
-<p>此外，当我们点击行内链接预览窗口右上角的「…」，选择「Turn into preview」，可以将当前的浮窗预览更改为固定的预览视图。  </p>
-<p><img src="https://img.penghh.fun/2022/07/23/16585681116295.jpg"></p>
-<p>相应地，当切换到固定的预览视图时，预览窗口就会在页面内占据较大的面积。    </p>
-<p><img src="https://img.penghh.fun/2022/07/23/16585683817374.jpg"></p>
-<h2 id="在页面中创建列的新方法"><a href="#在页面中创建列的新方法" class="headerlink" title="在页面中创建列的新方法"></a>在页面中创建列的新方法</h2><p>之前在页面中创建并列的 block 时，我都是用最传统的方法，将想要并排显示的 block 拖拽到前一个 block 的最右侧，当出现并排的提示时松手，就可以创建两个并排的 block，这两个并排的区块也可以称作两列。    </p>
-<p><img src="https://img.penghh.fun/2022/07/23/20220723-171119.gif" alt="2022-07-23 17.11.19"></p>
-<p>Notion 在这次更新中，增加了另外一些创建多列的方法：</p>
-<p>如下图，用鼠标框选多个连续的 block，接着点击区块最前面的菜单，选择将多个 block 转换为 Columns，就可以快速创建出并排的多列。   </p>
-<p><img src="https://img.penghh.fun/2022/07/23/xing-nei-lian-jie-yu-lan.gif" alt="行内链接预览"></p>
-<p>另外的创建多列的方法：  </p>
-<p>在页面中输入 <code>/col</code>，呼出创建多列的命令，可选择创建 2&#x2F;3&#x2F;4&#x2F;5 列。    </p>
-<p><img src="https://img.penghh.fun/2022/07/23/16585684615641.jpg"></p>
-<p>假设选择了创建 4 列，由于最开始每一列中都没有内容，会看不到我们已创建的列，这时可以用鼠标框选一下空白区域，就能看到已有的 4 个横向排列的 block 占位符。     </p>
-<p><img src="https://img.penghh.fun/2022/07/23/16585686166258.jpg"></p>
-<h2 id="写在最后"><a href="#写在最后" class="headerlink" title="写在最后"></a>写在最后</h2><p>最后简要总结一下 Notion 本次更新的内容：    </p>
-<p><img src="https://img.penghh.fun/2022/07/23/16585679908411.jpg"></p>
-<p>关于 Notion，如果你还有想了解的，可以在下方的评论区留言，没准我能帮你解答。   </p>
-<h2 id="扫码加入我在知识星球上创建的社群「效率工具指南」"><a href="#扫码加入我在知识星球上创建的社群「效率工具指南」" class="headerlink" title="扫码加入我在知识星球上创建的社群「效率工具指南」"></a>扫码加入我在知识星球上创建的社群「效率工具指南」</h2><p>如果你觉得本文帮到了你，想支持我做得更好，欢迎戳下方图片，加入我的知识星球。     </p>
-<p>关于社群「效率工具指南」的介绍，可以查看我在语雀文档上发布的文档：<a target="_blank" rel="noopener" href="https://www.yuque.com/penghonghao/af0aai/glwrg2dl0dqlegi6?singleDoc#">知识星球「效率工具指南」简介</a>    </p>
-<p><img src="https://img.penghh.fun/2023/03/25/48844555552858t2.JPG" alt="48844555552858T2">   </p>
-<h2 id="欢迎关注"><a href="#欢迎关注" class="headerlink" title="欢迎关注"></a>欢迎关注</h2><p>以上，就是本次想和你分享的内容，希望能够对你有一点帮助。     </p>
-<p><img src="https://img.penghh.fun/2021/05/28/gong-zhong-hao-wei-bu-er-wei-ma-dailogo.png" alt="公众号：效率工具指南">       </p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/yarn-cwd-issue.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/post/yarn-cwd-issue.html" itemprop="url">从一次 yarn 命令死循环说起</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-07-22T16:00:00+00:00">
-                2022-07-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近有个想法，希望在一个 yarn workspace 项目中实现任意一个子包中安装依赖时，都执行一些类似于初始化、同步配置的动作。</p>
-<p>然而在操作过程中遇到了一个关于 <code>yarn --cwd</code> 有趣的问题，特地记录下来，希望能对后来者有所帮助。</p>
-<h2 id="遇到什么问题呢"><a href="#遇到什么问题呢" class="headerlink" title="遇到什么问题呢"></a>遇到什么问题呢</h2><p>先交代一下我们项目的基本情况，它是一个通过 yarn workspace 管理的 monorepo 项目，使用的是 yarn v1.22.11 版本，目录结构大致如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">monorepo</span><br><span class="line">├── package.json</span><br><span class="line">├── app-a</span><br><span class="line">│   └── package.json</span><br><span class="line">├── app-b</span><br><span class="line">│   └── package.json</span><br><span class="line">└── config</span><br><span class="line">    └── package.json</span><br></pre></td></tr></table></figure>
-
-<p>其中 <code>app-a</code> 和 <code>app-b</code> 都使用了 <code>config</code> 这个共享包：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;dependencies&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;@monorepo/config&quot;</span><span class="punctuation">:</span> <span class="string">&quot;../config&quot;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>我们需要在根目录的 <code>package.json</code> 中的 <code>preinstall</code> 钩子做一些初始化操作：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;preinstall&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./bin/init.sh&quot;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>此时我们在根目录执行 <code>yarn</code> 或者 <code>yarn add &lt;pkg-name&gt;</code>，都会触发 <code>preinstall</code> 这个钩子，但在 <code>app-a</code> 中执行 <code>yarn</code>是不会触发根目录的 <code>preinstall</code> 钩子的。</p>
-<p>因此，我们需要分别在每个子包上都加上这行，也即在每个子包安装依赖时都执行一下根目录的 <code>preinstall</code> 命令：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;preinstall&quot;</span><span class="punctuation">:</span> <span class="string">&quot;yarn --cwd ../ preinstall&quot;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>于是，奇怪的事情就发生了，当我在 <code>app-a</code> 中执行 <code>yarn</code> 的时候，它停留在安装 <code>@monorepo/config</code> 的阶段，同时我的电脑明显变得卡顿，于是打开 <code>htop</code> 一看，好家伙，满屏都是：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">4ark   40987  26.3  0.5 409250368  78624   ??  R  8:36下午   0:00.09 /usr/local/bin/node /usr/local/bin/yarn --cwd ../ preinstall</span><br></pre></td></tr></table></figure>
-
-<p>CPU 占用率直接达到 100%，吓得我赶紧 kill 掉这些进程：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps aux | grep preinstall | awk <span class="string">&#x27;&#123;print $2&#125;&#x27;</span> | xargs <span class="built_in">kill</span> -9</span><br></pre></td></tr></table></figure>
-
-<h2 id="分析原因"><a href="#分析原因" class="headerlink" title="分析原因"></a>分析原因</h2><p>惊吓过后，来分析一下原因，很显然这段命令陷入了死循环，导致越来越多进程，于是尝试在每个子包中都手动执行一遍 <code>yarn --cwd ../ preinstall</code> 后，发现一切正常，那问题出在哪呢？</p>
-<p>于是我再执行了一遍 <code>yarn</code>，并且用以下命令将进程信息复制出来，以便分析：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps -ef | pbcopy</span><br></pre></td></tr></table></figure>
-
-<p>随后验证我刚刚的猜测，的确是这个命令在不断触发自己，导致死循环：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">UID   PID  PPID   C STIME   TTY     TIME CMD</span><br><span class="line">501 50399 50379   0  8:50下午 ??   0:00.10 /usr/local/bin/node /usr/local/bin/yarn --cwd ../ preinstall</span><br><span class="line">501 50400 50399   0  8:50下午 ??   0:00.11 /usr/local/bin/node /usr/local/bin/yarn --cwd ../ preinstall</span><br><span class="line">501 50401 50400   0  8:50下午 ??   0:00.11 /usr/local/bin/node /usr/local/bin/yarn --cwd ../ preinstall</span><br><span class="line">501 50402 50401   0  8:50下午 ??   0:00.12 /usr/local/bin/node /usr/local/bin/yarn --cwd ../ preinstall</span><br></pre></td></tr></table></figure>
-
-<p>由于三个分包执行的命令都一样，不清楚是不是由于某个分包引起，于是修改一下命令以便区分：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;preinstall&quot;</span><span class="punctuation">:</span> <span class="string">&quot;echo app-a &amp;&amp; yarn --cwd ../ preinstall&quot;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>随后发现问题是出现在 <code>config</code> 这个子包，于是我把这个子包的 <code>preinstall</code> 命令去掉，果然没有这个问题了，非常奇怪。</p>
-<p>难道是 <code>--cwd ../</code> 这个路径有问题？验证一下，把命令改成这样：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;preinstall&quot;</span><span class="punctuation">:</span> <span class="string">&quot;pwd &amp;&amp; yarn --cwd ../ preinstall&quot;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>发现 <code>pwd</code> 输出是这样子的：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/4ark/projects/monorepo/app-a/node_modules/@monorepo/config</span><br></pre></td></tr></table></figure>
-
-<p>从这里的输出我们发现了两个问题，第一个问题是：</p>
-<ul>
-<li>yarn workspace 共享包的 <code>preinstall</code> 被执行的时候，其实已经被拷贝到 <code>app-a</code> 的 <code>node_modules</code> 中，而不是在当前目录，因此 <code>--cwd ../</code> 并不指向项目根目录。</li>
-</ul>
-<p>这一点比较好理解，毕竟 <code>config</code> 作为一个依赖包，确实应该被拷贝到应用的 <code>node_modules</code> 。</p>
-<p>而第二个问题就不太理解了，为什么明明设置了 <code>--cwd ../</code>，却依然在当前目录执行呢？按照预期 cwd 的指向应该是：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/4ark/projects/monorepo/app-a/node_modules/@monorepo</span><br></pre></td></tr></table></figure>
-
-<p>难道是我对 cwd 参数的理解有偏差？看一下 yarn 的文档中对 cwd 描述：</p>
-<blockquote>
-<p>Specifies a current working directory, instead of the default <code>./</code>. Use this flag to perform an operation in a working directory that is not the current one.</p>
-<p>This can make scripts nicer by avoiding the need to <code>cd</code> into a folder and then <code>cd</code> back out.</p>
-</blockquote>
-<p>从文档的描述来看，cwd 的作用不就是代替 <code>cd</code> 吗，但现在的结果看来 <code>yarn --cwd ../ preinstall</code> 并不等价于 <code>cd ../ &amp;&amp; yarn preinstall</code> 。</p>
-<p>这就不得不让人疑惑 cwd 的定位方式了，在网上搜寻一番没找到相关的讨论，那只能自己动手丰衣足食，直接从 yarn 源码中寻找答案。</p>
-<h2 id="分析源码"><a href="#分析源码" class="headerlink" title="分析源码"></a>分析源码</h2><p>前面我们说到，我们使用的是 yarn v1.22.11，在 yarn 的 GitHub 仓库中发现 v1 版本的最新版本停留在 v1.23.0-0，那我们就从这个版本的源码来进行分析，首先克隆代码到本地：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> --depth=1 https://github.com/yarnpkg/yarn</span><br></pre></td></tr></table></figure>
-
-<p>然后安装依赖并运行起来：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yarn &amp;&amp; yarn watch</span><br></pre></td></tr></table></figure>
-
-<p>这时候它就会自动监听代码修改然后重新编译，我们查看 <code>package.json</code> 发现 yarn 的 bin 主要是调用 <code> ./bin/yarn.js</code>:</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;bin&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;yarn&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./bin/yarn.js&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;yarnpkg&quot;</span><span class="punctuation">:</span> <span class="string">&quot;./bin/yarn.js&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br></pre></td></tr></table></figure>
-
-<p>也就是我们直接执行 <code>bin/yarn.js</code> 的效果就如同执行 <code>yarn</code>，试一下查看版本：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; /Users/4ark/projects/yarn/bin/yarn -v</span><br><span class="line">1.23.0-0</span><br></pre></td></tr></table></figure>
-
-<p>PS：当然你也可以在项目目录下使用 <code>npm link</code> 把它挂载到本地中。</p>
-<p>接下就是一番调试，终于定位到可以回答我们疑问的代码，<a target="_blank" rel="noopener" href="https://github.dev/yarnpkg/yarn/blob/6db39cf0ff684ce4e7de29669046afb8103fce3d/src/cli/index.js#L37-L51">在这里</a>：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">findProjectRoot</span>(<span class="params">base: string</span>): string &#123;</span><br><span class="line">  <span class="keyword">let</span> prev = <span class="literal">null</span>;</span><br><span class="line">  <span class="keyword">let</span> dir = base;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">do</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (fs.<span class="title function_">existsSync</span>(path.<span class="title function_">join</span>(dir, constants.<span class="property">NODE_PACKAGE_JSON</span>))) &#123;</span><br><span class="line">      <span class="keyword">return</span> dir;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    prev = dir;</span><br><span class="line">    dir = path.<span class="title function_">dirname</span>(dir);</span><br><span class="line">  &#125; <span class="keyword">while</span> (dir !== prev);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> base;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> cwd = command.<span class="property">shouldRunInCurrentCwd</span> ? commander.<span class="property">cwd</span> : <span class="title function_">findProjectRoot</span>(commander.<span class="property">cwd</span>);</span><br></pre></td></tr></table></figure>
-
-<p>可以看到 cwd 的定位方式是从当前目录寻找是否存在 <code>package.json</code>，若存在，则返回此目录，否则将目录经过 <code>path.dirname</code> 处理一遍，继续寻找，直到寻找到最外层。</p>
-<p>那么这里最关键的是 <code>path.dirname</code> 的返回值，我们先看一下文档对于它的描述：</p>
-<blockquote>
-<p>The <code>path.dirname()</code> method returns the directory name of a <code>path</code>, similar to the Unix <code>dirname</code> command. Trailing directory separators are ignored,</p>
-</blockquote>
-<p>就是返回一个路径中的目录部分，作用与 unix 下的 dirname 命令一致，通常是这么使用的：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="built_in">dirname</span> /4ark/app/index.js</span><br><span class="line">/4ark/app</span><br><span class="line"></span><br><span class="line">&gt; <span class="built_in">dirname</span> /4ark/app/packages/index.js</span><br><span class="line">/4ark/app/packages</span><br></pre></td></tr></table></figure>
-
-<p>是不是会肤浅地认为它的作用就是返回一个路径的上一级目录？如果传入的是一个绝对路径，确实可以这么肤浅地认为，然而当传入的是一个相对路径时，情况就不一样了：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="built_in">dirname</span> ../app/index.js</span><br><span class="line">../app</span><br><span class="line"></span><br><span class="line">&gt; <span class="built_in">dirname</span> ../../</span><br><span class="line">../</span><br><span class="line"></span><br><span class="line">&gt; <span class="built_in">dirname</span> ../</span><br><span class="line">问: 会返回什么呢？</span><br></pre></td></tr></table></figure>
-
-<p>答案是：<code>.</code>，也就是当前目录。</p>
-<p>那这里就能回答我们之前的问题，为什么在 <code>node_module/@monorepo/config</code> 中使用 <code>yarn --cwd ../ preinstall</code> 却在当前目录执行，因为它的上一级 <code>node_modules/@monorepo</code> 不存在 <code>package.json</code>，所以经过 <code>dirname ../</code> 处理后 cwd 的指向就是当前目录。</p>
-<p>如果对 node.js 中 <code>path.dirname</code> 的实现方式感兴趣，可以看这里 <a target="_blank" rel="noopener" href="https://github.com/jinder/path/blob/master/path.js#L538-L554">path.js#L538-L554</a>。</p>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>摸清楚原因后，那解决这个问题也不是难事，只要我们把相对路径改成绝对路径，是不是就能解决这个问题了？</p>
-<p>思考一下，其实 <code>yarn --cwd ../ preinstall</code>，把 <code>../</code> 改成绝对路径行不行呢？比如在本文的场景，<code>../</code> 其实就是项目的根目录，那我们完全可以通过别的方式获取到项目的根目录，比如 在 git 中：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git rev-parse --show-toplevel</span><br></pre></td></tr></table></figure>
-
-<p>所以，我们把命令改成这样，问题就迎刃而解了：</p>
-<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="deletion">- yarn --cwd ../ preinstall</span></span><br><span class="line"><span class="addition">+ yarn --cwd $(git rev-parse --show-toplevel) preinstall</span></span><br></pre></td></tr></table></figure>
-
-<p>那就不得不提一下，其实在 yarn v2 中新增了一个 <code>--top-level</code>  属性，它的作用刚好就是为了解决这个问题。</p>
-<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>其实我们再回过头来想，在本文的例子中，根本不需要在 <code>config</code> 目录中添加 <code>preinstall</code> 这个钩子，因为它作为共享包，每次修改都必然要在其它使用这个包的地方，重新安装一次，所以只要确保这些地方会执行 <code>preinstall</code> 就可以了，那也就意味着不会出现本文遇到的问题。</p>
-<p>不过，多踩坑也不是坏事，只要搞清楚背后的原因，问题也就不是问题。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/6/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/73/">73</a><a class="extend next" rel="next" href="/page/8/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/6/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/74/">74</a><a class="extend next" rel="next" href="/page/8/">&gt;</a>
   </nav>
 
 
@@ -4493,7 +4416,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1460</span>
+                  <span class="site-state-item-count">1464</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -4515,7 +4438,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">895</span>
+                  <span class="site-state-item-count">910</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

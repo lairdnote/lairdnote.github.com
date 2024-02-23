@@ -1430,6 +1430,663 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/ant-design%E7%9A%84select%E7%BB%84%E4%BB%B6onSelect%E4%BA%8B%E4%BB%B6%E7%AE%80%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/ant-design%E7%9A%84select%E7%BB%84%E4%BB%B6onSelect%E4%BA%8B%E4%BB%B6%E7%AE%80%E6%9E%90/" itemprop="url">ant-design的select组件onSelect事件简析</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-02-04T00:00:00+00:00">
+                2024-02-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E4%BA%BA%E7%94%9F/" itemprop="url" rel="index">
+                    <span itemprop="name">技术人生</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>最近刚入react的坑，前端的布局和控件设计用的是阿里的开源框架：<a target="_blank" rel="noopener" href="http://ant.design/">ant-design</a>。ant-design不失为一款好用的设计框架，与bootstrap类似，比bootstrap好看，只是必须结合react使用。跟阿里其他的开源工具类似地，存在一个共同的通病，亦或者可以说是所有国有开源软件的通病：文档写的不够细致。<br>ant-design也是这样，在官方文档中经常有一些说的不够的地方，让使用者看的莫名所以。最典型的要数针对控件的API的事件参数的说明了，在这上面已经踩了很多的坑。有的是不知道参数传入的意义，有的是参数传递的使用方法说的不够具体等。本篇就一个具体的问题：Select选择器的onSelect事件记录一下踩坑的经历。</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>我在开发中用到了如下代码片段：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">const options = options.map(d =&gt; &#123;</span><br><span class="line">	return &lt;Option key=&#123;d.id&#125;&gt;&#123;d.value&#125;&lt;/Option&gt;;</span><br><span class="line">&#125;);</span><br><span class="line">&lt;Select onSelect=&#123;this.props.onSelect&#125;&gt;</span><br><span class="line">	&#123;options&#125;</span><br><span class="line">&lt;/Select&gt;</span><br></pre></td></tr></table></figure>
+<p>其中key属性是按照react的官方要求，遍历数组元素生成控件时要添加一个唯一的key属性供react的diff算法渲染。<br>渲染没有问题，在下拉选择的时候onSelect获取的参数值总是跟预期的不一致，在上例中，onSelect接收的总是key的值，然而官方文档里说：被选中时调用，参数为选中项的value值。</p>
+<h2 id="探索"><a href="#探索" class="headerlink" title="探索"></a>探索</h2><p>文档除了那一句话外就没多说了，既然文档写的语焉不详，那么只好写测试自己琢磨了。</p>
+<ol>
+<li><p>测试代码1</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">import &#123; Select &#125; from &#x27;antd&#x27;;</span><br><span class="line">const Option = Select.Option;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">ReactDOM.render(</span><br><span class="line">  &lt;Select value=&quot;test&quot;</span><br><span class="line">	onSelect=&#123;function(value)&#123;alert(value);&#125;&#125;</span><br><span class="line">  &gt;</span><br><span class="line">	&lt;Option key=&#123;1&#125;&gt;</span><br><span class="line">	  111</span><br><span class="line">	&lt;/Option&gt;</span><br><span class="line">	&lt;Option key=&#123;2&#125;&gt;</span><br><span class="line">	222</span><br><span class="line">	&lt;/Option&gt;</span><br><span class="line">  &lt;/Select&gt;</span><br><span class="line">  , mountNode);</span><br></pre></td></tr></table></figure>
+<p> 运行后发现确实是选择111时弹出1，选择222时弹出2，获取的是key。。。</p>
+</li>
+<li><p>测试代码2</p>
+ <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">import &#123; Select &#125; from &#x27;antd&#x27;;</span><br><span class="line">const Option = Select.Option;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">ReactDOM.render(</span><br><span class="line">  &lt;Select value=&quot;test&quot;</span><br><span class="line">	onSelect=&#123;function(value)&#123;alert(value);&#125;&#125;</span><br><span class="line">  &gt;</span><br><span class="line">	&lt;Option value=&#123;1&#125;&gt;</span><br><span class="line">	  111</span><br><span class="line">	&lt;/Option&gt;</span><br><span class="line">	&lt;Option value=&#123;2&#125;&gt;</span><br><span class="line">	222</span><br><span class="line">	&lt;/Option&gt;</span><br><span class="line">  &lt;/Select&gt;</span><br><span class="line">  , mountNode);</span><br></pre></td></tr></table></figure>
+<p> 怀疑官网说的value不是option的value值而是value属性，于是将key属性换成value。结果果然是选择111时弹出1，选择222的时候弹出2了。</p>
+</li>
+</ol>
+<p>验证了猜想，文档里说的onSelect的参数是被选中项的value属性而不是值，并且可恶的地方在于，没有设置value属性的时候竟然会返回key属性。。。要么说明下，要么按照文档的如实返回，返回key属性这不是挖坑了吗！</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/aria2-transmission/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/aria2-transmission/" itemprop="url">[备忘]下载器aria2 & transmission安装配置以及开启web控制</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-02-04T00:00:00+00:00">
+                2024-02-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E4%BA%BA%E7%94%9F/" itemprop="url" rel="index">
+                    <span itemprop="name">技术人生</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>树莓派使用了aria2和transmission来作为下载器，虽然网上已经有很多的相关安装和配置教程，但为了不用需要的时候再上网搜索，此处简单记录下相关的操作。</p>
+<h5 id="aria2"><a href="#aria2" class="headerlink" title="aria2"></a>aria2</h5><ol>
+<li><p>安装</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install aria2</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置<br>我的配置供参考</p>
+</li>
+</ol>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/aria2-transmission/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/awk-calc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/awk-calc/" itemprop="url">使用awk BEGIN、END统计文件求和</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-02-04T00:00:00+00:00">
+                2024-02-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E4%BA%BA%E7%94%9F/" itemprop="url" rel="index">
+                    <span itemprop="name">技术人生</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <h4 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h4><p>我在处理一个自动化报告时，需要统计其中成功的用例个数和失败的用例个数，报告文件的格式类似：</p>
+<blockquote>
+<p>……<br>FAIL 2 tests executed in 5.622s, 1 passed, 1 failed, 0 dubious, 0 skipped.<br>……<br>PASS 55 tests executed in 54.976s, 55 passed, 0 failed, 0 dubious, 0 skipped.<br>……<br>PASS 15 tests executed in 20.642s, 15 passed, 0 failed, 0 dubious, 0 skipped.</p>
+</blockquote>
+<h4 id="使用awk统计"><a href="#使用awk统计" class="headerlink" title="使用awk统计"></a>使用awk统计</h4><p>在Linux下进行文本处理，没什么比sed&#x2F;AWK更强大了。于是乎直接想到了用awk将报告中的”PASS”，”FAIL”数目统计一下即可。<br>代码示例如下：</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/awk-calc/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/aws-mongo-protect/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/aws-mongo-protect/" itemprop="url">记一次aws虚机mongodb数据库被黑及后续处理</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-02-04T00:00:00+00:00">
+                2024-02-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E4%BA%BA%E7%94%9F/" itemprop="url" rel="index">
+                    <span itemprop="name">技术人生</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <h1 id="1-背景"><a href="#1-背景" class="headerlink" title="1. 背景"></a>1. 背景</h1><p>我的<a target="_blank" rel="noopener" href="http://favlink.me/">藏经阁网站</a>是部署在aws的虚拟机上的，年前一次访问的时候发现被黑掉了，数据全丢了不说，还被注入了勒索比特币的信息。<br>逗比的是，年前一直没来及处理，年后过来准备处理时，发现原来被黑过一遍的数据库又被黑了第二遍！勒索比特币数值也从0.1变成了0.2。。<br><img src="http://wx3.sinaimg.cn/mw1024/62d95157gy1fcdi9hiv0jj212d0753z7.jpg"></p>
+<p>比特币勒索病毒现在非常嚣张，由于比特币交易网络的特殊性，基本上查处不到犯罪分子，中了基本上只能认栽。</p>
+<h1 id="2-安全防护"><a href="#2-安全防护" class="headerlink" title="2. 安全防护"></a>2. 安全防护</h1><p>布置在外网上的服务器，如果不进行安全防护，基本就是暴露于危险环境下的肉鸡。之前购买的搬瓦工虚拟主机也是几次被用来发送恶意邮件。<br>经过这次数据被黑的惨痛教训，急需补上相应的安全防护。几点简单的防护，可以提升我们的服务免于黑客的攻击。</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/aws-mongo-protect/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/react-and-vue-summary/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3155,779 +3812,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2023-12-17-supply-chain-6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023-12-17-supply-chain-6/" itemprop="url">供应链笔记(6)：计划岗位</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-12-17T01:34:56+00:00">
-                2023-12-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>总结一下供应链的团队构成，今天这篇是计划岗位。</p>
-<h2 id="一、计划的工作定义"><a href="#一、计划的工作定义" class="headerlink" title="一、计划的工作定义"></a>一、计划的工作定义</h2><p>供应链计划是供应链的大脑，他向上与公司的销售部门沟通，根据销售部门的活动规划以及过往的历史销量数据，做未来一定时间的销售量预估，然后在这个基础上，生成供应链的采购申请（PR:Purchase Request）。</p>
-<p>采购申请通常包含需要采购的一级物料的数量、交期、以及交付的地点。但并没有指定从哪个供应商处采购，通常计划同事也不知道价格。</p>
-<p>采购申请交给采购后，采购岗位通过物料拆解、分单、以及询比议价，将采购申请落实到具体的供应商，也将采购价格确立，将采购申请（PR）转换成了具体的采购订单（PO:Purchase Order），形成对供应商的采购合同。</p>
-<h2 id="二、计划的工作挑战"><a href="#二、计划的工作挑战" class="headerlink" title="二、计划的工作挑战"></a>二、计划的工作挑战</h2><p>供应链计划工作在具体实操时，需要考虑以下几个供应链的变量：</p>
-<ul>
-<li>生产提前期。</li>
-<li>安全库存量。</li>
-<li>消耗预测。</li>
-</ul>
-<h3 id="2-1-生产提前期"><a href="#2-1-生产提前期" class="headerlink" title="2.1 生产提前期"></a>2.1 生产提前期</h3><p>生产提前期是供应链计划的第一个挑战。</p>
-<p>我们假设某个商品的生产提前期非常短，只需要几个小时。那么我们就可以在每天晚上预测明天的销量，然后下单，明天商品就可以生产好等着售卖。</p>
-<p>但大部分时候，生产一个商品的时间远远超过几个小时，因为供应商需要备料，生产，送货，同时在生产繁忙的时候，供应商可能需要排产，以保证产线有较高的利用率。就常见的印刷品和采购品来说，生产提前期都超过 2 周。</p>
-<p>生产提前期使得你需要提前很长时间，就开始为未来的需求下订单。你需要计划好这一切，否则当你发现仓库没有货物可用的时候，你是无论如何也无法短期内补上货，只能承受长达生产周期天数的缺货。这意味着：如果某个品生产周期是2个月，那你就会连续缺货2个月，这对业务的影响常常是致命的。</p>
-<p>每一个计划同学都需要至少以周为单位核对他负责的每一个 SKU 的生产提前期，规划好入库时间，为生产做好足够的时间储备。</p>
-<h3 id="2-2-安全库存量"><a href="#2-2-安全库存量" class="headerlink" title="2.2 安全库存量"></a>2.2 安全库存量</h3><p>安全库存是用来应对售卖波动的一个供应量策略。</p>
-<p>我们还是简化模型来举例，假设我开了一个包子店。我每天晚上预测第二天的销量，然后提前准备好包子第二天销售。假如我预测明天的销量是 1000，然后我也按 1000 的量来备货。那么在这种情况下，如果第二天有 1200 人想买包子，我就只能对那多出来的 200 人缺货。这种情况下，销售的预测向上波动只能是 0%。</p>
-<p>但如果我多备 200 个包子，那么我就可以支持 20% 的预测波动。</p>
-<p>如果包子的保质期长一些，卖不掉的不用扔掉，可以继续用，那我可以每天稍微多备一点来应对销量的增加，这部分多备的货就叫“安全库存”。</p>
-<p>安全库存量在不同的业务场景下，实施策略完全不一样：</p>
-<p>对于刚刚提到的包子这种食品，保质期很短。所以我通常情况下不会备安全库存，这个时候，我相当于愿意承担一些缺货，来减少库存的报废。类似的产品包括：一些季节性的商品，比如过年礼盒装的商品，卖不掉很难处理。</p>
-<p>有一些产品，保质期比较长的，我可能会愿意稍微多备一点，反正卖不掉我也可以第二天继续卖。</p>
-<p>斑马的随材产品，本质上是课程交付的一环，如果随材缺货的话，用户可能就放弃购课了，这种情况下对我的业务影响很大，那我就会愿意备更多的安全库存。</p>
-<p>斑马现在日常情况下是备了 X 周的安全库存量。在疫情期间，为了做多仓储备，斑马甚至会备 <code>2*X</code>周的安全库存，以保证供应的安全。</p>
-<p>增加安全库存量，会给业务增加如下的风险：</p>
-<p>消耗仓储资金。拿纸张来举例，纸张每存放一个月，就会消耗其货值的 1% 左右的仓储资金。一些更占体积的产品（例如天地盖形式的包装盒），因为内部中空，所以占用的面积非常大，一般情况下存放超过半年，其货值就与仓储租金相当了。</p>
-<p>变质风险。一些产品存放久了，品质会变化。例如包装盒的颜色会因为光照的氧化而变浅，带有电池的产品有概率会漏液或者没电，纸张类产品可能会受潮起翘或长霉。</p>
-<p>内容迭代风险。互联网公司对于产品的调整总是比较快的，供应链随材如果生产过多，就可能拖慢迭代时间或者造成更多迭代的报废。</p>
-<p>所以，一个业务到底生产多少安全库存，也需要根据业务的状态来定。</p>
-<h3 id="2-3-消耗预测"><a href="#2-3-消耗预测" class="headerlink" title="2.3 消耗预测"></a>2.3 消耗预测</h3><p>消耗预测是计划同学工作中最重要、也是最难做好的事情。因为市场变化迅速，行业内普遍对于消耗的预测的准确性水平也不太高。对于与市场投放相关的供应链工作，如果能做到 80% 左右的准确性就算是行业顶尖水平了。</p>
-<p>做好消耗预测，计划同学首先需要了解清楚市场部门对于预测的基础判断。对于市场部门提出的预估销量的合理性进行质疑和求证。用历史的一些预测准确性来修正自己的判断。最终制定出尽量准确的消耗预测。</p>
-<p>通常情况下，市场部门为了保障交付+承担更高的绩效标准，会将销售目标定在一个较高的值。但是供应链计划同学如果也简单地因此把计划生产量定在一个较高的值，那么就会将供应链团队置于不利之地，最终可能因为滞销，给业务带来过多的资金或者报废。</p>
-<p>具体在执行上，计划同事可以让销售部门填写销售预测表。通过预测表和历史业绩达成率来逐步调整预测。</p>
-<p>在销售数据剧烈波动的阶段，计划同事可以加大计划下单频率，以便灵活应对波动。在销售数据较为准确和平稳后，计划同事可以下长周期订单，分批交货，以便通过订单量来降低采购成本。</p>
-<h3 id="2-4-其他"><a href="#2-4-其他" class="headerlink" title="2.4 其他"></a>2.4 其他</h3><p>物料的齐套性。计划需要考虑一个物品的各种二级子物料的生产周期限制和最小起订量限制。比如：某一个采购品包括包装盒和里面的塑料制品。采购品生产周期 20天，塑料制品生产周期 40 天，那么理论上采购品应该晚于塑料品 20 天下单，以免货物不齐套造成无法完成整件的组装。</p>
-<p>长周期物料。某些产品的稀缺零部件生产周期特别长，如果它是可以转卖或者复用的，那么可以考虑准备长周期物料来减少生产周期。芯片，电池，机芯都是这类产品。</p>
-<p>计划系统。复杂的计划预测还是应该交由系统来完成。不同的业务形态对计划系统的要求不一样，所以计划系统大多自研。在好的计划系统帮助下，计划同事只需要输入物料主数据，BOM，销售预测数据，系统通过读取 ERP 里面的库存和在途数据，通过计算就可以自动产生需要的新下的订单数。</p>
-<h2 id="三、计划岗位的要求"><a href="#三、计划岗位的要求" class="headerlink" title="三、计划岗位的要求"></a>三、计划岗位的要求</h2><p>计划工作需要两个核心能力：</p>
-<ul>
-<li>1、良好的数据计算和分析能力。能够将每个 SKU 的库存、在途、消耗进展、生产提前期计算清楚，给出清晰的生产指令。</li>
-<li>2、优秀的沟通能力。能够通过沟通判断出市场部门的销量目标达成率预期，结合历史数据做出合理的生产计划预测。</li>
-</ul>
-<p>为此，逻辑思维和沟通能力是计划同事必备的品质和要求。</p>
-<h2 id="四、小结"><a href="#四、小结" class="headerlink" title="四、小结"></a>四、小结</h2><ul>
-<li>定义：供应链计划是供应链的大脑，负责创建采购需求。</li>
-<li>工作重点：供应链计划需要重点考虑的是：生产提前期、安全库存、消耗预测。</li>
-<li>岗位要求：良好的数据分析能力和沟通能力是计划同事必备的要求。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2023-12-17-supply-chain-5/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023-12-17-supply-chain-5/" itemprop="url">供应链笔记(5)：注塑成本估算</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-12-17T01:31:57+00:00">
-                2023-12-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>交付和价格是供应链岗位日常工作的两大重点。这一篇谈谈与价格相关的工作：注塑成本估算。</p>
-<p>注塑的费用构成在行业内比较透明，主要包括：机台费、电费、原料费、工人工资几大部分。</p>
-<h2 id="一、机台费"><a href="#一、机台费" class="headerlink" title="一、机台费"></a>一、机台费</h2><p>注塑机的品牌和吨位决定了注塑机的价格，我们通过注塑机的销售渠道或者二手交易网站可以查到对应型号的注塑机的价格。</p>
-<p>我们将注塑机的价格按 5 年摊销，就可以算出每年的机台费用。假如注塑机的行业开机率 50%（即一年 180 天），拿注塑机每年的摊销除以 180 天，就可以算出来每天的机台费用。</p>
-<p>拿一台国产的海天 35T 注塑机举例，假设售价是 20 万元，那么每天的机台费就是 <code>200000/5/180=222.2</code>元。如果注塑机每天工作 22 小时，那么每小时费用就是 10 元。</p>
-<p>在计算单件费用的时候，需要考虑上成型时间。例如：某个一出一的模具，成型时间是 60 秒。那么一小时只能做 60 个。那单件的机台费就是 <code>10/60=0.17</code> 元。</p>
-<h2 id="二、电费"><a href="#二、电费" class="headerlink" title="二、电费"></a>二、电费</h2><p>电费的成本占比其实还不少，我们可以查阅当地的工业用电电量，再检查注塑机的功率来计算电费情况。</p>
-<p>不同吨位注塑机功率不一样，功率范围在 2 ~ 20 千瓦的都有。</p>
-<p>比如某地工业用电是 2 块钱一度，注塑机的功率是 4 千瓦，那么每小时的电费是 8 元。一天 22 小时（假设每天检修2小时）就是 176 元。</p>
-<p>通过了解每件壳料的成型时间，以及模具是1出几，就可以计算单件壳料消耗的电费。</p>
-<p>例如：某个一出一的模具，成型时间是 60 秒。那么一小时只能做 60 个。如果注塑机的功率和电费按刚刚计算的是每小时 8块。那么每件该壳料的电费就是 <code>8/60 = 0.13</code> 元。</p>
-<p>电费一般都高低峰的差价，如果要精确核算可以加权计算一下全天开机的成本。</p>
-<h2 id="三、原料费"><a href="#三、原料费" class="headerlink" title="三、原料费"></a>三、原料费</h2><p>注塑机通常使用 ABS 等原料，这些原料都有市场的吨价。我们可以通过注塑成型的壳料重量，来反推这部分的原料成本。</p>
-<p>例如：假设 ABS 塑胶粒 2 万一吨（实际应该没那么贵，我是为了举例）。某产品注塑成型后的壳料重量为 200 克。则该产品的原料费为 <code>20000 / 1000000 * 200 = 0.02 * 200 = 4 元</code>。</p>
-<p>注意：如果注塑的模具是冷流道的，那么每次注塑还会有水口料存在。计算的时候需要把水口料的重量也计算在内。</p>
-<p>一个复杂一点的例子：假设 ABS 塑胶粒成本是 2 万一吨。某个模具是 1 出 4 的形式生产，注塑出来的单件重量为 200 克，1出4的水口料为 100 克。那么单件的原料成本是多少？计算方式就是将每件的重量核算为 200 克 + 25 克的水口，一共 225 克，然后再像上面的方式计算成本。</p>
-<p>如果有些供应商现场发现会添加一定比例的水口料在原料中，那么相应的也要减少水口料的成本。</p>
-<p>当然，注塑过程还会有一定比例（例如3%）的损耗，但是因为占比较小，估算分时候可以忽略。</p>
-<h2 id="四、工人工资"><a href="#四、工人工资" class="headerlink" title="四、工人工资"></a>四、工人工资</h2><p>根据不同产品的特点不同，有些产品需要在注塑出料位置安排工人进行处理，处理的常见步骤包括：修剪水口，外观检查，打包等等。</p>
-<p>下图是一个例子，工人正在修剪水口和打包壳料，套袋后装入旁边的打包箱。</p>
-<img src="/images/supply-chain-4.jpeg" class="">
-
-
-<p>工人的工资可以通过打听来了解。通常深圳一带的工厂，工人工资每个月大概 6000 ~ 8000 块钱，日薪在 200 左右。所以每小时的工资在 25 元左右。工厂通常还包吃住，加上管理人员，成本应该会更高一点。</p>
-<p>我们通过计算工人每小时能够处理的塑胶元件的数量，就可以估算出每件占用的人力成本。</p>
-<p>注塑机的操作通常也需要懂技术的工人看管，但是一般情况下一个人可以同时看管多台。注塑机上下模具和测试的时候，也会比较耗费高级工人的精力，这部分的成本具体如何估算，要结合现场来判断。</p>
-<h2 id="五、利润"><a href="#五、利润" class="headerlink" title="五、利润"></a>五、利润</h2><p>工厂不是慈善机构，也是要赚钱的。上面的成本计算以后，一般还是需要增加 10~20% 的利润，作为工厂的毛利。</p>
-<h2 id="六、小结"><a href="#六、小结" class="headerlink" title="六、小结"></a>六、小结</h2><p>注塑成本估算包括机台费、电费、原料费、工人工资几大部分。</p>
-<p>以上只是一个笼统的框架，不同的产品在具体估算的时候考虑重点不一样，需要具体案例具体分析。</p>
-<p>以上。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2023-12-17-supply-chain-4/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023-12-17-supply-chain-4/" itemprop="url">供应链笔记(4)：如何防止腐败</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-12-17T01:28:31+00:00">
-                2023-12-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h2 id="一、序"><a href="#一、序" class="headerlink" title="一、序"></a>一、序</h2><p>腐败是供应链管理最大的敌人之一。我常常和同事聊天时提到：供应链其实是一个“高危”行业。</p>
-<p>因为如果自己没有坚守住廉洁的底线，或者自己作为管理者，下属没有守住廉洁的底线，后果都是非常严重的。轻则名誉扫地、罚款失业；重则锒铛入狱，断送前程。</p>
-<p>像国内外的互联网公司里面，腐败的新闻也屡见不鲜。我们公司也是，偶尔还是会有内部通报的违规案例。</p>
-<p>那么，作为供应链管理者，怎么保证团队是廉洁的呢？我想可以分别从文化和制度方面尝试以下一些办法。</p>
-<h2 id="二、文化方面"><a href="#二、文化方面" class="headerlink" title="二、文化方面"></a>二、文化方面</h2><p>文化方面，我们需要建立出一种氛围，在这种氛围下大家会默认拒绝供应商的各种宴请和礼物。如果做得好，供应商也会被我们的氛围感染，用简单的方式与我们打交道。</p>
-<p>怎么建立这种氛围呢？我们强调几件事情：</p>
-<ul>
-<li>1、所有人都不能接受供应商的礼物，不管是多少钱的东西。</li>
-<li>2、所有人都不能接受供应商的宴请，如果非要吃饭，报备申请之后我们买单报销。</li>
-</ul>
-<p>上面规则定下来之后，我们会用各种案例来多次强调它的重要性。</p>
-<ul>
-<li>比如：每年都有某些新供应商不清楚我们的规则，给我们公司或者某个采购寄来礼物，我们都会直接拒收。</li>
-<li>比如：我每次带队去供应商那里，都会直接聊工作，聊完工作就自己叫车直接离开。</li>
-<li>每次见到供应商，我都会问：有没有同事和你们吃饭让你们买单？每次过节，我都会强调，让大家如果收到礼物一定要退回。</li>
-<li>比如：我们会将内审同事拉入所有合作群，向供应商介绍内审同事的联系方式，欢迎他们举报违规线索。</li>
-<li>对于那些违规的供应商，我们也会让供应商管理岗位的同事记录下来，降低供应商的配合度得分，严重违反的不再合作。同时，供应商管理同事也会定期向供应商通报我们对违规行为的惩罚。</li>
-</ul>
-<p>于此同时，我们会强调工作的专业性。</p>
-<p>比如：及时给供应商付款，严格地进行多家比价和招标，给供应商一个专业的、负责任的供应链形象。</p>
-<p>其实供应商很多时候是不知道客户想要什么，行业内又有很多宴请和送礼的陋习，所以供应商很多时候在摸不清的情况下，就会默认按行业的那套来。</p>
-<p>但是行业内也不乏像我们这样严格要求的供应商。比如我了解到像字节，腾讯，华为以及很多欧美的客户就和我们的行事风格很像。</p>
-<p>当供应商摸清了我们的文化，后续我们就建立了默契。现在我们去合作多年的供应商，大家都很快进入工作讨论，讨论完也不会客套挽留我们吃饭，工作就很高效。</p>
-<h2 id="三、制度方面"><a href="#三、制度方面" class="headerlink" title="三、制度方面"></a>三、制度方面</h2><h3 id="3-1-三权分立"><a href="#3-1-三权分立" class="headerlink" title="3.1 三权分立"></a>3.1 三权分立</h3><p>在斑马供应链，我尝试将供应商合作的关键环节放到：采购、供应商管理、开源三个岗位上。每个岗位都承担了一部分，降低了权力的集中度。</p>
-<p>具体来说：</p>
-<ul>
-<li>开源决定供应商的引入。</li>
-<li>采购负责日常的业务沟通和执行报价、比价、议价流程。</li>
-<li>供应商管理记录供应商的合作得分，通过分单会决定订单的分配。</li>
-</ul>
-<p>对于像印刷品和包装盒这类供应商，以上机制很好地限制了各方权力。因为：</p>
-<ul>
-<li>开源只能引入供应商。但是他无法影响报价和订单分配。</li>
-<li>采购只能执行订单。无法引入新供应商，也无法决定订单的分配。</li>
-<li>供应商管理不直接面对供应商，但通过收集交付数据，质量数据，合作规模等信息来对供应商评级和打分，然后发起季度分单会来调整订单分配。</li>
-</ul>
-<h3 id="3-2-内部审计"><a href="#3-2-内部审计" class="headerlink" title="3.2 内部审计"></a>3.2 内部审计</h3><p>定期的内部合规审计可以很好地帮助团队找到并改善问题。</p>
-<p>我们内审行为会发生在日常例行的工作中，以及所有敏感岗位离职的时候。</p>
-<p>刚开始，供应链的同事可能会比较排斥内审，因为觉得是给自己挑刺，找麻烦的岗位。但是，我反复强调内审是帮助我们合规，避免我们在这个高危行业犯错误或者被误认为有嫌疑的情况。这样大家就能很好地接受内审了。</p>
-<p>内审唯一要避免的，就是大家为了流程合规而不考虑业务本身的执行效率和质量。所以，我倾向不要增加过于复杂的合规动作，更多通过文化和供应链产研系统来保证合规。</p>
-<h3 id="3-3-价格研究和岗位轮换"><a href="#3-3-价格研究和岗位轮换" class="headerlink" title="3.3 价格研究和岗位轮换"></a>3.3 价格研究和岗位轮换</h3><p>对于某个采购员来说，他可能一辈子换很多公司，但是却一直和行业那几个供应商打交道。</p>
-<p>因此，我们假设采购员没有腐败，在面对公司利益和供应商利益冲突的时候，如果能够给公司合理解释，那采购员更有动力维护好和供应商的关系。</p>
-<p>所以，我们对于一些大额的采购项目，分配了价格研究专员对产品的价格组成做详细的拆解和分析，希望公司对于价格有更多了解。</p>
-<p>另一方面，长期用固定的采购对接供应商也是有风险的。供应链内部如果有条件可以对岗位进行2年左右一次的轮换，减少采购和供应商有太复杂关系的机会。据我所知联想会有这样的机制。</p>
-<h2 id="四、小结"><a href="#四、小结" class="headerlink" title="四、小结"></a>四、小结</h2><p>避免供应链的腐败需要从文化和制度上入手。</p>
-<ul>
-<li>在文化上从不收礼物，不接受宴请开始，建立起严格的行事风格，并通过反复强调来形成清廉文化。</li>
-<li>在制度上用分权，内审，价格研究和轮岗来限制权力，减少风险。</li>
-</ul>
-<p>以上。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2023-12-17-supply-chain-3/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2023-12-17-supply-chain-3/" itemprop="url">供应链笔记(3)：挑选供应商的核心因素</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-12-17T01:26:22+00:00">
-                2023-12-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>挑选供应商的时候，关注点有时候会很多，最近我在想：哪些因素是供应商挑选的核心？我觉得有三条：能力、价格、匹配度。</p>
-<p>简单展开说一下。</p>
-<h2 id="一、能力"><a href="#一、能力" class="headerlink" title="一、能力"></a>一、能力</h2><p>能力是供应商的基础实力，通常包括两个方面：基础能力和优势领域。</p>
-<h3 id="1-1-基础能力"><a href="#1-1-基础能力" class="headerlink" title="1.1 基础能力"></a>1.1 基础能力</h3><p>基础能力体现在供应商的日常生产的各种细节。从生产环节来看包括：来料、SMT、注塑、后处理、组装等环节。</p>
-<p>比如：拿来料管理来说，电子料有没有单独控温控湿，有没有上erp系统，电池有没有单独存放，都体现着供应商的来料管理能力。</p>
-<p>从分类来看包括设备能力（物品）和 现场管理能力（人）。</p>
-<p>比如：SMT的设备决定了pcb的基础生产质量。SMT设备的管理人员对SMT现场的各种管理，体现了实际的生产能力。</p>
-<p>又比如注塑机的吨位和品牌决定了注塑的基础质量。注塑调机师傅的水平决定了能不能用好这台设备。现成有没有做到5S管理，有没有合理的自动化也对生产效率和质量有巨大影响。</p>
-<h3 id="1-2-优势领域"><a href="#1-2-优势领域" class="headerlink" title="1.2 优势领域"></a>1.2 优势领域</h3><p>聪明的供应商会聚焦业务，构建自己的优势领域，从而实现差异化竞争，进一步产生单一类别规模化带来的成本领先。</p>
-<p>比如：有些供应商专注做液晶手写板，有些专注做点读笔，一个细分品类可以做到行业内前三，由于制造业需求巨大，也可以做到很大的规模。</p>
-<p>如果某个供应商一个优势领域都没有，是比较危险的。我们应该根据自己的需求挑选这个领域的优势供应商。</p>
-<h2 id="二、价格"><a href="#二、价格" class="headerlink" title="二、价格"></a>二、价格</h2><p>价格其实是能力的一种体现，但是价格因素实在太重要，所以从决策权重来看，需要单独考虑。</p>
-<p>两个供应商的报价差很多，能力也差很多的时候，我们要评估好能力差的那一方到底能不能达到我们的质量要求以及长远的交付要求，不能一味追求短期低价。</p>
-<h2 id="三、匹配度"><a href="#三、匹配度" class="headerlink" title="三、匹配度"></a>三、匹配度</h2><p>供应商的精力有限，他肯定会更加重视核心客户和潜在大单的用户。如果你的单量太小，人家看不上你的订单，那么配合度就会受影响。</p>
-<p>挑选供应商的时候，我们要考虑后续合作对于配合度的要求，如果像新品研发这种需要较高配合度的工作，就需要加重匹配度的考量。</p>
-<p>匹配度考量有几个角度：</p>
-<ul>
-<li>份额占比。如果你的全年订单额能够占到对方的5%以上，那就算是挺重要的核心客户了。</li>
-<li>对方发展重点。如果你的业务是对方重点发展的方向，也会有比较高的匹配度。</li>
-<li>对接人。如果对接人是老板（公司实控人），话语权很高，那么相对容易沟通。</li>
-</ul>
-<p>作为客户，我们也可以在保证有备份的基础上，集中订单到能力和价格都具备优势的供应商，通过提高采购额来构建自己比较高的客户地位，提升匹配度。</p>
-<h2 id="四、小结"><a href="#四、小结" class="headerlink" title="四、小结"></a>四、小结</h2><p>挑选供应商需要重点关注对方的能力、价格、匹配度。</p>
-<p>以上。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/73/">73</a><a class="extend next" rel="next" href="/page/2/">&gt;</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/74/">74</a><a class="extend next" rel="next" href="/page/2/">&gt;</a>
   </nav>
 
 
@@ -3973,7 +3862,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1460</span>
+                  <span class="site-state-item-count">1464</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3995,7 +3884,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">895</span>
+                  <span class="site-state-item-count">910</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

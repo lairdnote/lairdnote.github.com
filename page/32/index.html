@@ -274,6 +274,638 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/bdd845bb.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/post/bdd845bb.html" itemprop="url">CSS题目系列（3）- 实现文字切割效果</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-11-26T14:57:06+00:00">
+                2018-11-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="描述"><a href="#描述" class="headerlink" title="描述"></a>描述</h2><p>有一天逛 <a target="_blank" rel="noopener" href="https://codepen.io/">Codepen</a> 的时候，看到这么一个效果：将文字上下切开两半。</p>
+<p>点进去看了一下代码，发现原理很简单，大概就是通过伪类使用<code>attr()</code>函数获取内容，然后进行定位。</p>
+<p>你可以点下方链接查看效果：</p>
+<p><a target="_blank" rel="noopener" href="https://gd4ark.github.io/blog-demos/2018-11-26/01.html">https://gd4ark.github.io/blog-demos/2018-11-26/01.html</a></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>先让两个伪元素获取到属性的值，并且将位置调好。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h1</span> <span class="attr">data-content</span>=<span class="string">&quot;I Love CSS&quot;</span>&gt;</span>I Love CSS<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>样式部分</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">h1</span> &#123;</span><br><span class="line">  <span class="attribute">position</span>: relative;</span><br><span class="line">  <span class="attribute">color</span>: transparent;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="selector-tag">h1</span><span class="selector-pseudo">::before</span>,</span><br><span class="line"><span class="selector-tag">h1</span><span class="selector-pseudo">::after</span> &#123;</span><br><span class="line">  <span class="comment">/* 通过 attr 获取属性的值 */</span></span><br><span class="line">  <span class="attribute">content</span>: <span class="built_in">attr</span>(data-content);</span><br><span class="line">  <span class="attribute">position</span>: absolute;</span><br><span class="line">  <span class="attribute">left</span>: <span class="number">0</span>;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100%</span>;</span><br><span class="line">  <span class="attribute">overflow</span>: hidden;</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#cc3333</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 切割部分 */</span></span><br><span class="line"><span class="selector-tag">h1</span><span class="selector-pseudo">::before</span> &#123;</span><br><span class="line">  <span class="comment">/* 上对齐 */</span></span><br><span class="line">  <span class="attribute">top</span>: <span class="number">0</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">50%</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 剩余部分 */</span></span><br><span class="line"><span class="selector-tag">h1</span><span class="selector-pseudo">::after</span> &#123;</span><br><span class="line">  <span class="comment">/* 下对齐 */</span></span><br><span class="line">  <span class="attribute">bottom</span>: <span class="number">0</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">50%</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这时候的效果是这样的，所以我们要把剩余部分的文字进行底部对齐。</p>
+<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/006mS5wEgy1fxlfhxdtoyj30xa0h474y.jpg"></p>
+<p>这里使用<code>flex</code>布局对齐，剩余部分改为：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 剩余部分 */</span></span><br><span class="line"><span class="selector-tag">h1</span><span class="selector-pseudo">::after</span> &#123;</span><br><span class="line">  <span class="attribute">bottom</span>: <span class="number">0</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">50%</span>;</span><br><span class="line">  <span class="attribute">display</span>: flex;</span><br><span class="line">  <span class="attribute">align-items</span>: flex-end;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这时候：</p>
+<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/006mS5wEgy1fxlfobhqnbj30wj0eyaap.jpg"></p>
+<p>到现在，就已经做好，只要在切割部分上应用动画，即可实现炫酷的切割效果：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 切割部分 */</span></span><br><span class="line"><span class="selector-tag">h1</span><span class="selector-pseudo">::before</span> &#123;</span><br><span class="line">  <span class="attribute">animation</span>: action <span class="number">5s</span> <span class="number">1s</span> ease alternate infinite;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@keyframes</span> action &#123;</span><br><span class="line">  <span class="number">0%</span> &#123;</span><br><span class="line">    <span class="attribute">transform</span>: <span class="built_in">translateX</span>(<span class="number">0px</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="number">30%</span> &#123;</span><br><span class="line">    <span class="attribute">transform</span>: <span class="built_in">translateX</span>(-<span class="number">5vw</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="number">60%</span> &#123;</span><br><span class="line">    <span class="attribute">transform</span>: <span class="built_in">translateX</span>(<span class="number">0px</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="number">100%</span> &#123;</span><br><span class="line">    <span class="attribute">transform</span>: <span class="built_in">translateX</span>(<span class="number">5vw</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>完整代码：<a target="_blank" rel="noopener" href="https://github.com/gd4Ark/blog-demos/blob/master/2018-11-26/01.html">https://github.com/gd4Ark/blog-demos/blob/master/2018-11-26/01.html</a></p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>不得不说那些大神们的脑洞真是大，如果没见过这个效果之前，我是无论如何都想不到可以如此简单的实现这么炫酷的切割效果。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/c6e0afe2.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/post/c6e0afe2.html" itemprop="url">CSS题目系列（2） - 实现一个固定比例盒子</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-11-26T14:55:06+00:00">
+                2018-11-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="描述"><a href="#描述" class="headerlink" title="描述"></a>描述</h2><p>在开发过程中，会有这么一个情况，需要将一个盒子的尺寸定义为固定比例，且尺寸需根据视图的尺寸来进行缩放，也就是响应式，常见的多如有矩形、圆形等。</p>
+<p>下面我将使用下面的例子为大家进行讲解：</p>
+<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/006mS5wEgy1fxl6othpvtg31af0pxgtv.gif"></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>其实实现这个效果，有多种方法，下面逐一介绍。</p>
+<h3 id="1、垂直方向的-padding"><a href="#1、垂直方向的-padding" class="headerlink" title="1、垂直方向的 padding"></a>1、垂直方向的 padding</h3><p>相信大家对<code>padding</code>都不陌生，但你知道他是如何取值的吗？</p>
+<p>看一下<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/padding">MDN</a>中对<code>padding</code>给出的解释：</p>
+<blockquote>
+<h3 id="取值"><a href="#取值" class="headerlink" title="取值"></a>取值</h3><p>指定一个，两个，三个或四个下列的值：</p>
+<ul>
+<li><p><code>&lt;长度&gt;</code></p>
+<p>可指定非负的固定宽度. See <a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/CSS/length"><code>&lt;length&gt;</code></a> for details</p>
+</li>
+<li><p><code>&lt;百分比&gt;</code></p>
+<p>相对于包含块的宽度</p>
+</li>
+<li><p><strong>指定一个值时 该值指定四个边的内边距</strong></p>
+</li>
+<li><p><strong>指定两个值时 第一个值指定上下两边的内边距 第二个指定左右两边的内边距</strong></p>
+</li>
+<li><p><strong>指定三个值时 第一个指定上边的内边距</strong> <strong>.第二个指定左右两边 第三个指定下边</strong></p>
+</li>
+<li><p><strong>指定四个值时分别为上 右 下 左（顺时针顺序）</strong></p>
+</li>
+</ul>
+</blockquote>
+<p>也就是说，<strong>给<code>padding</code>的值设定为百分比时，将根据父容器的宽度来计算。</strong></p>
+<p>现在假设我们有一个<code>div</code>，我们希望它的尺寸能根据<code>body</code>（它的父容器）的宽度来实现固定比例：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;box&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>样式部分</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.box</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">50%</span>;</span><br><span class="line">  <span class="attribute">padding-bottom</span>: <span class="number">50%</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>其实这里的<code>padding-bottom</code>换成<code>padding-top</code>也一样可以实现。</p>
+</blockquote>
+<p>没错，就这么简单，我们已经实现了文章开头所展示的效果。</p>
+<p>但是我们使用这种方法的时候需要注意几点：</p>
+<ol>
+<li>不需要设定<code>height</code>，最好就是手动设定为<code>0</code>。</li>
+<li>子元素需要设定为绝对定位（父容器为相对定位），否则子元素将被<code>padding</code>挤出去。</li>
+</ol>
+<h4 id="其它比例"><a href="#其它比例" class="headerlink" title="其它比例"></a>其它比例</h4><p>前面实现的是一个正方形比例的，那如果我想要是<code>16:9</code>的呢？</p>
+<p>那我们将根据一个公式：<code>width * x / y</code>计算，如下：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.box</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">50%</span>;</span><br><span class="line">  <span class="attribute">padding-bottom</span>: <span class="built_in">calc</span>(<span class="number">50%</span> * <span class="number">9</span> / <span class="number">16</span>);</span><br><span class="line">  <span class="comment">/* 或者 */</span></span><br><span class="line">  <span class="attribute">padding-bottom</span>: <span class="number">28.125%</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2、视窗单位"><a href="#2、视窗单位" class="headerlink" title="2、视窗单位"></a>2、视窗单位</h3><blockquote>
+<p>视窗是你的浏览器实际显示内容的区域——换句话说是你的不包括工具栏和按钮的网页浏览器。这些单位是<code>vw</code>,<code>vh</code>,<code>vmin</code>和<code>vmax</code>。它们都代表了浏览器（视窗）尺寸的比例和窗口大小调整产生的规模改变。</p>
+</blockquote>
+<p>也就是说，<strong>网页的宽度是<code>100vw</code>，取一半就是<code>50vw</code>，无论怎么缩放都是一半，而且这个一半不止可以用在<code>width</code>上。</strong></p>
+<p>所以：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;box&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.box</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">50vw</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">50vw</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>一个正方形就出来了，简单吗？？？</p>
+<h4 id="其它比例-1"><a href="#其它比例-1" class="headerlink" title="其它比例"></a>其它比例</h4><p>跟上面一样，通过公式可以得到：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-class">.box</span> &#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">50vw</span>;</span><br><span class="line">  <span class="attribute">padding-bottom</span>: <span class="built_in">calc</span>(<span class="number">50vw</span> * <span class="number">9</span> / <span class="number">16</span>);</span><br><span class="line">  <span class="comment">/* 或者 */</span></span><br><span class="line">  <span class="attribute">padding-bottom</span>: <span class="number">28.125vw</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.w3cplus.com/css/aspect-ratio.html">https://www.w3cplus.com/css/aspect-ratio.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.zhangxinxu.com/wordpress/2012/09/new-viewport-relative-units-vw-vh-vm-vmin/">https://www.zhangxinxu.com/wordpress/2012/09/new-viewport-relative-units-vw-vh-vm-vmin/</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36367494/article/details/79266037">https://blog.csdn.net/qq_36367494/article/details/79266037</a></li>
+</ul>
+<h2 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a>结束语</h2><p>通过以上两种方法，以后实现固定比例的盒子是不是变得简单起来了？</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/abb77fd2.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/post/abb77fd2.html" itemprop="url">CSS题目系列（1） - 可滚动的Table</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-11-25T09:06:50+00:00">
+                2018-11-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="描述"><a href="#描述" class="headerlink" title="描述"></a>描述</h2><p>在开发中，有这样一个需求，<code>Table</code>的表头不动，表身可以滚动，效果请点击以下链接查看：</p>
+<p><a target="_blank" rel="noopener" href="https://gd4ark.github.io/blog-demos/2018-11-25/01.html">https://gd4ark.github.io/blog-demos/2018-11-25/01.html</a></p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>假设我们有一个这样结构的表格：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">table</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">thead</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">th</span>&gt;</span>Position<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">th</span>&gt;</span>Name<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">th</span>&gt;</span>Score<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">th</span>&gt;</span>Time<span class="tag">&lt;/<span class="name">th</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">thead</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">tbody</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 这里为了方便展示 只显示一行 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tr</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>0<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>张三<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>15<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">td</span>&gt;</span>30<span class="tag">&lt;/<span class="name">td</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">tr</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">tbody</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">table</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>设置表身样式：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">table</span> <span class="selector-tag">tbody</span> &#123;</span><br><span class="line">  <span class="attribute">display</span>: block;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">200px</span>;</span><br><span class="line">  <span class="attribute">overflow-y</span>: auto;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这时候，表身已经实现了滚动，但是有个问题，<code>td</code>缩在了一堆，如下：</p>
+<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/006mS5wEgy1fxkejbopq1j30e907c0sp.jpg"></p>
+<p>加上这个就好了：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">table</span> <span class="selector-tag">thead</span>,</span><br><span class="line"><span class="selector-tag">tbody</span> <span class="selector-tag">tr</span> &#123;</span><br><span class="line">  <span class="attribute">display</span>: table;</span><br><span class="line">  <span class="attribute">table-layout</span>: fixed; <span class="comment">/* 使用表格固定算法 必须配合上面一起使用 */</span></span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100%</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/006mS5wEgy1fxkejbopq1j30e907c0sp.jpg"></p>
+<p>完整代码：<a target="_blank" rel="noopener" href="https://github.com/gd4Ark/blog-demos/blob/master/2018-11-25/01.html">https://github.com/gd4Ark/blog-demos/blob/master/2018-11-25/01.html</a></p>
+<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>刚刚开始写文章，很多地方写的不够好，望谅解，我会慢慢改进的。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2018/2018-11-25-thinking-about-my-22/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/2018-11-25-thinking-about-my-22/" itemprop="url">22 岁的我在想些什么</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-11-24T16:00:00+00:00">
+                2018-11-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>蛋黄总说我过去二十几年过得顺风顺水，想想也是，虽然有小的波折，但并没有什么让我后悔的事情。我觉得这当然有运气的成分，但和我个人的选择也是分不开的。</p>
+<p>在大家抱怨学校生活时，我就想找一个彻底的方式来摆脱学校的限制，于是后来我退学了；在大家抱怨工作不称心的时候，我就想着一定要去一家能让我开心地工作的公司，于是我找到了番茄土豆和 LeanCloud；现在我仍在听着大家抱怨着生活中的种种，于是我也在准备着一个能够彻底摆脱这些问题的计划。</p>
+<p>对于这个选择我的心情非常复杂，既有期待也有不安；既怪自己行动得太晚了，但也明白是遇到了蛋黄才让我有了勇气和决心来准备移民。在我们刚刚在一起的时候其实就已经有了这个想法，也在陆续做着准备，在过去的一年中，整个路线逐渐清晰了起来，我们也越来越期待成功的那一天，这将会是我下一个重要的选择。</p>
+<p>国内就总喜欢黑高福利国家人们不好好工作、人力成本高的要死，黑民主国家办事效率低、办不成大事。但我现在越来越觉得，这也许才是一个稳定的国家的常态，充分保障个人的自由、甚至说保障人们「不求上进」的自由，平衡各方的利益，这样才能带来稳定。</p>
+<p>随着一开始的「矜持」被放下，这一年中我们吵得确实比刚在一起的几个月要多得多。但我和蛋黄已经为未来做了这么多规划了，虽然大大小小的分歧吵闹不断，但我还是相信我们会一直走下去。年初我在知乎上回答了一个 <a target="_blank" rel="noopener" href="https://www.zhihu.com/question/23932491/answer/321393020">关于完美女朋友的问题</a>，也为自己找到了「完美女朋友」而高兴 —— 当然我现在也是。但还有一点我比较关心的是，蛋黄还没找到工作，我觉得工作是生活中很重要的一部分，我希望她也能找到一个愿意为之投入，也能获取合理的收入的工作。另外我觉得人在开始工作之后可能对于很多事情的看法会有一个比较大的转变，对这种转变我还是期待更多一点，我觉得那时她会更能够理解我的一些想法。</p>
+<p>在 LeanCloud 工作三年了，期间也有人问我要不要考虑其他的工作机会，我想了一下，继续留在 LeanCloud 大概是因为这里的工作既「稳定」又「充满挑战」。这么说也许看似矛盾，但我说的稳定是指，这里的工作全部围绕着 LeanCloud 这个云平台 —— 更具体来说是围绕着云引擎，它本身已经是一个相对稳定的系统了，有着不小的用户量，需要以严肃的态度去对待每一个改动；充满挑战是指围绕这个大的方向，还是可以做很多有趣的尝试的，工作的方向和内容并没有受到限制，而且我会感觉到我个人的决定，对公司的产品是有着直接的影响的。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2018-11-22-okr-introduction/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3258,688 +3890,11 @@ master-client
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E5%9F%BA%E4%BA%8EEF%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E3%80%81%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB%E5%AE%9E%E7%8E%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/%E5%9F%BA%E4%BA%8EEF%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E3%80%81%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB%E5%AE%9E%E7%8E%B0/" itemprop="url">基于 EF 的数据库主从复制、读写分离实现</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-18T00:41:08+00:00">
-                2018-10-18
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
-                    <span itemprop="name">数据存储</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          通常来讲，不同的数据库都在数据库层面上实现了主从复制，各自的实现细节上可能会存在差异，譬如 SQLServer 中可以通过“发布订阅”来配置主从复制的策略，而 Oracle 中可以通过 DataGurd 来实现主从复制，甚至你可以直接把主库 Dump 出来再导入到从库;public static void SwitchToSlave(DbCommand command, string serverName = "");public static void SwitchToMaster(DbCommand command, string serverName = "")
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/%E5%9F%BA%E4%BA%8EEF%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E3%80%81%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB%E5%AE%9E%E7%8E%B0/">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2018-10-13-confessions-of-an-advertising-man-book/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018-10-13-confessions-of-an-advertising-man-book/" itemprop="url">奥美之父 -《一个广告人的自白》</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-13T11:37:36+00:00">
-                2018-10-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <img src="/images/2018-10-13-confessions-of-an-advertising-man-book-474c3.png" class="">
-
-<p>最近读完了《一个广告人的自白》，作者是现代广告之父：大卫·奥格威，他创办了知名的广告营销公司：奥美。</p>
-<p>这是一本有些年代的书，中文版出版于 1991 年，但是这些书常年热销，全球售卖了超过 100 万本。我手里这本中文版，是 2015 年的第 3 版，短短几年已经重印了 28 次。</p>
-<p>作者在书中介绍了他对于经营广告公司、争取客户、创作高水平广告、写强有力文案的经验。最后他还站在一个功成名就者的角度，给年经人提供了一些功成名就的要诀。</p>
-<p>下面说一些我的读书感受。</p>
-<h2 id="如何经营广告公司"><a href="#如何经营广告公司" class="headerlink" title="如何经营广告公司"></a>如何经营广告公司</h2><p>奥格威在「如何经营广告公司」一章中，其实主要介绍的是如何招人，以及推崇什么样的工作文化。</p>
-<h3 id="如何招人"><a href="#如何招人" class="headerlink" title="如何招人"></a>如何招人</h3><p>在招人上，奥格威喜欢招：</p>
-<ul>
-<li>聪明的人</li>
-<li>努力工作的人</li>
-<li>热爱当前工作的人</li>
-<li>专业技能扎实的人</li>
-</ul>
-<p>这种招人规则和我们公司猿辅导如出一辙。那么如何找到热爱当前工作的人呢？我会看他花多少非工作时间在专业上。如果一个人喜欢技术，那么他在工作之余，也会去看开源代码，读技术书籍，甚至做技术分享，这就是他的热情的体现。</p>
-<h3 id="如何培养人"><a href="#如何培养人" class="headerlink" title="如何培养人"></a>如何培养人</h3><p>奥格威对奥美工作文化的建设，我感受到的是一种培养文化，培养文化主要体现在：</p>
-<ul>
-<li>奥格威欣赏那种愿意招聘比自己厉害、将来可以接替自己的优秀下属的人。</li>
-<li>奥格威欣赏愿意培养下属的人。因为这样公司才能形成内部提拔的机会。</li>
-</ul>
-<p>这两点都很难做到，因为这两点都稍微有一些反人性，会让领导产生一定的「危机感」。招聘比自己厉害的人，培养自己的下属，都会使得自己的「不可替代性」变弱。如果一个人希望守住自己的职位，那么他可能潜意识里面就不会做这样的事情。</p>
-<p>但是这一点对于领导的成长也至关重要，一个人能够领导好一个团队，并且培养出一个优秀的接班人，那么这个人才可以做更大的挑战。如果你希望不断跳出自己的舒适圈，不断成长进步，就应该做这样的事情，让自己有一天可以脱离现有的团队，做新的事情。否则团队离不开你，你也被绑定在团队中了。</p>
-<p>猿辅导公司也一直按这样的企业文化做事情，不过我们的叫法不一样。我们的规则是：只招聘不低于团队平均水平的人。我们在招聘的时候会给候选人打分，如果是 3 分，就表示达到团队的平均水平。我们希望用团队的平均水平来让大家建立起招聘的高标准。因为只有新进来的人高于或等于团队平均水平，我们的技术团队才不至于越来越水。</p>
-<p>猿辅导也一直有着强烈的 Mentor 制度，一个人从职场新人获得提升的第一步，就是让他尝试指导新人。如果一个老员工，无法指导新员工，那么他是很难获得更多的晋升机会了。因为即便他再厉害，他也只能单打独斗，不能将他的能力传播给别人。</p>
-<h3 id="如何沟通"><a href="#如何沟通" class="headerlink" title="如何沟通"></a>如何沟通</h3><p>奥格威还介绍了奥美的沟通文化，我简单总结起来，就是鼓励简单直接地表达和沟通。这和《原则》中的说的极度透明的工作原则类似。</p>
-<p>互联网公司基本上也都具备这样的文化。例如大部分互联网公司员工的工位都完全一样，管理层的员工并不会拥有独立办公室。大家在沟通上都倾向直呼其名，也是希望减少职级对沟通的影响。腾讯公司的员工都有一个英文名，大家沟通就直接叫英文名，我听说这也是为了防止大家叫某某总，从而 <a target="_blank" rel="noopener" href="https://www.zhihu.com/question/30366809">打破上下级隔阂</a>。</p>
-<h2 id="基于用户调研和-MVP-的工作方式"><a href="#基于用户调研和-MVP-的工作方式" class="headerlink" title="基于用户调研和 MVP 的工作方式"></a>基于用户调研和 MVP 的工作方式</h2><p>奥格威介绍了如何制作出优秀广告的经验，我从中看到的，都是互联网公司做产品的经验。比如：重视用户的调研和分析。广告的内容是基于对事实的理解和分析做出来的，而不是广告人在办公室靠灵光一现拍脑袋想出来的。</p>
-<p>奥格威在书中介绍了帮美国旅游局做的旅游广告。他在做这个广告前，针对英国，法国人做了大量调研，发现大家不去美国是因为担心花费太高，进一步研究发现，其实英国的国民收入水平与美国的差距非常大。当时调研发现美国有半数家庭收入超过 5000 美元，而英国只有 3% 的家庭收入达到这个数。</p>
-<p>于是广告方案就是：强调去美国旅游花费并不高。奥格威的广告词非常直接：强调每周只需 35 英磅即可在美国旅游。虽然广告被很多人批评，但是事实是，广告带来了 20% 以上的旅游业务增长。</p>
-<p>除了调研外，奥格威也特别注重 MVP，因为广告投放出去花的都是真金白银，所以，效果得优化到极致。于是互联网公司里面常见的「A&#x2F;B Test」，灰度投放在奥美是基本常识。所有最终使用的广告，都是在小渠道中测试通过，打败了别的各种方案的获胜者。</p>
-<h2 id="长远规划"><a href="#长远规划" class="headerlink" title="长远规划"></a>长远规划</h2><p>我从奥格威的经营理念中，还看到不少长远规划。这些长远规则会牺牲奥美公司的短期收益，但是长期收益会很高。比如说：奥美会非常严格地挑选广告主：</p>
-<ul>
-<li>不认可的产品。不接。</li>
-<li>预计做不出比上一家更好的广告的广告主。不接。</li>
-<li>产品本身或者管理本身有问题的广告主。不接。</li>
-</ul>
-<p>奥美会把好的客户经理放到现有客户上，而不是让他去扩展新客户。如果没有好的合格的客户经理，或者业务超过了奥美的承受能力，奥美就不接。</p>
-<p>奥美还花了大量的钱做市场调研和分析，这使得他们的利润率低于平均水平。</p>
-<p>这些决策都会影响奥美的收入和利润，但是长远来看，广告公司本身的品牌被树立。奥美之后的很多新增业务，都是由于之前的口碑获得的。</p>
-<h2 id="恶意收购"><a href="#恶意收购" class="headerlink" title="恶意收购"></a>恶意收购</h2><p>看完这本书后，我又查了一下奥美的历史，发现奥美在 1989 年被 WPP 公司强行恶意收购。我突然对恶意收购很感兴趣，想知道是如何操作的。于是在知乎上查到一些资料。</p>
-<p>感兴趣的可以自行查看知乎的原贴：<a target="_blank" rel="noopener" href="https://www.zhihu.com/question/25215966">《有哪些经典的敌意收购 (Hostile takeover) 案例和手法？》</a>。</p>
-<h3 id="一些奥美的参考资料"><a href="#一些奥美的参考资料" class="headerlink" title="一些奥美的参考资料"></a>一些奥美的参考资料</h3><ul>
-<li><a target="_blank" rel="noopener" href="http://wemedia.ifeng.com/20028560/wemedia.shtml">http://wemedia.ifeng.com/20028560/wemedia.shtml</a></li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E6%88%8F%E9%87%8C%E6%88%8F%E5%A4%96%E7%9A%84%E4%B8%80%E5%87%BA%E5%A5%BD%E6%88%8F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/%E6%88%8F%E9%87%8C%E6%88%8F%E5%A4%96%E7%9A%84%E4%B8%80%E5%87%BA%E5%A5%BD%E6%88%8F/" itemprop="url">戏里戏外的一出好戏</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-11T01:02:05+00:00">
-                2018-10-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%94%9F%E6%B4%BB%E6%84%9F%E6%82%9F/" itemprop="url" rel="index">
-                    <span itemprop="name">生活感悟</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          就像人们觉得大街上耍猴有意思，人们看着被驯化的猴子，遵从人们的指令做出各种动作，人们瞬间有了种睥睨众生的感觉，可明明人类就是由猿猴进化而来，想到这一点，你忽然觉得人类世界的奇妙之处，即人类以自身有限的认知，所勾勒和描绘出的这个世界，其实永远都是冰山一角，在某种情况下，这种体系的崩塌，我让我们不得不重新审视自我的合理性，所谓“你站在桥上看风景，看风景的人在楼上看你;上周国庆节放假，在家里看了黄渤的导演处女座《一出好戏》，虽然网上对它的评价还不错，可当我真正看完了这部电影，我反而觉得它更适合一个人的时候去看，因为在“演而优则导”的大趋势下，越来越多的人都在尝试“触电”，前有角逐奥斯卡的《逐梦演艺圈》，后有倒卖情怀的《爱情公寓》大电影，在这样一个充斥着“浮躁”的娱乐时代，有这样一类充满哲学意味的电影，可以说这是中国电影里的“净土”;电影快结束的时候，马进一直在重复“真的”还是“假的”，当一个人认识到这个社会的复杂性，当一个人在真真假假中来回穿梭的时候，或许他就会和马进一样，真的就分不出“真假”，可让马进走上神坛的电灯，和让小王变成“精神病”的电，难道不是一样的吗
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/%E6%88%8F%E9%87%8C%E6%88%8F%E5%A4%96%E7%9A%84%E4%B8%80%E5%87%BA%E5%A5%BD%E6%88%8F/">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2018/new-nickname-prin/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/new-nickname-prin/" itemprop="url">新的网络昵称：PRIN 🍮</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-03T04:24:52+00:00">
-                2018-10-03
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%97%A5%E5%B8%B8/" itemprop="url" rel="index">
-                    <span itemprop="name">日常</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <blockquote>
-<p>2019-11-30 更新：博客标题确实是改成 PRIN BLOG 了，不过「布丁」这个名字说实话后来一次也没用过……还是算了吧，怪尴尬的。</p>
-</blockquote>
-<p>这不是我第一次这么想：</p>
-<p><strong>我的常用 ID <code>printempw</code> 太难读了。</strong></p>
-<p>有多难读呢？难读到连我自己都不知道这玩意该怎么读。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/new-nickname-prin/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/31/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/31/">31</a><span class="page-number current">32</span><a class="page-number" href="/page/33/">33</a><span class="space">&hellip;</span><a class="page-number" href="/page/73/">73</a><a class="extend next" rel="next" href="/page/33/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/31/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/31/">31</a><span class="page-number current">32</span><a class="page-number" href="/page/33/">33</a><span class="space">&hellip;</span><a class="page-number" href="/page/74/">74</a><a class="extend next" rel="next" href="/page/33/">&gt;</a>
   </nav>
 
 
@@ -3985,7 +3940,7 @@ master-client
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1460</span>
+                  <span class="site-state-item-count">1464</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -4007,7 +3962,7 @@ master-client
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">895</span>
+                  <span class="site-state-item-count">910</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

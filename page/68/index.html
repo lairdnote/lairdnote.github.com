@@ -274,6 +274,889 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2014-06-01-interview-on-miqun/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2014-06-01-interview-on-miqun/" itemprop="url">专访《iOS测试指南》作者羋峮</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-06-01T09:07:31+00:00">
+                2014-06-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="版权说明"><a href="#版权说明" class="headerlink" title="版权说明"></a>版权说明</h2><p>本文为 InfoQ 中文站特供稿件，首发地址为：<a target="_blank" rel="noopener" href="http://www.infoq.com/cn/news/2014/04/interview-ios-test-guide-author">文章链接</a>。如需转载，请与 InfoQ 中文站联系。</p>
+<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在 2014 年 <a target="_blank" rel="noopener" href="http://www.qconbeijing.com/">QCon 北京</a> 大会上，羋峮进行了他的新书 <a target="_blank" rel="noopener" href="http://www.amazon.cn/%E5%9B%BE%E4%B9%A6/dp/product-description/B00JPVNFKM">《iOS 测试指南》</a> 的签售会。在大会中，我代表 InfoQ 与羋峮进行了一次专访，羋峮分享了他在 iOS 平台做自动化测试的一些经验。</p>
+<p>羋峮有着多年的测试经验，先后在高德、豆瓣以及豌豆夹从事过测试相关的工作。他在豆瓣工作时，实现并且开源了 iOS 的自动化测试工具 <a target="_blank" rel="noopener" href="https://github.com/douban/ynm3k">ynm3k</a>，并且刚刚完成了系统介绍 iOS 自动化测试的新书《iOS 测试指南》。</p>
+<p>InfoQ：羋峮你好，我想请你先介绍一下你的测试工作经历。</p>
+<blockquote>
+<p>羋峮：我是 03 年毕业的，修了三年地铁以后就转行做软件测试工作了。到现在，做测试有七到八年的时间，我是从豆瓣开始做的移动测试相关的工作，当时移动测试也正好赶上一个起步的阶段，所以还有一点小小的心得。</p>
+</blockquote>
+<p>InfoQ：我想问的第一个主题是关于自动化测试和持续集成的方面的问题。就我所了解的情况，现在大部分的互联网公司关于移动端的测试的工具都还处于比较初级的阶段，很多公司也没有真正应用上那个自动化测试。我昨天跟阿里的 iOS Leader 聊，他们没有用到移动端自动化测试，我之前在网易工作，他们也没有做移动端自动化测试，你觉得是什么原因造成移动端自动化测试还没有流行起来，没有大规模的应用？</p>
+<blockquote>
+<p>羋峮：测试的投入产出比，尤其是自动化测试的投入产出比一直都没有一个非常简单有效的说明方法。当投入产出比的说不清楚的时候，可能很多人选择观望。tinyfool 在给我写这本书的书序的时候，他也做了一个小调查，基本上就是不测试，或者简单测试的占很大的比重，比较细致的测试非常少。测试做的非常少主要有这么几方面的原因：</p>
+</blockquote>
+<blockquote>
+<p>1、移动端是一个新生事物，总结出来的方法还没有被普遍的认可。移动端承接了更多 UI 展现方面的工作，其中有很多的和人交互的东西。不但功能复杂，并且还没有唯一的标准。测试的注意力很容易不分散，并且效果非常的不明显。</p>
+</blockquote>
+<blockquote>
+<p>2、移动端现在更多的是市场行为，需要有产品的占领地盘。还没有到精雕细琢的时代。所以，测试在这个时候明显不如产品或者设计师有话语权。并且现在需要的是 “有”，还没有到 “精” 的程度。</p>
+</blockquote>
+<blockquote>
+<p>3、国内测试界相对比较浮躁，更多的不是从技术角度去解决问题。所以导致测试需要关注点过于分散，没有真正的定义好自己的工作职责和范围。什么事情都需要关注，最后就是什么事情都没有关注好。</p>
+</blockquote>
+<blockquote>
+<p>我比较幸运，当时去了豆瓣。豆瓣当时明确的定义了 QA 的工作职责——推荐新技术或者开发新工具，让开发工程师更好的测试。并且设计师在测试阶段也会投入很大的精力去 review 设计稿中各种交互方面的不足。</p>
+</blockquote>
+<p>InfoQ：你在豆瓣开始尝试 iOS 的自动化测试，那我想知道你在这个过程中取得哪些成果？</p>
+<blockquote>
+<p>羋峮：刚去豆瓣接手工作的时候自己思维还是有局限性的，只是把自己工作定位在去实现一些基于界面操作的自动化的东西，这个其实现在看来可能它是一个切入点，但是可能并不是一个非常好的切入点，其实还有很多工作要做，由于当时自己思维局限所以就做了。</p>
+</blockquote>
+<blockquote>
+<p>另外一方面，就是因为只想到这一点，所以就是精力比较集中 , 更容易出一些成果。2011 年年底的时候开始做这些工作，自己先后找了有五款自动化测试工具调研。调研的方法是先写一些 demo 的东西，然后再看看工具的源代码。搞清楚工作的架构和底层原理。最后发现，当时的工具都有一些这样那样的问题。然后自己就开始幻想写一个适合自己的这个自动化工具。</p>
+</blockquote>
+<blockquote>
+<p>当 iOS5 发布以后，苹果的对于 UI Automation 进行了一个改进，增加了<code>performTaskWithPathArgumentsTimeout</code>接口。通过该接口可以实现 UI Automation 和外部程序的简单通信。基于这个改进，自己拉了在豆瓣的一个开发的同事，两个人就用一个半月的时间写了一个自动化测试工具。也是因为有了 performTaskWithPathArgumentsTimeout 接口的发布，所以淘宝也当时利用那个接口写了另外一种实现的 iOS 的测试工具。</p>
+</blockquote>
+<blockquote>
+<p>在完成 ynm3k 的开发以后，使用它为豆瓣 FM 和豆瓣电影写了一些自动化测试用例。效果还可以。</p>
+</blockquote>
+<p>InfoQ：淘宝那个开源了吗？</p>
+<blockquote>
+<p>羋峮：淘宝那个开源了，叫 <a target="_blank" rel="noopener" href="http://code.taobao.org/p/athrun/src/">athrun</a> ，我那个也开源了叫 <a target="_blank" rel="noopener" href="https://github.com/douban/ynm3k">ynm3k</a>，当时是 12 年 7 月份，那个 ADC 的专门都有分享，在网上应该也都有链接 <a target="_blank" rel="noopener" href="http://adc.taobao.com/carnival/video/147_0">Athrun instrument driver</a> 和 <a target="_blank" rel="noopener" href="http://adc.taobao.com/carnival/video/148_0">豆瓣 iOS 自动化测试实践和经验</a> 。</p>
+</blockquote>
+<p>InfoQ：当时你们花一个半月开发这个自动化测试工具是用 20% 的工作时间，还是完全的工作时间来做这个事情？因为我觉得你在开发这段时间内肯定也有普通的正常的测试任务要完成，你们公司是怎么平衡这件事情的？</p>
+<blockquote>
+<p>羋峮：我们应该是业余时间完成的这个框架。主要就是晚上，或者是快下班的时候，自己挤出来一些时间做这个事情。</p>
+</blockquote>
+<p>InfoQ：跟同事的配合也是在那段时间来进行的？</p>
+<blockquote>
+<p>羋峮：当时就是我俩分工相对来说很明确，一方面需要有更好的遍历控件和定位控件的方法，是由我来现实的；另一方面，需要引入一个 JavaScript 语言的单元测试框架。这部分由我豆瓣的同事 <a target="_blank" rel="noopener" href="http://weibo.com/p/1005051689931124">@SeanLionheart</a> 完成，他在正式发布的时候已经去美国上学。</p>
+</blockquote>
+<blockquote>
+<p>我们两个之间的配合非常顺畅，因为各自的部分是完全解耦的，互补不影响。在交流的时候，还能相互给出自己的想法和意见。</p>
+</blockquote>
+<p>InfoQ：你们做这件事情，豆瓣有从文化上，或者从其他方面对你们这件事情有鼓励或者激励吗？我想知道，是否这个公司的文化对于促进了你们做这件事情？</p>
+<blockquote>
+<p>羋峮：这个肯定是促进的。首先这个想法是我在一次周会上提出来的。提出来以后，当时我的 Leader 解彦博老师就特别鼓励我们去做这件事情，并且大家都很感兴趣，当时的整个测试团队都给我们提供意见或者交流过想法。</p>
+</blockquote>
+<blockquote>
+<p>第二，在豆瓣的骨子里，就有很多工程师去愿意去用自己的业余时间去写一些小工具来改进效率，或者是提高效率，或者改进流程，这个在豆瓣都是很流行。自己写的工具，在豆瓣内部得到了广泛的应用，对工程师来说这是很高的荣誉。</p>
+</blockquote>
+<p>InfoQ：当你产品在快速迭代的时候，它的整个页面的组织，界面逻辑都会在快速变化，这个时候自动化测试是否是在这种场景下不太适合？自动化测试是怎么解决产品快速迭代的问题呢？</p>
+<blockquote>
+<p>羋峮：无法适应变化一直是自动化测试的软肋。首先，有一些变化需要测试做兼容，这个兼容可能需要测试框架本身来支持，也可能需要自动化测试脚本通过一些更加层次化的方法来兼容。举一个例子来说，一个登录按钮，从 NavigationBar 上移到了可能在中间页面的一个 LoginButton 上面，所以这种情况下是应该去兼容的，因为它只是位置发生了变化，它大的业务逻辑没有发生变化，这种是需要测试框架去兼容的。如果是更大一点的变化，需要测试脚本一定量的维护。<br>其次，测试脚本一定要不断的维护。有很多自动化测试最终失败是因为期间放弃过自动化测试脚本的维护。自动化测试脚本不但需要维护，还需要有很好的代码结构。相关测试脚本的代码结构可以参看一些 PageObject 的思想，也可以看看 cucumber 等 BDD 工具，都会帮助你最小改动的维护自动化测试脚本。<br>当然，自动化测试接入工程的时机等因素也很重要。这些都没有固定的模式，需要结合自己团队的特点来开展。自动化测试和持续集成是一对好基友。自动化测试执行和结果展示都需要持续集成的帮助。有了持续集成，自动化测试才会被更多的人认可，可才会有更多的人加入到自动化测试的维护中来。<br>最后，可能需要更新一下对自动化测试的认识。自动化测试不会降低成本，自动化测试不会主动发现 bug。自动化测试可以更标准更快速的重复回归一些功能测试。所以，对自动化测试有一个更加客观的认识，才会帮助你在具体的工程项目中更好的开展自动化测试实践。</p>
+</blockquote>
+<p>InfoQ：刚才你提到你在豆瓣开源的 ynm3k 这个开源测试工具，然后你同时也提到淘宝也开源的 athrun，你有没有比较过你们两者之间工具各自有什么特点？</p>
+<blockquote>
+<p>羋峮：首先两款工具都同时用到了一个接口，接口的名字是：performTaskWithPathArgumentsTimeout，这个接口可以去运行一个本地的命令行程序。这个接口提供了 UI Automation 和命令行工具的一个交互的可能。</p>
+</blockquote>
+<blockquote>
+<p>我用那个接口用的非常轻量，需要把运行完的测试结果通过那个接口写文件写出来，写成标准的 XML 以后，通过 Jenkins 或者是 Hudson 这些持续集成的工具，把它展现在持续集成工具的页面里头。</p>
+</blockquote>
+<blockquote>
+<p>我只是写了文件，淘宝的 athrun 做了一个进程之间的通信，所以他那个工具解决的问题是：用户可以不用 JavaScript 来写 UI Automation 的东西。athrun 自己定义了通信协议，并且通过 performTaskWithPathArgumentsTimeout 接口来完成和 UI Automation 的通信。用户可以使用 Java 语言来做 UI Automation 的自动化测试。</p>
+</blockquote>
+<blockquote>
+<p>同样类似的国外也有，就像 eBay 的 <a target="_blank" rel="noopener" href="http://ios-driver.github.io/ios-driver/">ios-driver</a>，还有就是最近特别火的 <a target="_blank" rel="noopener" href="http://appium.io/">appium</a>，原理上都是通过那个接口实现了两个进程间的通信来驱动 UI Automation 来完成自动化测试的。appium 在驱动 UI Automation 的基础上还兼容了 WebDriver 的 Json Wire protocl 协议。使用者可以使用 Java、Python、Ruby 等语言直接调用 WebDriver 的 API 来完成 iOS 的自动化测试。WebDriver 对很多 Web 端的测试工程师来说都很熟悉。由于 appium 兼容了 Json Wire protocl 协议，使用者还可以使用 Gird 来并发的测试。当然，appium 也支持 Android 的一些自动化测试。</p>
+</blockquote>
+<blockquote>
+<p>在《iOS 测试指南》书中，大概也进行了一个分类，ynm3k 属于扩展型的，扩展型的工具只是提供了一些 JavaScript 的开发库，用户只需要 import 进来，可能就会有更简化的写法和更强大的功能，然后但是对本身的 UI Automation 的，就基本上没有改变。</p>
+</blockquote>
+<blockquote>
+<p>但是通过苹果提供<code>performTaskWithPathArgumentsTimeout</code>接口进行进程间通信的这种自动化测试工具，我在书里面把它归类为驱动型的测试工具。使用驱动型的测试工具，用户可以有更多种语言的选择，并且可以拥有动态的调试功能。但是驱动型的测试工具，无法在 instruments 的图形界面下运行，也就失去了，运行自动化测试的时候同时检查内存泄露，统计网络流量等功能。所以，工具对比下来只有适合不适合的说法，并没有绝对意义上的好与坏。</p>
+</blockquote>
+<p>InfoQ：刚才也都是提到你的 UI 测试的书本，我希望你简单介绍一下这本书适合哪些读者，有没有什么你觉得特别值得推荐的书里面的内容可以分享给大家？</p>
+<blockquote>
+<p>羋峮：我书里前两章写的很短，就说了一些基本的概念；第三章说的是单元测试的一些实践，并且完成一个简单的 app 的单元测试。</p>
+</blockquote>
+<blockquote>
+<p>第四章就简要的介绍一下 Automation 的基础知识，很多自动化测试工具都是基于 UI Automation 来做的。不管是用哪个工具，从底层了解一些 UI Automation 的 API，都是有帮助。</p>
+</blockquote>
+<blockquote>
+<p>第五章写的是 iOS 端的 Web 测试的一个方案，介绍了两种工具，其中也提到了 Appium，我也更推荐使用 Appium 来做自动化测试；然后第六章介绍了持续集成方面的事情，就是三到六章应该都是一个综合解决方案中的各个部分的技能的分散介绍。然后第七章介绍了一下，除了功能测试，手机端还需要去做哪些类型的测试，或者借助工具，我们应该怎么样简单的去确认，或者是去更精确的衡量；第八章是基于第三、四、五、六章然后做了一个最后的一个汇总介绍。因为书写的比较慢，在书稿还没有完全完成的时候，苹果就发布了 XCode5 和 OS X 10.9。在这一次更新以后，苹果本身也提供了一个持续集成的解决方案。在 XCode5 中还升级了单元测试框架。所以这一系列的变化就有了第九章的内容。</p>
+</blockquote>
+<blockquote>
+<p>书的内容本身是想给刚入门 iOS 测试的工程师来看的。最早写书的主要目的也是，为了汇总一些资料。因为相关 iOS 测试的资料实在是太少并且太分散了。但是当书写完以后，才发现原来用到了 3-4 种变成语言。所以，现在看来可能还需要读者有一定的编程功底。所以本书的最适合读者是有编码能力或者测试经验的人需要了解移动端测试的这样一个人群。</p>
+</blockquote>
+<p>InfoQ：你刚才讲到你的工具是开源的，然后你花了业余时间在这个上面，然后你的这本书是你的一个人通过业余时间写作完成的作品，我就想知道你开源和写作大概花费了你多少的业余时间，业余时间里面你是如何安排这些事情的？</p>
+<blockquote>
+<p>羋峮：做开源的时候还好了，只需要挤出来一定的时间把框架搭完了，慢慢的可以用零散的工作去实现个别功能，或者优化个别功能。写书的话，整个过程中，其实还是需要一些大块的时间去投入，因为自己语文水平比较差，有的时候明白一件事，可能还要去想一想怎么能写明白。对于我而言，往往需要大块的时间去写书，需要写一个小时以后感觉才能进入状态，进入状态之后写作效率还算 OK。一般一次写作的时间会在 4 个小时以上。我自己估了一下，如果一页的内容，代码和截图占到一半以上的话那一页的时间，大概是 1.5 个小时，如果是这一页内容是纯文字的话，那一页的时间大概是两个半小时。所以整个大概写了四百个小时左右。</p>
+</blockquote>
+<p>InfoQ：这确实是一个很大的工作量。感谢你为大家带来的开源工具和作品，谢谢你！</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2014-05-30-understand-tagged-pointer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2014-05-30-understand-tagged-pointer/" itemprop="url">深入理解Tagged Pointer</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-05-30T14:15:29+00:00">
+                2014-05-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="版权说明"><a href="#版权说明" class="headerlink" title="版权说明"></a>版权说明</h2><p>本文为 InfoQ 中文站特供稿件，首发地址为：<a target="_blank" rel="noopener" href="http://www.infoq.com/cn/articles/deep-understanding-of-tagged-pointer">文章链接</a>。如需转载，请与 InfoQ 中文站联系。</p>
+<p>【摘要】：为了节省内存和提高执行效率，苹果提出了<code>Tagged Pointer</code>的概念。对于 64 位程序，引入 Tagged Pointer 后，相关逻辑能减少一半的内存占用，以及 3 倍的访问速度提升，100 倍的创建、销毁速度提升。本文从<code>Tagged Pointer</code>试图解决的问题入手，带领读者理解<code>Tagged Pointer</code>的实现细节和优势，最后指出了使用时的注意事项。</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在 2013 年 9 月，苹果推出了 <a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/IPhone_5S">iPhone5s</a>，与此同时，iPhone5s 配备了首个采用 64 位架构的 <a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/Apple_A7">A7 双核处理器</a>，为了节省内存和提高执行效率，苹果提出了<code>Tagged Pointer</code>的概念。对于 64 位程序，引入 Tagged Pointer 后，相关逻辑能减少一半的内存占用，以及 3 倍的访问速度提升，100 倍的创建、销毁速度提升。本文从<code>Tagged Pointer</code>试图解决的问题入手，带领读者理解<code>Tagged Pointer</code>的实现细节和优势，最后指出了使用时的注意事项。</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>我们先看看原有的对象为什么会浪费内存。假设我们要存储一个 NSNumber 对象，其值是一个整数。正常情况下，如果这个整数只是一个 NSInteger 的普通变量，那么它所占用的内存是与 CPU 的位数有关，在 32 位 CPU 下占 4 个字节，在 64 位 CPU 下是占 8 个字节的。而指针类型的大小通常也是与 CPU 位数相关，一个指针所占用的内存在 32 位 CPU 下为 4 个字节，在 64 位 CPU 下也是 8 个字节。</p>
+<p>所以一个普通的 iOS 程序，如果没有<code>Tagged Pointer</code>对象，从 32 位机器迁移到 64 位机器中后，虽然逻辑没有任何变化，但这种 NSNumber、NSDate 一类的对象所占用的内存会翻倍。如下图所示：</p>
+<img src="/images/tagged_pointer_before.jpg" class="">
+
+
+<p>我们再来看看效率上的问题，为了存储和访问一个 NSNumber 对象，我们需要在堆上为其分配内存，另外还要维护它的引用计数，管理它的生命期。这些都给程序增加了额外的逻辑，造成运行效率上的损失。</p>
+<h2 id="Tagged-Pointer"><a href="#Tagged-Pointer" class="headerlink" title="Tagged Pointer"></a>Tagged Pointer</h2><p>为了改进上面提到的内存占用和效率问题，苹果提出了<code>Tagged Pointer</code>对象。由于 NSNumber、NSDate 一类的变量本身的值需要占用的内存大小常常不需要 8 个字节，拿整数来说，4 个字节所能表示的有符号整数就可以达到 20 多亿（注：2^31&#x3D;2147483648，另外 1 位作为符号位)，对于绝大多数情况都是可以处理的。</p>
+<p>所以我们可以将一个对象的指针拆成两部分，一部分直接保存数据，另一部分作为特殊标记，表示这是一个特别的指针，不指向任何一个地址。所以，引入了<code>Tagged Pointer</code>对象之后，64 位 CPU 下 NSNumber 的内存图变成了以下这样：</p>
+<img src="/images/tagged_pointer_after.jpg" class="">
+
+<p>对此，我们也可以用 Xcode 做实验来验证。我们的实验代码如下：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="type">int</span> main(<span class="type">int</span> argc, <span class="type">char</span> * argv[])</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">@autoreleasepool</span> &#123;</span><br><span class="line">        <span class="built_in">NSNumber</span> *number1 = @<span class="number">1</span>;</span><br><span class="line">        <span class="built_in">NSNumber</span> *number2 = @<span class="number">2</span>;</span><br><span class="line">        <span class="built_in">NSNumber</span> *number3 = @<span class="number">3</span>;</span><br><span class="line">        <span class="built_in">NSNumber</span> *numberFFFF = @(<span class="number">0xFFFF</span>);</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;number1 pointer is %p&quot;</span>, number1);</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;number2 pointer is %p&quot;</span>, number2);</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;number3 pointer is %p&quot;</span>, number3);</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;numberffff pointer is %p&quot;</span>, numberFFFF);</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">UIApplicationMain</span>(argc, argv, <span class="literal">nil</span>, <span class="built_in">NSStringFromClass</span>([AppDelegate <span class="keyword">class</span>]));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在该代码中，我们将几个 Number 类型的指针的值直接输出。需要注意的是，我们需要将模拟器切换成 64 位的 CPU 来测试，如下图所示：</p>
+<img src="/images/tagged_pointer_switch_64bit_simulator.jpg" class="">
+
+
+<p>运行之后，我们得到的结果如下，可以看到，除去最后的数字最末尾的 2 以及最开头的 0xb，其它数字刚好表示了相应 NSNumber 的值。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">number1 pointer is 0xb000000000000012</span><br><span class="line">number2 pointer is 0xb000000000000022</span><br><span class="line">number3 pointer is 0xb000000000000032</span><br><span class="line">numberFFFF pointer is 0xb0000000000ffff2</span><br></pre></td></tr></table></figure>
+
+<p>可见，苹果确实是将值直接存储到了指针本身里面。我们还可以猜测，数字最末尾的 2 以及最开头的 0xb 是否就是苹果对于<code>Tagged Pointer</code>的特殊标记呢？我们尝试放一个 8 字节的长的整数到<code>NSNumber</code>实例中，对于这样的实例，由于<code>Tagged Pointer</code>无法将其按上面的压缩方式来保存，那么应该就会以普通对象的方式来保存，我们的实验代码如下：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSNumber</span> *bigNumber = @(<span class="number">0xEFFFFFFFFFFFFFFF</span>);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;bigNumber pointer is %p&quot;</span>, bigNumber);</span><br></pre></td></tr></table></figure>
+
+<p>运行之后，结果如下，验证了我们的猜测，<code>bigNumber</code>的地址更像是一个普通的指针地址，和它本身的值看不出任何关系：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bigNumber pointer is 0x10921ecc0</span><br></pre></td></tr></table></figure>
+
+<p>可见，当 8 字节可以承载用于表示的数值时，系统就会以<code>Tagged Pointer</code>的方式生成指针，如果 8 字节承载不了时，则又用以前的方式来生成普通的指针。关于以上关于<code>Tag Pointer</code>的存储细节，我们也可以在 <a target="_blank" rel="noopener" href="https://www.mikeash.com/pyblog/friday-qa-2012-07-27-lets-build-tagged-pointers.html">这里</a> 找到相应的讨论，但是其中关于<code>Tagged Pointer</code>的实现细节与我们的实验并不相符，笔者认为可能是苹果更改了具体的实现细节，并且这并不影响<code>Tagged Pointer</code>我们讨论<code>Tagged Pointer</code>本身的优点。</p>
+<h2 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h2><p>我们也可以在 WWDC2013 的《Session 404 Advanced in Objective-C》视频中，看到苹果对于<code>Tagged Pointer</code>特点的介绍：</p>
+<ol>
+<li><code>Tagged Pointer</code>专门用来存储小的对象，例如<code>NSNumber</code>和<code>NSDate</code></li>
+<li><code>Tagged Pointer</code>指针的值不再是地址了，而是真正的值。所以，实际上它不再是一个对象了，它只是一个披着对象皮的普通变量而已。所以，它的内存并不存储在堆中，也不需要 malloc 和 free。</li>
+<li>在内存读取上有着 3 倍的效率，创建时比以前快 106 倍。</li>
+</ol>
+<p>由此可见，苹果引入<code>Tagged Pointer</code>，不但减少了 64 位机器下程序的内存占用，还提高了运行效率。完美地解决了小内存对象在存储和访问效率上的问题。</p>
+<h2 id="isa-指针"><a href="#isa-指针" class="headerlink" title="isa 指针"></a>isa 指针</h2><p><code>Tagged Pointer</code>的引入也带来了问题，即<code>Tagged Pointer</code>因为并不是真正的对象，而是一个伪对象，所以你如果完全把它当成对象来使，可能会让它露马脚。比如我在 <a href="/2013/10/15/objective-c-object-model/">《Objective-C 对象模型及应用》</a> 一文中就写道，所有对象都有 <code>isa</code> 指针，而<code>Tagged Pointer</code>其实是没有的，因为它不是真正的对象。<br>因为不是真正的对象，所以如果你直接访问<code>Tagged Pointer</code>的<code>isa</code>成员的话，在编译时将会有如下警告：</p>
+<img src="/images/tagged_pointer_isa_forbidden.jpg" class="">
+
+<p>对于上面的写法，应该换成相应的方法调用，如 <code>isKindOfClass</code> 和 <code>object_getClass</code>。只要避免在代码中直接访问对象的 isa 变量，即可避免这个问题。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>苹果将<code>Tagged Pointer</code>引入，给 64 位系统带来了内存的节省和运行效率的提高。<code>Tagged Pointer</code>通过在其最后一个 bit 位设置一个特殊标记，用于将数据直接保存在指针本身中。因为<code>Tagged Pointer</code>并不是真正的对象，我们在使用时需要注意不要直接访问其 isa 变量。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2012-12-02-use-cocoapod-to-manage-ios-lib-dependency/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2012-12-02-use-cocoapod-to-manage-ios-lib-dependency/" itemprop="url">用CocoaPods做iOS程序的依赖管理</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-05-25T06:09:00+00:00">
+                2014-05-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <img src="/images/cocoapods-logo.png" class="">
+
+<h2 id="文档更新说明"><a href="#文档更新说明" class="headerlink" title="文档更新说明"></a>文档更新说明</h2><ul>
+<li>2012-12-02 v1.0 初稿</li>
+<li>2014-01-08 v1.1 增加设置 ruby 淘宝源相关内容</li>
+<li>2014-05-25 v2.0 增加国内 spec 镜像、使用私有 pod、podfile.lock、创建 spec 文件等内容</li>
+<li>2015-09-03 v2.1 优化排版，调整一些描述方式，使文章更易读懂。</li>
+<li>2015-12-21 v2.2 将淘宝的镜像修改成 https 的。</li>
+</ul>
+<h2 id="CocoaPods-简介"><a href="#CocoaPods-简介" class="headerlink" title="CocoaPods 简介"></a>CocoaPods 简介</h2><p>每种语言发展到一个阶段，就会出现相应的依赖管理工具，例如 Java 语言的 Maven，nodejs 的 npm。随着 iOS 开发者的增多，业界也出现了为 iOS 程序提供依赖管理的工具，它的名字叫做：<a target="_blank" rel="noopener" href="http://cocoapods.org/">CocoaPods</a>。</p>
+<p>CocoaPods<a target="_blank" rel="noopener" href="https://github.com/CocoaPods/CocoaPods">项目的源码</a> 在 Github 上管理。该项目开始于 2011 年 8 月 12 日，经过多年发展，现在已经成为 iOS 开发事实上的依赖管理标准工具。开发 iOS 项目不可避免地要使用第三方开源库，CocoaPods 的出现使得我们可以节省设置和更新第三方开源库的时间。</p>
+<p>我在开发猿题库客户端时，使用了 24 个第三方开源库。在没有使用 CocoaPods 以前，我需要:</p>
+<ol>
+<li>把这些第三方开源库的源代码文件复制到项目中，或者设置成 git 的 submodule。</li>
+<li>对于这些开源库通常需要依赖系统的一些 framework，我需要手工地将这些 framework 分别增加到项目依赖中，比如通常情况下，一个网络库就需要增加以下 framework: CFNetwork, SystemConfiguration, MobileCoreServices, CoreGraphics, zlib。</li>
+<li>对于某些开源库，我还需要设置<code>-licucore</code>或者 <code>-fno-objc-arc</code>等编译参数</li>
+<li>管理这些依赖包的更新。</li>
+</ol>
+<p>这些体力活虽然简单，但毫无技术含量并且浪费时间。在使用 CocoaPods 之后，我只需要将用到的第三方开源库放到一个名为 Podfile 的文件中，然后执行<code>pod install</code>。<br>CocoaPods 就会自动将这些第三方开源库的源码下载下来，并且为我的工程设置好相应的系统依赖和编译参数。</p>
+<h2 id="CocoaPods-的安装和使用介绍"><a href="#CocoaPods-的安装和使用介绍" class="headerlink" title="CocoaPods 的安装和使用介绍"></a>CocoaPods 的安装和使用介绍</h2><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>安装方式异常简单 , Mac 下都自带 ruby，使用 ruby 的 gem 命令即可下载安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo gem install cocoapods</span><br><span class="line">$ pod setup</span><br></pre></td></tr></table></figure>
+
+<p>如果你的 gem 太老，可能也会有问题，可以尝试用如下命令升级 gem:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gem update --system</span><br></pre></td></tr></table></figure>
+
+<p>另外，ruby 的软件源 <a target="_blank" rel="noopener" href="https://rubygems.org/">https://rubygems.org</a> 因为使用的是亚马逊的云服务，所以被墙了，需要更新一下 ruby 的源，使用如下代码将官方的 ruby 源替换成国内淘宝的源：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gem sources --remove https://rubygems.org/</span><br><span class="line">gem sources -a https://ruby.taobao.org/</span><br><span class="line">gem sources -l</span><br></pre></td></tr></table></figure>
+
+<p>还有一点需要注意，<code>pod setup</code>在执行时，会输出<code>Setting up CocoaPods master repo</code>，但是会等待比较久的时间。这步其实是 Cocoapods 在将它的信息下载到 <code>~/.cocoapods</code>目录下，如果你等太久，可以试着 cd 到那个目录，用<code>du -sh *</code>来查看下载进度。你也可以参考本文接下来的<code>使用 cocoapods 的镜像索引</code>一节的内容来提高下载速度。</p>
+<h3 id="使用-CocoaPods-的镜像索引"><a href="#使用-CocoaPods-的镜像索引" class="headerlink" title="使用 CocoaPods 的镜像索引"></a>使用 CocoaPods 的镜像索引</h3><p>所有的项目的 Podspec 文件都托管在<code>https://github.com/CocoaPods/Specs</code>。第一次执行<code>pod setup</code>时，CocoaPods 会将这些<code>podspec</code>索引文件更新到本地的 <code>~/.cocoapods/</code>目录下，这个索引文件比较大，有 80M 左右。所以第一次更新时非常慢，笔者就更新了将近 1 个小时才完成。</p>
+<p>一个叫 <a target="_blank" rel="noopener" href="http://akinliu.github.io/2014/05/03/cocoapods-specs-/">akinliu</a> 的朋友在 <a target="_blank" rel="noopener" href="http://gitcafe.com/">gitcafe</a> 和 <a target="_blank" rel="noopener" href="http://www.oschina.net/">oschina</a> 上建立了 CocoaPods 索引库的镜像，因为 gitcafe 和 oschina 都是国内的服务器，所以在执行索引更新操作时，会快很多。如下操作可以将 CocoaPods 设置成使用 gitcafe 镜像：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">pod repo remove master</span><br><span class="line">pod repo add master https://gitcafe.com/akuandev/Specs.git</span><br><span class="line">pod repo update</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>将以上代码中的 <code>https://gitcafe.com/akuandev/Specs.git</code> 替换成 <code>http://git.oschina.net/akuandev/Specs.git</code> 即可使用 oschina 上的镜像。</p>
+<h3 id="使用-CocoaPods"><a href="#使用-CocoaPods" class="headerlink" title="使用 CocoaPods"></a>使用 CocoaPods</h3><p>使用时需要新建一个名为 Podfile 的文件，以如下格式，将依赖的库名字依次列在文件中即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">platform :ios</span><br><span class="line">pod &#x27;JSONKit&#x27;,       &#x27;~&gt; 1.4&#x27;</span><br><span class="line">pod &#x27;Reachability&#x27;,  &#x27;~&gt; 3.0.0&#x27;</span><br><span class="line">pod &#x27;ASIHTTPRequest&#x27;</span><br><span class="line">pod &#x27;RegexKitLite&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>然后你将编辑好的 Podfile 文件放到你的项目根目录中，执行如下命令即可：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> <span class="string">&quot;your project home&quot;</span></span><br><span class="line">pod install</span><br></pre></td></tr></table></figure>
+
+<p>现在，你的所有第三方库都已经下载完成并且设置好了编译参数和依赖，你只需要记住如下 2 点即可：</p>
+<ol>
+<li>使用 CocoaPods 生成的 *.xcworkspace 文件来打开工程，而不是以前的 *.xcodeproj 文件。</li>
+<li>每次更改了 Podfile 文件，你需要重新执行一次<code>pod update</code>命令。</li>
+</ol>
+<h3 id="查找第三方库"><a href="#查找第三方库" class="headerlink" title="查找第三方库"></a>查找第三方库</h3><p>你如果不知道 cocoaPods 管理的库中，是否有你想要的库，那么你可以通过 pod search 命令进行查找，以下是我用 pod search json 查找到的所有可用的库：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ pod search json</span><br><span class="line"></span><br><span class="line">-&gt; AnyJSON (0.0.1)</span><br><span class="line">   Encode / Decode JSON by any means possible.</span><br><span class="line">   - Homepage: https://github.com/mattt/AnyJSON</span><br><span class="line">   - Source:   https://github.com/mattt/AnyJSON.git</span><br><span class="line">   - Versions: 0.0.1 [master repo]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">-&gt; JSONKit (1.5pre)</span><br><span class="line">   A Very High Performance Objective-C JSON Library.</span><br><span class="line">   - Homepage: https://github.com/johnezang/JSONKit</span><br><span class="line">   - Source:   git://github.com/johnezang/JSONKit.git</span><br><span class="line">   - Versions: 1.5pre, 1.4 [master repo]</span><br><span class="line"></span><br><span class="line">// ... 以下省略若干行</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="关于-Podfile-lock"><a href="#关于-Podfile-lock" class="headerlink" title="关于 Podfile.lock"></a>关于 Podfile.lock</h3><p>当你执行<code>pod install</code>之后，除了 Podfile 外，CocoaPods 还会生成一个名为<code>Podfile.lock</code>的文件，Podfile.lock 应该加入到版本控制里面，不应该把这个文件加入到<code>.gitignore</code>中。因为<code>Podfile.lock</code>会锁定当前各依赖库的版本，之后如果多次执行<code>pod install</code> 不会更改版本，要<code>pod update</code>才会改<code>Podfile.lock</code>了。这样多人协作的时候，可以防止第三方库升级时造成大家各自的第三方库版本不一致。</p>
+<p>CocoaPods 的这篇 <a target="_blank" rel="noopener" href="http://guides.cocoapods.org/using/using-cocoapods.html#should-i-ignore-the-pods-directory-in-source-control">官方文档</a> 也在<code>What is a Podfile.lock</code>一节中介绍了<code>Podfile.lock</code>的作用，并且指出：</p>
+<blockquote><p>This file should always be kept under version control.</p>
+</blockquote>
+
+<h2 id="为自己的项目创建-podspec-文件"><a href="#为自己的项目创建-podspec-文件" class="headerlink" title="为自己的项目创建 podspec 文件"></a>为自己的项目创建 podspec 文件</h2><p>我们可以为自己的开源项目创建<code>podspec</code>文件，首先通过如下命令初始化一个<code>podspec</code>文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pod spec create your_pod_spec_name</span><br></pre></td></tr></table></figure>
+
+<p>该命令执行之后，CocoaPods 会生成一个名为<code>your_pod_spec_name.podspec</code>的文件，然后我们修改其中的相关内容即可。</p>
+<p>具体步骤可以参考这两篇博文中的相关内容：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://ishalou.com/blog/2012/10/16/how-to-create-a-cocoapods-spec-file/">《如何编写一个 CocoaPods 的 spec 文件》</a> </li>
+<li><a target="_blank" rel="noopener" href="http://studentdeng.github.io/blog/2013/09/13/cocoapods-tutorial/">《Cocoapods 入门》</a>。</li>
+</ul>
+<h2 id="使用私有的-pods"><a href="#使用私有的-pods" class="headerlink" title="使用私有的 pods"></a>使用私有的 pods</h2><p>我们可以直接指定某一个依赖的<code>podspec</code>，这样就可以使用公司内部的私有库。该方案有利于使企业内部的公共项目支持 CocoaPods。如下是一个示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pod <span class="string">&#x27;MyCommon&#x27;</span>, :podspec =&gt; <span class="string">&#x27;https://yuantiku.com/common/myCommon.podspec&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="不更新-podspec"><a href="#不更新-podspec" class="headerlink" title="不更新 podspec"></a>不更新 podspec</h2><p>CocoaPods 在执行<code>pod install</code>和<code>pod update</code>时，会默认先更新一次<code>podspec</code>索引。使用<code>--no-repo-update</code>参数可以禁止其做索引更新操作。如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pod install --no-repo-update</span><br><span class="line">pod update --no-repo-update</span><br></pre></td></tr></table></figure>
+
+<h3 id="生成第三方库的帮助文档"><a href="#生成第三方库的帮助文档" class="headerlink" title="生成第三方库的帮助文档"></a>生成第三方库的帮助文档</h3><p>如果你想让 CococaPods 帮你生成第三方库的帮助文档，并集成到 Xcode 中，那么用 brew 安装 appledoc 即可：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install appledoc</span><br></pre></td></tr></table></figure>
+
+<p>关于 appledoc，我在另一篇博客 <a href="/2012/02/01/use-appledoc-to-generate-xcode-doc/">《使用 Objective-C 的文档生成工具:appledoc》</a> 中有专门介绍。它最大的优点是可以将帮助文档集成到 Xcode 中，这样你在敲代码的时候，按住 opt 键单击类名或方法名，就可以显示出相应的帮助文档。</p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>大概研究了一下 CocoaPods 的原理，它是将所有的依赖库都放到另一个名为 Pods 项目中，然后让主项目依赖 Pods 项目，这样，源码管理工作都从主项目移到了 Pods 项目中。发现的一些技术细节有：</p>
+<ol>
+<li>Pods 项目最终会编译成一个名为 libPods.a 的文件，主项目只需要依赖这个 .a 文件即可。</li>
+<li>对于资源文件，CocoaPods 提供了一个名为 Pods-resources.sh 的 bash 脚本，该脚本在每次项目编译的时候都会执行，将第三方库的各种资源文件复制到目标目录中。</li>
+<li>CocoaPods 通过一个名为 Pods.xcconfig 的文件来在编译时设置所有的依赖和参数。</li>
+</ol>
+<p>愿大家玩得开心～</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2014-05-24-how-to-persist-writing/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2014-05-24-how-to-persist-writing/" itemprop="url">技术人员如何坚持写作</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-05-24T06:00:12+00:00">
+                2014-05-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/summary/" itemprop="url" rel="index">
+                    <span itemprop="name">summary</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <img src="/images/writing.jpg" class="">
+
+<h2 id="我和朋友的故事"><a href="#我和朋友的故事" class="headerlink" title="我和朋友的故事"></a>我和朋友的故事</h2><p>这个月我给 <a target="_blank" rel="noopener" href="http://www.infoq.com/cn">InfoQ 网站</a>、<a target="_blank" rel="noopener" href="http://programmer.csdn.net/">《程序员》</a> 的投稿所获的稿费，加上去人人网分享技术所得到的礼物，一共有将近 3000 块。看到这个数字之后我自己都吓了一跳，不知不觉中，写作和分享竟然给自己带来了这么大的直观收入。</p>
+<p>但是相比那些非金钱上的收获，这些直接收入又显得微不足道。我在 <a href="/2014/01/08/why-we-need-write/">《作为码农，我们为什么要写作》</a> 一文中，总结了写作给自己带来的非金钱上的收获，包括：<code>提高自己对知识的掌握层次</code>、<code>提高表达和沟通的能力</code>、<code>错误内容反馈</code>、<code>认识朋友</code>、<code>了解更多相关信息</code>、<code>提高影响力</code>和<code>获得传递知识的乐趣</code>。</p>
+<p>由于我自己从写作中获得了巨大的好处，所以我尝试向身边的朋友推荐这个自我提高的方式，但是非常令人惊讶的是，即使知道这里面会有巨大的好处，我身边的很多朋友仍然不能坚持写作。我从他们中收集到的负面反馈包括：</p>
+<ol>
+<li><p>写作太花时间。我的朋友 A 发现，完成一篇给 InfoQ 的投稿需要花费他周末 2 天的时间（包括查找资料和写作，和 InfoQ 编辑的沟通，多次改稿等）。而从稿费得到的直接收入，远远不能弥补他所花费的时间。通常人们都喜欢将自己的月工资除以 22，然后算出来每天自己的时间成本。当发现自己的写作直接收入远远不能匹配工作的收入时，很多人都会选择放弃。</p>
+</li>
+<li><p>自己不擅长写作。我的朋友 B 对于 Origami 非常精通，我本来打算向他约一篇深入介绍 Origami 的稿件，但是当然得知稿件的稿费只有千字 150 元时，他就放弃了。拿他的话来说，写文章憋出几个字可比写代码费劲多了，为了这篇文章，他可能得花费数周才能完成，最终的稿费收入可能只有几百块。</p>
+</li>
+<li><p>写作对自己收获不大。我的朋友 C 是一个技术牛人，但是他习惯通过记笔记的方式来整理知识，对于一些知识点，因为是消化过的，所以他就只需要在笔记中将关键的内容记录下来，就可以方便地在后期进行知识的回顾。而如果他要写文章的话，因为文章是面向其他读者，他就需要非常仔细地介绍知识的前因后果，做各种铺垫，还需要做到有条理，表达清晰。这些如果要做好，配图、举例子、提供参考资料等工作是免不了的，所以让我的朋友 C 觉得实在太花时间了，性价比太低。</p>
+</li>
+<li><p>自己不能坚持。我的朋友 D 完全同意我的观点，认为写作能够带来的巨大好处，但是他就是坚持不下来。这就像有些人不能坚持锻炼身体，有些人不能坚持早睡早起，有些人不能坚持控制饮食一样，对于一些有好处但是需要和自己的潜意识做斗争的事情，很容易被自己打败。</p>
+</li>
+</ol>
+<h2 id="坚持写作的关键"><a href="#坚持写作的关键" class="headerlink" title="坚持写作的关键"></a>坚持写作的关键</h2><p>他们说得有道理吗？我认为非常有道理。而且我认为，我的 ABCD 四个朋友，都会在各自领域成为大牛，因为他们都热爱编程，喜欢专研，并且有着认真做事情的态度。所以反过来，我认为坚持写作并不是一个人通往成功的必经之路，但是写作是帮助你成功的一个重要的加分项。</p>
+<p>那我们为什么坚持写作？我只想到一个理由：爱好。</p>
+<p>但是我不同意爱好就等同于擅长的事情。通常情况下某一个人因为在天赋上擅长做某件事情，然后就会在这件事情上持续收获满足感，进而在该件事情上比别人投入更多时间。但是也有那种反过来的，因为爱好一件事情，从而不断地坚持做那件事情，最终因为投入巨大的时间而成功。</p>
+<p>我个人坚持写作就属于后者。高中时，我的语文成绩一直在应试教育的阴影之下，由于并不擅长记忆，我的语文成绩一直非常差，高考时语文差一点不及格，满分 150 的考卷最终只有 92 分。但是我内心深处还是喜欢表达的，所以最终工作后还是坚持将自己的学习收获写成文章表达出来，慢慢写多了就有一些感觉了，最终能够熟练地进行技术写作。</p>
+<p>我个人对于编程也是这样，由于初高中时对于编程的痴迷，得以花费大量的课余时间学习编程。其实我还是比较笨的，例如高中时为了看懂一个非递归的枚举代码就花了近一个月。那个时候还坚持买《程序员》杂志，虽然大部分看不懂 &#x3D;。&#x3D; ，下图是今年春节回家在家里看到一本 11 年前买的《程序杂》杂志。</p>
+<img src="/images/programmer-2003.jpg" class="">
+
+<p>所以，你不需要一定擅长写作，只需要有一个喜欢表达和分享的心就可以。</p>
+<p>对于爱好，李笑来的 <a target="_blank" rel="noopener" href="http://book.douban.com/subject/3609132/">《把时间当作朋友》</a> 一书中的观点更加极端。他在书的第一章 “心智的力量” 中认为：只要人足够强大，能够控制自己的心智，那么就可以无视兴趣的力量，坚持做对自己有收获的事情，然后反而过由于长久坚持而收获成功，得到最终的满足感，最后通过满足感反过来得到兴趣。他的原话是：</p>
+<blockquote><p>只要一件事儿你能做好，并且做到比谁都好，或者至少比大多数人好，你没办法对那件事情没兴趣。</p>
+<p>往往并不是有兴趣才能做好，而是做好了才有兴趣。</p>
+</blockquote>
+
+<p>但是我终究认为人不是机器，我个人更喜欢随性一些，如果做 A 和 B 两件事情都能带来成功，我更倾向于用我个人的兴趣或直觉来选择，而不是 “控制心智”，完全理智地看 A 和 B 哪个收益更大。</p>
+<p>本文接下来的部分是写给那些内心爱好写作与分享的朋友，以及那些能够 “控制心智” 的朋友。我们将讨论如何坚持写作。</p>
+<h2 id="如何坚持写作"><a href="#如何坚持写作" class="headerlink" title="如何坚持写作"></a>如何坚持写作</h2><p>在有了兴趣之后，我们来解决上面 ABCD 四个朋友提出的各种问题，看如何能坚持写作。对于 ABCD 提出的各种问题，我们可以尝试以下这些解决办法：</p>
+<ol>
+<li><p>对于不擅长写作的朋友，可以尝试刚开始不要写那么深入的文章，也不要太追求完美而忽略效率。写作能力的提高本来就循序渐进的，刚开始写简单一些，总归比不写要好得多。我刚开始的写作内容，就是尝试把苹果 WWDC 视频中的内容看懂后，用自己的话再讲一遍。慢慢的，就可以写一些原创的深入文章了。</p>
+</li>
+<li><p>对于觉得写作太花时间的朋友，可以尝试把写作内容变短。例如每天用 200-500 个字总结一些今天在技术上的收获。慢慢坚持，就可以提高自己的表达能力。我个人就喜欢用微博或微信公共帐号来发表简短的原创内容，虽然很多时候就是介绍一个架构或新闻，但是思考怎么用简短的几个字表达清楚，并且能吸引读者转发或阅读，也是能有不少小的提高的。</p>
+</li>
+<li><p>对于觉得写作收获不大的朋友，如果你把写作当爱好，就不应该计较收获了。另外，我认为写作的收获在早期可能不明显，但是当你的写作积累了一定量的时候，收获就会被成倍地放大，就像我现在这样。我从写作上获得的收入是巨大的。</p>
+</li>
+<li><p>对于不能坚持的朋友，也可以尝试上面说的方法 2，即每天写少量的内容，这样时间开销会比较少。</p>
+</li>
+</ol>
+<p>最后，学习和模仿别人的写法也是一个不错的提高方式，像 <a target="_blank" rel="noopener" href="http://onevcat.com/">onevcat</a> 和 <a target="_blank" rel="noopener" href="http://macshuo.com/">池建强</a> 的文章就比我写得风趣得多，我也在尝试多一些有趣的表达方式。</p>
+<h2 id="推荐"><a href="#推荐" class="headerlink" title="推荐"></a>推荐</h2><p>最后推荐大家在有一定写作能力后，尝试给 <a target="_blank" rel="noopener" href="http://www.infoq.com/cn">InfoQ 网站</a> 或 <a target="_blank" rel="noopener" href="http://programmer.csdn.net/">《程序员》</a> 杂志投稿，通常他们对于稿件会有更加严格的审核，所以即使稿件被拒，也能让自己找到未来提高的地方。</p>
+<p>当你给 InfoQ 的原创文章投稿超过 3 篇被发表后，就可以申请成为兼职编辑，InfoQ 编辑每月有一次集体的 “我是吃货” 聚会，各种海吃海喝之后，还可以和 InfoQ CEO Kevin、男神池建强、张龙老师、交际花显峰等其他编辑当面交流技术，实在是一次难得的机会。</p>
+<p>每年 InfoQ 兼职编辑还可以用 3 篇原创稿件换取 5800 元的 QCon 门票，并可以采访 QCon 上来自全国各地的技术高手。比如今年的 <a target="_blank" rel="noopener" href="http://www.qconbeijing.com/">QCon 会</a> 上，我就 <a target="_blank" rel="noopener" href="http://www.infoq.com/cn/news/2014/04/interview-ios-test-guide-author">采访</a> 了 <a target="_blank" rel="noopener" href="http://www.amazon.cn/%E5%9B%BE%E4%B9%A6/dp/product-description/B00JPVNFKM">《iOS 测试指南》</a> 的作者羋峮。虽然大家看到了最终的 <a target="_blank" rel="noopener" href="http://www.infoq.com/cn/news/2014/04/interview-ios-test-guide-author">采访稿件</a>，但是亲自面对面交流的收获很难完全体现在稿件中的，比如有一条羋峮对于测试的看法：“只测试需要测试的逻辑” 这一条，虽然只是采访之后随口所说，但对我的影响还是非常大的，但我很难将其思想体现在稿件中。</p>
+<p>希望本文能让那些喜欢写作和分享的人，都能坚持自己的这个爱好，最终从中得到巨大的回报！</p>
+<p>愿大家玩得开心～</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2014-05-08-ios-security-dev-overview/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2832,686 +3715,11 @@ I am becoming a **Meetup** addict, especially those around web development. In S
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2014-01-17-why-we-need-write/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2014-01-17-why-we-need-write/" itemprop="url">作为码农，我们为什么要写作</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-01-08T13:51:00+00:00">
-                2014-01-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p>在程序员这个行业，坚持做技术写作的人一直比较少。我和身边的朋友沟通后，发现他们除了借口没有时间外，大多没有意识到写作带来的收益。在他们看来，将自己学到的知识简单记录下来就足够自己需要的时候回顾了。而技术写作通常需要花更多时间，因为需要将技术的细节以及来龙去脉讲清楚。</p>
-<p>不得不承认，这的确是一个事实，通常情况下，把一个知识讲清楚比理解它更难。那我们为什么要花时间写作呢？我想写作至少有以下好处。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014-01-17-why-we-need-write/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2014-01-01-2013-summary/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2014-01-01-2013-summary/" itemprop="url">2013年个人总结</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2014-01-01T11:04:00+00:00">
-                2014-01-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p>2013这一年值得总结的有两方面的事情：一是技术分享和收获，二是创业感悟。</p>
-<h2 id="技术分享"><a href="#技术分享" class="headerlink" title="技术分享"></a>技术分享</h2><p>我这一年在技术分享上投入了更多的时间，也得到了非常大的收获。</p>
-<p>我主要的技术分享渠道包括：</p>
-<ol>
-<li><p>个人博客。今年一共完成了24篇原创博客。相比于去年的36篇，少了很多。主要是因为很多精力分散到微信公共帐号上去了。不过今年文章的质量相比去年更高了，写了包括<a href="/2013/10/15/objective-c-object-model/">《Objective-C对象模型及应用》</a>和<a href="/2013/07/28/a-look-inside-blocks/">《谈Objective-C Block的实现》</a>这类比较深入的文章。</p>
-</li>
-<li><p><a target="_blank" rel="noopener" href="http://www.infoq.com/cn/">InfoQ网站</a> 。今年一共完成了7篇发表在<a target="_blank" rel="noopener" href="http://www.infoq.com/cn/">InfoQ</a> 上的<a target="_blank" rel="noopener" href="http://www.infoq.com/cn/author/%E5%94%90%E5%B7%A7">稿件</a> , 其中原创技术文章4篇，翻译技术新闻1篇，采访稿2篇。</p>
-</li>
-</ol>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2014-01-01-2013-summary/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013-12-22-how-to-write-resume-for-it-company/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2013-12-22-how-to-write-resume-for-it-company/" itemprop="url">如何写面向互联网公司的求职简历</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-12-22T12:04:00+00:00">
-                2013-12-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <img src="/images/resume-title.jpg" class="">
-
-
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我在 IT 公司工作了六年，有着三年面试官的经历。在面试中，我发现很多人都不能写好一份求职简历，所以今天不谈 iOS 开发，谈谈如何写一份针对互联网公司的求职简历。</p>
-<p>我主要想分享的内容包括：</p>
-<ul>
-<li>简历的页数不要超过两页（最好一页）<ul>
-<li>删掉不必要的信息</li>
-<li>如果你实在太牛逼，最多写 2 页</li>
-</ul>
-</li>
-<li>重要的信息写在最前面<ul>
-<li>你的联系方式</li>
-<li>你最重要的工作经历</li>
-</ul>
-</li>
-<li>不要简单罗列工作经历<ul>
-<li>列出你的工作中有价值的细节（有哪些技术上的困难等）</li>
-</ul>
-</li>
-<li>不要写任何虚假或夸大的信息<ul>
-<li>类似精通 java，精通 C&#x2F;C++ 等</li>
-</ul>
-</li>
-<li>不要附加任何可能带来负面印象的信息<ul>
-<li>不要加照片</li>
-<li>不要写政治面貌</li>
-<li>不要写奇怪的爱好（打游戏，喝酒，抽烟）</li>
-<li>不要写参加过某某培训公司的 iOS 培训</li>
-<li>尽量用专业邮箱</li>
-<li>用 PDF 格式</li>
-</ul>
-</li>
-</ul>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2013-12-22-how-to-write-resume-for-it-company/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2013-12-22-the-secret-of-xcode-debugger-icon/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2013-12-22-the-secret-of-xcode-debugger-icon/" itemprop="url">Xcode Debugger中的Icon符号的意义</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2013-12-22T11:23:00+00:00">
-                2013-12-22
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/iOS/" itemprop="url" rel="index">
-                    <span itemprop="name">iOS</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p>你注意到了吗？在 Xcode 中，当你点击查看调用栈的时候，调用栈的每个方法前面都有一个 Icon，而且还有好几种不同的样子，如下图所示，你知道它们代表什么意思吗？</p>
-<img src="/images/debugger-icon.png" class="">
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2013-12-22-the-secret-of-xcode-debugger-icon/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/67/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/67/">67</a><span class="page-number current">68</span><a class="page-number" href="/page/69/">69</a><span class="space">&hellip;</span><a class="page-number" href="/page/73/">73</a><a class="extend next" rel="next" href="/page/69/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/67/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/67/">67</a><span class="page-number current">68</span><a class="page-number" href="/page/69/">69</a><span class="space">&hellip;</span><a class="page-number" href="/page/74/">74</a><a class="extend next" rel="next" href="/page/69/">&gt;</a>
   </nav>
 
 
@@ -3557,7 +3765,7 @@ I am becoming a **Meetup** addict, especially those around web development. In S
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1460</span>
+                  <span class="site-state-item-count">1464</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3579,7 +3787,7 @@ I am becoming a **Meetup** addict, especially those around web development. In S
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">895</span>
+                  <span class="site-state-item-count">910</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

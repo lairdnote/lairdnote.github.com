@@ -274,6 +274,655 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/2015-06-05-mabolo-mongodb-orm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/2015-06-05-mabolo-mongodb-orm/" itemprop="url">Mabolo: 轻量级的 MongoDB ORM</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-06-04T16:00:00+00:00">
+                2015-06-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>一开始我像很多人一样使用 Mongoose 作为 ORM, 但时间长了我发现了 Mongoose 的一些不理想的地方。</p>
+<p>Mongoose 通过定义 Setter 的方式记录了对文档的每一次修改，以便可以用 save 方法将文档无冲突地储存在数据库中。但我在实际使用中发现，我很少会使用这个功能，每当对文档进行更新的时候，几乎都是直接使用 MongoDB 的原子性操作符（<code>$set</code> 等）。Mongoose 在这个功能上下了很大功夫，也增加了很多额外的约束。例如它 <a target="_blank" rel="noopener" href="http://lucy.faceair.me/archives/361/">使用了一些黑科技</a> 来阻止用户修改从数据库查出的文档。而我希望从数据库中查出文档后进行一些加工，向文档上储存一些额外的数据来供渲染页面时使用（但不储存到数据库），本来我们在 JavaScript 这样的语言中是期待一个对象是可以被随意修改的，但在 Mongoose 中却不可以。</p>
+<p>我发现我其实只需要 Mongoose 的一小部分功能，于是我自己编写了 <a target="_blank" rel="noopener" href="https://github.com/jysperm/Mabolo">Mabolo</a>, 我对它的定位是一个轻量级、无黑科技的 ORM. 它完成于 2015 年初，目前已被使用到了我的大部分个人项目中。</p>
+<p>Mabolo 用 300 行代码实现了一个 ORM 最核心的一些功能：为数据集合定义字段的类型、验证文档字段的合法性、定义类方法和实例方法、嵌入式的文档和数组、原子性地更新整个文档、同时兼容 Promise 和 callback 风格的 API.</p>
+<p>Mabolo 几乎没有使用什么黑科技，每个 Model 都是一个普通的 JavaScript 构造函数，而每个文档则都是由这个构造函数生成的实例 —— 除了几个用来保存内部状态的不可枚举属性之外和普通的对象没有任何区别。</p>
+<p>接下来我来谈一谈 Mabolo 中的几个实现细节。</p>
+<h2 id="定义-Model"><a href="#定义-Model" class="headerlink" title="定义 Model"></a>定义 Model</h2><p>在 Mongoose 中，要先创建 Mongoose 实例（即代表一个数据库连接）才能根据它来创建 Model, 但这样会造成 Model 定义依赖于这个全局的数据库连接。而在 Mabolo 中，可以先创建与实例无关的 Model, 然后再将其绑定到 Mabolo 实例上：</p>
+<p>User.coffee:</p>
+<pre><code>Mabolo = reuqire &#39;mabolo&#39;
+module.exports = Mabolo.model &#39;User&#39;,
+  name: String
+</code></pre>
+<p>app.coffee</p>
+<pre><code>Mabolo = reuqire &#39;mabolo&#39;
+mabolo = new Mabolo &#39;mongodb://localhost/test&#39;
+User = mabolo.bind require &#39;./User&#39;
+</code></pre>
+<p>即使 Model 还没被绑定到 Mabolo 实例上，也是可以执行查询的，这些查询会被阻塞，直到 Model 被绑定到一个数据库连接上。</p>
+<p>实现上，<code>Mabolo.model</code> 会创建一个继承（CoffeeScript 的 extends）自 <code>AbstractModel</code> 的类，作为 Model 来使用。在绑定时，<code>Mabolo.bind</code> 会调用 Model 上的 <code>bindCollection</code> 函数，这个函数会 resolve 一个内部的 Promise, 让对数据库的操作开始执行。</p>
+<h2 id="嵌入式文档"><a href="#嵌入式文档" class="headerlink" title="嵌入式文档"></a>嵌入式文档</h2><p>Mabolo 中 Model 的字段定义，既可以是基本类型，也可以是另一个 Model, 还可以是基本类型或 Model 的数组。</p>
+<pre><code>Token = mabolo.model &#39;Token&#39;,
+  code: String
+
+User = mabolo.model &#39;User&#39;,
+  tokens: [Token]
+</code></pre>
+<p>在保存文档到数据库时，Mabolo 会调用 <code>Model::transform</code> 构造字段定义中的嵌入式文档，这样才可以运行定义在嵌入式文档上的字段验证。而在从数据库取出文档时，也会构造字段定义中所描述的嵌入文档, 以便用户调用嵌入文档上的实例方法。</p>
+<p>下一步会支持在嵌入文档上运行 update 和 remove 方法。主要实现方法是 <code>Model::transform</code> 会在构造出的嵌入文档上储存父文档和在父文档中的位置，以便 update 时为查询和更新中的字段名加上前缀。</p>
+<p>再之后会支持文档中的引用关系，在从数据库中取出文档时，Mabolo 会自动取出被引用到的文档，这个过程被称为「填充」，用户也可以自己定义更复杂的填充规则。</p>
+<h2 id="原子性地更新文档"><a href="#原子性地更新文档" class="headerlink" title="原子性地更新文档"></a>原子性地更新文档</h2><p>Mabolo 使用了和 Mongoose 类似的技术来原子性地更新整个文档，即在每次更新时都为文档设置一个版本号（在 Mabolo 中是一个随机的字符串），在进行原子更新时会将当前版本号作为一个查询条件来运行更新，如果没有成功（版本号被另一个操作修改了），会从数据库中查出最新的文档，重放修改然后再一次尝试提交。</p>
+<pre><code>user.modify (user) -&gt;
+  Q.delay(1000).then -&gt;
+    user.age = 19
+.then -&gt;
+</code></pre>
+<p>Mabolo 使用了一种更简单的方式实现重放修改 —— 即要求用户传入一个无副作用的修改函数，这个函数会在每次重放修改的时候被调用一次。应该说这只是一种不推荐大量使用的备选方案，更好的做法是直接使用 MongoDB 的原子操作符：</p>
+<pre><code>user.update
+  $set:
+    age: 19
+</code></pre>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/2015-05-30-stand-by-me-doraemon/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015/2015-05-30-stand-by-me-doraemon/" itemprop="url">哆啦 A 梦：伴我同行</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-05-29T16:00:00+00:00">
+                2015-05-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>其实我对这部电影的评价不是很高，剧情低于主线剧场版的平均水准，我相信也不是同一个制作团队。明摆着就是骗钱的，不然也不可能在中国上映，但作为脑残粉就是乐意上这个当。出乎我的意料，一同去看的朋友觉得这电影还不错。</p>
+<p>作为一个哆啦 A 梦的脑残粉是怎样一种感受呢？每当有人说自己喜欢哆啦 A 梦的时候，我都会在心里说你凭什么说喜欢。45 册单行本你看过几遍？35 个大长篇你看过几个？每周都在追新的短篇动画么？除了任意门和竹蜻蜓还知道其他的道具么？</p>
+<p>很多人都说这部电影感人，但我觉得像我这种铁杆粉丝是不会被感动的，因为每个情节都看过十几遍了。不过我也理解普通观众的感受，这部电影将上千个短篇故事中最催泪的八集拼在了一起，每十分钟有一个泪点和高潮——让人觉得电影应该已经结束了吧。</p>
+<p>所以我相信这部电影瞄准的应该是小时候曾经看过哆啦 A 梦，但长大以后已经很多年没有再看过了的人。而不是从未看过哆啦 A 梦的人，也不是铁粉，更不是给小孩子看的。</p>
+<p>如果说有一个片段感动了我，应该要算是和职员表一同出现的「幕后花絮」，这短短一分钟的花絮给人一种哆啦 A 梦不再是虚构人物的感觉，不由得感慨制作团队几十年如一日地维护一个虚构世界真的是不容易啊。</p>
+<p>有一幕是成年后的大雄远远地望着哆啦 A 梦，还是决定不要去和他打招呼了。未来世界的大雄身边是没有哆啦 A 梦的，但关于哆啦 A 梦究竟是何时真正地离开大雄的，却从未被提到过。不过无所谓，时间已经定格在了五年级，每一集都是一个平行世界，哆啦 A 梦的离开和大雄的婚礼永远悬而未决。哆啦 A 梦于我的意义就是一个随时回到美好的理想世界的方式，剧情即在意料之内，偶尔又会出乎意料。</p>
+<p>关于哆啦 A 梦和大雄之间感情我就不写了，推荐一篇文章：<a target="_blank" rel="noopener" href="http://www.zhihu.com/question/24548572/answer/28430735">http://www.zhihu.com/question/24548572/answer/28430735</a></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015-05-23-build-ios-content-ecosystem/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2015-05-23-build-ios-content-ecosystem/" itemprop="url">打造 iOS 原创内容的生态圈</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-05-23T13:35:37+00:00">
+                2015-05-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="故事"><a href="#故事" class="headerlink" title="故事"></a>故事</h2><p>在说想法之前，我想先讲几个故事。</p>
+<h3 id="故事一：新杂志与《Tiny4Cocoa》"><a href="#故事一：新杂志与《Tiny4Cocoa》" class="headerlink" title="故事一：新杂志与《Tiny4Cocoa》"></a>故事一：新杂志与《Tiny4Cocoa》</h3><p>我敬重的 <a target="_blank" rel="noopener" href="http://weibo.com/u/1400229064?topnav=1&wvr=6&topsug=1">tinyfool</a> 刚创业的时候，做了一个 App 叫 「新杂志」，这是一个杂志聚合平台。与新杂志平台同期发布的还包括他的《Tiny4Cocoa》杂志，在《Tiny4Cocoa》杂志中，tinyfool 提出了每篇文章稿费 1000 元的价格，我当时还帮助他编辑过两期杂志。但是最终杂志没有继续下去，我觉得主要是以下几个原因：</p>
+<ol>
+<li>每一期约稿比较花精力。为了保证质量和篇幅，每一期我需要提前找一些作者要稿子，但是发现不一定能够约到。</li>
+<li>稿费都是 tinyfool 自掏腰包，虽然有广告收入，但是 1000 元一篇的成本还是很高。后来我们降到了 500 元，但是即使这样，长期自掏腰包这种状态也是难以维持的。</li>
+</ol>
+<p>虽然最终我们没有把《Tiny4Cocoa》做成，但是让优质内容的作者得到回报一直是我心中的理想。</p>
+<h3 id="故事二：写书和稿费"><a href="#故事二：写书和稿费" class="headerlink" title="故事二：写书和稿费"></a>故事二：写书和稿费</h3><p>我身边有一些朋友写书或者是做翻译，比如 onevcat、吴航、破船等，我自己也写了一本《iOS 开发进阶》。我们通过交流发现，当前的现实是，通过写作或翻译并不能给大家带来合理的回报。这里「合理」是说：大家如果选择不写书，而是接个项目或者做别的事情，带来的直接金钱回报是更多的。</p>
+<p>于是这种不合理导致了中国国内优质技术图书的缺少，虽然大家觉得一本书卖个将近 100 块钱很贵，但是大多数作者辛苦写一年，出版一本书的版税收入也就 15000 元左右，再扣完 20% 的税就更少了。</p>
+<p>虽然大家都是凭着理想写作，但是我还是想让大家获得更加「合理」的收入上的回报。</p>
+<h3 id="故事三：转载对原创的不尊重"><a href="#故事三：转载对原创的不尊重" class="headerlink" title="故事三：转载对原创的不尊重"></a>故事三：转载对原创的不尊重</h3><p>现在很多技术媒体，在转载文章的时候，都没有在醒目的位置注明原始作者和原文链接。因为他们还是想强调自己平台的重要性。另外一方面，有哪家媒体为转载付费吗？我知道的只有 InfoQ 会。而其它媒体，大多数都是悄无声息地将你的文章转载了。</p>
+<h2 id="经济学与生态圈"><a href="#经济学与生态圈" class="headerlink" title="经济学与生态圈"></a>经济学与生态圈</h2><p>为什么我强调要让优质内容作者获得足够的回报呢？这其实是一个简单的经济学道理。经济学的规则如果能够制定得合理，就可以产生的良性的发展，最终构建出生态圈。如果每一个技术作者都能获得体面的收入，那么就会吸引更多的技术人加入到写作和分享的队伍中来。</p>
+<h2 id="我的想法"><a href="#我的想法" class="headerlink" title="我的想法"></a>我的想法</h2><p>那我能做些什么事情呢？2013 年 2 月，我自己建立了一个名为 「iOS 开发」(iOSDevTips) 的微信公众号，在上面分享原始的 iOS 开发文章。坚持了两年多后，我发现由于微信公众号平台对原创作者非常尊重，这可能能够成为一个让原创作者获得不错收入的平台。</p>
+<p>所以我在想，我能不能让写 iOS 原创文章的其他作者，也借助我的公众号获得收入呢？于是，现在有一个初级的想法如下：</p>
+<p>我的微信公众号 「iOS 开发」已经有 15000 人的订阅量，图文打开率非常高，时不时也会有一些广告收入，我想提供付费的方式来获得授权将大家的原创文章转载到我的公众帐号上，转载会注明作者和大家博客文章的原始链接。这样，大家的每篇原创博客都会有第一笔收入。<br>另外，我还想通过微信的「打赏」来收大家凭借优质内容，获得第二笔的收入。我会把这笔收入也全部转给作者。</p>
+<p>这个想法有几个地方还是需要讨论的：</p>
+<ol>
+<li><p>我当前微信公众号的广告收入并不多，一年估计 1 万多的样子。所以我当前并不能拿出丰厚的转载稿费。我构想的是每篇文章大概 50 - 100 元的转载稿费。不过如果大家共同把这个微信公众号的影响力做起来，那么凭借广告收入，我就可以提供更高的转载稿费。</p>
+</li>
+<li><p>微信的「打赏」功能只支持原创的文章。按照 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/cgi-bin/announce?action=getannouncement&key=1430137668&version=11&lang=zh_CN">微信的规定</a>，我只能将获得「独家代理的文章」标识成原创，从而开启「打赏」功能，所以我需要得到作者的授权，获得在微信公众平台上的「独家代理」。</p>
+</li>
+</ol>
+<p>腾讯公司的微信公众号平台对原创作者非常尊重，而且这是当前中国最大的社交平台，我希望借助她的力量，让所有优质的原创 iOS 内容作者，都得到应得的收入作为回报，同时也使得那些优质的内容，得到快速地传播。</p>
+<p>对于我个人来说，如果能构建出一个由全中国优秀 iOS 开发者贡献的内容帐号，那将是一个非常有意义的事情。</p>
+<p>对于各位「iOS 开发」公众帐号的读者来说，大家以后将不止看到我个人的 iOS 技术文章，还包括我精心挑选的，愿意花钱支付转载费用的文章。大家不必为这些文章支付任何费用，但是偶尔可能会收到一个与 iOS 行业相关的广告。如果你愿意，转发你觉得优秀的文章，或者给优秀的文章适当「打赏」也会让这个生态圈发展得更好。</p>
+<p>对于各位 iOS 原创博客作者来说，欢迎大家将自己觉得优秀的博客文章授权给我，我愿意支付相应转载费用，以及提供所有的相关打赏收益。王晓磊的<a target="_blank" rel="noopener" href="http://quotation.github.io/objc/2015/05/21/objc-runtime-ivar-access.html#rd?sukey=cbbc36a2500a2e6c799f926ca7d129c8729220e1f095d33857a222812b71c5071f20f3b0b4b0b06524263c8f38743b18">这篇文章</a> 是第一个尝试用这种方式授权给我的作者。</p>
+<p>愿我们的行动能够让世界改变一点点。</p>
+<h2 id="后记-（2017-11-26）"><a href="#后记-（2017-11-26）" class="headerlink" title="后记 （2017.11.26）"></a>后记 （2017.11.26）</h2><p>由于我的公众号转型，后续不再打算继续接受投稿，不过我会选一些我认为好的文章主动联系作者授权转载。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E6%AF%95%E4%B8%9A%E5%B0%B1%E5%83%8F%E6%8C%87%E5%B0%96%E6%B5%81%E6%B2%99/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/%E6%AF%95%E4%B8%9A%E5%B0%B1%E5%83%8F%E6%8C%87%E5%B0%96%E6%B5%81%E6%B2%99/" itemprop="url">毕业就像指尖流沙</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-05-16T00:45:05+00:00">
+                2015-05-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%94%9F%E6%B4%BB%E6%84%9F%E6%82%9F/" itemprop="url" rel="index">
+                    <span itemprop="name">生活感悟</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          大家或许觉得我对这个班没有什么感情，可是人和人相处不能单纯地看重对方目前、以后可能会对你有什么样的帮助，因为这不叫朋友叫做关系，我眼中的朋友是那种即使自身没有什么强大的社会资源，可当你需要帮助的时候，他仍然会真心实意地为你付出，我对于朋友和关系的界定实在是困难，因此当我面对这场不知是送别还是交友的毕业聚会的时候，我会突然陷入某种迷茫，即使麦克风音量开到最大、嗓子喊到声嘶力竭，当一切都结束了的时候能够留下什么呢;或许大家都认为我这个人比较冷淡，可是对我而言，我只是想做一个简简单单的人而已，我不会因为即将毕业就表现出某种殷切的神情，在我的心里我当做朋友的会一直当作朋友，即使以后大家都鲜有机会再聚在一起，我讨厌酒桌上的朋友，所以我不会用喝酒这件事情来作为我们彼此情感的见证;朋友对我而言，一直是我所珍视的人，我觉得君子之交淡如水这样的关系就很好，我不是一个善于表演的人，不管是和大家一起拍 VCR 还是和大家在一起的时候，我想我喜欢的是大家在一起的时光，而不是在一起喝酒的时候
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/%E6%AF%95%E4%B8%9A%E5%B0%B1%E5%83%8F%E6%8C%87%E5%B0%96%E6%B5%81%E6%B2%99/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/2015-05-15-cichorium-routing-framework/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3039,645 +3688,11 @@ task2 = -&gt;
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/Unity3D%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B9%8B%E5%8F%8D%E7%BC%96%E8%AF%91AssetBundle%E6%8F%90%E5%8F%96%E6%B8%B8%E6%88%8F%E8%B5%84%E6%BA%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/Unity3D%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B9%8B%E5%8F%8D%E7%BC%96%E8%AF%91AssetBundle%E6%8F%90%E5%8F%96%E6%B8%B8%E6%88%8F%E8%B5%84%E6%BA%90/" itemprop="url">Unity3D 游戏开发之反编译 AssetBundle 提取游戏资源</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-04-02T12:37:52+00:00">
-                2015-04-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
-                    <span itemprop="name">游戏开发</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          具体来说呢，AssetBundle 在 Unity3D 中是一种用于资源打包盒资源动态加载的解决方法，比如我们平时玩的单机游戏容量一般都比较大，这是因为制作人员在制作游戏的时候将所有的项目资源都整合到了一起;第五个参数是平台的选择，因为 Unity3D 是一个跨平台的游戏引擎，而各个平台现在的情况又不尽相同，因此现在 Unity3D 采取的方案是各个平台只能使用自己平台对应的 AssetBundle，这一点希望大家在使用的时候注意啊;这是一个简单的导出 AssetBundle 资源包的方法，它有两个参数，第一个参数表示是一个枚举类型，定义为 ExportType，取 Single 时表示打包一个特定的激活物体，比如说一个模型、一个场景等等
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/Unity3D%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B9%8B%E5%8F%8D%E7%BC%96%E8%AF%91AssetBundle%E6%8F%90%E5%8F%96%E6%B8%B8%E6%88%8F%E8%B5%84%E6%BA%90/">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/ie6/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/ie6/" itemprop="url">学校机房的ie6..</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-03-31T09:17:15+00:00">
-                2015-03-31
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%97%A5%E5%B8%B8/" itemprop="url" rel="index">
-                    <span itemprop="name">日常</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p><img src="https://img.prin.studio/images/2015/03/3546546-300x225.jpg" alt="Internet Explorer 6"></p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2015/ie6/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/Unity3D%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B9%8B%E7%BC%96%E8%BE%91%E5%99%A8%E6%89%A9%E5%B1%95%E7%A8%8B%E5%BA%8F%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/Unity3D%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B9%8B%E7%BC%96%E8%BE%91%E5%99%A8%E6%89%A9%E5%B1%95%E7%A8%8B%E5%BA%8F%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8B/" itemprop="url">Unity3D 游戏开发之编辑器扩展程序开发实例</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-03-30T16:53:22+00:00">
-                2015-03-30
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91/" itemprop="url" rel="index">
-                    <span itemprop="name">游戏开发</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          开发 Unity3D 编辑器扩展程序的命名空间主要是 UnityEditor，在该命名空间下常用的类有 EditorGUI、EditorGUILayout、EditorWindow(可能还有其它的类，不过到目前为止博主就用过这些，如果有其它的类，欢迎大家来补充啊);当我们在场景中选择好物体后，只要填好预设物体的名称、tag、Layer 就可以直接生成 Prefab 了，不过这里有个问题，因为生成 Prefab 必须要传入一个 GameObject，因此如果直接选择项目资源文件夹里的内容可能会报错，因为你选择的不是一个 GameObject;* 在 Unity3D 中我们可以通过 TextureImporter、ModelImporter、AudioImporter、MovieImporter 等来分别向 Unity3D 中导入贴图、模型、音频、视频等等，经过设置后最终通过 AssetDatabase.ImportAsset()来将其添加到项目中热完全，最后需要使用 AssetDatabase.Refresh()方法来刷新本地资源，使导入的资源生效
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/Unity3D%E6%B8%B8%E6%88%8F%E5%BC%80%E5%8F%91%E4%B9%8B%E7%BC%96%E8%BE%91%E5%99%A8%E6%89%A9%E5%B1%95%E7%A8%8B%E5%BA%8F%E5%BC%80%E5%8F%91%E5%AE%9E%E4%BE%8B/">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2015/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2015/hello-world/" itemprop="url">Hello World !</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2015-03-28T05:25:14+00:00">
-                2015-03-28
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%97%A5%E5%B8%B8/" itemprop="url" rel="index">
-                    <span itemprop="name">日常</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>欢迎使用 WordPress。这是您的第一篇文章。编辑或删除它，然后开始写作吧！</p>
-<hr>
-<p>说实话我开始写博客后真正的「第一篇文章」早就不知道啥时候被我不小心删掉了，这篇文章只是在我后来回想起大概的日期，去 WordPress 源码里找出默认「Hello World」文章的内容后拼造出的文章而已。</p>
-<p>不过不管怎么说这也是本博客的第一篇文章（虽然是假的），值得庆贺。鼓掌！</p>
-<hr>
-<p>小提示：2016 年<ruby>以前的文章<rp>(</rp><rt>黑历史</rt><rp>)</rp></ruby>请在「归档」页面中查看。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/62/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/62/">62</a><span class="page-number current">63</span><a class="page-number" href="/page/64/">64</a><span class="space">&hellip;</span><a class="page-number" href="/page/73/">73</a><a class="extend next" rel="next" href="/page/64/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/62/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/62/">62</a><span class="page-number current">63</span><a class="page-number" href="/page/64/">64</a><span class="space">&hellip;</span><a class="page-number" href="/page/74/">74</a><a class="extend next" rel="next" href="/page/64/">&gt;</a>
   </nav>
 
 
@@ -3723,7 +3738,7 @@ task2 = -&gt;
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1460</span>
+                  <span class="site-state-item-count">1464</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3745,7 +3760,7 @@ task2 = -&gt;
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">895</span>
+                  <span class="site-state-item-count">910</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

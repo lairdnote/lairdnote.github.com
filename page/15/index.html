@@ -274,6 +274,895 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/ASP.NET-Core%20%E6%90%AD%E8%BD%BD%20Envoy%20%E5%AE%9E%E7%8E%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/ASP.NET-Core%20%E6%90%AD%E8%BD%BD%20Envoy%20%E5%AE%9E%E7%8E%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/" itemprop="url">ASP.NET Core 搭载 Envoy 实现微服务的负载均衡</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-07-05T14:49:47+00:00">
+                2021-07-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>如果说，我们一定要找出一个词来形容这纷繁复杂的世界，我希望它会是熵。有人说，熵增定律是宇宙中最绝望的定律，<strong>所谓熵，即是指事物混乱或者无序的程度。在一个孤立系统下，熵是不断在增加的，当熵达到最大值时，系统就会出现严重混乱，直至最终走向死亡</strong>。从某种意义上来讲，它揭示了事物结构衰退的必然性，甚至于我们的人生，本来就是一场对抗熵增的旅程。熵增的不可逆性，正如时光无法倒流一般，古人说，“覆水难收”正是这个道理。同样地，当我们开始讨论微服务的划分&#x2F;编写&#x2F;治理的时候，当我们使用服务网格来定义微服务架构的时候……我们是否有意或者无意的增加了系统中的熵呢？<strong>一个孤立的系统尚且会因为熵增而最终走向死亡，更何况是相互影响和制约的复杂系统呢？</strong>现代互联网企业都在追求4个9(即99.99%)的高可用，这意味着年平均停机时长只有52.56分钟。在此之前。我们介绍过重试和熔断这两种故障转移的策略，而今天我们来介绍一种更朴素的策略：负载均衡。</p>
+<h1 id="什么是负载均衡"><a href="#什么是负载均衡" class="headerlink" title="什么是负载均衡"></a>什么是负载均衡</h1><blockquote>
+<p>负载均衡，即<code>Load Banlancing</code>，是一种计算机技术，用来在多个计算机(计算机集群)、网络连接、CPU、磁盘驱动器或其它资源中分配负载，以达到<strong>最优化资源使用、最大化吞吐率、最小化响应时间、避免过载的目的</strong>。</p>
+</blockquote>
+<p>我们可以注意到，在这个定义中，使用负载均衡技术的直接原因是<strong>避免过载</strong>，而根本原因则是为了<strong>优化资源使用</strong>，确保<strong>最大吞吐量</strong>、<strong>最小响应时间</strong>。所以，这本质上是一个局部最优解的问题，而具体的手段就是”多个”。有人说，技术世界不过是真实世界的一个镜像，联系生活中实际的案例，我们发现负载均衡比比皆是。譬如车站在面对春运高峰时增加售票窗口，银行通过多个业务窗口来为客户办理业务……等等。这样做的好处显而易见，可以大幅度地减少排队时间，增加”窗口”这个行为，在技术领域我们将其称为：<strong>水平扩展</strong>，因为有多个”窗口”，发生单点故障的概率就会大大降低，而这正是现在软件追求的三”高”：高性能、高可用、高并发。</p>
+<p><img src="https://i.loli.net/2021/07/05/jymw8KCeEgROcZN.png" alt="银行柜员窗口示意图"></p>
+<p>每次坐地铁经过小寨，时常听到地铁工作人员举着喇叭引导人们往不同的出口方向走动。此时，工作人员就是一个负载均衡器，它要做的就是避免某一个出口人流量过载。<strong>从熵的角度来看，人流量过载，意味着无序&#x2F;混乱状态加剧，现代社会通过道德和法律来对抗熵增，人类个体通过自律来对抗熵增。</strong>有时候，我会忍不住去想，大人与小孩儿愈发内卷的恶性竞争，除了给这个世界带来更多的熵以外，还能带来什么？<strong>如果参考社会达尔文主义的理论，在这个弱肉强食的世界里，增加熵是人为的选择，而同样的，你亦可以选择”躺平”。</strong></p>
+<p><img src="https://i.loli.net/2021/07/05/hIAUw8JHkjWnxm6.png" alt="负载均衡器示意图"></p>
+<p>OK，将思绪拉回到负载均衡，它所做的事情，本质上就是控制信息或者说流量流动的方向。一个网站，以集群的方式对外提供服务，你只需要输入一个域名，它就可以把请求分发到不同的机器上面去，而这就是所谓的负载均衡。目前，负载均衡器从种类上可以分为：基于<code>DNS</code>、基于<code>MAC</code>地址(二层)、基于<code>IP</code>(三层)、基于<code>IP</code>和<code>Port</code>(四层)、基于<code>HTTP</code>(七层)。</p>
+<p><img src="https://i.loli.net/2021/07/04/giY1R8PVZB9JdWQ.jpg" alt="OSI七层模型与TCP/IP五层模型"></p>
+<p>譬如，博主曾经参与过伊利的项目，它们使用的就是一个四层的负载均衡器：F5。而像更常见<code>Nginx</code>、<code>HAProxy</code>，基本都是四层和七层的负载均衡器，而<code>Envoy</code>就厉害了，它可以同时支持三&#x2F;四&#x2F;七层。负载均衡器需要配合负载均衡算法来使用，典型的算法有：<strong>轮询法</strong>、<strong>随机法</strong>、<strong>哈希法</strong>、<strong>最小连接数法</strong>等等，而这些算法都可以结合加权算法引出新的变式，这里就不再一一列举啦。</p>
+<h1 id="Envoy中的负载均衡"><a href="#Envoy中的负载均衡" class="headerlink" title="Envoy中的负载均衡"></a>Envoy中的负载均衡</h1><p>通过上一篇博客，我们已经了解到，<code>Envoy</code>中一个<code>HTTP</code>请求的走向，大致会经历：客户端、侦听器(<strong>Listeners</strong>)、集群(<strong>Clusters</strong>)、终结点(<strong>Endpoints</strong>)、服务(<strong>ervices</strong>)这样几个阶段。其中，一个集群可以有多个终结点(<strong>Endpoints</strong>)。所以，这里天然地就存在着负载均衡的设计。因为，负载均衡本质上就是告诉集群，它应该选择哪一个终结点(<strong>Endpoints</strong>)来提供服务。而之所以我们需要负载均衡，一个核心的原因，其实是因为我们选择了分布式。</p>
+<p><img src="https://i.loli.net/2021/07/02/k2DhXMudnibrzgt.png" alt="Envoy架构图：负载均衡器连接集群和服务"></p>
+<p>如果类比<code>RabbitMQ</code>、<code>Kafka</code>和<code>Redis</code>，你就会发现，这些产品中或多或少地都会涉及到主(<strong>Leader</strong>)、从(<strong>Follower</strong>)以及推举Leader的实现，我个人更愿意将其看作是更广义的负载均衡。最直观的，它可以分担流量，简称<strong>分流</strong>，不至于让某一台服务器满负荷做运行。其次，它可以作为故障转移的一种方案，<strong>人生在世，多一个B计划，就多一种选择。同样地，多一台服务器，就多一分底气</strong>。最后，它可以指导某一个产品或者功能的推广，通过给服务器设置不同的权重，在必要的时候，将流量局部地导入某一个环境，腾讯和阿里这样的大厂，经常利用这种方式来做<strong>灰度测试</strong>。</p>
+<p><code>Envoy</code>中支持常用的负载均衡算法，譬如：ROUND_ROBIN(轮询)、LEAST_REQUEST(最少请求)、RING_HASH(哈希环)、RANDOM(随机)、MAGLEV(磁悬浮)、CLUSTER_PROVIDED等等。因为一个集群下可以有多个终结点，所以，在<code>Envoy</code>中配置负载均衡，本质上就是在集群下面增加终结点，而每个终结点则会对应一个服务，特殊的点在于，这些服务可能是通过同一个<code>Dockerfile</code>或者<code>Docker</code>镜像来构建的。所以，一旦理解了这一点，<code>Envoy</code>的负载均衡就再没有什么神秘的地方。例如，下面的代码片段展示了，如何为<code>WeatherService</code>这个集群应用负载均衡：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">clusters:</span></span><br><span class="line"><span class="comment"># Weather Service</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">weatherservice</span></span><br><span class="line">  <span class="attr">connect_timeout:</span> <span class="number">0.</span><span class="string">25s</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">STRICT_DNS</span></span><br><span class="line">  <span class="comment"># ROUND_ROBIN(轮询）</span></span><br><span class="line">  <span class="comment"># LEAST_REQUEST(最少请求)</span></span><br><span class="line">  <span class="comment"># RING_HASH(哈希环)</span></span><br><span class="line">  <span class="comment"># RANDOM(随机)</span></span><br><span class="line">  <span class="comment"># MAGLEV(磁悬浮)</span></span><br><span class="line">  <span class="comment"># CLUSTER_PROVIDED</span></span><br><span class="line">  <span class="attr">lb_policy:</span> <span class="string">LEAST_REQUEST</span></span><br><span class="line">  <span class="attr">load_assignment:</span></span><br><span class="line">    <span class="attr">cluster_name:</span> <span class="string">weatherservice</span></span><br><span class="line">    <span class="attr">endpoints:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">lb_endpoints:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">endpoint:</span></span><br><span class="line">          <span class="attr">address:</span></span><br><span class="line">            <span class="attr">socket_address:</span></span><br><span class="line">              <span class="attr">address:</span> <span class="string">weatherservice1</span></span><br><span class="line">              <span class="attr">port_value:</span> <span class="number">80</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">endpoint:</span></span><br><span class="line">          <span class="attr">address:</span></span><br><span class="line">            <span class="attr">socket_address:</span></span><br><span class="line">              <span class="attr">address:</span> <span class="string">weatherservice2</span></span><br><span class="line">              <span class="attr">port_value:</span> <span class="number">80</span></span><br></pre></td></tr></table></figure>
+
+<p>是不是觉得特别简单？我想说，也许是<code>Envoy</code>更符合人的直观感受一些，理解起来本身没有太大的心智负担。最近看到一个缓存设计，居然还要依赖<code>Kafka</code>，使用者为了使用缓存这个功能，就必须先实现三个丑陋的委托，这就是所谓的心智负担，违背人类的直觉，使用缓存为什么要了解<code>Kafka</code>？到这里，你大概就能了解利用<code>Envoy</code>实现负载均衡的思路，首先是用同一个<code>Dockerfile</code>或者<code>Docker</code>镜像启动多个不同容器(服务)，然后将指定集群下面的终结点指定不同的服务，再告诉集群要用哪一种负载均衡策略即可。</p>
+<h1 id="邂逅-ASP-NET-Core"><a href="#邂逅-ASP-NET-Core" class="headerlink" title="邂逅 ASP.NET Core"></a>邂逅 ASP.NET Core</h1><p>OK，说了这么多，这里我们还是用<code>ASP.NET Core</code>写一个例子。可以预见到的是，我们需要一个<code>Envoy</code>网关，一个<code>ASP.NET Core</code>的服务。这里，我们还是用<code>Docker-Compose</code>来编排这些服务，下面是对应的<code>docker-compose.yaml</code>文件：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3&#x27;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">envoygateway:</span></span><br><span class="line">    <span class="attr">build:</span> <span class="string">Envoy/</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;9090:9090&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;9091:9091&quot;</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">./Envoy/envoy.yaml:/etc/envoy/envoy.yaml</span></span><br><span class="line">  <span class="attr">weatherservice1:</span></span><br><span class="line">    <span class="attr">build:</span> <span class="string">WeatherService/</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;8082:80&quot;</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">ASPNETCORE_URLS:</span> <span class="string">&quot;http://+&quot;</span></span><br><span class="line">      <span class="attr">ASPNETCORE_ENVIRONMENT:</span> <span class="string">&quot;Development&quot;</span></span><br><span class="line">  <span class="attr">weatherservice2:</span></span><br><span class="line">    <span class="attr">build:</span> <span class="string">WeatherService/</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;8084:80&quot;</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">ASPNETCORE_URLS:</span> <span class="string">&quot;http://+&quot;</span></span><br><span class="line">      <span class="attr">ASPNETCORE_ENVIRONMENT:</span> <span class="string">&quot;Development&quot;</span>  </span><br></pre></td></tr></table></figure>
+
+<p>而对于<code>Envoy</code>来说，主要的工作是维护集群下的终结点信息这块儿。其实，这段配置在本文的上一节就出现过啦，你有多少个服务实例，就配置多少个终结点，请求落在哪一个实例上，就交给<code>Envoy</code>来决定好啦。故而，这里我们不再做更多的解释：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">static_resources:</span></span><br><span class="line">  <span class="attr">listeners:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">address:</span></span><br><span class="line">      <span class="attr">socket_address:</span></span><br><span class="line">        <span class="attr">address:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line">        <span class="attr">port_value:</span> <span class="number">9090</span></span><br><span class="line">    <span class="attr">filter_chains:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">filters:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">envoy.filters.network.http_connection_manager</span></span><br><span class="line">        <span class="attr">typed_config:</span></span><br><span class="line">          <span class="string">&quot;@type&quot;</span><span class="string">:</span> <span class="string">type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager</span></span><br><span class="line">          <span class="attr">codec_type:</span> <span class="string">AUTO</span></span><br><span class="line">          <span class="attr">stat_prefix:</span> <span class="string">ingress_http</span></span><br><span class="line">          <span class="attr">route_config:</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">local_route</span></span><br><span class="line">            <span class="attr">virtual_hosts:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">backend</span></span><br><span class="line">              <span class="attr">domains:</span></span><br><span class="line">              <span class="bullet">-</span> <span class="string">&quot;*&quot;</span></span><br><span class="line">              <span class="attr">routes:</span></span><br><span class="line">              <span class="bullet">-</span> <span class="attr">match:</span></span><br><span class="line">                  <span class="attr">prefix:</span> <span class="string">&quot;/api/w&quot;</span></span><br><span class="line">                <span class="attr">route:</span></span><br><span class="line">                  <span class="attr">auto_host_rewrite:</span> <span class="literal">true</span></span><br><span class="line">                  <span class="attr">prefix_rewrite:</span> <span class="string">/Weather</span></span><br><span class="line">                  <span class="attr">cluster:</span> <span class="string">weatherservice</span></span><br><span class="line">          <span class="attr">http_filters:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">envoy.filters.http.router</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">clusters:</span></span><br><span class="line">  <span class="comment"># Weather Service</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">weatherservice</span></span><br><span class="line">    <span class="attr">connect_timeout:</span> <span class="number">0.</span><span class="string">25s</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">STRICT_DNS</span></span><br><span class="line">    <span class="attr">lb_policy:</span> <span class="string">LEAST_REQUEST</span></span><br><span class="line">    <span class="attr">load_assignment:</span></span><br><span class="line">      <span class="attr">cluster_name:</span> <span class="string">weatherservice</span></span><br><span class="line">      <span class="attr">endpoints:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">lb_endpoints:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">endpoint:</span></span><br><span class="line">            <span class="attr">address:</span></span><br><span class="line">              <span class="attr">socket_address:</span></span><br><span class="line">                <span class="attr">address:</span> <span class="string">weatherservice1</span></span><br><span class="line">                <span class="attr">port_value:</span> <span class="number">80</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">endpoint:</span></span><br><span class="line">            <span class="attr">address:</span></span><br><span class="line">              <span class="attr">socket_address:</span></span><br><span class="line">                <span class="attr">address:</span> <span class="string">weatherservice2</span></span><br><span class="line">                <span class="attr">port_value:</span> <span class="number">80</span></span><br><span class="line"></span><br><span class="line"><span class="attr">admin:</span></span><br><span class="line">  <span class="attr">access_log_path:</span> <span class="string">/tmp/admin_access.log</span></span><br><span class="line">  <span class="attr">address:</span></span><br><span class="line">    <span class="attr">socket_address:</span> &#123; <span class="attr">address:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>, <span class="attr">port_value:</span> <span class="number">9091</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>docker compose up</code>启动容器，我们可以注意到熟悉的<code>ASP.NET Core</code>的身影，这意味着，我们需要的服务都成功地跑起来了。简单调用下API看看，果然，可以正确地返回结果呢(逃……果然，我是一个喜新厌旧的人，自打用了<code>Encoy</code>以后，再不想用<code>Nginx</code>来做类似的事情(逃……</p>
+<p><img src="https://i.loli.net/2021/07/04/lBIAyPZnSxiD3M8.png" alt="通过管理接口查看集群的请求情况"></p>
+<p>好了，如何验证我们选择的负载均衡策略呢？这是一个问题。不知道大家还记不记得<code>Envoy</code>的管理接口，它里面可以统计请求的次数，所以，我们只要看看两个服务各自请求了多少次里有好啦！这里以<code>RANDON</code>这个策略为例：</p>
+<p><img src="https://i.loli.net/2021/07/04/1U8RgZxaVcOFiXK.png" alt="两个实例拥有不同的请求次数"></p>
+<p>可以注意到，两个的请求次数果然是随机的呢？而如果我们换成是<code>ROUND_ROBIN</code>，你就会发现这两个数值一前一后相互追赶。选择哪一种负载均衡策略，这个按大家实际的场景去决定就好。我倒觉得，按最少请求数的策略会好一点。虽然计算机永远不知疲倦地接收人们的指令，可考虑能者多劳这种人类世界里的策略，本身充满道德绑架的意味，使用负载均衡，站在计算机的角度来看，这是避免计算机内卷的一种方案。所以啊，老板们，请不要逮着一个老实人就拼了命的剥削，多学学负载均衡算法，<strong>卓别林心目中的摩登时代，我一点都不期待，技术世界总告诉我们要严谨、冷静，可充满人情味的世界，同样值得你去热爱啊。</strong></p>
+<h1 id="本文小结"><a href="#本文小结" class="headerlink" title="本文小结"></a>本文小结</h1><p>本文结合物理学中的熵增定律引出了负载均衡这个话题，而<strong>负载均衡的本质，就是在多个计算机(计算机集群)、网络连接、CPU、磁盘驱动器或其它资源中分配负载，以达到最优化资源使用、最大化吞吐率、最小化响应时间、避免过载的目的。</strong>对于这一点，我们可以结合现实生活中的”窗口”排队来理解。<strong>负载均衡可以和水平扩展完美结合，通过降低单点的故障率，来达到提升整个系统可用性的目的</strong>。接下来，我们介绍了常见的负载均衡器分类及其算法，<code>Envoy</code>中的负载均衡配置，并结合<code>ASP.NET Core</code>编写了一个实际的案例。好了，以上就是这篇博客的全部内容啦，如果大家对于熵增定律或者负载均衡器有任何的看法，欢迎大家在评论区留言，谢谢大家！</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2021-7-5-meituan/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021-7-5-meituan/" itemprop="url">美团《长期有耐心》读书摘录</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-07-05T14:00:00+00:00">
+                2021-07-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>2021-6-23 开始阅读<br>2021-7-5 读完</p>
+<p>以下内容来自电子书《长期有耐心》 </p>
+<h2 id="要点"><a href="#要点" class="headerlink" title="要点"></a>要点</h2><ul>
+<li>每天前进 30 公里（南极探险的故事）   </li>
+<li>think big picture  </li>
+<li>以客户为中心，长期有耐心</li>
+</ul>
+<p>艾伦·凯说过：预测未来最好的办法就是创造它。</p>
+<p>王兴对环境的容忍度很高，基本不受外界的影响，但他最不能容忍的是数据错误。</p>
+<p>2020 年 8 月 8 日，美团外卖日订单量突破 4000 万单</p>
+<p>微软公司创始人比尔·盖茨有句名言：“每天早晨醒来，一想到所从事的工作和所开发的技术将会给人类生活带来的巨大影响和变化，我就会无比兴奋和激动。”</p>
+<p>美团的定位从最初的社交和商务的交集，转向了移动和商务的交集</p>
+<p>美团在“千团大战”中脱颖而出，很重要的一个因素，是抓住了移动互联网这一波红利。2011年，美团移动端收入占美团总业务比重仅为7%~8%左右，2012年达到了30%，2013年达到了70%，2014年超过了95%，移动端的发展趋势很明显。</p>
+<p>要做到与互联网发展趋势紧密结合，还得有一个潜力巨大的行业来支撑，王兴选择了第三产业，也就是服务业。</p>
+<p>我做一件事的标准是：有益、有趣、有利。</p>
+<p>失败是可以被定义的，王兴说他看到过一个观点：我无法告诉你怎么获得成功，但失败是可以被定义的，你放弃之后就是失败了。如果你还没有放弃，那么你就还没有失败，就走在成功的路上。</p>
+<p>王兴认为，CEO（首席执行官）的职责有三件：第一，设定公司目标和总体战略，并确保传达给相关执行者；第二，招募并留住最优秀的人才；第三，确保公司有足够现金。其他事情都应该找最专业的、最好的人来做。</p>
+<p>传奇的团队：即使是后来饭否被关停的时候，王兴的团队都没有散，只走了两个人：一个独立开发者回老家了；另一个是张一鸣，去寻找其他的创业机会，后来创办了现在赫赫有名的今日头条、抖音。</p>
+<p>两家科技巨头起家的业务：IBM是做磅秤、自动切肉机起家的，三星是做干鱼、蔬菜、水果出口业务的，如果用基因论，很难解释这两家公司未来的基因突变。</p>
+<p>中国互联网商业模式的演变：</p>
+<p>最早的门户展示广告，客户在新浪、搜狐等门户网站投广告，按展示次数付费</p>
+<p>搜索推广，在百度、谷歌投放广告，按照点击率付费</p>
+<p>团购营销，主要的客户是提供本地服务的商家，如餐馆、酒店、卡拉OK、足疗按摩店等。这些本地商家虽然规模比较小，但数量是千万量级的，它们都需要进行推广，按照效果付费</p>
+<p>美团给自己的定位是本地服务的电子商务，跟所有电子商务一样，追求低成本、高效率。</p>
+<p>王慧文在接受媒体采访时多次表达过，<strong>美团的本质，就是用科技来提升服务业的效率</strong>。</p>
+<p>美团现任首席科学家夏华夏说过：我们要把复杂的事情简单化，简单的事情标准化，标准的事情流程化，流程的事情自动化。</p>
+<p><strong>低毛利加上大规模，也会有很高的商业价值</strong>。所有<strong>零售本质</strong>都是这样，沃尔玛是这样的，亚马逊也是这样。</p>
+<p>美团的业务涵盖：</p>
+<ul>
+<li>团购</li>
+<li>外卖</li>
+<li>酒旅</li>
+<li>出行</li>
+<li>充电宝</li>
+<li>社区团购</li>
+</ul>
+<p>干嘉伟加入美团之前有过成体系的思考，从<strong>行业、老板、团队</strong>三个角度进行了综合衡量衡量，“我自己最主要思考了三个问题：</p>
+<p>第一，这事儿大不大？<br>第二，王兴以后能不能排到互联网前十？<br>第三，他们是不是正好缺我？缺我？当时王兴找了我半年，我确实很犹豫。这三个问题思考完毕，我做了决定加入美团”。  </p>
+<p>传统广告渠道：</p>
+<ul>
+<li>电视</li>
+<li>公交</li>
+<li>楼宇</li>
+</ul>
+<p>管理学大师德鲁克说过，企业的目的就是创造顾客。   </p>
+<p>2010—2020年，美团成立的这十年，是中国互联网行业进入<strong>成熟期</strong>的十年。</p>
+<p>在管理方面，王兴认为，管理的精髓不是一种科学，而是一种实践。</p>
+<p>你对未来越有信心，就越有耐心。</p>
+<p>“三高三低”的理念：</p>
+<ul>
+<li>高品质、低价格</li>
+<li>高效率、低成本</li>
+<li>高科技、低毛利</li>
+</ul>
+<p>2012 年 2 月份，美团推出猫眼电影（原名美团电影）<br>2013 年，美团又探索了外卖业务，这是美团的商业模式又一次更为深刻的进化，把美团的业务从消费者的<strong>到店消费</strong>场景，延伸到了<strong>在家消费</strong>的场景。  </p>
+<p>在王兴看来，凡是还没有被互联网改变的行业，都即将被互联网改变。   </p>
+<p>美团是服务业的平台，市场空间很大，但是，面临的困难与挑战也非常大，王兴认为，美团需要每天坚持前进 30 公里。  </p>
+<p>2012年2月6日，美团年会在北大的百年讲堂举办，那天，王兴以“每天坚持前进30公里”为主题，做了一次精彩的演讲。王兴在演讲中以百年前<strong>南极探险</strong>的故事为例，指出美团需要“每天坚持前进30公里”的心态才能做好，只有持续改进的公司才能成为最后的赢家。   </p>
+<h2 id="南极探险队的故事"><a href="#南极探险队的故事" class="headerlink" title="南极探险队的故事"></a>南极探险队的故事</h2><p>南极点是在地球的最南端，就应该是南纬90度的地方，通常探险从南纬82度开始，到了南极点还要顺利回去，这是2200多公里的路。有两个竞争团队，一个是来自挪威的阿蒙森团队，共5人；另一个是英国的斯科特团队，共17人。他们都想率先完成这个从来没有人完成过的事情，到达南极。”</p>
+<p>两支探险队差不多都是1911年10月在南极圈的外围做好了准备，准备进行最后的冲刺。结果阿蒙森团队在两个多月后，也就是1911年12月15日，率先到达了南极点，插上了挪威国旗；而斯科特团队虽然出发时间差不多，而且人数还更多一些，可是他们晚到了一个多月。  </p>
+<p>阿蒙森团队率先到达南极点之后，又顺利地返回了原来的基地。斯科特团队晚到了，他们没有获得荣誉。更糟糕的是，他们因为晚了，回去的路上天气非常差，路上不断有人掉队，最后没有一个人生还。   </p>
+<p>通过阿蒙森团队和斯科特团队南极探险的故事，王兴做了总结，两个团队碰到的环境是差不多的，最后两个团队却有截然不同的结果，<strong>阿蒙森团队的成功经验，最后可以总结成一句话：不管天气好坏，坚持每天前进 30 公里</strong>。  </p>
+<p>每天坚持前进30公里，这也是“长期有耐心”的体现。</p>
+<h2 id="猫眼电影"><a href="#猫眼电影" class="headerlink" title="猫眼电影"></a>猫眼电影</h2><p>猫眼电影的创始人：徐梧。  </p>
+<p>2019年年初，徐梧发了一条朋友圈：“公司对员工付出的最大成本，不是现金，不是Title（头衔），不是股权，而是<strong>机会</strong>。聪明的员工要学会识别这点。”</p>
+<p>猫眼有独立的 App，不仅卖电影票、做团购、做在线选座、能查询影讯，还要让用户发影评、评分、交流。  </p>
+<p>电影行业的单价在所有的行业里比较低，单以品类来看，它的拉新能力是最强的。  </p>
+<p>电影<strong>相对比较标准、规范</strong>，每个影院都有专业的售票系统，IT化程度比较高。  </p>
+<p>在2013年1月，我们发布了当时美团电影的3.0版，直接更名为猫眼电影。在团购的基础上，我们推出了“在线选座”这一新功能，这块的用户体验和沉淀涨势非常快。“在线选座”是猫眼电影很重要的一个功能。  </p>
+<p>为了给新的品牌起名字，王兴还推荐了一本名叫《定位》的书给徐梧研读。经过多次讨论，最后终于定下“猫眼”这个名字。</p>
+<p>徐梧将起名的方法论浓缩为六个字：<strong>好读、好记、独特</strong>。“什么叫好读？没有平翘舌音、前后鼻音这些难读的音，南方人、北方人都能读才算好读；好记，就是我跟你说一遍这个名字，你就能很容易记住；独特，就是要找一个相对低频的词，能够重写它的含义。”  </p>
+<p>在起名字方面，美团的产品顾问马占凯（搜狗输入法之父）一直很有心得。猫眼的起名，马占凯曾重度参与。2018年，美团的生鲜超市“掌鱼生鲜”改名为“小象生鲜”，也是马占凯老师的建议。 </p>
+<h2 id="三层四面分析法"><a href="#三层四面分析法" class="headerlink" title="三层四面分析法"></a>三层四面分析法</h2><p>看生意本身的机会有多大，是战略执行的第一步，可以用“三层四面分析法”。   </p>
+<p>“四面”是所有生意都可以拆分成<strong>客户数、频次、客单价（收入）、货币化率</strong>；“三层”指<strong>市场现状、在线率和市场占有率</strong>。这个思考方向不见得最好，但比较保险，从上到下，没有因素重叠或者漏掉。  </p>
+<p>以团购为例，团购的“四面”，用户数非常大、交易频次高、有一定客单价。当然，这个行业也存在一个问题，就是之前的货币化率非常低。再看“三层”，市场处于初期，在线率和市场占有率都很低，我就觉得那是一个大好的机会。  </p>
+<p>三层，是指一个行业的市场总量、在线率和市场占有率，通俗点儿说，就是三个问题：这个行业总的蛋糕多大？互联网能够在这个蛋糕中获取多大的比率？公司能够在<strong>互联网化</strong>的这块蛋糕中占据多大比率？  </p>
+<p>三层是从<strong>战略</strong>上思考这个市场有多大，从互联网的角度来竞争有多少优势，从而去推算值不值得做，如果做，做到怎样才算赢。  </p>
+<p><strong>战术执行层面</strong>的“四面”，即<strong>用户量、订单量、收入和利润的增长策略</strong>。这四个元素之间存在着必然的联系，有用户量才可能有订单量，有订单量才可能产生收入，有收入的情况下才可能产生利润。  </p>
+<p>在猫眼电影之前，消费者观影的路径是在时光网查影讯，在美团买票，在豆瓣评论。这个过程很痛苦。从用户的角度来说，猫眼电影一个地盘解决所有问题，满足了他们的需求，因此能带来高频使用。   </p>
+<p>美团是做团购起家的，团购也是在线售票中的一种购买方式，虽然购买的过程还算便捷，但消费者还是需要<strong>用美团的团购券到影院现场兑换电影票，可能需要排队，而且选座也不是很方便</strong>。因此，在团购的基础上，猫眼电影推出了“在线选座”这一新功能，提升了用户体验，用户增长趋势非常明显。   </p>
+<p>当<strong>自动取票机</strong>大规模铺开之后，购买热门影片的电影票要排几十米长队的现象彻底成为历史。  </p>
+<p>线上，猫眼电影做好了产品，让用户实现<strong>在一个App实现查影讯、购票、发表评论</strong>的全部过程。线下，猫眼电影与各大影院合作，自动取票终端让用户取票更加方便。  </p>
+<p>选片时有<strong>观影指南</strong>引导，判断时有<strong>社区</strong>交流参考，买票时有<strong>团购影票提供优惠</strong>，选座时有<strong>实时座位图</strong>快捷选定，影迷的基本需求已得到全面满足。  </p>
+<h2 id="美团的价值观"><a href="#美团的价值观" class="headerlink" title="美团的价值观"></a>美团的价值观</h2><p>美团最初的价值观：“消费者第一，商家第二，员工第三，股东第四，王兴第五。”   </p>
+<p>2013 年，美团更新了自己的价值观：以客户为中心、团队合作、拥抱变化、诚信、敬业、勤俭、学习成长。   </p>
+<p>王兴在2011年发过一条微博：开会时一个年轻同事的一句话至今回荡在我耳边，当时大概是晚上12点，讨论接近尾声，需要有人整理会议纪要，涉及流程图的部分用visio画比较好。我问她会用visio吗，她毫不犹豫地说“我可以学”。这四个简单的字里有无穷的力量。   </p>
+<h2 id="美团外卖"><a href="#美团外卖" class="headerlink" title="美团外卖"></a>美团外卖</h2><p>2013年11月，刚上线的美团外卖日订单量只有几单。2014年9月，日订单量峰值才到10万单。但两个月后，美团外卖日订单量峰值突破100万单。</p>
+<p><strong>外卖业务把美团消费者的场景由到店延伸至到家</strong>，这是一个非常大的变化。服务链的延伸需要做好配送业务，这需要高额投入。   </p>
+<p>在互联网上<strong>高频带动低频</strong>是一件比较自然的事情，所以我们会优先把大众高频的事情做好。我们的目标是解决几亿人的吃喝玩乐需求。   </p>
+<p>外卖在<strong>校园</strong>业务基本稳定之后，又重点开拓<strong>白领市场</strong>，后来的事实证明，拿下了白领市场，并开展了配送服务，是美团后来获得成功的关键。  </p>
+<p>2015 年，也是百度外卖形势最好的一年。美团与饿了么在兼顾校园市场与白领市场，但<strong>百度外卖只做白领市场</strong>。    </p>
+<h2 id="美团酒店"><a href="#美团酒店" class="headerlink" title="美团酒店"></a>美团酒店</h2><p>相对来说，高星级酒店是美团的弱项，因为美团酒店的发展路径是<strong>从三、四线城市的同城住宿</strong>开始的，相对来说价位不高。    </p>
+<p>美团采取了侧面进攻的方式。既然高星级酒店客房业务比较难进入，那就先帮高星级酒店的健身、餐饮<strong>周边业务提升营收</strong>。进入，那就先帮高星级酒店的健身、餐饮周边业务提升营收。餐饮也是高星级酒店的重要业务业务，像洲际酒店的餐饮收入占比50%，客房只占 40%。美团的优势在于更为综合全面的服务。      </p>
+<h2 id="鸵鸟原理"><a href="#鸵鸟原理" class="headerlink" title="鸵鸟原理"></a>鸵鸟原理</h2><p>注意：这里是鸵鸟原理，而不是鸵鸟效应。</p>
+<p>鸵鸟原理，即只有比别人有非常明显的优势时才具有竞争优势。  </p>
+<p>当回顾变化的时候，我相信<strong>比尔·盖茨</strong>的话，他说得非常对，“<strong>人们总是倾向于高估两年能发生的变化，但是低估十年能发生的变化</strong>”，十年如此，五年也是如此。  </p>
+<p>战略的核心是敢想，就必须 think big。我觉得很重要的是 think big picture。  </p>
+<p>要定一个大目标，我们的关键是 think big picture，是去看到大格局是什么样的，自己在什么位置，扮演什么角色。    </p>
+<h2 id="美团外卖更换-logo"><a href="#美团外卖更换-logo" class="headerlink" title="美团外卖更换 logo"></a>美团外卖更换 logo</h2><p>2015 年下半年，美团外卖换上了新的 LOGO，从一碗饭变成了一只萌萌的袋鼠，“<strong>美团外卖、送啥都快</strong>”这个口号，为越来越多的人所熟知。   </p>
+<p>之前，美团外卖的LOGO是一碗饭，因为消费者点外卖的基础需求是餐饮，但是，随着消费者需求的增多，在美团外卖上面点水果、甜点饮品、鲜花、药品的消费者也越来越多，一碗饭已经承载不了美团外卖的全部功能。   </p>
+<p>袋鼠“袋子大、囊括物品多、跑得快”的特点，与美团外卖品类丰富、配送速度快的定位一致，能够为消费者提供全面的选择、优质的体验。   </p>
+<p>进行品牌升级之后，美团外卖原来的橙色改为黄色，大街小巷美团外卖骑手的制服颜色也改成了这个色调。   </p>
+<h2 id="合并之年"><a href="#合并之年" class="headerlink" title="合并之年"></a>合并之年</h2><p>2015年是中国互联网的“合并之年”，滴滴和快的、58同城和赶集、美团和大众点评都是这一年合并的。  </p>
+<p>在高速增长的新市场，资金不是最稀缺的，组织力也不是最稀缺的，<strong>最稀缺的是时间</strong>，错过了就不会再来了。   </p>
+<p>2015 年 10 月 8 日，美团点评成立。美团和大众点评联合发布声明，正式宣布达成战略合作，双方共同成立一家新公司——美团点评。   </p>
+<p>美团与大众点评合并之后，消费者<strong>到店消费</strong>这个场景的需求得到基本解决，接下来应该集中精力发展外卖、交通等新型业务。这些新业务的订单量远远超过了到店消费场景。   </p>
+<h2 id="判断服务好坏的标准"><a href="#判断服务好坏的标准" class="headerlink" title="判断服务好坏的标准"></a>判断服务好坏的标准</h2><p>最简单的判断服务好坏的标准：<strong>是否愿意、放心地把它推荐给我们的家人</strong>？   </p>
+<p>少谈一点颠覆，多谈一点创新。   </p>
+<p>我们应该多谈一点创新，创新的最终目标是创造价值，降低行业运作成本，提高行业运作效率，提升用户体验。  </p>
+<h2 id="互联网下半场"><a href="#互联网下半场" class="headerlink" title="互联网下半场"></a>互联网下半场</h2><p>下半场，就是“<strong>互联网+<strong>”，就是要通过互联网和生活服务各垂直行业的</strong>深度融合</strong>，服务于我国现代服务业的升级，以满足人们不断升级的消费需求。  </p>
+<p>王兴认为，中国互联网“下半场”的重要特征，是<strong>人口红利</strong>和<strong>移动互联网红利</strong>的消失。  </p>
+<p>智能手机的红利也已经过去，从小米手机创办的 2010 年开始算起，智能手机的销售数量每年都在急剧增长，最开始是每年翻倍增长，但到了 2016 年，<strong>智能手机的出货量</strong>只有 10% 左右的增长。   </p>
+<p>从用户的角度来看，王兴认为，这个时候只有两条路：第一，去<strong>开拓海外市场</strong>，那里看起来似乎还有更多用户，但是，国际化是非常不容易的事情；第二，<strong>精耕细作</strong>，把现有的用户服务好，提升用户体验、增加用户黏性、提升 <strong>ARPU</strong> 值（<strong>每用户平均收入</strong>），让每个用户尽量创造更多的价值。  </p>
+<p>从产业的角度来看，就需要互联网对产业的连接更加深入。王兴认为，简单的连接并不能创造价值，深度的连接并对产业进行改造，才能创造更大的价值。  </p>
+<p>真正的“互联网+”，要做的是各个行业从上游到下游的产业互联网化，不是仅仅停留在最末端做营销、做交易那一小段，而是真正能够靠互联网和IT技术为各行各业的各个环节提升体验、提高效率、降低成本。    </p>
+<p>美团在商业运营上的一个基本逻辑是高频打低频。  </p>
+<p>高频服务靠补贴，低频服务靠广告。外卖、单车、打车等高频服务都是靠补贴做起来的，低频的服务补贴起不到作用。  </p>
+<p>站在从产业创造价值的方向看，所有的产业与互联网的结合，主要的价值有两个：  </p>
+<p>第一，为产业提供新的服务，带来更多的客户（<strong>我的理解就是连接</strong>）。像美团外卖的出现，就让餐饮商家增加了服务的范围范围，在不需要增加成本的情况下，让不出门的消费者也能享受到餐饮商家的服务。   </p>
+<p>第二，为产业提高效率，降低成本。这里面，有非常大的改进空间。  </p>
+<h2 id="企业最核心和稀缺的资源"><a href="#企业最核心和稀缺的资源" class="headerlink" title="企业最核心和稀缺的资源"></a>企业最核心和稀缺的资源</h2><p>干嘉伟回顾说，做实物团购是一件既轻松又赚钱的事情，但是，在资源和能力都有限的情况下，坚持做本地生活才是对的。<strong>一个企业最核心、最稀缺的资源不是钱，而是创始人的注意力</strong>。   </p>
+<p>如果说，美团新推出的<strong>零售业务</strong>，与之前的商品团购有什么本质的区别，那就是<strong>更聚焦于与外卖业务的结合</strong>。   </p>
+<h2 id="美团的两心"><a href="#美团的两心" class="headerlink" title="美团的两心"></a>美团的两心</h2><p>“以客户为中心”“长期有耐心”被称为美团的“两心”。  </p>
+<p>美团的边界是什么？王兴的观点非常明确：不关注边界，只关注核心。</p>
+<p>什么是核心？<br>——客户的需求就是核心。   </p>
+<p>亚马逊业务无边界，综合来看，就是两个核心：一是增加客户的基数，一是增进与客户的联系。   </p>
+<p>到了2016年之后，进入“下半场”的美团，探索的领域更多，比如实体生鲜超市“掌鱼生鲜”、美团充电宝、榛果民宿、美团打车等等。这些业务的探索，有些是成功的，有些是失败的，给外界的感觉，是“美团什么业务都想做”。但王兴认为，<strong>美团实际上只做一件事情，就是服务好客户</strong>，点外卖的、看电影的、旅游的、租车的，基本上是同一个群体。   </p>
+<p>在媒体沟通会上，王兴回应外界对美团“四处树敌”的评价。王兴认为，竞争分两种：一种是足球的竞争，目标是把球踢进门；一种是拳击的竞争，目的是将对方打倒。美团属于第一种。  </p>
+<h2 id="社会企业"><a href="#社会企业" class="headerlink" title="社会企业"></a>社会企业</h2><p>社会企业，即旨在解决社会问题、增进公众福利，而非追求自身利润最大化的企业。  </p>
+<p>美团将秉承“<strong>帮大家吃得更好、生活更好</strong>”的企业使命，承担更多社会责任，带动就业发展，建设更加开放合作、与全社会协调发展的社会企业。   </p>
+<p>企业有很多驱动的核心，有<strong>需求驱动、竞争驱动、战略驱动</strong>等，但我们认为在新阶段，美团是一个<strong>使命驱动</strong>的公司。   </p>
+<p>在用户隐私保护方面，王兴透露，“预计2018年美团将投入1亿元用于保护用户隐私，比如消费者订外卖，不想让外卖骑手知道你的电话号码，那么有选项可以保护你的隐私，满足你的需求。<strong>隐私保护是我们认为非常重要的一个社会责任</strong>”。   </p>
+<h2 id="美团的使命"><a href="#美团的使命" class="headerlink" title="美团的使命"></a>美团的使命</h2><p>第一版使命：美团的第一版使命，是 2013 年和第二版价值观一起宣布的，当时提出的使命是“连接人与商户”。    </p>
+<p>美团的第二版使命，是 2016 年和第三版价值观一起宣布的，对第一版使命进行了迭代，是“连接人和服务，点亮美好生活”。   </p>
+<p>王兴在2017年10月19日举办的媒体沟通会上宣布了美团的第三版使命是“帮大家吃得更好、生活更好”，英文版为“We help people eat better，live better”。  </p>
+<h2 id="互联网的-A、B-面"><a href="#互联网的-A、B-面" class="headerlink" title="互联网的 A、B 面"></a>互联网的 A、B 面</h2><p>王慧文把整个互联网产业分成两类：A类是供给和履约在线上，B类是供给和履约在线下。  </p>
+<p>王慧文认为，A 类产业如视频网站、直播、在线游戏等，代表性的公司是腾讯、爱奇艺、今日头条等，这类算是<strong>纯粹的互联网公司</strong>；B 类是供给和履约在线下的互联网产业，代表性的公司是淘宝、京东商城、美团、滴滴、携程等，用户可以通过互联网的方式在这些网站下单，但是，接收商品或者享受服务，那就需要用线下的方式来完成。   </p>
+<p>王慧文认为，B 类可以再做一个划分，B1 类是以 SKU 为中心的供给，B2 类是以位置为中心的服务。   </p>
+<p>A 类，供给和履约在线上，企业的核心能力体现在产品设计领域上，体现在用户理解上，体现在对于通信、社交以及内容的把握上。这部分的能力是 A 类企业共有的。  </p>
+<p>B1 类里面，主要体现在对于品类的理解，对于供应链的理解，对于定价的理解，代表公司是淘宝。B2 类里面，如果盘点一下 B2 类的公司，总体来说，它们都有一个共有的特征，就是都有大规模的线下团队。<strong>是否有大规模的线下团队是 B1 类和 B2 类一个很大的差别</strong>。  </p>
+<p>同时，B2 类的定位功能很重要，要把定位的速度做到最快、精准度做到最高。  </p>
+<p>事实上，B2 这个领域是 2012 年到现在为止中国互联网打得最惨烈的圈：单车大战在这里面，打车大战在这里面，外卖大战在这里面。为什么打得这么激烈？这个行业刚刚起步，新的机会刚刚出现，<strong>大家对于机会的认知、产业的认知刚刚形成，核心能力非常相似</strong>。不仅仅核心能力相似，事实上场景也相似。核心能力导致大家场景会有很多交叉，这是没有办法的事情。     </p>
+<p>B2 类还可以细分为四个场景：  </p>
+<p>第一个场景：消费者不动，商家动（或者供应商动，履约动）。这个场景包括外卖、上门服务，典型的代表如美团外卖、饿了么、58 到家。<br>第二个场景：消费者动，商家不动。这是到店服务，典型的代表如美团、链家，以及爱彼迎等民宿供应商。<br>第三个场景：消费者动，供应商也动。这和交通相关，比如打车和共享单车。典型企业是滴滴、摩拜、优步，以及一些分时租车公司，美团也推出了交通的业务。<br>第四个场景：异地服务。比如异地的酒店、旅游、机票与火车票等服务，典型企业如携程、美团旅行等。  </p>
+<h2 id="更大责任，更多耐心"><a href="#更大责任，更多耐心" class="headerlink" title="更大责任，更多耐心"></a>更大责任，更多耐心</h2><p>王兴在上市当天向全体员工发送了一封邮件《更大责任，更多耐心》：  </p>
+<p>各位同学：</p>
+<p>今天早上，公司在香港主板挂牌上市，我们迈入了一个新的发展阶段。</p>
+<p>上市意味着成为一家公众公司，意味着承担更大的责任。作为平台型互联网企业，我们不能仅仅用法律、义务这样的底线来要求自己，而是要更加自觉、更加主动地承担社会责任，创造社会价值，构建一家社会企业。这需要我们每个人从每天的日常工作做起。我们要进一步加强科技创新，促进生活服务业供给侧升级，带动更多的就业，和方方面面一起，构建智慧城市，创造美好生活，践行我们公司的使命“帮大家吃得更好，生活更好”。</p>
+<p>上市后我们需要更多耐心。我们经常说，要“长期有耐心”，对未来越有信心，对现在越有耐心。上市并不意味着耐心的结束，而是真正考验耐心的开始。上市本身从来不是我们的目标，只是公司成长过程中的一个里程碑。资本市场会有起伏，大家不需要太过关心短期的股价涨跌，而要时时刻刻致力于把自己的工作做好，为客户创造更大价值。从长期来看，我们所创造的价值最终会体现在我们的股价上。</p>
+<p>感谢每一位同事，包括曾经为这份事业付出过的老战友；感谢每一位同事的家人；感谢我们的消费者、商户、外卖骑手、生态合作伙伴、投资人以及所有支持美团的人。</p>
+<p><strong>我们每个人每次花钱，都是在为自己想要的生活投票。</strong>让我们一起努力，为了大家的信任，也为了我们自己。<strong>既往不恋，纵情向前</strong>！</p>
+<p>王兴<br>2018年9月20日  </p>
+<h2 id="苦练基本功"><a href="#苦练基本功" class="headerlink" title="苦练基本功"></a>苦练基本功</h2><p>王兴认为，从商业历史来看，绝大多数公司的失败不在于没掌握高难度动作，而是基本功出了问题。基本功就是业务和管理的基本动作，把基本功练好，就能产生巨大价值。  </p>
+<p>通用的基本功：<strong>写备忘录、周报月报的写作、有效沟通技巧</strong></p>
+<p>用备忘录取代 PPT，<strong>备忘录能将工作用严密逻辑表述清楚，是一种很好的回顾方式，也方便阅读者更深刻理解工作的策略和进展</strong>。    </p>
+<h2 id="每个人的三笔钱"><a href="#每个人的三笔钱" class="headerlink" title="每个人的三笔钱"></a>每个人的三笔钱</h2><p>干嘉伟和很多员工分享成长经验的时候，讲过每个人有三笔钱：“一笔是<strong>今天的钱</strong>，也就是大家现在的收入；一笔是<strong>明天的钱</strong>，也就是通过自己的成长可以获得更多的收入；但对于很多20多岁的年轻人而言，最值钱的是<strong>后天的钱</strong>，也就是你在美团的所学所获。学习成长很像零存整取，对美团发展有信心的同事都倾向于在年轻的时候获得更多的成长。”    </p>
+<p>“美团四大名著”：《高效能人士的七个习惯》《金字塔原理》《学会提问》《用图表说话》。</p>
+<h2 id="千亿美元市值"><a href="#千亿美元市值" class="headerlink" title="千亿美元市值"></a>千亿美元市值</h2><p>2010 年 3 月 4 日（美团上线的第一天），王兴在自己的微博写下了：“Every time you spend money, you are casting a votefor what kind of world you want.”（<strong>每次你花钱的时候，你都在为你想要的世界投票</strong>）   </p>
+<p>2019 年第二季度的财报数据显示，美团第二季度营收 227 亿元，同比增长 50.6%，经调整净利润 15 亿元，<strong>首次实现整体盈利</strong>。同时，上半年公司实现营收 418.8 亿元，同比增长 58.9%，经调整净利润 4.53 亿元。也就是说，美团不仅实现了季度盈利，而且还实现了上半年整体盈利。  </p>
+<p>2020 年 3 月 30 日，美团发布了 2019 年全年财报。数据显示，2019年全年，美团收入达到 975 亿元，同比增长 49.5%，经调整净利润达 47 亿元。从全年收入来看，餐饮外卖业务、到店及酒店旅游业务、新业务（包括零售、供应链解决方案、共享单车、网约车等）营收贡献分别约为 548 亿元、223 亿元、204 亿元。  </p>
+<p>2020 年 5 月 26 日，港股开盘后，美团一直大涨，收盘时，股价报 138.9 港元&#x2F;股。美团港股总市值达到 8093.34 亿港元，突破 1000 亿美元。至此，美团已经跻身国内互联网公司市值前三，并成为继阿里、腾讯之后，国内第三家市值超过千亿美元的互联网公司。   </p>
+<p>2015 年 5 月，王兴在内部管理论坛上交流时，提出要将美团打造成一家超过千亿美元市值的公司。经过整整五年时间的长跑，2020 年 5 月，美团终于成为一家超过千亿美元市值的公司。  </p>
+<p>预测未来，最好的办法就是去实现它。    </p>
+<h2 id="两句美团老话"><a href="#两句美团老话" class="headerlink" title="两句美团老话"></a>两句美团老话</h2><p>第一句：人们往往会高估一两年时间发生的变化，但低估十年时间发生的变化。  </p>
+<p>第二句：坚持做正确的事情，是在一次次的资源投入选择、产品迭代选择、方向选择中兑现的。当然，<strong>如果你坚持做正确的事情，在坚持所带来的正面结果上，其实兑现的周期常常比大家想象的短很多</strong>。</p>
+<p>2020 年 3 月 4 日，美团迎来了十周岁生日。王兴给全体员工发了内部邮件。   </p>
+<p>十年一瞬，以客户为中心、长期有耐心、坚持做正确的事而不是容易的事、拥抱变化、每天前进 30 公里、我不会但我可以学、苦练基本功……这些我们相信的，是十年来我们一路前行的航标，也将继续指引我们远航。   </p>
+<p>新的十年，我不祝大家一帆风顺，我祝大家乘风破浪！<br>新的十年，既往不恋，纵情向前！   </p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/ASP.NET-Core%20%E6%90%AD%E8%BD%BD%20Envoy%20%E5%AE%9E%E7%8E%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/ASP.NET-Core%20%E6%90%AD%E8%BD%BD%20Envoy%20%E5%AE%9E%E7%8E%B0%E5%BE%AE%E6%9C%8D%E5%8A%A1%E7%9A%84%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/" itemprop="url">ASP.NET Core 搭载 Envoy 实现微服务的反向代理</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-07-01T14:49:47+00:00">
+                2021-07-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">编程语言</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>回想起来，博主第一次接触到<code>Envoy</code>，其实是在微软的示例项目 <a target="_blank" rel="noopener" href="https://github.com/dotnet-architecture/eShopOnContainers">eShopOnContainers</a>，在这个示例项目中，微软通过它来为<code>Ordering API</code>、<code>Catalog API</code>、<code>Basket API</code> 等多个服务提供网关的功能。当时，博主并没有对它做深入的探索。此刻再度回想起来，大概是因为那个时候更迷恋领域驱动设计(DDD)的理念。直到最近这段时间，博主需要在一个项目中用到<code>Envoy</code>，终于决定花点时间来学习一下相关内容。所以，接下来这几篇博客，大体上会以记录我学习<code>Envoy</code>的历程为主。考虑到<code>Envoy</code>的配置项特别多，在写作过程中难免会出现纰漏，希望大家谅解。如对具体的配置项存在疑问，请以官方最新的 <a target="_blank" rel="noopener" href="https://www.envoyproxy.io/docs/envoy/latest/">文档</a> 为准，本文所用的示例代码已经上传至 <a target="_blank" rel="noopener" href="https://hub.fastgit.org/Regularly-Archive/2021/tree/master/src/EnvoyGateway">Github</a>，大家作为参考即可。对于今天这篇博客，我们来聊聊 ASP.NET Core 搭载 Envoy 实现微服务的反向代理 这个话题，或许你曾经接触过 <a target="_blank" rel="noopener" href="https://www.nginx.com/">Nginx</a> 或者 <a target="_blank" rel="noopener" href="https://github.com/ThreeMammals/Ocelot">Ocelot</a>，这次我们不妨来尝试一点新的东西，譬如，通过<code>Docker-Compose</code>来实现服务编排，如果对我说的这些东西感兴趣的话，请跟随我的脚步，一起来探索这广阔无垠的技术世界吧！</p>
+<h1 id="走近-Envoy"><a href="#走近-Envoy" class="headerlink" title="走近 Envoy"></a>走近 Envoy</h1><p><a target="_blank" rel="noopener" href="https://www.envoyproxy.io/">Envoy</a> 官网对<code>Envoy</code>的定义是：</p>
+<blockquote>
+<p>Envoy 是一个开源边缘和服务代理，专为原生云应用设计。</p>
+</blockquote>
+<p>而更进一步的定义是：</p>
+<blockquote>
+<p>Envoy 是专为大型现代服务导向架构设计的 L7 代理和通讯总线。</p>
+</blockquote>
+<p>这两个定义依然让你感到云里雾里？没关系，请看下面这张图：</p>
+<p><img src="https://i.loli.net/2021/07/02/k2DhXMudnibrzgt.png" alt="Envoy架构图"></p>
+<p>注：<a target="_blank" rel="noopener" href="https://fuckcloudnative.io/envoy-handbook/docs/gettingstarted/architecture/">图片来源</a></p>
+<p>相信从这张图中，大家多少能看到反向代理的身影，即下游客户端发起请求，<code>Envoy</code>对请求进行侦听(<strong>Listeners</strong>)，并按照路由转发请求到指定的集群(<strong>Clusters</strong>)。接下来，每一个集群可以配置多个终结点，<code>Envoy</code>按照指定的负载均衡算法来筛选终结点，而这些终结点则指向了具体的上游服务。例如，我们熟悉的 <a target="_blank" rel="noopener" href="https://www.nginx.com/">Nginx</a> ，使用<code>listen</code>关键字来指定侦听的端口，使用<code>location</code>关键字来指定路由，使用<code>proxy_pass</code>关键字来指定上游服务的地址。同样地，<a target="_blank" rel="noopener" href="https://github.com/ThreeMammals/Ocelot">Ocelot</a> 使用了类似的上下游(<strong>Upstream</strong>&#x2F;<strong>Downstream</strong>)的概念，唯一的不同是，它的上下游的概念与这里是完全相反的。</p>
+<p>你可能会说，这个<code>Envoy</code>看起来“平平无奇”嘛，简直就像是“平平无奇”的古天乐一般。事实上，<code>Envoy</code>强大的地方在于：</p>
+<ul>
+<li>非侵入式的架构： 独立进程、对应用透明的<code>Sidecar</code>模式</li>
+</ul>
+<p><img src="https://i.loli.net/2021/07/02/lMnPhZzBd38tpVF.png" alt="Envoy 的 Sidecar 模式"></p>
+<ul>
+<li>L3&#x2F;L4&#x2F;L7 架构：<code>Envoy</code>同时支持 OSI 七层模型中的第三层(网络层, IP 协议)、第四层(传输层，TCP &#x2F; UDP 协议)、第七层(应用层，HTTP 协议)</li>
+<li>顶级 HTTP&#x2F;2 支持： 视 <code>HTTP/2</code> 为一等公民，且可以在 <code>HTTP/2</code> 和 <code>HTTP/1.1</code>间相互转换</li>
+<li>gRPC 支持：<code>Envoy</code> 支持 <code>HTTP/2</code>，自然支持使用 <code>HTTP/2</code> 作为底层多路复用协议的 <code>gRPC</code></li>
+<li>服务发现和动态配置：与 <code>Nginx</code> 等代理的热加载不同，<code>Envoy</code> 可以通过 <code>API</code> 接口动态更新配置，无需重启代理。</li>
+<li>特殊协议支持：Envoy 支持对特殊协议在 L7 进行嗅探和统计，包括：<a target="_blank" rel="noopener" href="https://www.envoyproxy.io/docs/envoy/latest/configuration/listeners/network_filters/mongo_proxy_filter#">MongoDB</a>、<a target="_blank" rel="noopener" href="https://www.servicemesher.com/envoy/intro/arch_overview/dynamo.html#arch-overview-dynamo">DynamoDB</a> 等。</li>
+<li>可观测性：<code>Envoy</code> 内置 <code>stats</code> 模块，可以集成诸如 <code>prometheus/statsd</code> 等监控方案。还可以集成分布式追踪系统，对请求进行追踪。</li>
+</ul>
+<h1 id="Envoy配置文件"><a href="#Envoy配置文件" class="headerlink" title="Envoy配置文件"></a>Envoy配置文件</h1><p><code>Envoy</code>通过配置文件来实现各种各样的功能，其完整的配置结构如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;node&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;static_resources&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;dynamic_resources&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;cluster_manager&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;hds_config&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;flags_path&quot;</span><span class="punctuation">:</span> <span class="string">&quot;...&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;stats_sinks&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;stats_config&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;stats_flush_interval&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;watchdog&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;tracing&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;runtime&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;layered_runtime&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;admin&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;overload_manager&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;enable_dispatcher_stats&quot;</span><span class="punctuation">:</span> <span class="string">&quot;...&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;header_prefix&quot;</span><span class="punctuation">:</span> <span class="string">&quot;...&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;stats_server_version_override&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;...&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;use_tcp_for_dns_lookups&quot;</span><span class="punctuation">:</span> <span class="string">&quot;...&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里我们主要对侦听器(<strong>Listeners</strong>)、集群(<strong>Clusters</strong>) 和 管理(<strong>Admin</strong>)这三个常用的部分来进行说明。其中，(<strong>Listeners</strong>)、集群(<strong>Clusters</strong>) 均位于 <code>static_resources</code> 节点下，而 管理(<strong>Admin</strong>) 则有一个单独的<code>admin</code>节点。</p>
+<h2 id="侦听器-Listeners"><a href="#侦听器-Listeners" class="headerlink" title="侦听器(Listeners)"></a>侦听器(Listeners)</h2><p>侦听器，顾名思义就是侦听一个或者多个端口：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">static_resources:</span></span><br><span class="line">  <span class="attr">listeners:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">address:</span></span><br><span class="line">      <span class="attr">socket_address:</span></span><br><span class="line">        <span class="attr">address:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line">        <span class="attr">port_value:</span> <span class="number">9090</span></span><br></pre></td></tr></table></figure>
+<p>在这里，它表示的是侦听<code>9090</code>这个端口，这里的<code>listeners</code>是一个数组，所以，你可以同时侦听多个端口。</p>
+<h3 id="过滤器-Filters"><a href="#过滤器-Filters" class="headerlink" title="过滤器(Filters)"></a>过滤器(Filters)</h3><p>我们知道，单单侦听一个或者多个端口，是无法完成一个<code>HTTP</code>请求的，因为它还不具备处理<code>HTTP</code>请求的能力。</p>
+<p><img src="https://i.loli.net/2021/07/02/CQftjTErndyNh7q.png" alt="Envoy Filters 架构图"></p>
+<p>在 <code>Envoy</code> 中，这一工作由一个或者多个过滤器组成的过滤器链(<strong>Filter Chains</strong>) 来完成：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">static_resources:</span></span><br><span class="line">  <span class="attr">listeners:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">address:</span></span><br><span class="line">      <span class="attr">socket_address:</span></span><br><span class="line">        <span class="attr">address:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span></span><br><span class="line">        <span class="attr">port_value:</span> <span class="number">9090</span></span><br><span class="line">    <span class="attr">filter_chains:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="attr">filters:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">envoy.filters.network.http_connection_manager</span></span><br><span class="line">        <span class="attr">typed_config:</span></span><br><span class="line">          <span class="string">&quot;@type&quot;</span><span class="string">:</span> <span class="string">type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager</span></span><br><span class="line">          <span class="attr">codec_type:</span> <span class="string">AUTO</span></span><br><span class="line">          <span class="attr">stat_prefix:</span> <span class="string">ingress_http</span></span><br><span class="line">          <span class="attr">route_config:</span></span><br><span class="line">            <span class="attr">name:</span> <span class="string">local_route</span></span><br><span class="line">            <span class="attr">virtual_hosts:</span></span><br><span class="line">            <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">backend</span></span><br><span class="line">              <span class="attr">domains:</span></span><br><span class="line">              <span class="bullet">-</span> <span class="string">&quot;*&quot;</span></span><br><span class="line">              <span class="attr">routes:</span></span><br><span class="line">              <span class="bullet">-</span> <span class="attr">match:</span></span><br><span class="line">                  <span class="attr">prefix:</span> <span class="string">&quot;/api/w&quot;</span></span><br><span class="line">                <span class="attr">route:</span></span><br><span class="line">                  <span class="attr">auto_host_rewrite:</span> <span class="literal">true</span></span><br><span class="line">                  <span class="attr">prefix_rewrite:</span> <span class="string">/Weather</span></span><br><span class="line">                  <span class="attr">cluster:</span> <span class="string">weatherservice</span></span><br><span class="line">              <span class="bullet">-</span> <span class="attr">match:</span></span><br><span class="line">                  <span class="attr">prefix:</span> <span class="string">&quot;/api/c&quot;</span></span><br><span class="line">                <span class="attr">route:</span></span><br><span class="line">                  <span class="attr">auto_host_rewrite:</span> <span class="literal">true</span></span><br><span class="line">                  <span class="attr">prefix_rewrite:</span> <span class="string">/City</span></span><br><span class="line">                  <span class="attr">cluster:</span> <span class="string">cityservice</span></span><br><span class="line">          <span class="attr">http_filters:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">envoy.filters.http.router</span></span><br></pre></td></tr></table></figure>
+
+<p>在这段配置中，<code>Http Connection Manager</code>表示的是位于 L3(<strong>网络层</strong>)&#x2F;L4(<strong>传输层</strong>) 的过滤器，这个过滤器连接的下一个过滤器是<code>envoy.filters.http.router</code>，表示的是 L7(<strong>应用层</strong>) 的关于路由的过滤器。个人感觉，这和我们通常所说的中间件相当接近。注意到，我们在 L3&#x2F;L4 这个层级上做了什么事情呢？其实应该是 TCP&#x2F;IP 层面上请求转发，这里定义的路由规则如下：</p>
+<ul>
+<li>当外部调用者访问<code>/api/w</code>时，请求会被转发到<code>WeatherService</code>。</li>
+<li>当外部调用者访问<code>/api/c</code>时，请求会被转发到<code>CityService</code>。</li>
+</ul>
+<h2 id="集群-Clusters"><a href="#集群-Clusters" class="headerlink" title="集群(Clusters)"></a>集群(Clusters)</h2><p>在过滤器部分，我们定义了路由，那么，请求的最终去向是哪里呢？这里 <code>Envoy</code> 将其称之为 集群：:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">static_resources:</span></span><br><span class="line">  <span class="attr">clusters:</span></span><br><span class="line">  <span class="comment"># City Service</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">cityservice</span></span><br><span class="line">    <span class="attr">connect_timeout:</span> <span class="number">0.</span><span class="string">25s</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">STRICT_DNS</span></span><br><span class="line">    <span class="attr">lb_policy:</span> <span class="string">ROUND_ROBIN</span></span><br></pre></td></tr></table></figure>
+<p>集群本身，其实只是一个名字，并没有实际的意义，真正工作的其实是指向上游服务的终结点，我们可以为每一个集群指定一个负载均衡策略，让它决定选择哪一个终结点来提供服务。</p>
+<h3 id="负载均衡-Load-Assignment"><a href="#负载均衡-Load-Assignment" class="headerlink" title="负载均衡(Load Assignment)"></a>负载均衡(Load Assignment)</h3><p>目前，<code>Envoy</code>支持以下负载均衡算法：</p>
+<ul>
+<li>ROUND_ROBIN：轮询</li>
+<li>LEAST_REQUEST：最少请求</li>
+<li>RING_HASH：哈希环</li>
+<li>RANDOM：随机</li>
+<li>MAGLEV：磁悬浮</li>
+<li>CLUSTER_PROVIDED</li>
+</ul>
+<p>下面的示例展示了如何为某个集群配置负载均衡：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">static_resources:</span></span><br><span class="line">  <span class="attr">clusters:</span></span><br><span class="line">  <span class="comment"># Weather Service</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">weatherservice</span></span><br><span class="line">    <span class="attr">connect_timeout:</span> <span class="number">0.</span><span class="string">25s</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">STRICT_DNS</span></span><br><span class="line">    <span class="attr">lb_policy:</span> <span class="string">LEAST_REQUEST</span></span><br><span class="line">    <span class="attr">load_assignment:</span></span><br><span class="line">      <span class="attr">cluster_name:</span> <span class="string">weatherservice</span></span><br><span class="line">      <span class="attr">endpoints:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">lb_endpoints:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">endpoint:</span></span><br><span class="line">            <span class="attr">address:</span></span><br><span class="line">              <span class="attr">socket_address:</span></span><br><span class="line">                <span class="attr">address:</span> <span class="string">weatherservice1</span></span><br><span class="line">                <span class="attr">port_value:</span> <span class="number">80</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">endpoint:</span></span><br><span class="line">            <span class="attr">address:</span></span><br><span class="line">              <span class="attr">socket_address:</span></span><br><span class="line">                <span class="attr">address:</span> <span class="string">weatherservice2</span></span><br><span class="line">                <span class="attr">port_value:</span> <span class="number">80</span></span><br></pre></td></tr></table></figure>
+<p>其中，<code>weatherservice1</code>和<code>weatherservice2</code>是同一个服务的两个容器实例，当我们使用<code>Docker-Compose</code>进行构建的时候，不需要显式地去指定每一个服务的IP地址，只要对应<code>docker-compose.yaml</code>文件中的服务名称即可。</p>
+<h2 id="管理-Admin"><a href="#管理-Admin" class="headerlink" title="管理(Admin)"></a>管理(Admin)</h2><p>管理(<strong>Admin</strong>)这块儿相对简单一点，主要用来指定<code>Envoy</code>的的管理接口的端口号、访问日志存储路径等等：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">admin:</span></span><br><span class="line">  <span class="attr">access_log_path:</span> <span class="string">/tmp/admin_access.log</span></span><br><span class="line">  <span class="attr">address:</span></span><br><span class="line">    <span class="attr">socket_address:</span> &#123; <span class="attr">address:</span> <span class="number">0.0</span><span class="number">.0</span><span class="number">.0</span>, <span class="attr">port_value:</span> <span class="number">9091</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="服务编排"><a href="#服务编排" class="headerlink" title="服务编排"></a>服务编排</h1><p>好了，在正确配置<code>Envoy</code>以后，我们来考虑如何对这些服务进行编排，在本文的 <a target="_blank" rel="noopener" href="https://hub.fastgit.org/Regularly-Archive/2021/tree/master/src/EnvoyGateway">例子</a> 中，我们有两个后端服务，<code>WeatherService</code> 和 <code>CityService</code>，它们本质上是两个<code>ASP.NET Core</code>应用，我们希望通过<code>Envoy</code>来实现反向代理功能。这样做的好处是，后端服务的架构不会直接暴露给外部使用者。所以，你会注意到，在微服务架构的设计中，网关经常扮演着重要的角色。那么，如何对服务进行编排呢？这里我们使用<code>Docker-Compose</code>来完成这个工作：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&#x27;3&#x27;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">envoygateway:</span></span><br><span class="line">    <span class="attr">build:</span> <span class="string">Envoy/</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;9090:9090&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;9091:9091&quot;</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">./Envoy/envoy.yaml:/etc/envoy/envoy.yaml</span></span><br><span class="line">  <span class="attr">cityservice:</span></span><br><span class="line">    <span class="attr">build:</span> <span class="string">CityService/</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;8081:80&quot;</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">ASPNETCORE_URLS:</span> <span class="string">&quot;http://+&quot;</span></span><br><span class="line">      <span class="attr">ASPNETCORE_ENVIRONMENT:</span> <span class="string">&quot;Development&quot;</span></span><br><span class="line">  <span class="attr">weatherservice:</span></span><br><span class="line">    <span class="attr">build:</span> <span class="string">WeatherService/</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;8082:80&quot;</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="attr">ASPNETCORE_URLS:</span> <span class="string">&quot;http://+&quot;</span></span><br><span class="line">      <span class="attr">ASPNETCORE_ENVIRONMENT:</span> <span class="string">&quot;Development&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以注意到，这里需要部署3个服务，其中，<code>Envoy</code>负责监听<code>9090</code>端口，即对外的网关。而两个后端服务，<code>WeatherService</code> 和 <code>CityService</code>则被分别部署在<code>8082</code>和<code>8081</code>端口。这里最重要的是<code>envoy.yaml</code>这个配置文件，我们在上一节编写的配置文件会挂在到容器目录：<code>/etc/envoy/envoy.yaml</code>。<code>Envoy</code>将如何使用这个配置文件呢？事实上，这个<code>Dockerfile</code>是这样编写的：</p>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> envoyproxy/envoy-alpine:v1.<span class="number">16</span>-latest</span><br><span class="line"><span class="keyword">COPY</span><span class="language-bash"> ./envoy.yaml /etc/envoy.yaml</span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> <span class="built_in">chmod</span> go+r /etc/envoy.yaml</span></span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> [<span class="string">&quot;/usr/local/bin/envoy&quot;</span>, <span class="string">&quot;-c&quot;</span>, <span class="string">&quot;/etc/envoy.yaml&quot;</span>, <span class="string">&quot;--service-cluster&quot;</span>, <span class="string">&quot;reverse-proxy&quot;</span>]</span></span><br></pre></td></tr></table></figure>
+
+<p>除此之外，Envoy通过<code>9091</code>端口提供管理功能，我们可以通过这个端口来获得集群、请求、统计等信息，这一特性我们将会在接下来的文章里用到：</p>
+<p><img src="https://i.loli.net/2021/07/02/1OlNJ7um6BnLFeb.png" alt="Envoy 管理界面功能一览"></p>
+<p>这里，想分享一个关于<code>Envoy</code>的小技巧，当我们在指定集群的地址时，可以使用<code>docker-compose.yaml</code>中定义的服务的名称，这会比填入一个固定的<code>IP</code>地址要更优雅一点，理由非常简单，我们不希望每次都来维护这个地址。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Weather Service</span></span><br><span class="line"> <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">weatherservice</span></span><br><span class="line">   <span class="attr">connect_timeout:</span> <span class="number">0.</span><span class="string">25s</span></span><br><span class="line">   <span class="attr">type:</span> <span class="string">STRICT_DNS</span></span><br><span class="line">   <span class="attr">lb_policy:</span> <span class="string">ROUND_ROBIN</span></span><br><span class="line">   <span class="attr">load_assignment:</span></span><br><span class="line">     <span class="attr">cluster_name:</span> <span class="string">weatherservice</span></span><br><span class="line">     <span class="attr">endpoints:</span></span><br><span class="line">     <span class="bullet">-</span> <span class="attr">lb_endpoints:</span></span><br><span class="line">       <span class="bullet">-</span> <span class="attr">endpoint:</span></span><br><span class="line">           <span class="attr">address:</span></span><br><span class="line">             <span class="attr">socket_address:</span></span><br><span class="line">               <span class="comment"># 建议使用 docker-compose.yaml 文件中对应的服务名称来代替IP地址</span></span><br><span class="line">               <span class="attr">address:</span> <span class="string">weatherservice</span></span><br><span class="line">               <span class="attr">port_value:</span> <span class="number">80</span></span><br></pre></td></tr></table></figure>
+
+<p>接下来，如果每一个服务的<code>Dockerfile</code>都编写正确的话，我们就可以通过<code>docker compose up</code>命令启动这一组服务，通过命令行下打印出来的信息，我们可以确认，基于<code>Envoy</code>的网关服务、两个基于<code>ASP.NET Core</code>的后端服务都已经成功运行起来：</p>
+<p><img src="https://i.loli.net/2021/07/02/KMo4dn17m9p8NSg.png" alt="在 Docker-Compose 中成功启动服务"></p>
+<p>还记得我们的路由规则是是如何定义的吗？</p>
+<ul>
+<li>当外部调用者访问<code>/api/w</code>时，请求会被转发到<code>WeatherService</code>。</li>
+<li>当外部调用者访问<code>/api/c</code>时，请求会被转发到<code>CityService</code>。</li>
+</ul>
+<p>实际的情况如何呢？我们不妨来验证一下：</p>
+<p><img src="https://i.loli.net/2021/07/02/YX4VywtkOCJ2rSI.png" alt="通过 Envoy 调用 WeatcherService "></p>
+<p>可以注意到，不管是浏览器返回的结果，还是容器内部输出的日志，都表明请求确实被转发到对应的服务上面去了，这说明我们设计的网关已经生效。至此，我们实现了基于<code>Envoy</code>的反向代理功能，有没有觉得比<code>Nginx</code>要简单一点？重要的是，基于<code>Docker-Compose</code>的服务编排使用起来真的舒适度爆棚，这意味着你会有更多的属于程序员的贤者时间。前段时间热映的电视剧《觉醒时代》，鲁迅先生写完《狂人日记》后那一滴眼泪令人动容。也许，这种如匠人一般反复雕琢、臻于完美的心境是互通的，即使人类的悲欢并不相通，对美和极致的追求竟然出奇的相似。</p>
+<h1 id="本文小结"><a href="#本文小结" class="headerlink" title="本文小结"></a>本文小结</h1><p>本文主要介绍了 ASP.NET Core 搭载 <a target="_blank" rel="noopener" href="https://www.envoyproxy.io/">Envoy</a> 实现反向代理这一过程。对于 <code>Envoy</code>，有两个重要的定义：<strong>第一、Envoy 是一个开源边缘和服务代理，专为原生云应用设计。第二、Envoy 是专为大型现代服务导向架构设计的 L7 代理和通讯总线</strong>。相比 <a target="_blank" rel="noopener" href="https://www.nginx.com/">Nginx</a>  和 <a target="_blank" rel="noopener" href="https://github.com/ThreeMammals/Ocelot">Ocelot</a> ，Envoy 提供了 <code>L7</code> 级别的代理服务，支持 <code>HTTP/2</code> 和 <code>gRPC</code>，无侵入式的<code>Sidecar</code>模式可以提供与应用进程完全隔离的代理服务。接下来，博主对 <code>Envoy</code> 配置文件的结构及主要的配置项进行了说明，对于常见的 API 网关，我们应该重点关注侦听器(<strong>Listeners</strong>) 和 集群(<strong>Clusters</strong>)。最终，我们结合<code>Docker-Compose</code>对服务进行了编排，并由此构建出了一个基本的反向代理的方案。本文的源代码已托管至 <a target="_blank" rel="noopener" href="https://hub.fastgit.org/Regularly-Archive/2021/tree/master/src/EnvoyGateway">Github</a> ，大家可以在此基础上做进一步的探索。好了，以上就是这篇博客的的全部内容啦，欢迎大家就本文中提出的方案、代码等进行讨论，如果大家有任何意见或者建议，欢迎在评论区进行留言，谢谢大家！</p>
+<h1 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://fuckcloudnative.io/envoy-handbook/">Envoy中文指南</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.envoyproxy.io/docs/envoy/latest/">Envoy官方文档</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/sheng-jie/p/use-envoy-proxy-as-apigateways-in-eshoponcontainers.html">eShopOnContainers 知多少[12]：Envoy Gateways</a></li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2021/heat-syncope-and-ambulance/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2021/heat-syncope-and-ambulance/" itemprop="url">年轻人的第一次救护车：原来中暑真的会晕倒！</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-07-01T10:20:00+00:00">
+                2021-07-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%9A%8F%E7%AC%94/" itemprop="url" rel="index">
+                    <span itemprop="name">随笔</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+          <p>今天一天解锁了好几个人生成就：</p>
+<ul>
+<li>✅ 中暑昏厥</li>
+<li>✅ 被送上救护车</li>
+<li>✅ 进急诊室</li>
+</ul>
+<p>不开玩笑，以我的经历在此提醒各位，一定不能小瞧中暑的危害啊！！</p>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2021/heat-syncope-and-ambulance/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2021-06-27-what-is-zuohui-said/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3401,674 +4290,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2021-5-12-workmate/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021-5-12-workmate/" itemprop="url">相聚总是很短，离别总在眼前。</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-05-11T16:00:00+00:00">
-                2021-05-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>之前有一回和水韬聊到，好像家庭背景不是很好的孩子，长大之后在做选择的时候，总会显得优柔寡断、不够爽快、包袱太多。</p>
-<p>不像出身阔绰家庭的孩子，他们选择做一件事的时候，会更多地考虑自己当下的状态，这一刻爽或舒服就够了，他们不会太去忧愁说，如果现在这么任性，「明天」该怎么办？</p>
-<p>比较巧的是，这位朋友和我，我们俩都属于前一种人。</p>
-<p>而且，即便我不去忧愁，不去考虑那么多东西，身边的人可能也会催促你去忧愁，催促你紧张甚至是焦虑起来。</p>
-<p>前面铺垫这么多，其实想说的还是职业上的选择。</p>
-<p>今晚想了想，一份工作，要想让自己觉得很满意，除了看得见摸得着的钱💰，可能还受到这些因素的影响：</p>
-<ul>
-<li>是否认同你自己正在做的事情，或者说如果你变成一个消费者，你是否会购买自己公司的产品</li>
-<li>是否能与同事建立良好的关系</li>
-<li>是否认同或尊重与你一起共事的人</li>
-<li>是否能从中获得满足感或者成就感</li>
-<li>是否能让自己获得成长而不是单调地重复</li>
-<li>是否拥有良好的企业文化</li>
-</ul>
-<p>工作三年，身边的人来了一茬，又走了一茬，其中有少数几个自己喜欢、觉得日后能成为朋友的同事，当得知 TA 们要离开的消息，心情总是会变得很低落。</p>
-<p>对于 TA 们的离去，我似乎也没有什么好的办法，将他们挽留下来，因为我确实没办法，只能眼睁睁地看着 TA 们离去。</p>
-<p>现实就是这么残忍：相聚总是很短，离别总在眼前。</p>
-<p>和 TA 们一起共事的时光，没有发生过像职场剧或者宫斗剧那些恶心的事情，相处也很愉快。</p>
-<p>在公司里，最开始我倾向于独立行动，下班后为了能有单车骑车回家，我选择了先回家再吃饭。</p>
-<p>后来一位同事好几次问我下班后要不要一起吃饭，为了不显得不合群，我答应了。</p>
-<p>连着和同事一起吃了几次饭之后，下饭后一起吃饭，好像就变成了约定俗成的事情。吃饭的间隙，我们会聊一些对方的八卦（感情经历）、游戏、最近在看的剧等等。</p>
-<p>吃饭唠嗑的时候，才是我比较放松的时候，不想在办公室里那么拘谨，那种感觉，有点像是回到了学生时代、和朋友吃饭唠嗑的场景。</p>
-<p>正因为这样，之前共事的时光，现在回想起来，不仅是周日晚上绞尽脑汁思考要写什么的苦恼，也有我们一起吃饭唠嗑、一起去白云山、一起去音乐节、一起做饭的快乐回忆，那些种种，才是更尤为珍贵的东西。</p>
-<p>写这篇文章的过程中，我想到了一件事：希望未来有一天（可能是我们都退休的时候），能有机会重新聚到一起，讲述自己一路走来的各种事情，相遇的人会再重逢。</p>
-<p>祝福你们。</p>
-<p>音乐：<br>摩登兄弟刘宇宁 - 如约<br>杨宗纬 - 初爱<br>李健 - 温暖   </p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2021/55-%E7%BA%AA%E5%BD%95%E7%89%87%E4%B8%AD%E5%9B%BD%E7%AC%AC%E5%85%AB%E9%9B%86%E5%BD%B1%E8%AF%84/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/55-%E7%BA%AA%E5%BD%95%E7%89%87%E4%B8%AD%E5%9B%BD%E7%AC%AC%E5%85%AB%E9%9B%86%E5%BD%B1%E8%AF%84/" itemprop="url">纪录片《中国》第八集影评</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-05-10T10:00:00+00:00">
-                2021-05-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%A7%82%E7%82%B9/" itemprop="url" rel="index">
-                    <span itemprop="name">观点</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-          <p>看了芒果 TV 纪录片《中国》第八集《融合》，写写点评吧。播出版其实是有另外的配音的，芒果台又另外请了很多明星单独给每一集配音，然后收费观看。所以说，要论营销还是芒果会玩。</p>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2021/55-%E7%BA%AA%E5%BD%95%E7%89%87%E4%B8%AD%E5%9B%BD%E7%AC%AC%E5%85%AB%E9%9B%86%E5%BD%B1%E8%AF%84/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2021-5-9-pythoninstall/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021-5-9-pythoninstall/" itemprop="url">学 Python 前的准备工作</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-05-09T02:00:00+00:00">
-                2021-05-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>本文不是广告，请不要因为你在朋友圈或许多公众号看到的 Python 课程文案&#x2F;广告，而也把本文误认为是一篇广告。</p>
-<p>这只是我作为一名 Python 初学者写的一篇 Python 入坑前的准备工作的文章。</p>
-<h2 id="为什么要学-Python？"><a href="#为什么要学-Python？" class="headerlink" title="为什么要学 Python？"></a>为什么要学 Python？</h2><p>做任何一件事之前，可能都会有无数个理由，但我目前还没想得特别清楚，可能包含下面一个或多个原因：</p>
-<ul>
-<li>想了解一下，这个语言真的有传说中的那么神奇吗？可以解放双手？可以让我们从繁琐枯燥的重复劳动中解放出来？</li>
-<li>听说 Python 的学习曲线比较缓，比较适合无编程基础的人学？想来试试。</li>
-<li>想知道，我学 Python 多久之后就会放弃？因为学 Python 之前，我还买过两门开发微信小程序的课程，学到一半没做出个啥就放弃了。</li>
-<li>想着 100 天公众号日更即将结束（目前进度 74&#x2F;100），我想试试能不能坚持做别的事情 100 天看看？于是我选择了 Python。</li>
-<li>觉得会用 Python 抓取自己想要的数据，这个行为本身就很「极客」。</li>
-<li>最后一个理由：人生苦短，我选 Python。</li>
-</ul>
-<h2 id="选择哪个版本的-Python"><a href="#选择哪个版本的-Python" class="headerlink" title="选择哪个版本的 Python"></a>选择哪个版本的 Python</h2><p>这可能是初学者都会面临的问题，现如今 Python 分为 Python 2 和 Python 3 两个版本。</p>
-<p>为方便之后使用各种第三方 Python 库，这里推荐安装 Python 3。</p>
-<h2 id="安装-Python"><a href="#安装-Python" class="headerlink" title="安装 Python"></a>安装 Python</h2><p>一种比较简单的安装方式就是从官网下载安装包。</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/08/16204828409010.jpg" alt="-w1517">Python 官网地址：<br><em><a target="_blank" rel="noopener" href="https://www.python.org/">https://www.python.org/</a></em></p>
-<p>对于 Mac 用户，还可以通过包管理工具 <strong>Homebrew</strong> 来安装 Python。</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/08/16204829008263.jpg" alt="-w1517">Homebrew 官网地址：<br><em><a target="_blank" rel="noopener" href="https://brew.sh/index_zh-cn">https://brew.sh/index_zh-cn</a></em></p>
-<p>不过用 Homebrew 之前，需要先安装 Homebrew。</p>
-<p>关于 Homebrew 的安装，清华大学开源软件镜像站提供了安装的说明，但这份说明文档，对我这个编程门外汉来说，写得还是不够直白，所以就没参考下图介绍的安装方法。</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/08/16204833576670.jpg" alt="-w1517">清华大学开源软件镜像站：<br><em><a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/help/homebrew/">https://mirrors.tuna.tsinghua.edu.cn/help/homebrew/</a></em></p>
-<p>我参考了一位视频 Up 主提供的方法：</p>
-<p>打开 Mac 的终端，输入 <code>xcode-select --install</code> 安装 Xcode 的命令行工具。</p>
-<p>输入之后，它会询问你是否安装 Xcode 命令行工具，选择安装之后等待完成下载。</p>
-<p>注：这里其实我也不知道安装了这个 Xcode 命令行工具能干啥，我只知道 Xcode 是苹果官方推出的 IDE 工具，如果你想开发 iOS App 的话，应该离不开它。   </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/08/16203911851823.jpg" alt="-w1117">安装好 Xcode 命令行工具之后，我们接着就可以来安装 Homebrew 了。</p>
-<p>Homebrew 官方提供的文件存放在 GitHub 仓库上，由于某些特殊的原因，从 GitHub 仓库下载 Homebrew 非常费劲，需要使用木弟子才能提高下载速度。</p>
-<p>这里推荐使用<strong>国内的 Homebrew 镜像源</strong>来安装 Homebrew，下图是这位 Up 主基于清华大学的镜像仓库制作的安装 Homebrew 的命令行：</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/08/16204826102268.jpg" alt="-w1552">Homebrew install 项目地址：<br><em><a target="_blank" rel="noopener" href="https://gitee.com/iamhefang/homebrew-install">https://gitee.com/iamhefang/homebrew-install</a></em></p>
-<p>在终端中输入如下的命令，接着输入电脑开机密码，就能开始 Homebrew 的安装啦：</p>
-<p><code>/bin/bash -c &quot;$(curl -fsSL https://gitee.com/iamhefang/homebrew-install/raw/master/install.sh)&quot;</code></p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/08/16203917754742.jpg" alt="-w1117">Homebrew 的文件比较大，安装的过程需要等待比较长的时间，需要耐心，当它完成安装的时候，你可以在终端看到「Installation successful」的提示。 </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/08/16203921686037.jpg" alt="-w1117">初次使用 Homebrew，你可以遵照软件的提示，在终端中输入 <code>brew help</code> 来查看 Homebrew 的帮助文件。  </p>
-<p>帮助文件中提供了一些例子供我们参考，如下图的命令 <code>brew install FORMULA|CASK…</code> 就是我们等会安装 Python 需要用到的。 </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/08/16203924282234.jpg" alt="-w1117">安装好 Homebrew 之后，我们就可以通过 Homebrew 来安装 Python 了。</p>
-<p>在终端中输入 <code>brew install python3</code>，按下回车键，等待 Python3 完成安装。</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/08/16203930295687.jpg" alt="-w1270">安装好 Python3 之后，为了确认 Python3 已经安装到电脑上了，我们可以在终端中输入命令 <code>python3</code>，按下回车。</p>
-<p>下方如果返回 Python3 的版本，例如我安装的 Python 版本是 3.9.4 ，则说明 Python 真的安装好啦。</p>
-<p>顺带一提，在终端中运行 <code>python3</code> 会进入 Python 的解释环境，最下方的三个连续的大于号 <code>&gt;&gt;&gt;</code>，就代表我们当前已经进入了 Python 的解释器。   </p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/08/16203932177900.jpg" alt="-w1270">此时，如果我们可以输入许多程序员刚学一门新语言时会用到的一句代码 <code>print(&#39;Hello world&#39;)</code>，下方就会返回 <code>Hello world</code>。</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/08/16204840244154.jpg" alt="-w1086"></p>
-<h2 id="写-Python-代码的工具"><a href="#写-Python-代码的工具" class="headerlink" title="写 Python 代码的工具"></a>写 Python 代码的工具</h2><p>上面介绍的系统自带的终端，虽然可以作为写 Python 代码的工具，但存在不少缺点，例如不够高效，不会自动补全代码，不会有代码提示……</p>
-<p>本着「懒就是第一生产力」的原则，我们可以选择其他更合适的工具，例如 <strong>PyCharm</strong>，来作为写 Python 代码的工具。</p>
-<p>PyCharm 分为两个版本，一个是社区版，一个是专业版，社区版可免费使用，这对初学者来说也已经够用啦。</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/08/16204844040829.jpg" alt="-w1552">PyCharm 官网下载地址：<br><a target="_blank" rel="noopener" href="https://www.jetbrains.com/pycharm/download/">https://www.jetbrains.com/pycharm/download/</a></p>
-<p>顺便一提，如果你是在校学生，可以在 PyCharm 官网以学生身份免费申请使用 PyCharm 专业版。</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/08/16204841660100.jpg" alt="-w1552">学生授权申请方式链接：<br><em><a target="_blank" rel="noopener" href="https://sales.jetbrains.com/hc/zh-cn/articles/207154369">https://sales.jetbrains.com/hc/zh-cn/articles/207154369</a></em></p>
-<p>以上，就是本次想和你分享的内容。<br>希望对想学 Python 的朋友有帮助。</p>
-<p>下回看看能不能给各位一些 Python 学习的教程哈哈哈哈，不🐦的话。</p>
-<h2 id="欢迎关注"><a href="#欢迎关注" class="headerlink" title="欢迎关注"></a>欢迎关注</h2><p>更多精彩内容，欢迎关注我的个人公众号「效率工具指南」。</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/08/gong-zhong-hao-xiao-lu-gong-ju-zhi-nan.png" alt="公众号：效率工具指南"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2021-5-8-birthday/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021-5-8-birthday/" itemprop="url">生日快乐，何老师</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-05-07T16:00:00+00:00">
-                2021-05-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>今天是何老师 23 岁的生日，先祝何老师生日快乐。</p>
-<p>刚认识她的时候，看到她的自我介绍，里面写了「金牛座」，后来逐渐熟悉之后，才确切地知道她的生日🎂。</p>
-<p>她的生日很好记，508，记起来就像宿舍的房间号一样好记🤦‍♂️。</p>
-<p>之前有两个朋友问过我类似的问题，说：为啥没有见到我在朋友圈发何老师的照片。</p>
-<p>以前上大学的时候，我很羡慕那些有对象的朋友，有些会在不定时在朋友圈「秀恩爱」、「撒狗粮」。</p>
-<p>看到他们那种行为，我也会禁不住幻想：啥时候我也可以在朋友圈里秀一会恩爱呢？</p>
-<p>刚和何老师确定关系的时候，我也有想过要不要在朋友圈发一下照片，发的话还要想一句不落俗套的文案。</p>
-<p>其实，在还没确定关系的时候，那时我在看一档综艺，临时想到了一句文案，不过最终还是没发出来，只留在了我的滴答清单里。</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/07/16203950068775.jpg" alt="-w503">可能是过了以前那个年纪，心态不一样，觉得两个人相处得如何，不需要暴露在别人面前，或者是自己还活得太拧巴、太在意别人的看法，于是就没有在朋友圈发你的照片，希望你不要太介意。</p>
-<p>说说我们相处下来让我比较开心或者印象深刻的事情吧：</p>
-<h2 id="何老师给我的惊喜"><a href="#何老师给我的惊喜" class="headerlink" title="何老师给我的惊喜"></a>何老师给我的惊喜</h2><p>有一回我周六要上班，何老师在微信上跟我说「晚上要和朋友约饭」，但没具体说和谁，也没和朋友提前说好要吃什么。</p>
-<p>后来下班准备去吃饭的时候，接到她的电话，还听到她专门录的广州地铁的提示音「本次列车开往天河客运站」，才意识到她偷偷从深圳跑过来广州、来接我下班了😭</p>
-<p>没想到我之前随口开玩笑和她说的，「什么时候能来接我下班呢？」，真的变成了现实，她也放到了心上。</p>
-<h2 id="何老师喜欢画画"><a href="#何老师喜欢画画" class="headerlink" title="何老师喜欢画画"></a>何老师喜欢画画</h2><p>何老师喜欢画画，最近疯狂画画，有一周画了 4 张画，真棒👍。比起打字，画画需要耐心以及更多的时间，我真是在偷懒🤦‍♂️。</p>
-<p>何老师在老家养了一只雪纳瑞，名字叫瑞瑞，她给她花了一幅画（瑞瑞是女孩子👧）：</p>
-<p>我见过瑞瑞的照片，这幅画和写真照一模一样，尤其那两个炯炯有神的大眼睛👀哈哈哈哈</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/07/img7251.jpg" alt="IMG_7251"></p>
-<h2 id="何老师做的让我觉得很好笑的事情"><a href="#何老师做的让我觉得很好笑的事情" class="headerlink" title="何老师做的让我觉得很好笑的事情"></a>何老师做的让我觉得很好笑的事情</h2><p>有两回在何老师家，我们商量好在家做饭，不去外面吃。</p>
-<p>每次想看看买什么菜之前，何老师的第一反应不是打开美团或者京东生鲜，她的第一反应是打开 B 站，先看看美食区 Up 主都在做什么好吃的😋，再决定买什么菜。</p>
-<p>我：？？？</p>
-<p>第一次见到这种操作——现学现做——哈哈哈哈，我觉得很好笑。</p>
-<p>我的想法是，做饭从简单的开始就好、按自己以往知道的菜的做法做就好了。</p>
-<p>她偏不，她说每次做饭都要挑战一下做新菜，她做过的菜有：芝士虾仁、咖喱鸡……</p>
-<p>虽然这是何老师第一次做的菜，但我尝起来觉得味道不错，于是也只能认输了😂。</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/07/getimgdata.gif" alt="getimgdata"></p>
-<p>而且，我们之前在外面吃了不少次，工作日也都是各自在外面吃，周末有时间在家自己做饭换一下口味，对工作党来说，已经是一种莫大的幸福了。</p>
-<h2 id="何老师给我普及了不少知识"><a href="#何老师给我普及了不少知识" class="headerlink" title="何老师给我普及了不少知识"></a>何老师给我普及了不少知识</h2><p>何老师喜欢看各种科普，比如看丁香医生、看果壳网、看一些 B 站 Up 主的视频，例如那个尺度稍微有些大、又很搞笑的 Up 主 @Vivi可爱多。</p>
-<p>看到有意思的东西，她都会转发给我，异地恋少了一些陪伴或者面对面的接触或互动，彼此之间转发的内容，有时也可以打开我们的话匣子，作为聊天的话题。</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/07/16203970948837.jpg" alt="-w1517"></p>
-<h2 id="何老师送给我的生日礼物"><a href="#何老师送给我的生日礼物" class="headerlink" title="何老师送给我的生日礼物"></a>何老师送给我的生日礼物</h2><p>去年我生日的时候，我们还没在一起，不过何老师也送了一个让我意外的礼物：</p>
-<p>她唱了一首歌送给我哈哈哈哈，这里就不放她唱的了，放一下原唱吧：</p>
-<p><a target="_blank" rel="noopener" href="https://music.163.com/#/song?id=1365898499">音乐 - 失眠飞行</a>   </p>
-<p>祝何老师生日快乐，因为有了你，我的生活也变得可爱起来了：</p>
-<p>每天和你以「宝宝」互相称呼对方，语言真的有魔力，每天和一个可爱的人聊天，瞬间也觉得自己变得可爱起来了。</p>
-<p>感谢你，我爱你。</p>
-<p><img src="https://article-picbed-1302715071.cos.ap-guangzhou.myqcloud.com/2021/05/07/16204014798699.jpg" alt="-w768"></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/14/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/73/">73</a><a class="extend next" rel="next" href="/page/16/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/14/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/74/">74</a><a class="extend next" rel="next" href="/page/16/">&gt;</a>
   </nav>
 
 
@@ -4114,7 +4340,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1460</span>
+                  <span class="site-state-item-count">1464</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -4136,7 +4362,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">895</span>
+                  <span class="site-state-item-count">910</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>

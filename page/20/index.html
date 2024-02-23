@@ -274,6 +274,755 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020/2020-11-04-my-opensource-nas-build/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/2020-11-04-my-opensource-nas-build/" itemprop="url">我的 NAS 选型与搭建过程（基于开源方案）</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-11-03T16:00:00+00:00">
+                2020-11-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>在 2016 年我拥有了第一台 NAS —— 群晖的 DS215J，其实在之后的很长一段时间其实并没有派上多大用场，因为我的数据并不多，大都存储在云端，更多的是体验一下 NAS 的功能和工作流。</p>
+<p>直到最近我才开始真正地将 NAS 利用上，于是准备升级一下，但考虑到群晖的性价比实在太低，再加上去年配置 Linux 软路由让我对基于「原生 Linux」的开源解决方案信心和兴趣大增，于是准备自己 DIY 一台 NAS，计划解决未来十年的存储需求。</p>
+<p>我依然选择了我最熟悉的 Ubuntu 作为操作系统、Ansible 作为配置管理工具，因此这个 NAS 的大部分配置都可以在我的 <a target="_blank" rel="noopener" href="https://github.com/jysperm/playbooks/tree/master/roles">GitHub</a> 上找到。</p>
+<blockquote>
+<p>注意这个仓库中的 Ansible 配置仅供参考，不建议直接运行，因为我在编写这些配置时并未充分考虑兼容性和可移植性。</p>
+</blockquote>
+<h2 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h2><p>对于一台 NAS 来说最重要的当然是文件系统，不需要太多调研就可以找到 <a target="_blank" rel="noopener" href="https://openzfs.github.io/openzfs-docs/index.html">ZFS</a> —— 可能是目前在数据可靠性上下功夫最多的单机文件系统了，于是我的整个选型就围绕 ZFS 展开了。</p>
+<p>ZFS 既是文件系统，同时又是阵列（RAID）管理器，这为它带来了一些其他文件系统难以提供的能力：</p>
+<ul>
+<li>ZFS 为每个块都存储了校验和，同时会定期扫描整个硬盘，从 RAID 中的其他硬盘修复意外损坏的数据（如宇宙射线导致的比特翻转）。</li>
+<li>在 RAID 的基础上可以 <a target="_blank" rel="noopener" href="https://docs.oracle.com/cd/E19253-01/819-5461/gevpg/index.html">指定某些目录以更多的份数冗余存储</a>，对于重要的数据即使损坏的硬盘超过了 RAID 方案的限制，依然有可能找回。</li>
+</ul>
+<p>ZFS 还支持数据加密、压缩和去重，这三项功能以一种巧妙的顺序工作，并不会互相冲突，同时这些所有选项都可以设置在目录（dataset）级别、可以随时更改（只对新数据生效）。</p>
+<p>ZFS 当然也支持快照，快照可以被导出为二进制流，被存储到任何地方。这个功能可以让你在不丢失任何元信息的情况下对 ZFS 的文件系统进行备份、传输和恢复。</p>
+<h2 id="硬件"><a href="#硬件" class="headerlink" title="硬件"></a>硬件</h2><p>我并不擅长淘硬件，于是就选择了 HPE 的 MicroServer Gen10，一个四盘位的成品微型服务器，CPU 是 AMD X3421 ，8G ECC 内存，也是标准的 x86 通用硬件，应该不太容易遇到坑。</p>
+<p><img src="https://r2-lc-cn.jysperm.me/pictures/2020/nas-gen-10.png"></p>
+<p>我用转接卡在 PCI-E 插槽上装了一块 NVME SSD，用作系统盘和 ZFS 的读缓存（L2ARC，不过从后面的统计来看效果并不明显），数据盘则暂时用的是旧的硬盘，最终会升级到四块 4T 的硬盘。这里需要注意的是因为 ZFS 不支持更改 RAID 的结构，所以必须在一开始就配置足够的硬盘来占位，后续再升级容量，我甚至用 USB 接了一块移动硬盘来凑数。</p>
+<h2 id="ZFS"><a href="#ZFS" class="headerlink" title="ZFS"></a>ZFS</h2><p>因为是四盘位，所以我采用了 raidz1（RAID5），冗余一块盘作为校验，如果最终所有的盘都升级到 4T，一共是 12T 的实际可用容量。</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">root@infinity:~# zpool status</span><br><span class="line">  pool: storage</span><br><span class="line"> state: ONLINE</span><br><span class="line">config:</span><br><span class="line">    NAME                                 STATE     READ WRITE CKSUM</span><br><span class="line">    storage                              ONLINE       0     0     0</span><br><span class="line">      raidz1-0                           ONLINE       0     0     0</span><br><span class="line">        sda                              ONLINE       0     0     0</span><br><span class="line">        sdb                              ONLINE       0     0     0</span><br><span class="line">        sdc                              ONLINE       0     0     0</span><br><span class="line">        sdd                              ONLINE       0     0     0</span><br><span class="line">    cache</span><br><span class="line">      nvme0n1p4                          ONLINE       0     0     0</span><br><span class="line"></span><br><span class="line">root@infinity:~# zpool list</span><br><span class="line">NAME      SIZE  ALLOC   FREE  CKPOINT   FRAG    CAP  DEDUP    HEALTH</span><br><span class="line">storage  7.27T  3.52T  3.75T        -    10%    48%  1.00x    ONLINE</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>通常认为 RAID5 在出现硬盘故障的恢复过程中存在着较高的风险发生第二块盘故障、最终丢失数据的的情况；或者硬盘上的数据随着时间推移发生比特翻转导致数据损坏。但考虑到 ZFS 会定期做数据校验来保证数据的正确性，再综合考虑盘位数量和容量，我认为这个风险还是可以接受的，后面也会提到还有异地备份作为兜底措施。</p>
+</blockquote>
+<p>我开启了 ZFS 的加密功能，但这带来了一个问题：我不能把密钥以明文的方式存储在 NAS 的系统盘 —— 否则密钥和密文放在一起的话，这个加密就失去意义了。所以每次 NAS 重启后，都需要我亲自输入密码、挂载 ZFS 的 dataset，然后再启动其他依赖存储池的服务。</p>
+<p>我还开启了 ZFS 的数据压缩，默认的 lz4 只会占用少量的 CPU 却可以在一些情况下提高 IO 性能 —— 因为需要读取的数据量变少了。因为去重对资源的需求较高，相当于需要为整个硬盘建立一个索引来找到重复的块，我并没有开启去重功能。</p>
+<blockquote>
+<p>一些评论认为 ZFS 对内存的需求高、必须使用 ECC 内存。这其实是一种误解：更多的内存可以提升 ZFS 的性能，ECC 则可以避免系统中所有应用遇到内存错误，但这些并不是必须的，即使没有更多的内存或 ECC，ZFS 依然有着不输其他文件系统的性能和数据完整性保证。</p>
+</blockquote>
+<h2 id="存储服务"><a href="#存储服务" class="headerlink" title="存储服务"></a>存储服务</h2><blockquote>
+<p>小知识：SMB 是目前应用得最广泛的局域网文件共享协议，在主流的操作系统中都有内建的支持。CIFS 是微软（Windows）对 SMB 的一个实现，而我们会用到的 Samba 是另一个实现了 SMB 协议的自由软件。</p>
+</blockquote>
+<p><img src="https://r2-lc-cn.jysperm.me/pictures/2020/nas-samba.png"></p>
+<p>作为 NAS 最核心的功能就是通过 SMB 协议向外提供存储服务，所有的成品 NAS 都有丰富的选项来配置 SMB 的功能，但我们就只能直接去编辑 Samba 的配置文件了，Samba 直接采用了 Linux 的用户和文件权限机制，配置起来也不算太麻烦：</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"># 可以在 path 中使用占位符来为每个用户提供单独的 Home 目录</span><br><span class="line"># 可以在 valid users 中使用用户组来控制可访问的用户</span><br><span class="line">[Home]</span><br><span class="line">path = /storage/private/homes/%U</span><br><span class="line">writeable = yes</span><br><span class="line">valid users = @staff</span><br><span class="line"></span><br><span class="line"># Samba 默认以登录用户创建文件，但 NextCloud 以 www-data 运行，可以用 force user 覆盖为特定的用户</span><br><span class="line">[NextCloud]</span><br><span class="line">path = /storage/nextcloud/data/%U/files</span><br><span class="line">writeable = yes</span><br><span class="line">valid users = @staff</span><br><span class="line">force user = www-data</span><br><span class="line"></span><br><span class="line"># 通过这些设置可以让 macOS 的 TimeMachine 也通过 SMB 进行备份</span><br><span class="line"># 详见 https://www.reddit.com/r/homelab/comments/83vkaz/howto_make_time_machine_backups_on_a_samba/</span><br><span class="line">[TimeMachine]</span><br><span class="line">path = /storage/backups/timemachines/%U</span><br><span class="line">writable = yes</span><br><span class="line">valid users = @staff</span><br><span class="line">durable handles = yes</span><br><span class="line">kernel oplocks = no</span><br><span class="line">kernel share modes = no</span><br><span class="line">posix locking = no</span><br><span class="line">vfs objects = catia fruit streams_xattr</span><br><span class="line">ea support = yes</span><br><span class="line">inherit acls = yes</span><br><span class="line">fruit:time machine = yes</span><br><span class="line"></span><br><span class="line"># 对于共享的目录可以用 force group 覆盖文件的所属组、用 create mask 覆盖文件的权限位</span><br><span class="line">[VideoWorks]</span><br><span class="line">path = /storage/shares/VideoWorks</span><br><span class="line">writeable = yes</span><br><span class="line">valid users = @staff</span><br><span class="line">force group = staff</span><br><span class="line">create mask = 0775</span><br><span class="line"></span><br><span class="line"># 还可以设置游客可读、指定用户组可写的公开目录</span><br><span class="line">[Resources]</span><br><span class="line">path = /storage/public/Resources</span><br><span class="line">guest ok = yes</span><br><span class="line">write list = @staff</span><br><span class="line">force group = +staff</span><br><span class="line">create mask = 0775</span><br></pre></td></tr></table></figure>
+
+<p>从上面的配置中也可以看到这些共享目录分散在几个不同的路径，为了匹配不同的数据类型、方便在目录级别进行单独设置，我划分了几个 dataset:</p>
+<ul>
+<li><code>db</code> 存放应用的数据库文件，将 recordsize 设置为了 8k（默认 128k）。</li>
+<li><code>nextcloud</code> NextCloud 的数据目录，也可被 SMB 访问。</li>
+<li><code>private</code> 每个用户的个人文件。</li>
+<li><code>shares</code> 家庭内部共享的文件（如拍摄的视频）。</li>
+<li><code>public</code> 可以从互联网上下载到的文件，不参与异地备份。</li>
+<li><code>backups</code> 备份（Time Machine 等），不参与异地备份。</li>
+</ul>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">root@infinity:~# zfs list</span><br><span class="line">NAME                USED  AVAIL     REFER  MOUNTPOINT</span><br><span class="line">storage            2.27T   286G      169K  /storage</span><br><span class="line">storage/backups     793G   286G      766G  /storage/backups</span><br><span class="line">storage/db          741M   286G      339M  /storage/db</span><br><span class="line">storage/nextcloud   207G   286G      207G  /storage/nextcloud</span><br><span class="line">storage/private    62.2G   286G     62.2G  /storage/private</span><br><span class="line">storage/public      648G   286G      613G  /storage/public</span><br><span class="line">storage/shares      615G   286G      609G  /storage/shares</span><br></pre></td></tr></table></figure>
+
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><p>首先我安装了 <a target="_blank" rel="noopener" href="https://github.com/netdata/netdata">Netdata</a>，这是一个开箱即用的监控工具，在仅占用少量资源的情况下提供秒级精度的大量统计指标，非常适合用于监控单台服务器的性能瓶颈。</p>
+<p><img src="https://r2-lc-cn.jysperm.me/pictures/2020/nas-netdata.jpg"></p>
+<p>其余的应用都被我运行在了 Docker 中（使用 docker-compose 来管理），这样可以隔离应用的运行环境，提升宿主机的稳定性，安装、升级、卸载应用也会更方便。</p>
+<p>其中最重要的一个应用是 <a target="_blank" rel="noopener" href="https://nextcloud.com/">NextCloud</a>，这是一个开源的同步盘，我主要看中它的 iOS 应用和 iOS 有不错的整合，可以正确地同步 Live Photo，也可以在 iOS 的文件应用中被调用。</p>
+<p><img src="https://r2-lc-cn.jysperm.me/pictures/2020/nas-nextcloud.jpg"></p>
+<p>NextCloud 服务端会直接读写文件系统中的文件，而不是将文件存储在数据库里，这意味着 NextCloud 的数据目录同时也可以通过 Samba 来访问，这一点非常方便（不过需要一个定时任务来刷新 NextCloud 数据库中的元信息）。</p>
+<p>我还在 Docker 中运行了这些服务，它们都是开源的：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://miniflux.app/">Miniflux</a>，一个 RSS 服务端，通过 Fever API 支持绝大部分的 RSS 客户端。</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/dani-garcia/bitwarden_rs">Bitwarden</a>（非官方实现），一个密码管理器，提供有各平台的客户端和浏览器插件。</li>
+<li><a target="_blank" rel="noopener" href="https://transmissionbt.com/">Transmission</a>，一个 BitTorrent 客户端，提供基于 Web 的管理界面。</li>
+</ul>
+<h2 id="外部访问"><a href="#外部访问" class="headerlink" title="外部访问"></a>外部访问</h2><p>如果要真正地用 NAS 来替代网盘的话，还是需要保证不在家里的内网的时候也可以访问到文件的。</p>
+<p>通常的做法是使用 DDNS（动态 DNS）将一个域名解析至家庭宽带的 IP，这要求家庭宽带有公网 IP，而且运营商允许在 80 或 443 端口提供 Web 服务。我不想依赖这一点，所以想到了用 <a target="_blank" rel="noopener" href="https://github.com/fatedier/frp">frp</a> 来进行「反向代理」，如果你确实有公网 IP 的话，也可以使用 DDNS 的方案，这样会省去一个中转服务器，也可以有更好的速度。</p>
+<p>为了让 NextCloud 能有一个固定的地址（如 <code>https://nextcloud.example.com</code>）我将域名在内外网分别进行了解析，在家时解析到内网地址，在外解析到中转服务器。无论是内外网，数据流都会经过 Let’s Encrypt 的 SSL 加密，这样就不需要中转服务器有较高的安全保证。</p>
+<p>虽然不需要先拨一个 VPN 确实很方便，但将 NextCloud 开放在公网上 <a target="_blank" rel="noopener" href="https://www.cvedetails.com/vulnerability-list/vendor_id-15913/Nextcloud.html">并不安全</a>，在社区中已有用户 <a target="_blank" rel="noopener" href="https://github.com/nextcloud/ios/issues/847">要求 NextCloud 客户端支持双向 SSL 认证</a>，我也非常期待这个功能，可以在公网访问上提供更好的安全性。</p>
+<p>我还在 NAS 上安装了 <a target="_blank" rel="noopener" href="https://www.wireguard.com/">WireGuard</a>，这是一个内建在 Linux 内核中的 VPN 模块，同样通过 frp 暴露在外网，除了 NextCloud 之外的服务，如 SMB、SSH 和 Nextdata 都可以通过 WireGuard 来访问。</p>
+<p>如果你不执着于开源方案的话，也可以试试 <a target="_blank" rel="noopener" href="https://www.zerotier.com/">ZeroTier</a>，它提供了 NAT 穿透的能力，让你的设备和 NAS 之间可以不借助中转服务器直接传输，改善连接速度。</p>
+<h2 id="备份和数据完整性"><a href="#备份和数据完整性" class="headerlink" title="备份和数据完整性"></a>备份和数据完整性</h2><p>在 raidz1 的基础上，我设置了定时任务让 ZFS 每天生成一个快照，还写了一个脚本来按照类似 Time Machine 的规则来清理备份：保留最近一周的每天快照、最近一个月的每周快照、最近一年的每月快照、以及每年的快照。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">root@infinity:~# zfs list storage/nextcloud -t snapshot</span><br><span class="line">NAME                           USED  AVAIL     REFER  MOUNTPOINT</span><br><span class="line">storage/nextcloud@2020-09-05  83.9M      -      182G  -</span><br><span class="line">storage/nextcloud@2020-09-15  35.2M      -      207G  -</span><br><span class="line">storage/nextcloud@2020-09-21  30.2M      -      207G  -</span><br><span class="line">storage/nextcloud@2020-09-23  29.7M      -      207G  -</span><br><span class="line">storage/nextcloud@2020-09-26  29.3M      -      207G  -</span><br><span class="line">storage/nextcloud@2020-09-27  28.2M      -      207G  -</span><br><span class="line">storage/nextcloud@2020-09-28  28.2M      -      207G  -</span><br><span class="line">storage/nextcloud@2020-09-29  29.1M      -      207G  -</span><br><span class="line">storage/nextcloud@2020-09-30  33.5M      -      207G  -</span><br></pre></td></tr></table></figure>
+
+<p>快照主要是为了防止人工的误操作，除了单纯的、当场就能发现的手滑之外，有时你会误以为你不会用到这个文件而将它删除，直到很久之后才发现并非如此。</p>
+<p>同时每周会有定时任务使用 <a target="_blank" rel="noopener" href="https://restic.net/">restic</a> 备份一个快照到 <a target="_blank" rel="noopener" href="https://www.backblaze.com/b2/cloud-storage.html">Backblaze B2</a> 作为异地备份，这是一个价格较低的对象存储，非常适合备份。restic 支持增量的快照备份，也支持加密。出于成本考虑，异地备份仅包括由我产生的数据，并不包括 public 和 backups 目录。</p>
+<p>我曾考虑过直接在远端运行一个 ZFS 来进行备份，zfs send &#x2F; recv 支持以二进制流的形式传输一个快照 —— 不需要远端安装其他任何的工具，只需要用 shell 的管道操作符将 zfs send 的字节流重定向到 ssh 命令即可。这个方案非常具有技术美感，但考虑到块存储的价格是对象存储的十倍以上，最后还是放弃了这个方案。</p>
+<h2 id="成本核算"><a href="#成本核算" class="headerlink" title="成本核算"></a>成本核算</h2><p>硬件上其实我预算并不紧张，留的余量也比较大，如果换一些性价比更高的硬件的话，价格还可以下降很多。</p>
+<ul>
+<li>主机（主板、CPU、内存、系统盘） 3500 元</li>
+<li>硬盘（4 * 4T） 2200 元（其实目前只买了一块，其他三块是旧的）</li>
+</ul>
+<p>考虑到我之前的群辉用了五年，新的 NAS 设计使用寿命定在十年：</p>
+<ul>
+<li>硬件成本折合每年 570 元</li>
+<li>电费（35W）每年 110 元</li>
+<li>远程访问每年 100 元（国内年付促销服务器，如有公网 IP 使用 DDNS 则无需此项）</li>
+<li>异地备份每年 415 元（按量付费，这里按 1T 需要异地备份的数据计算）</li>
+</ul>
+<p>总共 12T 的容量每年 1195 元，折合 1T 每月 8 元，如果去掉远程访问和异地备份的话则是 1T 每月 5 元。</p>
+<h2 id="为什么要用自部署方案"><a href="#为什么要用自部署方案" class="headerlink" title="为什么要用自部署方案"></a>为什么要用自部署方案</h2><p>相比于使用云服务，第一个理由自然是对数据的「掌控感」，虽然没有什么确凿的理由说云服务就一定不安全，但有些人就是喜欢这种对个人数据的掌控感。</p>
+<p>还有一个技术原因是部署在家中内网的 NAS 可以通过 SMB 简单地支持一些「在线编辑」，如直接加载 NAS 上的素材进行视频剪辑、甚至将整个工程文件都直接放在 NAS 上。使用云服务的话一方面是没有 SMB 协议的支持，即使支持延迟对于在线编辑来说也是无法接受的。</p>
+<p>另外一个不能忽略的话题就是成本，在这里我们只考虑以容量为计价方案的网盘服务，iCloud、Google Drive、Dropbox 的价格方案都非常接近，在超过 200G（大概 $3）这一档之后就直接跳到了 2T（大概 $10），这时云服务按量付费的优势其实就没有了，是一个切换到自部署方案的一个不错的时间点，一次性投入之后只需 2 - 3 年即可回本。</p>
+<p>当然最重要的一点是兴趣，在这个折腾的过程中你需要做很多决定、遇到很多困难，最后搭建出来一个几乎是独一无二的自部署方案。如果你能在这个过程中找到乐趣的话，那当然是非常值得的；反过来如果你没有兴趣，算上投入的时间成本，自部署方案的性价比将会非常低。</p>
+<p>任何自部署的方案都需要长期的维护才能保持工作，对后端运维完全没有兴趣怎么办，不如了解一下 <a target="_blank" rel="noopener" href="https://www.leancloud.cn/">LeanCloud</a>，领先的 BaaS 提供商，为移动开发提供强有力的后端支持。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/edb9a744.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/post/edb9a744.html" itemprop="url">十月总结</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-11-03T13:49:33+00:00">
+                2020-11-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="几篇新文章"><a href="#几篇新文章" class="headerlink" title="几篇新文章"></a>几篇新文章</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://4ark.me/posts/hsts-problem-solving-experience.html">记一次因 HSTS 导致跨域问题的经历</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/269036804">浏览器通知推送服务选型</a></li>
+<li><a target="_blank" rel="noopener" href="https://4ark.me/posts/hui-guang-zhou-yi-nian-you-gan.html">回广州一年有感</a></li>
+</ul>
+<h2 id="最近在折腾什么"><a href="#最近在折腾什么" class="headerlink" title="最近在折腾什么"></a>最近在折腾什么</h2><h3 id="ish-shell"><a href="#ish-shell" class="headerlink" title="ish shell"></a>ish shell</h3><p>最近 <a target="_blank" rel="noopener" href="https://github.com/ish-app/ish">ish</a> 上架 app store，趁着暂时还没收费，赶紧在手机和 iPad 装上体验一波，玩了一下发现好像还真的只能当个玩具…</p>
+<p><img src="https://gd4ark-1258805822.cos.ap-guangzhou.myqcloud.com/images/20201103220016.jpg"></p>
+<h2 id="最近在看什么书"><a href="#最近在看什么书" class="headerlink" title="最近在看什么书"></a>最近在看什么书</h2><h3 id="史记"><a href="#史记" class="headerlink" title="史记"></a>史记</h3><p>其实今年开始对历史感兴趣，之前也看过几本历史相关的书，例如《中国大历史》、《中国近代史》，还有《明朝那些事儿》（这个是听的），然而如果对中国历史感兴趣，那自然绕不过《史记》，这本巨著的伟大之处，想必无须我多说，最近决定拜读。</p>
+<p>起初，我想看繁体版的原版，那感觉会更有味道，奈何学识有限，最后只能决定先看一遍白话文的版本，以后再来重新读原版。</p>
+<h3 id="苏菲的世界"><a href="#苏菲的世界" class="headerlink" title="苏菲的世界"></a>苏菲的世界</h3><p>这本书有多经典，同样不需要我多说，它可以说是最好的一本哲学入门书，很多人在学生阶段已经读过。</p>
+<p>其实我原本对哲学并不是很感兴趣，但是我的偶像黄子华，他是读哲学的，他的偶像李小龙也是同样读哲学的，那我自然也不得不对哲学产生兴趣。</p>
+<h2 id="谷歌测试之道-重新定义团队"><a href="#谷歌测试之道-重新定义团队" class="headerlink" title="谷歌测试之道 &amp; 重新定义团队"></a>谷歌测试之道 &amp; 重新定义团队</h2><p>这两本书是和公司的小伙伴一起读的，每人轮流读一章，由于这些书都比较贴近我们的日常工作，看看谷歌的团队是如何做项目测试、怎么样工作的，也经常能够从中获得一些灵感。</p>
+<h3 id="一些杂书"><a href="#一些杂书" class="headerlink" title="一些杂书"></a>一些杂书</h3><p>除此之外，我也在看以下的书：</p>
+<ul>
+<li>半小时漫画 xxx 系列</li>
+<li>把时间当做朋友</li>
+<li>我的奋斗（罗永浩）</li>
+</ul>
+<p>其实上面这些书我并不是很正式地看，我是通过它们的 epub 版本转换到 html，然后制作成了 rss 订阅源，每天推送一章，慢慢地就能读完了，当然这种阅读方式仅适用于那些不需要怎样做笔记，看过了就算的书。</p>
+<h2 id="还是不够慎重"><a href="#还是不够慎重" class="headerlink" title="还是不够慎重"></a>还是不够慎重</h2><p>最近做了个不大不小的决定，事后才发现自己其实还有很多东西没有考虑清楚，当时只看到眼前的利益，却忽略了一些更重要的事情，以至于突然醒悟后的心理落差，让我又开始怀疑自己做的这个决定到底是对是错。</p>
+<p>一方面，自己还是太过图样，阅历不够，还需继续修炼，希望能够吃一鳖长一智。</p>
+<p>另一方面，下次再遇到这种需要抉择的情况，哪怕我心里已有答案，我也会先找几个信任的朋友商量，避免再次出现这种当局者迷旁观者清的情况。</p>
+<h2 id="最后说几句"><a href="#最后说几句" class="headerlink" title="最后说几句"></a>最后说几句</h2><p>一年又准备到头了，一方面希望这种苦逼的日子早点过去，另一方面又感慨时间真得过得好快，转眼间，又快到 2021 年了，我曾经许下的无数诺言，还不知道何日能够兑现。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020-11-3-post08/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020-11-3-post08/" itemprop="url">锁定微信防别人偷看，苹果电脑上的微信有何不同？</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-11-03T00:07:38+00:00">
+                2020-11-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <p>这是临时想到的一个题目，就想简单写一下苹果电脑的 Mac 版微信与 Windows 版本有何不同。    </p>
+<h2 id="锁定微信"><a href="#锁定微信" class="headerlink" title="锁定微信"></a>锁定微信</h2><p>当你在电脑上登录微信后，移动端的微信首页顶部会显示「Windows&#x2F;Mac 微信已登录」。</p>
+<p>如果你是在 Mac 上登录微信，点击顶部的登录状态，相比在 Windows 上登录，菜单中会多出「<strong>锁定</strong>」的选项。</p>
+<p><img src="http://cdn.penghh.fun/mweb/IMG_6997.jpeg" alt="IMG_6997"><br>点击锁定，Mac 上的微信会呈现下图的状态，当你离开座位且不锁定屏幕时，就可以很好地保护你的个人隐私。</p>
+<p>这个功能还有个小细节：锁定和解锁 Mac 微信会有两个不同的<strong>音效</strong>，微信在声音设计上还下足了功夫。</p>
+<p><img src="http://cdn.penghh.fun/mweb/16043344708914.jpg" alt="-w866"></p>
+<h2 id="服务号消息收纳到订阅号中"><a href="#服务号消息收纳到订阅号中" class="headerlink" title="服务号消息收纳到订阅号中"></a>服务号消息收纳到订阅号中</h2><p>公众号主要分为两类，一类是订阅号，一类是服务号，这两类的区别在于，服务号给你发送推文或模板消息时，你会像收到微信好友消息一样收到通知，它推送的内容属于一种<strong>强通知</strong>。</p>
+<p>而订阅号则位于「订阅号消息」或「公众号」中，所有订阅号推送的内容都被收纳到这个「盒子」里，相比服务号，它推送内容对用户的打扰更少。</p>
+<p><img src="http://cdn.penghh.fun/mweb/16043612333771.jpg" alt="-w866"><br>在 Mac 微信上，每当收到新的微信消息时，桌面右上角都会弹出消息提醒，这个通知方式继承了微信移动端的设计。</p>
+<p><img src="http://cdn.penghh.fun/mweb/16043622506897.jpg" alt="-w411"><br>可能是为了减少服务号这类强通知对用户的打扰，Mac 微信将服务号也收纳到了订阅号中，如此一来，当服务号给你推送内容时，它推送的内容就会出现在「公众号」这个盒子里，不会出现一个新消息的红点提醒。</p>
+<p><img src="http://cdn.penghh.fun/mweb/%E5%BE%AE%E4%BF%A1%E6%9C%8D%E5%8A%A1%E5%8F%B7.png" alt="微信服务号"></p>
+<h2 id="在微信中使用苹果自带的-Emoji"><a href="#在微信中使用苹果自带的-Emoji" class="headerlink" title="在微信中使用苹果自带的 Emoji"></a>在微信中使用苹果自带的 Emoji</h2><p>和 iPhone 一样，在 Mac 上同样可以使用苹果自带的 Emoji，快捷键为「Control + Command + 空格」。</p>
+<p>你可以在任何可以输入内容的地方，使用快捷键调出 Emoji 面板，例如微信的聊天窗口、微信的搜索栏等等。</p>
+<p><img src="http://cdn.penghh.fun/mweb/16043636759293.jpg" alt="-w382"></p>
+<h2 id="管理微信聊天数据"><a href="#管理微信聊天数据" class="headerlink" title="管理微信聊天数据"></a>管理微信聊天数据</h2><p>在微信的设置中，Windows 和 Mac 微信都可以找到管理聊天数据的选项，区别在于：</p>
+<p>Mac 上的管理界面更加<strong>人性化</strong>，继承了移动端的设计，它可以很清楚地让你看到过往聊天中产生的数据量，而不是像 Windows 客户端会打开存放聊天数据的源文件夹，让用户一脸懵逼、摸不着头脑。</p>
+<p><img src="http://cdn.penghh.fun/mweb/16043641460853.jpg" alt="-w456"></p>
+<h2 id="应用商店的微信-VS-官网下载的微信"><a href="#应用商店的微信-VS-官网下载的微信" class="headerlink" title="应用商店的微信 VS 官网下载的微信"></a>应用商店的微信 VS 官网下载的微信</h2><p>从 Mac 应用商店下载的微信，是一个阉割版的微信，它使用不了微信小程序，这是苹果而非微信的锅，微信为了上架应用商店不得不向苹果妥协。</p>
+<p>如果你想在 Mac 上使用功能完整的微信，请前往微信官网下载。  </p>
+<h2 id="状态栏的更多功能"><a href="#状态栏的更多功能" class="headerlink" title="状态栏的更多功能"></a>状态栏的更多功能</h2><p>Mac 上的每个软件，在屏幕左上角的状态栏都会有相应的菜单，微信也不例外，如下图的「文件」、「编辑」、「显示」和「窗口」。</p>
+<p>以「窗口」菜单为例，里面就会有与 Mac 相关的操作或功能，例如：</p>
+<ul>
+<li>窗口操作「将窗口拼贴到屏幕左侧」</li>
+<li>Mac 的随航功能，将微信窗口移动到 iPad 上</li>
+</ul>
+<p>但说实话，状态栏的微信菜单我并不常用，这里仅作提及，感兴趣的朋友可以去点开看看。</p>
+<p><img src="http://cdn.penghh.fun/mweb/16043646540173.jpg" alt="-w491">    </p>
+<p>以上，希望有帮助。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020-11-02-manage-work-book-summary/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020-11-02-manage-work-book-summary/" itemprop="url">埃森哲的工作法 - 《掌控工作》</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-11-02T02:14:36+00:00">
+                2020-11-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/summary/" itemprop="url" rel="index">
+                    <span itemprop="name">summary</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+        
+        
+          
+            <h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>埃森哲作为一家咨询公司，对外输出了很多人才和工作法。这次我读到的，是前埃森哲的员工邵文瀚的作品《掌控工作》。他将一个问题的解决过程进行了层层梳理和拆解，帮助我们用一个固定的流程来思考复杂的问题，以下是我的一些笔记。</p>
+<h2 id="掌控工作四步法"><a href="#掌控工作四步法" class="headerlink" title="掌控工作四步法"></a>掌控工作四步法</h2><p>作者首先抛出了咨询师的问题梳理流程：</p>
+<ul>
+<li>界定问题</li>
+<li>拆解问题</li>
+<li>执行解决</li>
+<li>总结复盘</li>
+</ul>
+<h3 id="界定问题"><a href="#界定问题" class="headerlink" title="界定问题"></a>界定问题</h3><p>面对一个新的陌生领域，界定问题分成以下三步：</p>
+<ul>
+<li>熟悉和理解专业术语。作者推荐的方法包括：<ul>
+<li>案头研究。即自己查阅搜索引擎、国家统计局资料、专门书籍、知网数据库、行为研究报告。</li>
+<li>访谈类研究。包括专家访谈、用户访谈、实地走访。</li>
+</ul>
+</li>
+</ul>
+<p>在案头研究方面，作者推荐了很多权威的数据收集渠道，比如：</p>
+<ul>
+<li>国家统计局。有大部分的人口、产值、贸易数据。</li>
+<li>海关总署网站。可以找到进出口情况。</li>
+<li>教育部网站。可以查到招生人数，毕业人数。</li>
+</ul>
+<p>作者还介绍了一种 what-else 的研究方法。拿 iOS 开发举例，如果你不懂 iOS 开发，你可以这么来研究：</p>
+<ul>
+<li>(what)什么是 iOS 开发？然后你可能通过查找资料发现这是一种移动开发技术。</li>
+<li>(else)还有哪些是移动开发。你可能找到 Android开发，Windows Mobile 开发等。</li>
+<li>(what)Android 是什么？然后你可能查到这是 Google 出的移动开发技术。</li>
+<li>(else)Google 家还出了哪些开发语言？然后你可能查到 Flutter。</li>
+</ul>
+<h3 id="拆解问题"><a href="#拆解问题" class="headerlink" title="拆解问题"></a>拆解问题</h3><p>在完成问题的界定之后，我们就需要着手拆解问题。</p>
+<p>假如我们的问题是“iOS开发如何提高”，那么我们就可以从“输入”和“输出”两个角度来拆解它。</p>
+<ul>
+<li>输入方面：我们可以拆解成阅读博客，阅读图书，看相关的视频，听相关的分享，参加相关的会议，找同事请教等。</li>
+<li>输出方面：我们可以拆解成写总结的文章，代码练习，分享等。</li>
+</ul>
+<p>我们还可以进一步拆解，比如代码练习又可以拆解成：工作上的代码优化、面试题目代码的练习、开源项目的参与等。</p>
+<p>下图是一个示例：</p>
+<img src="/images/manage-work-2.jpg" class="">
+
+
+<p>拆解问题讲就 MECE 原则，这是《金字塔原理》那本书首次提到的，即不重不漏。</p>
+<p>拆解问题作者介绍了自上而下，自下而上两种方法，同时建议我们在遇到一些不确定的问题，使用“假设驱动”的方法来寻找关键点。</p>
+<p>拆解问题后我们需要注意的是采用 28原则 来将关键问题定位。因为这种拆解很容易让我们陷入大量的 Todo 中去，不知道做什么，哪个也做不好。所以我们应该聚焦关键问题，把别的问题排除掉。</p>
+<p>又回到刚刚说的“iOS开发如何提高”这个问题上。其实借助工作上的问题，进行相关的代码优化，就是最高效的提升方法。因为这个方法是有实际的产出做检验，也有实际的回报做出激励，很多工作也有时间限制，让我们能够有紧张感来推进工作，大部分时候把这个做好就能提升很多很多。</p>
+<h3 id="执行解决"><a href="#执行解决" class="headerlink" title="执行解决"></a>执行解决</h3><p>执行的起来，作者建议如下 4 步的规划：</p>
+<ul>
+<li>第一步：确定工作目标，估算工作量。</li>
+<li>第二步：对工作进行优先级排序。</li>
+<li>第三步：确定时间规划，把工作指派给各项目负责人。</li>
+<li>第四步：考虑项目可能的风险点，并提出预案。</li>
+</ul>
+<p>规划好之后，就开始执行了。执行的时候肯定不是一帆风顺的。所以我们要定期进行进度的同步。定期同步可以是邮件或者会议的形式，主要关注关键目标和时间点的达成情况。</p>
+<p>书中介绍了不少提高个人执行力的手段，比如我自己也常使用的番茄工作法。</p>
+<h3 id="总结复盘"><a href="#总结复盘" class="headerlink" title="总结复盘"></a>总结复盘</h3><p>复盘是非常重要的环节，一个复盘的流程分为以下 4 步：</p>
+<ul>
+<li>第一步：回顾目标</li>
+<li>第二步：评估结果</li>
+<li>第三步：原因分析</li>
+<li>第四步：优化改善</li>
+</ul>
+<p>对于一些新的领域，如果通过复盘形成一些总结或者方法论，从而推进成为团队执行的一些潜在标准，则是更好的事情。</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>《掌控工作》是作者从咨询公司的 7 步工作法提炼总结出来的日常工作常见的工作原则。通过界定问题、拆解问题、执行解决、总结复盘四个大的步骤，将所有工作问题的解决框定在这个范围内。</p>
+<p>本书非常适合职场新人来梳理自己的工作框架，推荐给大家。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E4%BD%BF%E7%94%A8dotTrace%E5%AF%B9.NET%E5%BA%94%E7%94%A8%E8%BF%9B%E8%A1%8C%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -3042,776 +3791,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/%E5%9F%BA%E4%BA%8EOptions%E6%A8%A1%E5%9E%8B%E5%AE%9E%E7%8E%B0-NET-Core%E7%9A%84%E9%85%8D%E7%BD%AE%E7%83%AD%E6%9B%B4%E6%96%B0/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/%E5%9F%BA%E4%BA%8EOptions%E6%A8%A1%E5%9E%8B%E5%AE%9E%E7%8E%B0-NET-Core%E7%9A%84%E9%85%8D%E7%BD%AE%E7%83%AD%E6%9B%B4%E6%96%B0/" itemprop="url">基于选项模式实现.NET Core 的配置热更新</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-10-11T04:19:02+00:00">
-                2020-10-11
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8/" itemprop="url" rel="index">
-                    <span itemprop="name">数据存储</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <p>最近在面试的时候，遇到了一个关于 .NET Core 配置热更新的问题，顾名思义，就是在应用程序的配置发生变化时，如何在不重启应用的情况下使用当前配置。从 .NET Framework 一路走来，对于 Web.Config 以及 App.Config 这两个配置文件，我们应该是非常熟悉了，通常情况下， IIS 会检测这两个配置文件的变化，并自动完成配置的加载，可以说它天然支持热更新，可当我们的视野伸向分布式环境的时候，这种配置方式就变得繁琐起来，因为你需要修改一个又一个配置文件，更不用说这些配置文件可能都是放在容器内部。而有经验的朋友，可能会想到，利用 Redis 的发布-订阅来实现配置的下发，这的确是一个非常好的思路。总而言之，我们希望应用可以随时感知配置的变化，所以，在今天这篇博客里，我们来一起聊聊 .NET Core 中配置热更新相关的话题，这里特指全新的选项模式(<strong>Options</strong>)。</p>
-<h1 id="Options-三剑客"><a href="#Options-三剑客" class="headerlink" title="Options 三剑客"></a>Options 三剑客</h1><p>在 .NET Core 中，选项模式(<strong>Options</strong>)使用类来对一组配置信息进行强类型访问，因为按照<code>接口分隔原则(ISP)</code>和<code>关注点分离</code>这两个工程原则，应用的不同部件的配置应该是各自独立的，这意味着每一个用于访问配置信息的类，应该是只依赖它所需要的配置信息的。举一个简单的例子，虽然 Redis 和 MySQL 都属于数据持久化层的设施，但是两者属于不同类型的部件，它们拥有属于各自的配置信息，而这两套配置信息应该是相互独立的，即 MySQL 不会因为 Redis 的配置存在问题而停止工作。此时，选项模式(<strong>Options</strong>)推荐使用两个不同的类来访问各自的配置。我们从下面这个例子开始：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;Learning&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;Years&quot;</span><span class="punctuation">:</span> <span class="number">5</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;Topic&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span> <span class="string">&quot;Hotfix&quot;</span><span class="punctuation">,</span> <span class="string">&quot;.NET Core&quot;</span><span class="punctuation">,</span> <span class="string">&quot;Options&quot;</span> <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;Skill&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;Lang&quot;</span><span class="punctuation">:</span> <span class="string">&quot;C#&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;Score&quot;</span><span class="punctuation">:</span> <span class="number">3.9</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;Lang&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Python&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;Score&quot;</span><span class="punctuation">:</span> <span class="number">2.6</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;Lang&quot;</span><span class="punctuation">:</span> <span class="string">&quot;JavaScript&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;Score&quot;</span><span class="punctuation">:</span> <span class="number">2.8</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-<p>此时，如果希望访问<code>Learning</code>节点下的信息，我们有很多种实现方式：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//方式1</span></span><br><span class="line"><span class="keyword">var</span> learningSection = Configuration.GetSection(<span class="string">&quot;Learning&quot;</span>);</span><br><span class="line"><span class="keyword">var</span> careerYears = learningSection.GetValue&lt;<span class="built_in">decimal</span>&gt;(<span class="string">&quot;Years&quot;</span>);</span><br><span class="line"><span class="keyword">var</span> topicHotfix = learningSection.GetValue&lt;<span class="built_in">string</span>&gt;(<span class="string">&quot;Topic:0&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//方式2</span></span><br><span class="line"><span class="keyword">var</span> careerYears = Configuration[<span class="string">&quot;Learning:Years&quot;</span>];</span><br><span class="line"><span class="keyword">var</span> topicHotfix = Configuration[<span class="string">&quot;Learning:Topic:0&quot;</span>);</span><br></pre></td></tr></table></figure>
-<p>而更好的方式是，定义一个类来访问这组配置信息：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"> [<span class="meta">Serializable</span>]</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">LearningOptions</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">decimal</span> Years &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> List&lt;<span class="built_in">string</span>&gt; Topic &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> List&lt;SkillItem&gt; Skill &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">[<span class="meta">Serializable</span>]</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SkillItem</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> Lang &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">decimal</span>? Score &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>同样地，茴香的<code>茴</code>字有几种写法，你可知道?</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">//写法1：手动绑定</span><br><span class="line">var leaningOptions = new LearningOptions();</span><br><span class="line">Configuration.GetSection(&quot;Learning&quot;).Bind(leaningOptions);</span><br><span class="line"></span><br><span class="line">//写法2：自动绑定</span><br><span class="line">leaningOptions = Configuration.GetSection(&quot;Learning&quot;).Get&lt;LearningOptions&gt;();</span><br><span class="line"></span><br><span class="line">//写法3：自动绑定 + 依赖注入</span><br><span class="line">services.Configure&lt;LearningOptions&gt;(Configuration.GetSection(&quot;Learning&quot;));</span><br><span class="line"></span><br><span class="line">//写法4：配置的二次加工</span><br><span class="line">services.PostConfigure&lt;LearningOptions&gt;(options =&gt; options.Years += 1);</span><br><span class="line"></span><br><span class="line">//写法5：委托绑定</span><br><span class="line">services.Configure&lt;AppInfoOptions&gt;(options =&gt;</span><br><span class="line">&#123;</span><br><span class="line">  options.AppName = &quot;ASP.NET Core&quot;;</span><br><span class="line">  options.AppVersion = &quot;1.2.1&quot;;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<p>我们知道，在 .NET Core 里依赖注入被提升到了一等公民的位置，可谓是无处不在。当我们在 IoC 容器中注入<code>LearningOptions</code>以后，就可以在服务层或者控制器层直接使用它们，此时，我们就会遇到传说中的 Options 三剑客，即<code>IOptions&lt;TOptions&gt;</code>、<code>IOptionsSnapshot&lt;TOptions&gt;</code>和<code>IOptionsMonitor&lt;TOptions&gt;</code>。关于它们三个的区别，<a target="_blank" rel="noopener" href="https://docs.microsoft.com/zh-cn/aspnet/core/fundamentals/configuration/options?view=aspnetcore-3.1">官方文档</a>里给出了详细的说明：</p>
-<ul>
-<li>IOptions<TOptions>：生命周期为 Singleton，在应用启动时完成初始化。应用启动后，对配置的修改是非响应式的。</li>
-<li>IOptionsSnapshot<TOptions>：生命周期为 Scoped，每次请求时会重新计算选项。应用启动后，对配置的修改是响应式的。</li>
-<li>IOptionsMonitor<TOptions>：生命周期为 Singleton，可以随时检索当前配置项。应用启动后，对配置的修改是响应式的。</li>
-</ul>
-<p>是不是听起来有一点还有一点绕？长话短说就是，如果希望修改完配置立即生效，那么，更推荐使用<code>IOptionsSnapshot&lt;TOptions&gt;</code>和<code>IOptionsMonitor&lt;TOptions&gt;</code>，前者是在下一次请求时生效，后者则是访问<code>CurrentValue</code>的时候生效。而对于像<code>3.14</code>或者<code>0.618</code>这种运行时期间不会修改的“常量”，更推荐使用<code>IOptions&lt;TOptions&gt;</code>。下面是关于它们的一个例子：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">[ApiController]</span><br><span class="line">[Route(&quot;[controller]&quot;)]</span><br><span class="line">public class WeatherForecastController : ControllerBase</span><br><span class="line">&#123;</span><br><span class="line">    private readonly ILogger&lt;WeatherForecastController&gt; _logger;</span><br><span class="line">    private readonly IOptions&lt;LearningOptions&gt; _learningOptions;</span><br><span class="line">    private readonly IOptionsSnapshot&lt;LearningOptions&gt; _learningOptionsSnapshot;</span><br><span class="line">    private readonly IOptionsMonitor&lt;LearningOptions&gt; _learningOptionsMonitor;</span><br><span class="line">    private readonly IConfiguration _configuration;</span><br><span class="line"></span><br><span class="line">    public WeatherForecastController(ILogger&lt;WeatherForecastController&gt; logger, </span><br><span class="line">        IOptions&lt;LearningOptions&gt; learningOptions, </span><br><span class="line">        IOptionsSnapshot&lt;LearningOptions&gt; learningOptionsSnapshot, </span><br><span class="line">        IOptionsMonitor&lt;LearningOptions&gt; learningOptionsMonitor,</span><br><span class="line">        IConfiguration configuration</span><br><span class="line">        )</span><br><span class="line">    &#123;</span><br><span class="line">        _logger = logger;</span><br><span class="line">        _learningOptions = learningOptions;</span><br><span class="line">        _learningOptionsSnapshot = learningOptionsSnapshot;</span><br><span class="line">        _learningOptionsMonitor = learningOptionsMonitor;</span><br><span class="line">        _configuration = configuration;</span><br><span class="line">        _learningOptionsMonitor.OnChange((options, value) =&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            _logger.LogInformation($&quot;OnChnage =&gt; &#123;JsonConvert.SerializeObject(options)&#125;&quot;);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    [HttpGet(&quot;&#123;action&#125;&quot;)]</span><br><span class="line">    public ActionResult GetOptions()</span><br><span class="line">    &#123;</span><br><span class="line">        var builder = new StringBuilder();</span><br><span class="line">        builder.AppendLine(&quot;learningOptions:&quot;);</span><br><span class="line">        builder.AppendLine(JsonConvert.SerializeObject(_learningOptions.Value));</span><br><span class="line">        builder.AppendLine(&quot;learningOptionsSnapshot:&quot;);</span><br><span class="line">        builder.AppendLine(JsonConvert.SerializeObject(_learningOptionsSnapshot.Value));</span><br><span class="line">        builder.AppendLine(&quot;learningOptionsMonitor:&quot;);</span><br><span class="line">        builder.AppendLine(JsonConvert.SerializeObject(_learningOptionsMonitor.CurrentValue));</span><br><span class="line">        return Content(builder.ToString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>现在我们修改一下配置文件，因为我们为<code>_learningOptionsMonitor</code>注册了回调函数，可以在控制台看到对应的日志：</p>
-<p><img src="https://i.loli.net/2020/10/11/s1XFSKvOLZz6Imo.png" alt="监听配置文件变化"></p>
-<p>此时，我们通过 Postman 调用接口，我们会得到下面的结果：</p>
-<p><img src="https://i.loli.net/2020/10/11/j5ENWpSCGtQw73O.png" alt="learningOptions的值并未更新"></p>
-<p>可以注意到，此时，learningOptions 中的值依然是更新前的值，这就是它们三者的区别，清楚了吗？</p>
-<p>除了这些以外，选项模式(<strong>Options</strong>)中还有一个需要注意的地方，是所谓的命名选项(<strong>IConfigureNamedOptions</strong>)，主要用在多个 Section 绑定统一属性时。譬如现在的应用程序都流行深色主题，实际上深色主题和浅色主题具有相同的结构，比如前景色和背景色，两者唯一的区别是这些颜色配置不一样。考虑下面的配置信息：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;Themes&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;Dark&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;Foreground&quot;</span><span class="punctuation">:</span> <span class="string">&quot;#fff&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Background&quot;</span><span class="punctuation">:</span> <span class="string">&quot;#000&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;White&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;Foreground&quot;</span><span class="punctuation">:</span> <span class="string">&quot;#000&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;Background&quot;</span><span class="punctuation">:</span> <span class="string">&quot;#fff&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-<p>此时，我们该如何定义这个主题选项呢？</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ThemeOptions</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> Foreground &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">string</span> Background &#123; <span class="keyword">get</span>; <span class="keyword">set</span>; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>接下来，我们通过命名的方式来注入两个不同的主题：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">services.Configure&lt;ThemeOptions&gt;(<span class="string">&quot;DarkTheme&quot;</span>, Configuration.GetSection(<span class="string">&quot;Themes:Dark&quot;</span>));</span><br><span class="line">services.Configure&lt;ThemeOptions&gt;(<span class="string">&quot;WhiteTheme&quot;</span>, Configuration.GetSection(<span class="string">&quot;Themes:White&quot;</span>));</span><br></pre></td></tr></table></figure>
-<p>在任何你希望使用它们的地方，注入<code>IOptionsSnapshot&lt;ThemeOptions&gt;</code>和<code>IOptionsMonitor&lt;ThemeOptions&gt;</code>即可，这两个类型都提供了一个<code>Get()</code>方法，传入前面定义好的主题就可以获取到对应的主题了。细心的朋友，应该会发现一件事情，这里三剑客只提到了后面两个，<code>IOptions&lt;ThemeOptions&gt;</code>直接被无视了。请记住下面这段话：<strong>命名的选项只能通过 IOptionsSnapshot<T>和 IOptionsMonitor<T>来访问。所有选项都是命名实例。 IConfigureOptions<TOptions> 实例将被视为面向 Options.DefaultName 实例，即 string.Empty。 IConfigureNamedOptions<TOptions> 还可实现 IConfigureOptions<TOptions>。 IOptionsFactory<TOptions> 的默认实现具有适当地使用每个实例的逻辑。 null 命名选项用于面向所有命名实例，而不是某一特定命名实例。 ConfigureAll 和 PostConfigureAll 使用此约定。</strong></p>
-<h1 id="IChnageToken"><a href="#IChnageToken" class="headerlink" title="IChnageToken"></a>IChnageToken</h1><p>现在，让我们回到本文的主题，博主你不是要说配置热更新这个话题吗？截至到目前为止，我们修改配置文件的时候，ASP.NET Core 应用明明就会更新配置啊，所以，博主你到底想说什么？其实，博主想说的是，的确我们的目的已经达到了，但我们不能永远停留在“知其然”的水平，如果不试图去了解内在的机制，当我们去尝试实现一个自定义配置源的时候，就会遇到一些你没有办法想明白的事情。所以，接下来要讲的<code>IChnageToken</code>这个接口可以说是非常重要。</p>
-<p>首先，我们把目光聚焦到<code>CreateDefaultBuilder</code>这个方法，它通常在入口文件<code>Program.cs</code>中被调用，主要作用是构造一个 IWebHostBuilder 实例并返回，下面是这个方法的内部实现，博主这里对其进行了精简：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IWebHostBuilder <span class="title">CreateDefaultBuilder</span>(<span class="params"><span class="built_in">string</span>[] args</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">//以下简化后的代码片段</span></span><br><span class="line">    builder.ConfigureAppConfiguration((hostingContext, config) =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">var</span> env = hostingContext.HostingEnvironment;</span><br><span class="line"></span><br><span class="line">        config.AddJsonFile(<span class="string">&quot;appsettings.json&quot;</span>, optional: <span class="literal">true</span>, reloadOnChange: <span class="literal">true</span>)</span><br><span class="line">            .AddJsonFile(<span class="string">$&quot;appsettings.<span class="subst">&#123;env.EnvironmentName&#125;</span>.json&quot;</span>, optional: <span class="literal">true</span>, reloadOnChange: <span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (env.IsDevelopment())</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">var</span> appAssembly = Assembly.Load(<span class="keyword">new</span> AssemblyName(env.ApplicationName));</span><br><span class="line">            <span class="keyword">if</span> (appAssembly != <span class="literal">null</span>)</span><br><span class="line">            &#123;</span><br><span class="line">                config.AddUserSecrets(appAssembly, optional: <span class="literal">true</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        config.AddEnvironmentVariables();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (args != <span class="literal">null</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            config.AddCommandLine(args);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可以注意到，通过<code>ConfigureAppConfiguration()</code>方法，框架主要做了下面的工作：</p>
-<ul>
-<li>从<code>appsettings.json</code>和<code>appsettings.$&#123;env.EnvironmentName&#125;.json</code>两个配置文件中加载配置</li>
-<li>从<code>机密管理器</code>中加载配载</li>
-<li>从环境变量中加载配置</li>
-<li>从命令行参数中加载配置</li>
-</ul>
-<p>实际上，.NET Core 可以从配置文件、环境变量、Azure Key Vault、Azure 应用程序配置、命令行参数、已安装或已创建的自定义提供程序、目录文件、内存中的 .NET 对象等各种各样的来源中加载配置，这里的<code>appsettings.json</code>使用的是<code>JsonConfigurationProvider</code>类，位于<code>Microsoft.Extensions.Configuration.Json</code>这个命名空间，可以注意到，它继承自<code>FileConfigurationProvider</code>类，并重写了<code>Load()</code>方法，通过这些关系，我们最终可以找到这样一段代码：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">FileConfigurationProvider</span>(<span class="params">FileConfigurationSource source</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (source == <span class="literal">null</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> ArgumentNullException(<span class="keyword">nameof</span>(source));</span><br><span class="line">    &#125;</span><br><span class="line">            </span><br><span class="line">    Source = source;</span><br><span class="line">    <span class="keyword">if</span> (Source.ReloadOnChange &amp;&amp; Source.FileProvider != <span class="literal">null</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        _changeTokenRegistration = ChangeToken.OnChange(</span><br><span class="line">            () =&gt; Source.FileProvider.Watch(Source.Path),</span><br><span class="line">            () =&gt; &#123;</span><br><span class="line">                Thread.Sleep(Source.ReloadDelay);</span><br><span class="line">                Load(reload: <span class="literal">true</span>);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>所以，真相就是,所有基于文件的配置提供者，都依赖于<code>FileConfigurationSource</code>，而通过<code>FileConfigurationSource</code>暴露出来的<code>FileProvider</code>都具备监视文件变化的能力，更本质上的代码其实应该是下面这样：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//ChangeToken + IFileProvider 实现对文件的监听</span></span><br><span class="line"><span class="keyword">var</span> filePath = <span class="string">@&quot;C:\Users\admin\Downloads\孔乙己.txt&quot;</span>;</span><br><span class="line"><span class="keyword">var</span> directory = System.IO.Path.GetDirectoryName(filePath);</span><br><span class="line"><span class="keyword">var</span> fileProvider = <span class="keyword">new</span> PhysicalFileProvider(directory);</span><br><span class="line">ChangeToken.OnChange(</span><br><span class="line">    () =&gt; fileProvider.Watch(<span class="string">&quot;孔乙己.txt&quot;</span>),</span><br><span class="line">    () =&gt; &#123;</span><br><span class="line">        _logger.LogInformation(<span class="string">&quot;孔乙己，你一定又偷人家书了吧！&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
-<p>所以，真相只有一个，真正帮助我们实现配置热更新的，其实是<code>IChangeToken</code>这个接口，我们只需要把这样一个实例传入到<code>ChangeToken.OnChange()</code>方法中，就可以在特定的时机触发这个回调函数，而显然，对于大多数的<code>IConfigurationProvider</code>接口而言，这个回调函数其实就是<code>Load()</code>方法，关于微软提供的<code>ChangeToken</code>静态类的实现，大家如果有兴趣去了解的话，可以参考这里：<a target="_blank" rel="noopener" href="https://github.com/dotnet/extensions/blob/release/3.1/src/Primitives/src/ChangeToken.cs">https://github.com/dotnet/extensions/blob/release/3.1/src/Primitives/src/ChangeToken.cs</a>。话说回来，我们说<code>IOptionsSnapshot&lt;T&gt;</code>和<code>IOptionsMonitor&lt;T&gt;</code>是响应式的，当配置发生改变的时候，它们对应的值会跟着改变，从某种意义上来说，是因为<code>IChangeToken</code>提供了这样一个可以监听变化的的能力，试想一下，我们只需要给每一个<code>IConfigurationProvider</code>对应的<code>IChangeToken</code>注册相同的回调函数，那么，当某一个<code>IConfigurationProvider</code>需要重新加载的时候，我们就可以针对这个<code>IConfigurationProvider</code>里对应的键值对进行处理。事实上，微软官方在实现<code>IConfigurationRoot</code>的时候，的确就是这样做的：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">ConfigurationRoot</span> : <span class="title">IConfigurationRoot</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> ConfigurationReloadToken _changeToken = <span class="keyword">new</span> ConfigurationReloadToken();</span><br><span class="line">    <span class="keyword">private</span> IList&lt;IConfigurationProvider&gt; _providers;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ConfigurationRoot</span>(<span class="params">IList&lt;IConfigurationProvider&gt; providers</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _providers = providers;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> provider <span class="keyword">in</span> providers)</span><br><span class="line">        &#123;</span><br><span class="line">            provider.Load();</span><br><span class="line">            ChangeToken.OnChange(() =&gt; provider.GetReloadToken(), <span class="keyword">this</span>.RaiseChanged);</span><br><span class="line">        &#125;        </span><br><span class="line">    &#125;    </span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> IChangeToken <span class="title">GetReloadToken</span>()</span> =&gt; <span class="keyword">return</span> _changeToken;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">RaiseChanged</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">          Interlocked.Exchange&lt;ConfigurationReloadToken&gt;(<span class="keyword">ref</span> _changeToken, <span class="keyword">new</span> ConfigurationReloadToken()).OnReload();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Reload</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> provider <span class="keyword">in</span> _providers)</span><br><span class="line">        &#123;</span><br><span class="line">            provider.Load();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.RaiseChanged();</span><br><span class="line">    &#125;    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="自定义配置源"><a href="#自定义配置源" class="headerlink" title="自定义配置源"></a>自定义配置源</h1><p>好了，现在你可以说你了解 .NET Core 的配置热更新这个话题了，因为截至到此时此刻，我们不仅仅达到了一开始的目的，而且深刻地理解了它背后蕴含的原理。这样，我们就可以向着下一个目标：自定义配置源努力了。前面提到过，.NET Core 里面支持各种各样的配置源，实际中可能会遇到更多的配置源，比如不同的数据库、YAML 格式以及 Apollo、Consul、Nacos 这些配置中心等等，所以，了解如何去写一个自定义的配置源还是非常有必要的。我们在一开始的时候提到了 Redis 的发布-订阅，那么，下面我们就来基于发布-订阅实现一个简单的配置中心，当我们需要修改配置时，只需要通过可视化的 Redis 工具进行修改，然后再给指定的客户端发一条消息即可。</p>
-<p>实现自定义配置源，需要实现<code>IConfigurationSource</code>和<code>IConfigurationProvider</code>两个接口，前者实现起来非常简单，因为只要返回我们定义的<code>RedisConfigurationProvider</code>实例即可：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">RedisConfigurationSource</span> : <span class="title">IConfigurationSource</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> RedisConfigurationOptions _options;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RedisConfigurationSource</span>(<span class="params">RedisConfigurationOptions options</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _options = options;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> IConfigurationProvider <span class="title">Build</span>(<span class="params">IConfigurationBuilder builder</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> RedisConfigurationProvider(_options);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>接下来是<code>RedisConfigurationProvider</code>类的实现：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">RedisConfigurationProvider</span> : <span class="title">ConfigurationProvider</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> CSRedisClient _redisClient;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> RedisConfigurationOptions _options;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RedisConfigurationProvider</span>(<span class="params">RedisConfigurationOptions options </span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        _options = options;</span><br><span class="line">        _redisClient = <span class="keyword">new</span> CSRedisClient(_options.ConnectionString);</span><br><span class="line">        <span class="keyword">if</span> (options.AutoReload)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">//利用Redis的发布-订阅重新加载配置</span></span><br><span class="line">            _redisClient.Subscribe((_options.HashCacheChannel, msg =&gt; Load()));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">void</span> <span class="title">Load</span>()</span></span><br><span class="line">    &#123;</span><br><span class="line">        Data = _redisClient.HGetAll&lt;<span class="built_in">string</span>&gt;(_options.HashCacheKey) ?? <span class="keyword">new</span> Dictionary&lt;<span class="built_in">string</span>, <span class="built_in">string</span>&gt;();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>为了用起来更得心应手，扩展方法是少不了的：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title">RedisConfigurationExtensions</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IConfigurationBuilder <span class="title">AddRedisConfiguration</span>(<span class="params"><span class="keyword">this</span> IConfigurationBuilder builder, RedisConfigurationOptions options</span>)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> builder.Add(<span class="keyword">new</span> RedisConfigurationSource(options));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>现在，我们改一下入口类<code>Program.cs</code>，因为在这个阶段依赖注入是无法使用的，所以，看起来有一点难受，从命名就可以看出来，内部使用了<code>Hash</code>这种结构，理论上每个客户端应该使用不同的 Key 来进行缓存，应该使用不同的 Channel 来接收配置更新的通知：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IHostBuilder <span class="title">CreateHostBuilder</span>(<span class="params"><span class="built_in">string</span>[] args</span>)</span> =&gt;</span><br><span class="line">    Host.CreateDefaultBuilder(args)</span><br><span class="line">        .ConfigureAppConfiguration(configurationBuilder =&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            configurationBuilder.AddRedisConfiguration(<span class="keyword">new</span> Models.RedisConfigurationOptions()</span><br><span class="line">            &#123;</span><br><span class="line">                AutoReload = <span class="literal">true</span>,</span><br><span class="line">                ConnectionString = <span class="string">&quot;127.0.0.1:6379&quot;</span>,</span><br><span class="line">                HashCacheKey = <span class="string">&quot;aspnet:config&quot;</span>,</span><br><span class="line">                HashCacheChannel = <span class="string">&quot;aspnet:config:change&quot;</span></span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;)</span><br><span class="line">        .ConfigureWebHostDefaults(webBuilder =&gt;</span><br><span class="line">        &#123;</span><br><span class="line">            webBuilder.UseStartup&lt;Startup&gt;();</span><br><span class="line">        &#125;);</span><br></pre></td></tr></table></figure>
-<p>假设现在 Redis 里存储着下图所示的信息：</p>
-<p><img src="https://i.loli.net/2020/10/11/MwaYZTmsIRkFWKt.png" alt="Redis中的存储结构"></p>
-<p>相应地，我们可以在<code>Startup</code>中进行绑定：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">services.Configure&lt;AppInfoOptions&gt;(Configuration.GetSection(<span class="string">&quot;App&quot;</span>));</span><br></pre></td></tr></table></figure>
-<p>调一下接口看看？完全一致！Yes！</p>
-<p><img src="https://i.loli.net/2020/10/11/lHxtYwjLp5qFank.png" alt="Redis与客户端的配置一致"></p>
-<h1 id="本文小结"><a href="#本文小结" class="headerlink" title="本文小结"></a>本文小结</h1><p>回想起这个面试中“邂逅”的问题，针对对这块内容，其实当时并没有和面试官进行太深的交流，提到了分布式配置、配置中心以及像缓存的雪崩、击穿等等常见的问题，我隐约记得配置文件<code>appsettings.json</code>配置的部分有热更新的配置项，但我并没有对选项模式(<strong>Options</strong>)里的三剑客做过深入的挖掘，所以，这篇博客，一方面是系统地了解了一下选项模式(<strong>Options</strong>)的使用，而另一方面是由配置热更新这个话题引申出来的一系列细节，在没有理解<code>IChangeToken</code>的时候，实现一个自定义的配置源是有一点困难的，在这篇博客的最后，我们基于 Redis 的发布-订阅实现了一个简单的配置中心，不得不说，Redis 里用<code>:</code>来分割 Key 的方式，实在是太棒了，因为它可以完美地和 .NET Core 里的配置系统整合起来，这一点只能用赏心悦目来形容，好了，国庆节以后的第一篇博客就是这样了，谢谢大家！</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020-10-09-value-book-summary/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020-10-09-value-book-summary/" itemprop="url">高瓴张磊的投资思考 - 读《价值》</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-10-09T04:16:02+00:00">
-                2020-10-09
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/summary/" itemprop="url" rel="index">
-                    <span itemprop="name">summary</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h2 id="一、序言"><a href="#一、序言" class="headerlink" title="一、序言"></a>一、序言</h2><p>国庆期间读完了高瓴资本的创始人张磊的新作<a target="_blank" rel="noopener" href="https://book.douban.com/subject/35188914/">《价值》</a>。高瓴资本也是我所在的猿辅导在线教育的投资方，不久前猿辅导融资10亿美元的投资就是高瓴资本领投的。</p>
-<p>《价值》全书分三个部分：<br> • 第一个部分是张磊自己的成长史，介绍他如何一步步走向投资生涯。<br> • 第二个部分是张磊总结的投资哲学和修养。<br> • 第三个部分是投资执行层面上的原则与案例。</p>
-<p>以下是我的一些读后感。</p>
-<h2 id="二、以德修身"><a href="#二、以德修身" class="headerlink" title="二、以德修身"></a>二、以德修身</h2><p>全书有很多地方讲到了品德。我印象深刻的几个案例有几个：</p>
-<p>1、“这些钱一定要还”。张磊回国的首次创业“中华创业网”失败了，虽然投资人没有要求，但是张磊坚持要还投资人的投资款项。这种从法律上本可以不还的投资，现在越来越成为一种创始人对自己更高要求的行为。</p>
-<p>罗永浩欠了4个亿，我想那应该是锤子公司欠的，但是罗永浩自己卖艺还债。我身边也有不少这样的朋友，创业失败了，但是总想着以后把投资人亏的钱补上。</p>
-<p>2、史文森掌管着耶鲁捐赠基金，张磊说他最初能够通过面试，就是因为他在面试的时候展现出来的诚实。史文森一直觉得：“投资的目标是盈利还是实现某种社会理想，其间的平衡必须把握”。</p>
-<p>3、张磊在介绍自己的投资哲学的时候，第一点就是坚持高度道德自律，“守正用奇”。</p>
-<h2 id="三、重仓腾讯的逻辑"><a href="#三、重仓腾讯的逻辑" class="headerlink" title="三、重仓腾讯的逻辑"></a>三、重仓腾讯的逻辑</h2><p>腾讯早期发展得很不顺利，小马哥甚至尝试卖掉它。在《腾讯传》里面我们能够看到，很多机构虽然投资了，但是也没能坚持下来，比如李泽楷的盈科以及IDG就在腾讯很早期退出了。真正大手笔买入的只有南非 MIH。</p>
-<p>高瓴资本也买入了腾讯，不过是在腾讯上市一年之后。但即便这样，也是需要很大勇气的。因为当时腾讯的收入主要来自 QQ 空间，也不算特别有想象力。</p>
-<p>如果从收入，利润，市盈率这些基本面指标，很难做出重仓的决定。但高瓴买入腾讯核心看重的是社会价值。当张磊发现社会各行各业都用QQ号的时候，他觉得这是巨大的价值。“只要是为社会疯狂创造价值的企业，它的收入、利润早晚会兑现，社会最终会给予它长远的奖励”。</p>
-<h2 id="四、如何做研究"><a href="#四、如何做研究" class="headerlink" title="四、如何做研究"></a>四、如何做研究</h2><p>关于如何研究，张磊给出了下面这张图：</p>
-<img src="/images/value-book-research.jpg" class="">
-
-<p>这里面我欠缺的是后面两个，我一方面对于一个行业的关键时点和关键变化关注不多。一方面独立性还不太够，经常还是消化和吸收别人的观点。</p>
-<h2 id="五、张磊的投资哲学"><a href="#五、张磊的投资哲学" class="headerlink" title="五、张磊的投资哲学"></a>五、张磊的投资哲学</h2><p>张磊的投资哲学有3点：<br> • 守正用奇<br> • 弱水三千，但取一瓢<br> • 桃李不言，下自成蹊</p>
-<img src="/images/value-book-invest-tao.jpg" class="">
-
-<p>我感受下来就是坚持基本的道德，保持耐心和专注，坚持长期累进的事情不在意一时得失。</p>
-<h2 id="六、小结"><a href="#六、小结" class="headerlink" title="六、小结"></a>六、小结</h2><p>全书其实就是张磊对于价值的诠释，价值不是纸面上的数字。</p>
-<p>对于投资人来说：价值是道德，是自律，是坚持。对于企业来说，价值是对行业的颠覆，是对用户的连接，对需求的重塑。只有这样才能看得更高，看得更远。</p>
-<p>很棒的一本书，推荐给大家。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/post/d33db2d3.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/post/d33db2d3.html" itemprop="url">九月总结</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-10-02T17:15:52+00:00">
-                2020-10-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h1 id="九月总结"><a href="#九月总结" class="headerlink" title="九月总结"></a>九月总结</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天已经是十月三号了，本来 30 号那天就想着写总结，但是被其它事情耽误（下面说的 ttrss 的事），所以直到今天才有空好好写一下总结。</p>
-<h2 id="公众号文章抄袭申诉"><a href="#公众号文章抄袭申诉" class="headerlink" title="公众号文章抄袭申诉"></a>公众号文章抄袭申诉</h2><p>有一天晚上我像往常一样刷 RSS，结果发现有一篇文章抄袭我一年前写的<a target="_blank" rel="noopener" href="https://4ark.me/post/b6c7c0a2.html">《在浏览器输入 URL 回车之后发生了什么（超详细版）》</a>，还在多个平台标注原创，于是我通过他文章末尾的微信号沟通（应该做私域流量的），结果此人态度恶劣，最后通过微信公众号平台，最后是官方把这篇侵权的文章删掉结束这件事情。<br>我还在 V2EX 发了个<a target="_blank" rel="noopener" href="https://v2ex.com/t/703344">帖子</a>，对于这件事我想说的几个点：</p>
-<ol>
-<li>我是在 <a target="_blank" rel="noopener" href="https://segmentfault.com/">segmentfault</a> 看到的这篇文章，结果这个平台上的举报选项没有侵权的选项。</li>
-<li>由于我之前没有在微信公众号发过这片文章，所以在申诉起来很麻烦，而且用户体验贼差，就说最不能忍受的两点：<ol>
-<li>需要上传身份证正反面，但居然只能上传一张图片（还得自己拼在一起上传</li>
-<li>上传资料只能是图片，且备注只能写 150 个字</li>
-</ol>
-</li>
-<li>微信公众号说七个工作日内<strong>下发</strong>申诉结果，结果还真的是等了足足七天</li>
-<li>这种抄袭或洗稿的行为太多了，根本无法阻止，个人原创者也没有精力天天查被谁抄袭，至于其他外部因素， V2EX 上的那个帖子已经很多人发表自己的看法了，这就不重复引述了。</li>
-<li>最后，我希望中文互联网环境的内容越来越好</li>
-</ol>
-<h2 id="新增一些-RSS-订阅源"><a href="#新增一些-RSS-订阅源" class="headerlink" title="新增一些 RSS 订阅源"></a>新增一些 RSS 订阅源</h2><p>由于越来越觉得现在的中文互联网产出的内容不太行，于是我用 <a target="_blank" rel="noopener" href="https://docs.rsshub.app/">RSSHub</a> 制作了几个 RSS 源，爬了一下一些比较知名的中文博客文章，每天 5 篇这样子，翻翻以前的内容，目前已经做了的博客：</p>
-<ol>
-<li>阮一峰</li>
-<li>酷壳</li>
-<li>梁文道</li>
-<li>绿帽子大学</li>
-<li>Tsung’s Blog</li>
-<li>泰晓资讯</li>
-</ol>
-<p>除此之外，我还基于维基百科的人物列表做了一些源，增长一下见识：</p>
-<ol>
-<li>中华民国大陆时期人物</li>
-<li>图灵奖获得者</li>
-<li>影响人类历史进程的 100 名人排行榜</li>
-<li>本世纪最重要的人物</li>
-</ol>
-<p>还有一些杂七杂八的，比如某本开源书籍每天一章、reddit 上每天热门帖子汇总等等。<br>每天利用上下班通勤时间（差不多两个小时呢），我可以：</p>
-<ol>
-<li>因为都是一些自己感兴趣的博客或内容，每天看几篇，时间长了慢慢就能看完，总比直接打开博客从头到尾一篇一篇地读要容易</li>
-<li>通过阅读早起的博客文章（比如阮一峰的博客是从 03 年开始的），我可以了解到一些那个时期发生的事或者流行的东西，虽然有一些已经随着时间的流逝慢慢被大家遗忘，但互联网还记得</li>
-</ol>
-<p>最后还是要说，每天刷刷 RSS 权当消磨时间，如果要真正让自己提升、构建思维体系，还是得老老实实看书。</p>
-<h2 id="ttrss-换成-freshrss"><a href="#ttrss-换成-freshrss" class="headerlink" title="ttrss 换成 freshrss"></a>ttrss 换成 freshrss</h2><p>有一天早上发现部署在服务器的 ttrss 里面订阅的同一台机器的 RSS 订阅源失效了，试了各种方案：不用 docker 部署、重启、重装还是没有解决，奇怪的是我根本没有修改任何配置、或升级哪些服务，就这样搞了几天，终于放弃了，换到 freshrss。<br>所幸的 freshrss 没有问题，只是用着没有 ttrss 舒服，不过先用着吧。</p>
-<h2 id="服务器开启-v2ray-占用-cpu-和内存过大"><a href="#服务器开启-v2ray-占用-cpu-和内存过大" class="headerlink" title="服务器开启 v2ray 占用 cpu 和内存过大"></a>服务器开启 v2ray 占用 cpu 和内存过大</h2><p>上面说换到 freshrss 之后（经过重装服务器系统），隔了一天，发现服务器明显变慢了，最后排查出问题是出在 v2ray 上，看到 GitHub 有人提过这个<a target="_blank" rel="noopener" href="https://github.com/v2ray/v2ray-core/issues/1961">问题</a>，估计是 v2ray 新版本的 bug，最终通过编译安装旧版本(v4.26.0)，发现没有这个问题。</p>
-<h2 id="读完的书"><a href="#读完的书" class="headerlink" title="读完的书"></a>读完的书</h2><p>这个月看完了两本书：</p>
-<ol>
-<li>清醒思考的艺术</li>
-<li>ThoughtWorks：从敏捷开发到技术雷达</li>
-</ol>
-<p>第一本是 leader 推荐我看的，副标题是《你最好让别人去犯的 52 种思维错误》，顾名思义，里面讲了 52 条逻辑谬误，其中有一些我之前就从别的地方看到过，但这本书讲得通俗易懂，读下来还是比较顺畅的。<br>第二本是我们部门每人轮流读一章，读完的，讲敏捷开发，了解别人是如何进行敏捷开发的，结合我们部门团队日常工作，截长补短。</p>
-<h2 id="准备读的书"><a href="#准备读的书" class="headerlink" title="准备读的书"></a>准备读的书</h2><ol>
-<li>《退步集》—— 陈丹青</li>
-<li>《说话的力量》—— 孙路弘</li>
-</ol>
-<h2 id="最近的一些看法"><a href="#最近的一些看法" class="headerlink" title="最近的一些看法"></a>最近的一些看法</h2><p>这两天发生了挺多事，其中最让人津津乐道的自然就是特朗普感染新冠这件事了，起初我得知这件事，感到非常震惊之余，也好奇国内会有什么反应，果不其然，第二天微博就炸了，让我感到最不可思议的是，居然有这么多人庆祝一个人感染病毒，这是一种什么样的心态？<br>这让我想起多年前，日本地震时，我们的反应，好像也是差不多的，也就是说，这么多年过去了，我们还是没有变。<br>对于这件事，有一种声音我是比较赞同的：如果你家着火了（不是故意的），自己是摆脱险境了，但烧到别人家去，你非但没有同情别人，但嘲笑别人无法自救，甚至幸灾乐祸，这到底是一种什么样的心态呢？<br>退一万步来讲，即便这火真不是自家引起的，作为一个自诩有大国担当的国家人民，这也不是一个正常的举动吧？<br>当然这种声音，少之又少，说出来还会被大家喷。<br>这种民族主义是好是坏，我不知道，但是我想说，如果一个社会，不管你做的这件事情本身是否可耻，只要你的初衷是爱国，就能得到理解；或者反过来，不管你之前做过什么令人骄傲的事，只要你表现出不爱国的举动（可能还是误解，因为现在大家批判别人爱不爱国的标准都太过于简单了），就全盘否认这个人的话，这个民族不是有病吗？</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/2020-09-24-how-to-interview/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="逐流小站">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020-09-24-how-to-interview/" itemprop="url">面试的艺术 - 如何面试别人</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-09-24T12:41:55+00:00">
-                2020-09-24
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
-     crossorigin="anonymous"></script>
-<ins class="adsbygoogle"
-     style="display:block; text-align:center;"
-     data-ad-layout="in-article"
-     data-ad-format="fluid"
-     data-ad-client="ca-pub-4522670236044605"
-     data-ad-slot="5167312561"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-      
-      
-
-      
-        
-        
-          
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>工作这十年来，我面试了很多不同岗位的人。刚开始是面技术，后面是面产品，再后面是测试、运营、教研、设计。最近还面试了很多硬件相关岗位的人，比如 ID 设计师、结构设计师、质量工程师等。</p>
-<p>我肯定不可能同时是这些岗位的专家，大部分情况下，我都是外行。但是我又要面试这些岗位，尽可能招聘到优秀的候选人。团队如果组建得不好，工作执行上肯定会受影响。</p>
-<p>面试某种程度上是一门艺术，非常不标准化，又非常不确定，每个候选人都是一个独特的个体，需要你调整自己的问题，尽可能准确地判断出候选人的水平，这几乎不可能 100% 做到。</p>
-<p>我是如何面试各种岗位的呢？以下是我的一些小结。</p>
-<h2 id="如何面试别人"><a href="#如何面试别人" class="headerlink" title="如何面试别人"></a>如何面试别人</h2><h3 id="从-JD-开始"><a href="#从-JD-开始" class="headerlink" title="从 JD 开始"></a>从 JD 开始</h3><p>当你招聘一个岗位，肯定是工作上具体的事情需要增加人手完成，所以梳理 JD（岗位描述）是招聘的第一步。</p>
-<p>通常 HR、面试官、候选人也是通过 JD 来达成对于目标工作的一致性认知。</p>
-<p>JD 主要包括两部分：</p>
-<ul>
-<li>岗位职责</li>
-<li>任职要求</li>
-</ul>
-<p>岗位职责将这个人进来之后的工作细化，便于你理清楚到底为什么需要这个人，这个人进来之后可以改善哪部分的工作。</p>
-<p>任职要求是对候选人核心素质的描述，便于提前过滤掉不合格的候选人，也便于你之后对核心素质进行考查。</p>
-<h3 id="承认面试考查的不完美"><a href="#承认面试考查的不完美" class="headerlink" title="承认面试考查的不完美"></a>承认面试考查的不完美</h3><p>一个候选人，你只花不到一个小时聊，很难完整得判断出这个人的水平。所以，面试考查算是一个不完备的决策行为。你可能误判，错过一个优秀的候选人。你也可能失误，把一个不合格的候选人招进来。</p>
-<p>面试的第一步，就是承认这种决策的不完美。面试就是：</p>
-<p><strong>在非常有限的时间内从一堆候选人中挑出能够胜任的同学。</strong></p>
-<p>而我们能做的就是尽可能提高面试的 <strong>正确率</strong> 和 <strong>召回率</strong>。</p>
-<h3 id="进行有区分度的考查"><a href="#进行有区分度的考查" class="headerlink" title="进行有区分度的考查"></a>进行有区分度的考查</h3><p>面试过程中，你可以提很多问题，但是如果一个问题所有候选人都答对或者答错，那么这个问题就完全没有区分度了。你不可能全部通过或者拒绝所有候选人。</p>
-<p>所以，我们需要精心设计问题，让优秀的候选人能够被挑出来，不合格的能够被淘汰掉。</p>
-<p>在技术面试中，算法题目就是一类有区分度的问题。常常有人问：某某公司面算法，工作中用得到么？其实答案就是，如果不面算法，一般的工程开发问题都答上来了又有什么意义？面试又不是考查记忆力。</p>
-<p>对于工程师来说，逻辑能力和智力都是很重要的底层能力，而算法题就可以做到很好地筛选出这方面优秀的人。</p>
-<h3 id="用细节和数据来佐证"><a href="#用细节和数据来佐证" class="headerlink" title="用细节和数据来佐证"></a>用细节和数据来佐证</h3><p>候选人的简历可能非常光鲜，但是细问一下就会发现水分。所以面试的时候，我们需要就着细节问，一个事情他负责的，我们可以：</p>
-<ul>
-<li>问宏观。为什么做这个事情，意义是什么，目标是什么。</li>
-<li>问时间。这个事情什么时候开始的，具体每个阶段做了什么。</li>
-<li>问人员和流程。这个事情相关的同事有哪些，相互之间如何配合的。</li>
-<li>问方案。这个事情具体的方案细节是什么样的。</li>
-<li>问数据。这个事情最终的数据如何，如何评价这个数据。</li>
-<li>问困难。这个事情最大的挑战是什么，如何克服的。</li>
-<li>问收获。对这个事情有什么复盘，下一次做会有哪些不一样。</li>
-</ul>
-<p>除了问，我们还可以当场看。对于设计&#x2F;产品&#x2F;教研岗位，可以当场让他给你看线上的作品，讨论作品的细节。</p>
-<p>有了细节，你就可以更真实地判断出来他的简历是否真实，事情做得到底好不好。</p>
-<h3 id="关注核心基础素质"><a href="#关注核心基础素质" class="headerlink" title="关注核心基础素质"></a>关注核心基础素质</h3><p>虽然我们面试的岗位千差万别，但是有一些基础的素质，每一个岗位都需要。</p>
-<p>比如说：表达沟通能力。有些候选人连自己的答案都说不清楚，如何能够做好工作？而有一些候选人，说起话来滔滔不绝，但是一句也没有回答到重点上，这种人也是表达沟通能力有问题的表现。这种是信息表达的“密度”很低，和这种人工作会特别耽误时间。</p>
-<p>除了表达沟通能力之外，我看重的核心能力还包括：</p>
-<ul>
-<li>工作热情。</li>
-<li>团队精神。</li>
-<li>学习习惯。</li>
-</ul>
-<p>通过问一些案例和工作上的细节，我就可以对候选人的这些能力有一个感受。</p>
-<h3 id="考查核心专业能力"><a href="#考查核心专业能力" class="headerlink" title="考查核心专业能力"></a>考查核心专业能力</h3><p>不同岗位的人专业能力不一样，如果条件允许，最好还是让候选人展示一下他的专业能力。如果面试当时时间不够，也可以是以作业的方式来考查。</p>
-<ul>
-<li>对于技术岗位，可以当场考查一些代码。</li>
-<li>对于产品岗位，可以留一个产品分析的作业，或者当场对一些产品交互进行分析。</li>
-<li>对于设计岗位，可以让他当场手绘一张图或者留一个设计作业。</li>
-<li>对于测试岗位，可以当场分析一些用例。</li>
-<li>对于硬件产品经理，可以做一个策划作业。</li>
-</ul>
-<h2 id="标准化和复盘"><a href="#标准化和复盘" class="headerlink" title="标准化和复盘"></a>标准化和复盘</h2><p>当你面试一个岗位的人久了，你就可以形成自己的面试「方法论」。这个方法论包括：</p>
-<ul>
-<li>一组你熟悉的面试题目，你可以灵活地使用。</li>
-<li>对于这套题目的答案好坏程度的经验值，帮助你将候选人分级。</li>
-</ul>
-<p>这套方法论固化下来，可以共享给同事，大家用一个统一的标准来面试。</p>
-<p>每隔一段时间，你也需要复盘一下。有时候因为环境的变化，一些题目不太适用或者已经太普遍了，无法产生区分度，这个时候需要进行调整。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>面试从梳理 JD 开始，在承认面试不可能完美的前提下：</p>
-<ul>
-<li>关注候选人的核心基础能力，通过问细节和数据来获得更详细的信息。</li>
-<li>在专业考查上，通过现场和事后的作业，保证专业能力过关。</li>
-<li>通过标准化和复盘，总结和迭代自己的面试方法。</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/19/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><span class="page-number current">20</span><a class="page-number" href="/page/21/">21</a><span class="space">&hellip;</span><a class="page-number" href="/page/73/">73</a><a class="extend next" rel="next" href="/page/21/">&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/19/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><span class="page-number current">20</span><a class="page-number" href="/page/21/">21</a><span class="space">&hellip;</span><a class="page-number" href="/page/74/">74</a><a class="extend next" rel="next" href="/page/21/">&gt;</a>
   </nav>
 
 
@@ -3857,7 +3841,7 @@
               
                 <a href="/archives/%7C%7C%20archive">
               
-                  <span class="site-state-item-count">1460</span>
+                  <span class="site-state-item-count">1464</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -3879,7 +3863,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">895</span>
+                  <span class="site-state-item-count">910</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
