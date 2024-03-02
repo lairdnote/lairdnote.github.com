@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="codeva-HZoIBm8yNp" />
+<meta name="bytedance-verification-code" content="xa6iZeY+/XCOJvarHaDY" />
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="javascript,library" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Underscore 의 _.mapv1부터 현재까지 코드가 어떻게 변해왔는지 확인해봅니다.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Underscore의 _.map">
+<meta property="og:url" content="https://blog.feedscoin.com/underscore-map/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="Underscore 의 _.mapv1부터 현재까지 코드가 어떻게 변해왔는지 확인해봅니다.">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-04-29T11:15:00.000Z">
+<meta property="article:modified_time" content="2024-03-02T03:00:48.562Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="javascript">
+<meta property="article:tag" content="underscore.js">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/underscore-map/"/>
+
+
+
+
+
+  <title>Underscore의 _.map | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/underscore-map/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Underscore의 _.map</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-04-29T11:15:00+00:00">
+                2017-04-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/js/" itemprop="url" rel="index">
+                    <span itemprop="name">js</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/js/lib/" itemprop="url" rel="index">
+                    <span itemprop="name">lib</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/js/lib/underscore/" itemprop="url" rel="index">
+                    <span itemprop="name">underscore</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <h3 id="Underscore-의-map"><a href="#Underscore-의-map" class="headerlink" title="Underscore 의 _.map"></a>Underscore 의 _.map</h3><p>v1부터 현재까지 코드가 어떻게 변해왔는지 확인해봅니다.</p>
+<span id="more"></span>
+
+<h2 id="v0-1-0-1-기존-map-function이-있는-기본-function을-사용한다-2-map의-특징-중-하나인-결과값-return을-하는데-each의-결과를-results에-저장하는-것을-확인할-수-있다"><a href="#v0-1-0-1-기존-map-function이-있는-기본-function을-사용한다-2-map의-특징-중-하나인-결과값-return을-하는데-each의-결과를-results에-저장하는-것을-확인할-수-있다" class="headerlink" title="[~v0.1.0]1. 기존 map function이 있는 기본 function을 사용한다.2. map의 특징 중 하나인 결과값 return을 하는데 _.each의 결과를 results에 저장하는 것을 확인할 수 있다."></a>[~v0.1.0]<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">map : <span class="keyword">function</span>(<span class="params">obj, iterator, context</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (obj &amp;&amp; obj.<span class="property">map</span>) <span class="keyword">return</span> obj.<span class="title function_">map</span>(iterator, context);</span><br><span class="line">  <span class="keyword">var</span> results = [];</span><br><span class="line">  _.<span class="title function_">each</span>(obj, <span class="keyword">function</span>(<span class="params">value, index</span>) &#123;</span><br><span class="line">    results.<span class="title function_">push</span>(iterator.<span class="title function_">call</span>(context, value, index));</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">return</span> results;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>1. 기존 map function이 있는 기본 function을 사용한다.<br>2. map의 특징 중 하나인 결과값 return을 하는데 _.each의 결과를 results에 저장하는 것을 확인할 수 있다.</h2><p>[~v0.5.0]</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">_.<span class="property">map</span> = <span class="keyword">function</span>(<span class="params">obj, iterator, context</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (obj &amp;&amp; _.<span class="title function_">isFunction</span>(obj.<span class="property">map</span>)) <span class="keyword">return</span> obj.<span class="title function_">map</span>(iterator, context);</span><br><span class="line">  <span class="keyword">var</span> results = [];</span><br><span class="line">  _.<span class="title function_">each</span>(obj, <span class="keyword">function</span>(<span class="params">value, index, list</span>) &#123;</span><br><span class="line">    results.<span class="title function_">push</span>(iterator.<span class="title function_">call</span>(context, value, index, list));</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">return</span> results;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>obj.map -&gt; _.isFunction(obj.map) 로 변경됨</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">_.<span class="property">isFunction</span> = <span class="keyword">function</span>(<span class="params">obj</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> obj &amp;&amp; obj.<span class="property">constructor</span> &amp;&amp; obj.<span class="property">call</span> &amp;&amp; obj.<span class="property">apply</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>function이 가지고 있는 property를 확인하는 방식으로 만들어져 있습니다.</p>
+<hr>
+<h2 id="v0-6-0-1-기본-값인지-확인하는-nativeMap-추가되었습니다-nativeMap-Array-prototype-map-2-each에서-each가-each로-변경되는데-부분이-있는데-map을-통해-그시기가-다른-내부-함수에서-each를-사용하기-위해-내부적으로-사용되는-경우를-고려해서-변경된것으로-보입니다"><a href="#v0-6-0-1-기본-값인지-확인하는-nativeMap-추가되었습니다-nativeMap-Array-prototype-map-2-each에서-each가-each로-변경되는데-부분이-있는데-map을-통해-그시기가-다른-내부-함수에서-each를-사용하기-위해-내부적으로-사용되는-경우를-고려해서-변경된것으로-보입니다" class="headerlink" title="[~v0.6.0]1. 기본 값인지 확인하는 nativeMap 추가되었습니다.   (nativeMap &#x3D; Array.prototype.map)2. _.each에서 _.each가 each로 변경되는데 부분이 있는데 map을 통해 그시기가 다른 내부 함수에서 each를 사용하기 위해 내부적으로 사용되는 경우를 고려해서 변경된것으로 보입니다."></a>[~v0.6.0]<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">_.<span class="property">map</span> = <span class="keyword">function</span>(<span class="params">obj, iterator, context</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (nativeMap &amp;&amp; obj.<span class="property">map</span> === nativeMap) <span class="keyword">return</span> obj.<span class="title function_">map</span>(iterator, context);</span><br><span class="line">  <span class="keyword">var</span> results = [];</span><br><span class="line">  <span class="title function_">each</span>(obj, <span class="keyword">function</span>(<span class="params">value, index, list</span>) &#123;</span><br><span class="line">    results.<span class="title function_">push</span>(iterator.<span class="title function_">call</span>(context, value, index, list));</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">return</span> results;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure><br>1. 기본 값인지 확인하는 nativeMap 추가되었습니다.<br>   (nativeMap &#x3D; Array.prototype.map)<br>2. _.each에서 _.each가 each로 변경되는데 부분이 있는데 map을 통해 그시기가 다른 내부 함수에서 each를 사용하기 위해 내부적으로 사용되는 경우를 고려해서 변경된것으로 보입니다.</h2><p>[~v1.1.1]</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">_.<span class="property">map</span> = <span class="keyword">function</span>(<span class="params">obj, iterator, context</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (nativeMap &amp;&amp; obj.<span class="property">map</span> === nativeMap) <span class="keyword">return</span> obj.<span class="title function_">map</span>(iterator, context);</span><br><span class="line">  <span class="keyword">var</span> results = [];</span><br><span class="line">  <span class="title function_">each</span>(obj, <span class="keyword">function</span>(<span class="params">value, index, list</span>) &#123;</span><br><span class="line">    results[results.<span class="property">length</span>] = iterator.<span class="title function_">call</span>(context, value, index, list);</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">return</span> results;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>push 대신에 key에 접근해 직접 값을 할당하는 하는 방식으로 변경됨</li>
+</ol>
+<hr>
+<p>[~v1.1.4]</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">_.<span class="property">map</span> = <span class="keyword">function</span>(<span class="params">obj, iterator, context</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> results = [];</span><br><span class="line">  <span class="keyword">if</span> (obj == <span class="literal">null</span>) <span class="keyword">return</span> results;</span><br><span class="line">  <span class="keyword">if</span> (nativeMap &amp;&amp; obj.<span class="property">map</span> === nativeMap) <span class="keyword">return</span> obj.<span class="title function_">map</span>(iterator, context);</span><br><span class="line">  <span class="title function_">each</span>(obj, <span class="keyword">function</span>(<span class="params">value, index, list</span>) &#123;</span><br><span class="line">    results[results.<span class="property">length</span>] = iterator.<span class="title function_">call</span>(context, value, index, list);</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">return</span> results;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>null 값 체크 추가</li>
+</ol>
+<hr>
+<h2 id="v1-2-4-1-result의-length를-별도로-넣는-코드가-추가-됬습니다-key로-접근해-데이터를-넣을때-length가-정확히-측정되지-않는-부분이-있는것-같습니다-추가-확인-필요"><a href="#v1-2-4-1-result의-length를-별도로-넣는-코드가-추가-됬습니다-key로-접근해-데이터를-넣을때-length가-정확히-측정되지-않는-부분이-있는것-같습니다-추가-확인-필요" class="headerlink" title="[~v1.2.4]1. result의 length를 별도로 넣는 코드가 추가 됬습니다.   key로 접근해 데이터를 넣을때 length가 정확히 측정되지 않는 부분이 있는것 같습니다   (추가 확인 필요)"></a>[~v1.2.4]<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">_.<span class="property">map</span> = <span class="keyword">function</span>(<span class="params">obj, iterator, context</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> results = [];</span><br><span class="line">  <span class="keyword">if</span> (obj == <span class="literal">null</span>) <span class="keyword">return</span> results;</span><br><span class="line">  <span class="keyword">if</span> (nativeMap &amp;&amp; obj.<span class="property">map</span> === nativeMap) <span class="keyword">return</span> obj.<span class="title function_">map</span>(iterator, context);</span><br><span class="line">  <span class="title function_">each</span>(obj, <span class="keyword">function</span>(<span class="params">value, index, list</span>) &#123;</span><br><span class="line">    results[results.<span class="property">length</span>] = iterator.<span class="title function_">call</span>(context, value, index, list);</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">if</span> (obj.<span class="property">length</span> === +obj.<span class="property">length</span>) results.<span class="property">length</span> = obj.<span class="property">length</span>;</span><br><span class="line">  <span class="keyword">return</span> results;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure><br>1. result의 length를 별도로 넣는 코드가 추가 됬습니다.<br>   key로 접근해 데이터를 넣을때 length가 정확히 측정되지 않는 부분이 있는것 같습니다<br>   (추가 확인 필요)</h2><p>[~v1.4.2]</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">_.<span class="property">map</span> = _.<span class="property">collect</span> = <span class="keyword">function</span>(<span class="params">obj, iterator, context</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> results = [];</span><br><span class="line">  <span class="keyword">if</span> (obj == <span class="literal">null</span>) <span class="keyword">return</span> results;</span><br><span class="line">  <span class="keyword">if</span> (nativeMap &amp;&amp; obj.<span class="property">map</span> === nativeMap) <span class="keyword">return</span> obj.<span class="title function_">map</span>(iterator, context);</span><br><span class="line">  <span class="title function_">each</span>(obj, <span class="keyword">function</span>(<span class="params">value, index, list</span>) &#123;</span><br><span class="line">    results[results.<span class="property">length</span>] = iterator.<span class="title function_">call</span>(context, value, index, list);</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">return</span> results;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>_.collect 라는 다른 네이밍이 추가되었습니다.</li>
+</ol>
+<hr>
+<p>[~v1.8.0]</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">_.<span class="property">map</span> = _.<span class="property">collect</span> = <span class="keyword">function</span>(<span class="params">obj, iteratee, context</span>) &#123;</span><br><span class="line">  iteratee = <span class="title function_">cb</span>(iteratee, context);</span><br><span class="line">  <span class="keyword">var</span> keys = !<span class="title function_">isArrayLike</span>(obj) &amp;&amp; _.<span class="title function_">keys</span>(obj),</span><br><span class="line">      length = (keys || obj).<span class="property">length</span>,</span><br><span class="line">      results = <span class="title class_">Array</span>(length);</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> index = <span class="number">0</span>; index &lt; length; index++) &#123;</span><br><span class="line">    <span class="keyword">var</span> currentKey = keys ? keys[index] : index;</span><br><span class="line">    results[index] = <span class="title function_">iteratee</span>(obj[currentKey], currentKey, obj);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> results;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>v1.8.0에 공통함수인 function cb에 의해서 _.each와 동일하게 iteratee를 사용하고 있습니다.</li>
+<li>results로 return되는 결과를 for를 돌면서 생성되는 데이터에의 의존되는 방식이 아닌, 미리 값체크를 완료후에 데이터를 삽입하고 있습니다.</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/javascript/" rel="tag"># javascript</a>
+          
+            <a href="/tags/underscore-js/" rel="tag"># underscore.js</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/underscore-each/" rel="next" title="Underscore의 _.each">
+                <i class="fa fa-chevron-left"></i> Underscore의 _.each
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/get-a-word-in-the-TextView/" rel="prev" title="Some ways to get a word in the TextView (Android)">
+                Some ways to get a word in the TextView (Android) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">90</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">951</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Underscore-%EC%9D%98-map"><span class="nav-number">1.</span> <span class="nav-text">Underscore 의 _.map</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#v0-1-0-1-%EA%B8%B0%EC%A1%B4-map-function%EC%9D%B4-%EC%9E%88%EB%8A%94-%EA%B8%B0%EB%B3%B8-function%EC%9D%84-%EC%82%AC%EC%9A%A9%ED%95%9C%EB%8B%A4-2-map%EC%9D%98-%ED%8A%B9%EC%A7%95-%EC%A4%91-%ED%95%98%EB%82%98%EC%9D%B8-%EA%B2%B0%EA%B3%BC%EA%B0%92-return%EC%9D%84-%ED%95%98%EB%8A%94%EB%8D%B0-each%EC%9D%98-%EA%B2%B0%EA%B3%BC%EB%A5%BC-results%EC%97%90-%EC%A0%80%EC%9E%A5%ED%95%98%EB%8A%94-%EA%B2%83%EC%9D%84-%ED%99%95%EC%9D%B8%ED%95%A0-%EC%88%98-%EC%9E%88%EB%8B%A4"><span class="nav-number"></span> <span class="nav-text">[~v0.1.0]12345678map : function(obj, iterator, context) {  if (obj &amp;&amp; obj.map) return obj.map(iterator, context);  var results &#x3D; [];  _.each(obj, function(value, index) {    results.push(iterator.call(context, value, index));  });  return results;}1. 기존 map function이 있는 기본 function을 사용한다.2. map의 특징 중 하나인 결과값 return을 하는데 _.each의 결과를 results에 저장하는 것을 확인할 수 있다.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#v0-6-0-1-%EA%B8%B0%EB%B3%B8-%EA%B0%92%EC%9D%B8%EC%A7%80-%ED%99%95%EC%9D%B8%ED%95%98%EB%8A%94-nativeMap-%EC%B6%94%EA%B0%80%EB%90%98%EC%97%88%EC%8A%B5%EB%8B%88%EB%8B%A4-nativeMap-Array-prototype-map-2-each%EC%97%90%EC%84%9C-each%EA%B0%80-each%EB%A1%9C-%EB%B3%80%EA%B2%BD%EB%90%98%EB%8A%94%EB%8D%B0-%EB%B6%80%EB%B6%84%EC%9D%B4-%EC%9E%88%EB%8A%94%EB%8D%B0-map%EC%9D%84-%ED%86%B5%ED%95%B4-%EA%B7%B8%EC%8B%9C%EA%B8%B0%EA%B0%80-%EB%8B%A4%EB%A5%B8-%EB%82%B4%EB%B6%80-%ED%95%A8%EC%88%98%EC%97%90%EC%84%9C-each%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0-%EC%9C%84%ED%95%B4-%EB%82%B4%EB%B6%80%EC%A0%81%EC%9C%BC%EB%A1%9C-%EC%82%AC%EC%9A%A9%EB%90%98%EB%8A%94-%EA%B2%BD%EC%9A%B0%EB%A5%BC-%EA%B3%A0%EB%A0%A4%ED%95%B4%EC%84%9C-%EB%B3%80%EA%B2%BD%EB%90%9C%EA%B2%83%EC%9C%BC%EB%A1%9C-%EB%B3%B4%EC%9E%85%EB%8B%88%EB%8B%A4"><span class="nav-number"></span> <span class="nav-text">[~v0.6.0]12345678_.map &#x3D; function(obj, iterator, context) {  if (nativeMap &amp;&amp; obj.map &#x3D;&#x3D;&#x3D; nativeMap) return obj.map(iterator, context);  var results &#x3D; [];  each(obj, function(value, index, list) {    results.push(iterator.call(context, value, index, list));  });  return results;};1. 기본 값인지 확인하는 nativeMap 추가되었습니다.   (nativeMap &#x3D; Array.prototype.map)2. _.each에서 _.each가 each로 변경되는데 부분이 있는데 map을 통해 그시기가 다른 내부 함수에서 each를 사용하기 위해 내부적으로 사용되는 경우를 고려해서 변경된것으로 보입니다.</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#v1-2-4-1-result%EC%9D%98-length%EB%A5%BC-%EB%B3%84%EB%8F%84%EB%A1%9C-%EB%84%A3%EB%8A%94-%EC%BD%94%EB%93%9C%EA%B0%80-%EC%B6%94%EA%B0%80-%EB%90%AC%EC%8A%B5%EB%8B%88%EB%8B%A4-key%EB%A1%9C-%EC%A0%91%EA%B7%BC%ED%95%B4-%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%A5%BC-%EB%84%A3%EC%9D%84%EB%95%8C-length%EA%B0%80-%EC%A0%95%ED%99%95%ED%9E%88-%EC%B8%A1%EC%A0%95%EB%90%98%EC%A7%80-%EC%95%8A%EB%8A%94-%EB%B6%80%EB%B6%84%EC%9D%B4-%EC%9E%88%EB%8A%94%EA%B2%83-%EA%B0%99%EC%8A%B5%EB%8B%88%EB%8B%A4-%EC%B6%94%EA%B0%80-%ED%99%95%EC%9D%B8-%ED%95%84%EC%9A%94"><span class="nav-number"></span> <span class="nav-text">[~v1.2.4]12345678910_.map &#x3D; function(obj, iterator, context) {  var results &#x3D; [];  if (obj &#x3D;&#x3D; null) return results;  if (nativeMap &amp;&amp; obj.map &#x3D;&#x3D;&#x3D; nativeMap) return obj.map(iterator, context);  each(obj, function(value, index, list) {    results[results.length] &#x3D; iterator.call(context, value, index, list);  });  if (obj.length &#x3D;&#x3D;&#x3D; +obj.length) results.length &#x3D; obj.length;  return results;};1. result의 length를 별도로 넣는 코드가 추가 됬습니다.   key로 접근해 데이터를 넣을때 length가 정확히 측정되지 않는 부분이 있는것 같습니다   (추가 확인 필요)</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

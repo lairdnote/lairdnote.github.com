@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="codeva-HZoIBm8yNp" />
+<meta name="bytedance-verification-code" content="xa6iZeY+/XCOJvarHaDY" />
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="javascript,higher-order function" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="데이터 구조 재가공 하기작업을 위해 원데이터를 재가공해야할때가 있습니다.원하는 구조를 만들기 위해 filter, map, reduce를 활용할 수 있습니다.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="filter, map 그리고 reduce">
+<meta property="og:url" content="https://blog.feedscoin.com/js-map_reduce/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="데이터 구조 재가공 하기작업을 위해 원데이터를 재가공해야할때가 있습니다.원하는 구조를 만들기 위해 filter, map, reduce를 활용할 수 있습니다.">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-02-15T09:46:22.000Z">
+<meta property="article:modified_time" content="2024-03-02T03:00:48.534Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="javascript">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/js-map_reduce/"/>
+
+
+
+
+
+  <title>filter, map 그리고 reduce | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/js-map_reduce/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">filter, map 그리고 reduce</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-02-15T09:46:22+00:00">
+                2017-02-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/js/" itemprop="url" rel="index">
+                    <span itemprop="name">js</span>
+                  </a>
+                </span>
+
+                
+                
+                  , 
+                
+
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/js/method/" itemprop="url" rel="index">
+                    <span itemprop="name">method</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <h3 id="데이터-구조-재가공-하기"><a href="#데이터-구조-재가공-하기" class="headerlink" title="데이터 구조 재가공 하기"></a>데이터 구조 재가공 하기</h3><p>작업을 위해 원데이터를 재가공해야할때가 있습니다.<br>원하는 구조를 만들기 위해 filter, map, reduce를 활용할 수 있습니다.</p>
+<span id="more"></span>
+
+<h2 id="1-filter"><a href="#1-filter" class="headerlink" title="1. filter"></a>1. filter</h2><p>filter는 말 그대로 어떠한 기준으로 데이터를 제한할 수 있습니다.</p>
+<p>아래는 JSON에서 무효한 항목 거르기는 예제입니다.<br>0이 아닌, 숫자 id인 모든 요소의 걸러진 json을 만들기 위해 filter()를 사용합니다.</p>
+<blockquote>
+<p>예제 출처 - <a target="_blank" rel="noopener" href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Array/filter">MDN : Array.prototype.filter()</a></p>
+</blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> arr = [ &#123; <span class="attr">id</span>: <span class="number">15</span> &#125;, &#123; <span class="attr">id</span>: -<span class="number">1</span> &#125;, &#123; <span class="attr">id</span>: <span class="number">0</span> &#125;, &#123; <span class="attr">id</span>: <span class="number">3</span> &#125;, &#123; <span class="attr">id</span>: <span class="number">12.2</span> &#125;, &#123; &#125;, &#123; <span class="attr">id</span>: <span class="literal">null</span> &#125;, &#123; <span class="attr">id</span>: <span class="title class_">NaN</span> &#125;, &#123; <span class="attr">id</span>: <span class="string">&#x27;undefined&#x27;</span> &#125; ];</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> invalidEntries = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">filterByID</span>(<span class="params">obj</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="string">&#x27;id&#x27;</span> <span class="keyword">in</span> obj &amp;&amp; <span class="title function_">typeof</span>(obj.<span class="property">id</span>) === <span class="string">&#x27;number&#x27;</span> &amp;&amp; !<span class="built_in">isNaN</span>(obj.<span class="property">id</span>)) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    invalidEntries++;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> arrByID = arr.<span class="title function_">filter</span>(filterByID);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 결과 : [&#123; id: 15 &#125;, &#123; id: -1 &#125;, &#123; id: 0 &#125;, &#123; id: 3 &#125;, &#123; id: 12.2 &#125;]</span></span><br></pre></td></tr></table></figure>
+
+<p>위의 예제처럼 filter는 원 데이터를 자신이 원하는 기준을 이용해 재가공 하는데 작업을 수행 할 수 있습니다.</p>
+<h2 id="2-map"><a href="#2-map" class="headerlink" title="2. map"></a>2. map</h2><p>map을 활용할 경우 원데이터를 기준으로 데이터를 다른 구조로 변경할 수 있습니다.</p>
+<blockquote>
+<p>예제 출처 - <a target="_blank" rel="noopener" href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Array/map">MDN : Array.prototype.map()</a></p>
+</blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> kvArray = [&#123;<span class="attr">key</span>:<span class="number">1</span>, <span class="attr">value</span>:<span class="number">10</span>&#125;, &#123;<span class="attr">key</span>:<span class="number">2</span>, <span class="attr">value</span>:<span class="number">20</span>&#125;, &#123;<span class="attr">key</span>:<span class="number">3</span>, <span class="attr">value</span>: <span class="number">30</span>&#125;];</span><br><span class="line"><span class="keyword">var</span> reformattedArray = kvArray.<span class="title function_">map</span>(<span class="keyword">function</span>(<span class="params">obj</span>) &#123; </span><br><span class="line">   <span class="keyword">var</span> rObj = &#123;&#125;;</span><br><span class="line">   rObj[obj.<span class="property">key</span>] = obj.<span class="property">value</span>;</span><br><span class="line">   <span class="keyword">return</span> rObj;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 결과 : [&#123;1:10&#125;, &#123;2:20&#125;, &#123;3:30&#125;] </span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-reduce"><a href="#3-reduce" class="headerlink" title="3. reduce"></a>3. reduce</h2><p>reduce 메서드는 누산기 역할을 할 수 있으며, 값을 재가공 할 수도 있습니다.</p>
+<p>reduce를 제대로 사용하기위해서는 넣어야할 파라미터들을 잘 알고 있는게 중요합니다.</p>
+<ul>
+<li>previousValue : 이전 마지막 콜백 호출에서 반환된 값 또는 공급된 경우 초기값(initialValue)  </li>
+<li>currentValue : 배열 내 현재 처리되고 있는 요소(element).  </li>
+<li>currentIndex : 배열 내 현재 처리되고 있는 요소의 인덱스.  </li>
+<li>array : reduce에 호출되는 배열.</li>
+</ul>
+<p>우선 reduce활용으로 만든 누산기 예제 입니다.</p>
+<blockquote>
+<p>예제 출처 - <a target="_blank" rel="noopener" href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce">MDN : Array.prototype.reduce()</a></p>
+</blockquote>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>].<span class="title function_">reduce</span>(<span class="keyword">function</span>(<span class="params">previousValue, currentValue, currentIndex, array</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> previousValue + currentValue;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 결과 : 10</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>initialValue : 초기값을 지정했을 경우</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>].<span class="title function_">reduce</span>(<span class="keyword">function</span>(<span class="params">previousValue, currentValue, currentIndex, array</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> previousValue + currentValue;</span><br><span class="line">&#125;, <span class="number">10</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 결과 : 20</span></span><br></pre></td></tr></table></figure>
+
+<p>reduce의 좀 더 나은 활용방법은 어떤것이 있을까요?  </p>
+<p>filter를 사용할 경우 원하는 데이터를 어떠한 기준으로 정제할 수 있습니다.<br>다만, 가진 데이터 구조를 변경하지는 못합니다.</p>
+<p>그럼 map은 어떨까요?<br>map을 사용할 경우 데이터 구조를 원하는대로 변경할 수 있지만 그 데이터의 사이즈를 재조정 하지 못합니다.<br>즉, 조건에 맞게 데이터를 넣지 않을 수 있지만 실질적으로 Return 되는 데이터에서 제거되지는 못합니다.</p>
+<p>가장 첫번째 filter의 예제를 활용해 봅시다.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> arr = [ &#123; <span class="attr">id</span>: <span class="number">15</span> &#125;, &#123; <span class="attr">id</span>: -<span class="number">1</span> &#125;, &#123; <span class="attr">id</span>: <span class="number">0</span> &#125;, &#123; <span class="attr">id</span>: <span class="number">3</span> &#125;, &#123; <span class="attr">id</span>: <span class="number">12.2</span> &#125;, &#123; &#125;, &#123; <span class="attr">id</span>: <span class="literal">null</span> &#125;, &#123; <span class="attr">id</span>: <span class="title class_">NaN</span> &#125;, &#123; <span class="attr">id</span>: <span class="string">&#x27;undefined&#x27;</span> &#125; ];</span><br><span class="line"></span><br><span class="line"><span class="comment">// filter를 사용했을 때 number type의 값만 뺐을 경우 아래와 같은 값을 얻을 수 있었습니다.</span></span><br><span class="line"><span class="comment">// [&#123; id: 15 &#125;, &#123; id: -1 &#125;, &#123; id: 0 &#125;, &#123; id: 3 &#125;, &#123; id: 12.2 &#125;]</span></span><br></pre></td></tr></table></figure>
+
+<p>map을 사용해 위의 arr에 아래의 label값을 추가하겠습니다.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> label = [<span class="string">&quot;a&quot;</span>,<span class="string">&quot;b&quot;</span>,<span class="string">&quot;c&quot;</span>,<span class="string">&quot;d&quot;</span>,<span class="string">&quot;e&quot;</span>,<span class="string">&quot;f&quot;</span>,<span class="string">&quot;g&quot;</span>,<span class="string">&quot;h&quot;</span>,<span class="string">&quot;i&quot;</span>];</span><br><span class="line"></span><br><span class="line">arr.<span class="title function_">map</span>(<span class="keyword">function</span>(<span class="params">obj, i</span>) &#123;</span><br><span class="line">  obj.<span class="property">label</span> = label[i];</span><br><span class="line">  <span class="keyword">return</span> x</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 결과 </span></span><br><span class="line"><span class="comment">&#123; id: 15, label: &#x27;a&#x27;&#125;, &#123; id: -1, label: &#x27;b&#x27; &#125;, &#123; id: 0, label: &#x27;c&#x27; &#125;, &#123; id: 3, label: &#x27;c&#x27; &#125;, &#123; id: 12.2, label: &#x27;d&#x27; &#125;,</span></span><br><span class="line"><span class="comment">&#123; name: &#x27;f&#x27;&#125;, &#123; id: null, label: &#x27;g&#x27; &#125;, &#123; id: NaN, label: &#x27;h&#x27; &#125;, &#123; id: &#x27;undefined&#x27;, label: &#x27;i&#x27; &#125;</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<p>그렇다면 map안에 filter에서 사용했던 조건문을 추가해서 작업을 해보죠.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">arr.<span class="title function_">map</span>(<span class="keyword">function</span>(<span class="params">obj, i</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="title function_">typeof</span>(obj.<span class="property">id</span>) === <span class="string">&#x27;number&#x27;</span> &amp;&amp; !<span class="built_in">isNaN</span>(obj.<span class="property">id</span>)) &#123;</span><br><span class="line">    obj.<span class="property">label</span> = label[i];</span><br><span class="line">    <span class="keyword">return</span> obj</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 결과</span></span><br><span class="line"><span class="comment">// [Object, Object, Object, Object, Object, undefined, undefined, undefined, undefined]</span></span><br></pre></td></tr></table></figure>
+<p>map은 조건문은 값을 제한하여도 원래 사이즈와 동일한 사이즈의 데이터를 리턴해줍니다.</p>
+<p>reduce를 사용해서 데이터를 정제하도록 하겠습니다.</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> result = arr.<span class="title function_">reduce</span>(<span class="keyword">function</span>(<span class="params">prev, value, idx</span>) &#123;</span><br><span class="line">  value.<span class="property">label</span> = label[idx];</span><br><span class="line">  <span class="keyword">if</span> (<span class="title function_">typeof</span>(value.<span class="property">id</span>) === <span class="string">&#x27;number&#x27;</span> &amp;&amp; !<span class="built_in">isNaN</span>(value.<span class="property">id</span>)) &#123;</span><br><span class="line">    prev.<span class="title function_">push</span>(value);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> prev;</span><br><span class="line">&#125;, []);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 결과 : label데이터가 추가가 됨과 동시에 조건문에 맞게 정제된 데이터가 내려옵니다. </span></span><br><span class="line"><span class="comment">// [&#123;id: 15, label: &#x27;a&#125;, &#123;id: -1, label: &#x27;b&#x27;&#125;, ... ]</span></span><br></pre></td></tr></table></figure>
+
+<p>filter와 map의 기능을 reduce에서 동시에 작업할 수 있었습니다.</p>
+<p>하지만 이렇다고 해서 모든 경우 reduce를 쓰는건 옳지 않습니다.<br>적당한 상황에 옳게 쓰기위해 filter, map, reduce를 쓰는 법을 알아야 하겠습니다.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/javascript/" rel="tag"># javascript</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/css-multiline_ellipsis/" rel="next" title="여러줄에서 말줄임표 사용하기">
+                <i class="fa fa-chevron-left"></i> 여러줄에서 말줄임표 사용하기
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/My-Gallery/" rel="prev" title="My Gallery">
+                My Gallery <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">90</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">951</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EB%8D%B0%EC%9D%B4%ED%84%B0-%EA%B5%AC%EC%A1%B0-%EC%9E%AC%EA%B0%80%EA%B3%B5-%ED%95%98%EA%B8%B0"><span class="nav-number">1.</span> <span class="nav-text">데이터 구조 재가공 하기</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-filter"><span class="nav-number"></span> <span class="nav-text">1. filter</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-map"><span class="nav-number"></span> <span class="nav-text">2. map</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-reduce"><span class="nav-number"></span> <span class="nav-text">3. reduce</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

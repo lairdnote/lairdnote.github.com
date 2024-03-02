@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="codeva-HZoIBm8yNp" />
+<meta name="bytedance-verification-code" content="xa6iZeY+/XCOJvarHaDY" />
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Browser,Rendering,Optimizationy" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Udacity의 Browser Rendering Optimization 강의를 수강하고 나서 정리해보았습니다.1, 2, 3 강의 내용입니다.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="브라우저 렌더링 최적화(1)">
+<meta property="og:url" content="https://blog.feedscoin.com/browser-rendering-optimization/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="Udacity의 Browser Rendering Optimization 강의를 수강하고 나서 정리해보았습니다.1, 2, 3 강의 내용입니다.">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/browser-rendering-optimization/rendering-pipline.jpg">
+<meta property="article:published_time" content="2019-03-17T16:59:39.000Z">
+<meta property="article:modified_time" content="2024-03-02T03:00:48.530Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Browser">
+<meta property="article:tag" content="Rendering">
+<meta property="article:tag" content="Optimization">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/browser-rendering-optimization/rendering-pipline.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/browser-rendering-optimization/"/>
+
+
+
+
+
+  <title>브라우저 렌더링 최적화(1) | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/browser-rendering-optimization/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">브라우저 렌더링 최적화(1)</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-03-17T16:59:39+00:00">
+                2019-03-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Browser/" itemprop="url" rel="index">
+                    <span itemprop="name">Browser</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <p>Udacity의 Browser Rendering Optimization 강의를 수강하고 나서 정리해보았습니다.<br>1, 2, 3 강의 내용입니다.</p>
+<span id="more"></span>
+
+<p>이 과정은 브라우저의 렌더링 파이프 라인을 파악하여 고성능 웹 응용 프로그램을 쉽게 만들 수 있도록 도와줍니다.</p>
+<h3 id="1-The-Critical-Rendering-Path"><a href="#1-The-Critical-Rendering-Path" class="headerlink" title="1. The Critical Rendering Path"></a>1. The Critical Rendering Path</h3><p>오늘날 디바이스들은 <strong>초당 60번</strong> 화면을 다시 그립니다.</p>
+<p>서비스 사용자들은 이 프레임 중 하나가 늦어진다는 것을 쉽게 알아챕니다. (화면이 버벅대는 현상)</p>
+<p>이런 결과는 서비스의 평가를 낮출 뿐만 아니라 실제로 서비스가 멈출 수 있는 가능성까지 있습니다.</p>
+<p>1000ms당 60프레임을 렌더링하려면 단일 프레임을 렌더링하기 위해선 약 16ms(1000&#x2F;60)가 필요합니다.<br>즉, 유려하고 버벅대지 않는 자연스러운 화면을 만들기 위해서는 16ms 미만으로 프레임이 구성되도록 작업이 되어야 합니다.</p>
+<p>우선 프레임이 구축되는 순서를 살펴보겠습니다.<br>처음 브라우저는 서버에 GET 요청을 하고 서버는 응답으로 HTML을 보냅니다.</p>
+<p>이때, 브라우저는 해당 HTML을 파싱하는데 이 단계를 <strong>Chrome Dev Tools</strong> 에서는 <span class="highlight-text blue">Parse HTML</span>로 나타내며, CSS 파싱은 <span class="highlight-text blue">Parse Stylesheet</span>, DOM과 CSS 결합은 <span class="highlight-text purple">Recalculate Styles</span>로 표현하고 있습니다.<br></br><br></br><br>이렇게 DOM과 CSS가 결합하면 Render Tree를 구축합니다.<br>Render Tree는 Dom Tree와 비슷해 보이지만 CSS를 통해 보이지 않는 요소는 제거됩니다.<br>즉, 페이지에 실제로 보이는 요소만 Render Tree에 표시됩니다.<br></br><br></br><br>브라우저가 요소에 적용되는 규칙(공간을 얼마나 차지하고, 어디에 있는지 등)을 알게 되면, 레이아웃 계산을 시작할 수 있습니다.<br>이는 <span class="highlight-text purple">Layout</span>으로 표현하고 있습니다. 다음 해당 픽셀에 색을 채우는 Rasterizer 단계인데 이는 <span class="highlight-text green">Paint</span>로 표현됩니다.<br></br><br></br></p>
+<p>브라우저는 레이어라는 불리는 여러 표면을 만들고 그것들을 개별적으로 그릴 수 있습니다. 이러한 개별적인 레이어를 합치는 단계는 <span class="highlight-text green">Composite</span>로 표현합니다.</p>
+<p>이렇게 브라우저는 렌더링 파이프라인을 가지고 있습니다.<br>Javascript로 위의 파이프라인을 제어할 수 있는 경우는 3가지의 경우있습니다.</p>
+<div class="figure " style="width:;"><img class="fig-img" src="rendering-pipline.jpg" alt=""></div>
+
+<p>첫째, Javascipt로 요소에 변형을 가했을 경우 Style, Layout, Paint, Composite단계가 모두 발생합니다.<br>둘째, 색상만 변경했을 경우에는 Layout이 발생하지 않고 Style, Paint, Composite만 발생합니다.<br>셋째, 위치 및 색상 모두 변경되지 않는 것을 수정 했을 경우에는 Style, Composite만 발생합니다. (transform, opacity는 요소가 레이어를가지고 있을경우 Composite에서 만 처리됩니다.)</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://developers.google.com/web/fundamentals/performance/rendering/">https://developers.google.com/web/fundamentals/performance/rendering/</a></p>
+</blockquote>
+<h3 id="2-App-Lifecycles"><a href="#2-App-Lifecycles" class="headerlink" title="2. App Lifecycles"></a>2. App Lifecycles</h3><p>웹 앱 라이프 사이클은 Load, Idle, Animation, Response로 4가지의 영역이 존재합니다.</p>
+<p>사용자는 언제나 페이지가 빠르게 Load 되기를 원합니다. 이때에는 처음 페이지가 보이기 위해 꼭 필요한 것들만 필요로 합니다. 모든 방법을 써서 1초 안에 이 과정을 완료되도록 최적화하는 것은 매우 중요합니다. (파일 크기 축소, CDN 활용 등)</p>
+<p>앱이 완전히 Load 된 후는 보통 Idle 상태입니다. 이것은 사용자가 상호작용하기를 기다린다는 의미로, 이때는 Load 시간을 1초로 맞추기 위해 뒤로 미뤄두어야 했던 작업들을 수행할 수 있습니다. 예들 들자면, 곧바로 보여게 될 수도 있는 이미지, 비디오, 다른 섹션의 내용을 호출하는 동작들입니다.</p>
+<p>이후 사용자의 상호작용을 기다리는데 이때 1장에서 알아본 것처럼 16ms 미만의 시간 안에 처리해야 유려하게 보일 수 있습니다. 이때 opacity, transform을 사용할 경우 composite만 trigger 되기 때문에 다른 layout이나 paint가 발생하여 다시 렌더링을 해야 하는 것을 막을 수 있습니다.</p>
+<p>즉, 요약하자면. 사용자에게 유려한 페이지를 제공하는 방법은 아래와 같습니다.</p>
+<ol>
+<li>Load : 사용자에게 보이는 페이지는 1초 이내에 렌더링 되어서 나와야 한다.</li>
+<li>Idle : Load의 시간을 맞추기 위해 뒤로 미루었던 작업이나 미리 해두어야 할 작업을 선택적으로 수행한다.</li>
+<li>Animation : 사용자 상호작용에 대한 프레임 렌더링은 16ms(초당 60프레임이내로 제공되어야 한다.</li>
+<li>Response : 사용자 입력에 대해 100ms 이내에 어떤 방식으로든 응답한다.</li>
+</ol>
+<p>어떤 시점에서 무엇을 할 수 있는지, 언제 할 수 있는지를 알면 성능개선에 도움이 됩니다. </p>
+<h3 id="3-Weapons-of-Jank-Destruction"><a href="#3-Weapons-of-Jank-Destruction" class="headerlink" title="3. Weapons of Jank Destruction"></a>3. Weapons of Jank Destruction</h3><p>Chrome Dev Tools에서 <strong>Performance 탭</strong>에서 변화를 레코드 할 수 있습니다.</p>
+<p>이는 초당 프레임 수와 프레임마다 어떤 작업이 포함되었는지 알려줍니다.</p>
+<p>여기에는 단계별로 색상 코드가 존재합니다.</p>
+<p>파란색은  <span class="highlight-text blue">Parse HTML</span>입니다.<br></br><br>보라색은 <span class="highlight-text purple">Recalculate style</span>과 <span class="highlight-text purple">Layout</span>입니다.<br></br><br>녹색은 <span class="highlight-text green">Paint</span>와 <span class="highlight-text green">Composite</span>입니다.</p>
+<p>초당 60프레임이 넘어가는 작업을 확인하고 개선할 수 있습니다.<br>확인 전에 현재의 값을 측정하는 작업은 중요합니다.<br>만약 측정을 하지 않고 수정한다면 수정 후 실제로 얼마나 개선되었는지 알 수 없습니다.<br>차이를 비교하기 위해 사전에 값을 측정해 놓는 것은 매우 중요합니다.</p>
+<p><strong>Performance 탭</strong>에서 빨간색 삼각형을 성능에 문제가 있을 수 있는 부분에서 경고해줍니다.</p>
+<p>해당 영역을 클릭하면 어디에서 시간을 오래 소비하고 있는지 코드 위치까지 찾아볼 수 있습니다.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Browser/" rel="tag"># Browser</a>
+          
+            <a href="/tags/Rendering/" rel="tag"># Rendering</a>
+          
+            <a href="/tags/Optimization/" rel="tag"># Optimization</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/requestAnimationFrame/" rel="next" title="requestAnimationFrame() 개념 정리하기">
+                <i class="fa fa-chevron-left"></i> requestAnimationFrame() 개념 정리하기
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/%E6%97%A5%E6%9C%AC%E8%AA%9E%E5%8D%98%E8%AA%9E-27/" rel="prev" title="日本語単語ー200外来語">
+                日本語単語ー200外来語 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">68</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">90</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">951</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-The-Critical-Rendering-Path"><span class="nav-number">1.</span> <span class="nav-text">1. The Critical Rendering Path</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-App-Lifecycles"><span class="nav-number">2.</span> <span class="nav-text">2. App Lifecycles</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Weapons-of-Jank-Destruction"><span class="nav-number">3.</span> <span class="nav-text">3. Weapons of Jank Destruction</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
