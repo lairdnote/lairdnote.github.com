@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="codeva-HZoIBm8yNp" />
+<meta name="bytedance-verification-code" content="xa6iZeY+/XCOJvarHaDY" />
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Quantum,Physics," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Introduction Quantum computing, as mentioned in my previous posts, has been a huge buzzword in the tech industry due to its potential to revolutionise some industries. But how exactly does it work? Le">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The Basic Physics Concepts in Quantum Computing">
+<meta property="og:url" content="https://blog.feedscoin.com/The-Basic-Physics-Concepts-in-Quantum-Computing/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="Introduction Quantum computing, as mentioned in my previous posts, has been a huge buzzword in the tech industry due to its potential to revolutionise some industries. But how exactly does it work? Le">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/img/quantumphymath/bits.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/quantumphymath/waveinterference.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/quantumphymath/superposition.jpg">
+<meta property="og:image" content="https://blog.feedscoin.com/img/quantumphymath/cat.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/quantumphymath/orthogonal_2d.jpg">
+<meta property="og:image" content="https://blog.feedscoin.com/img/quantumphymath/blochsphere.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/quantumphymath/bloch-cartesian.webp">
+<meta property="og:image" content="https://blog.feedscoin.com/img/quantumphymath/entanglement.webp">
+<meta property="og:image" content="https://blog.feedscoin.com/img/quantumphymath/hadamard.png">
+<meta property="article:published_time" content="2023-12-18T09:39:56.000Z">
+<meta property="article:modified_time" content="2024-03-02T04:47:56.779Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Quantum">
+<meta property="article:tag" content="Physics">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/img/quantumphymath/bits.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/The-Basic-Physics-Concepts-in-Quantum-Computing/"/>
+
+
+
+
+
+  <title>The Basic Physics Concepts in Quantum Computing | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/The-Basic-Physics-Concepts-in-Quantum-Computing/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">The Basic Physics Concepts in Quantum Computing</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-12-18T09:39:56+00:00">
+                2023-12-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Quantum/" itemprop="url" rel="index">
+                    <span itemprop="name">Quantum</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p> Quantum computing, as mentioned in my previous posts, has been a huge buzzword in the tech industry due to its potential to revolutionise some industries. But how exactly does it work? Learning about quantum computing was rather daunting for me, with the complex physics concepts and mathematics involved, and so, so much information to digest.</p>
+<p>In this post, I will attempt to explain the physics behind quantum computing in a simple manner.</p>
+<p>PS: This post is still a work in progress, I’ll be adding more content soon!</p>
+<h1 id="Classical-vs-Quantum-Computing"><a href="#Classical-vs-Quantum-Computing" class="headerlink" title="Classical vs Quantum Computing"></a>Classical vs Quantum Computing</h1><p>Before we dive headfirst into the concepts, let us understand the properties of classical and quantum computing.</p>
+<p>In classical computing, information is processed using bits. In quantum computing, information is processed using quantum bits, or qubits.</p>
+<h2 id="Properties"><a href="#Properties" class="headerlink" title="Properties"></a>Properties</h2><p><strong>Bits</strong></p>
+<ul>
+<li><strong>States</strong>: Can exist in one of two states: 0 or 1</li>
+<li><strong>Discrete</strong>: Cannot be in between 0 and 1</li>
+<li><strong>Deterministic</strong>: Given the same conditions and inputs, the outcome will always be the same</li>
+<li><strong>Measurement</strong>: States are measured using physical systems that have two distinct states, like voltage or current, where 0 is represented by the absence of it, and 1 is represented by the presence.<br><img src="/../img/quantumphymath/bits.png" alt="Bits Measurement"></li>
+</ul>
+<p><strong>Qubits</strong></p>
+<ul>
+<li><strong>States</strong>: Can exist in multiple states simultaneously, known as superposition.<ul>
+<li>Combination of both 0 and 1, denoted as <code>|0⟩</code> and <code>|1⟩</code>. The qubit can exist in a state <code>|ψ⟩</code> &#x3D; <code>α|0⟩</code> + <code>β|1⟩</code>, where <code>|ψ⟩</code> is a wavefunction that represents the qubit state, and <code>α</code> and <code>β</code> are complex numbers.</li>
+</ul>
+</li>
+<li><strong>Continuous</strong>: Can be in between 0 and 1</li>
+<li><strong>Probabilistic</strong>: Given the same conditions, the outcome will not always be the same. It is random, but there might be a higher probability of a certain outcome.</li>
+<li><strong>Measurement</strong>: States are measured using quantum properties such as:<ul>
+<li><strong>Superconducting Qubits</strong>: The direction of the current in a superconducting (zero resistance) loop</li>
+<li><strong>Trapped Ion Qubits</strong>: The energy levels of a trapped ion, manipulated using lasers</li>
+<li><strong>Photonic Qubits</strong>: The polarisation of a photon (horizontal or vertical)</li>
+</ul>
+</li>
+</ul>
+<h1 id="Quantum-Mechanics"><a href="#Quantum-Mechanics" class="headerlink" title="Quantum Mechanics"></a>Quantum Mechanics</h1><p>Knowing the differences between classical and quantum computing, we can address the elephant in the room: quantum mechanics.</p>
+<p>Quantum mechanics is a branch of physics that describes the behaviour of particles at the atomic and subatomic levels. It is the foundation of quantum computing, and is used to describe the behaviour of qubits.</p>
+<h2 id="Planck’s-Constant-and-Wave-Particle-Duality"><a href="#Planck’s-Constant-and-Wave-Particle-Duality" class="headerlink" title="Planck’s Constant and Wave-Particle Duality"></a>Planck’s Constant and Wave-Particle Duality</h2><h3 id="Planck’s-Constant"><a href="#Planck’s-Constant" class="headerlink" title="Planck’s Constant"></a>Planck’s Constant</h3><p>Planck’s constant, is a fundamental physical constant in quantum mechanics. Denoted as <code>h</code> and having a value of approx. <code>6.626 x 10^-34 J*s</code>, it was used to explain energy quantisation, the idea that energy can only exist in discrete amounts. Planck proposed that energy is transferred in  discrete amounts, known as <code>quanta</code>.</p>
+<p>Said relationship is represented by the formula <code>E = hf</code>, where: </p>
+<ul>
+<li><code>E</code> is the energy of the photon</li>
+<li><code>h</code> is Planck’s constant</li>
+<li><code>f</code> is the frequency of the photon</li>
+</ul>
+<p>This proves that energy of a quantum is proportional to its frequency. The higher the frequency, the higher the energy.</p>
+<h3 id="Wave-Particle-Duality"><a href="#Wave-Particle-Duality" class="headerlink" title="Wave-Particle Duality"></a>Wave-Particle Duality</h3><p>Building  on Planck’s constant, we can move on to the concept of wave-particle duality.</p>
+<p>Wave-particle duality is a concept that describes the behaviour of particles, such as electrons and photons. It states that these particles can behave like both a wave and a particle, depending on the situation (the context in which they are observed or measured).</p>
+<p><strong>Wave</strong></p>
+<ul>
+<li><strong>Interference</strong>: Waves can interfere with each other, either constructively (when the waves are in phase) or destructively (when the waves are out of phase).<br><img src="/../img/quantumphymath/waveinterference.png" alt="Wave Interference"></li>
+<li><strong>Diffraction</strong>: Waves can diffract around obstacles, causing them to spread out.</li>
+<li><strong>Superposition</strong>: Waves can exist in multiple states simultaneously, known as superposition.<br><img src="/../img/quantumphymath/superposition.jpg" alt="Wave Superposition"></li>
+<li><strong>Wavelength and Frequency</strong>: Waves have a wavelength and frequency, which are inversely proportional to each other.</li>
+</ul>
+<p><strong>Particle</strong></p>
+<ul>
+<li><strong>Quantisation</strong>: Particles can only exist in discrete energy levels</li>
+<li><strong>Localisation</strong>: Particles can be localised to a specific position, meaning that they can be found at a specific point in space</li>
+<li><strong>Trajectory</strong>: Particles have a trajectory, which can be determined using Newton’s laws of motion</li>
+</ul>
+<p>Looking back at the quanta relationship, <code>E = hf</code>, we can draw the link to wave-particle duality. The energy of the particle (<code>E</code>), has <strong>particle-like properties</strong>, while it’s frequency (<code>f</code>), has <strong>wave-like properties</strong>. From this, we can see that the energy of the particle is  quantised into discrete units, while the frequency of the particle is continuous.</p>
+<p>In essence, this allows quantum particles to behave like waves and particles at the same time. The dual nature is fundamental in quantum computing, allowing things like superposition to exist due to the wave-like properties, and the measurement of qubits due to the particle-like properties.</p>
+<h2 id="Measurement-and-Quantum-States"><a href="#Measurement-and-Quantum-States" class="headerlink" title="Measurement and Quantum States"></a>Measurement and Quantum States</h2><h3 id="Measurement"><a href="#Measurement" class="headerlink" title="Measurement"></a>Measurement</h3><p>Earlier, I mentioned particle-like properties are used to measure qubits. But why? When a qubit is measured, it disrupts the quantum system, bringing about the collapse of the wavefunction. Hence, its state is determined and forced into either <code>|0⟩</code> or <code>|1⟩</code>.</p>
+<p>Remember the Schrödinger’s cat thought experiment? The cat inside a sealed box can be considered to be “both alive and dead”, until the box is opened and the cat is observed.<br><img src="/../img/quantumphymath/cat.png" alt="Schrödinger&#39;s Cat"><br>This is similar to the collapse of the wavefunction, where the state is determined only when the box is opened.</p>
+<h3 id="Quantum-States"><a href="#Quantum-States" class="headerlink" title="Quantum States"></a>Quantum States</h3><p>Additionally, the final state of the qubit is probabilistic yet random. The state of a qubit is represented by the formula <code>α|0⟩</code> + <code>β|1⟩</code>.</p>
+<p>Here, <code>α</code> and <code>β</code> are probability amplitudes. The probabilities must be a non-negative number to ensure the probabilistic interpretation of the quantum state is valid. Thus, normalisation is required.</p>
+<blockquote>
+<p>The normalisation conditions require that the sum of probabilities of all possible outcomes is equal to 1.</p>
+</blockquote>
+<p>For a single qubit, this means that <code>|α|² + |β|² = 1</code>. The probability of the qubit being in the state <code>|0⟩</code> or <code>|1⟩</code> is determined by the square of the magnitude of the complex number (which represents its state).</p>
+<p>Lets say, we have a qubit in the state <code>|ψ⟩</code> &#x3D; <code>α|0⟩</code> + <code>β|1⟩</code>. Since we know that the probability will be equal to 1, we can say that <code>|α|² + |β|² = 1</code>. We can assume that <code>|α|² = |β|² = 0.5</code>, and <code>α = β = 1/√2</code>. But wait. We found that the states of the qubits are probabilistic, so how can we assume that <code>|α|² = |β|² = 0.5</code> is true? This is where the Hadamard gate comes in. This will be touched on in the section under Quantum Gates and Circuits.</p>
+<h2 id="Orthogonality"><a href="#Orthogonality" class="headerlink" title="Orthogonality"></a>Orthogonality</h2><p>In quantum computing, the states of qubits are represented by vectors (represented by the formula <code>α|0⟩</code> + <code>β|1⟩</code>) in a vector space. States are said to be orthogonal if the angle between them is 90°, i.e. they are perpendicular to each other.</p>
+<p>To make things easier to visualise, in a two-dimensional vector space, when we say that |0⟩ and |1⟩ are orthogonal, they are perpendicular to each other, like the x and y axes in a Cartesian plane.</p>
+<p><img src="/../img/quantumphymath/orthogonal_2d.jpg" alt="Orthogonality"></p>
+<p>In a more mathematical sense, the two vectors are orthogonal if their inner product is zero: <code>⟨a|b⟩</code> &#x3D; 0.</p>
+<p>However, there aren’t only two-dimensional vector spaces. What about three-dimensional vector spaces? This is where the Bloch sphere comes in.</p>
+<h3 id="Bloch-Sphere"><a href="#Bloch-Sphere" class="headerlink" title="Bloch Sphere"></a>Bloch Sphere</h3><p>The Bloch sphere is a geometric representation to visualise the state of a qubit. It is based on the idea that any qubit state can be represented by a vector on the <strong>surface</strong> of a sphere.</p>
+<p><img src="/../img/quantumphymath/blochsphere.png" alt="Bloch Sphere"></p>
+<p>In the Bloch sphere, the north pole corresponds to the state <code>|0⟩</code>, and the south pole corresponds to the state <code>|1⟩</code>. Hence, the states <code>|0⟩</code> and <code>|1⟩</code> are on opposite ends of the sphere.</p>
+<p>You might think that they aren’t orthogonal, since they are linear, and not perpendicular to each other. However, when we talk about them being perpendicular, we are referring to them in a cartesian plane.</p>
+<p>The cartesian plane and Bloch sphere are two different representations of the similar concept. They differ in that (with reference to <a target="_blank" rel="noopener" href="https://medium.com/quantum-untangled/visualizing-quantum-logic-gates-part-1-515bb7b58916">this article</a>):</p>
+<blockquote>
+<p>The angle between the α-axis and the vector of the cartesian plane is always half of the angle between the z-axis and the vector of the Bloch sphere. In other words, if we increased the angle of the cartesian plane by 90º, the angle θ of the Bloch sphere increases by 180º.</p>
+</blockquote>
+<p><img src="/../img/quantumphymath/bloch-cartesian.webp" alt="Bloch Sphere"></p>
+<p>Altogether, in the Bloch sphere, any pair of points that are on opposite ends of a diameter represent orthogonal states.</p>
+<p>Orthogonality is important in quantum computing, allows us to distinguish between the states of qubits. This is because when we measure a qubit, it will collapse into either <code>|0⟩</code> or <code>|1⟩</code>. Therefore, we can distinguish between the two states during measurement.</p>
+<h2 id="Entanglement"><a href="#Entanglement" class="headerlink" title="Entanglement"></a>Entanglement</h2><p>Lets move on to another important concept in quantum computing: entanglement.</p>
+<p><img src="/../img/quantumphymath/entanglement.webp" alt="Entanglement"></p>
+<blockquote>
+<p>Entanglement is a phenomenon in which the quantum states of two or more objects have to be described with reference to each other, even though the individual objects may be spatially separated.</p>
+</blockquote>
+<p>This means that a change in the state of one qubit will affect the state of the other qubit, even if they are separated by a large distance. As such, if one qubit is measured, its wavefunction collapses, and the wavefunction of the other qubit collapses instantaneously as well.</p>
+<p>To look at this in a more mathematical manner, lets consider two qubits <code>|a⟩</code> and <code>|b⟩</code>. On its own, each qubit can be represented by the formula <code>α|0⟩ + β|1⟩</code>.</p>
+<p>However, when the two qubits are entangled, the joint state of the system can be represented by the formula <code>α|00⟩ + β|01⟩ + γ|10⟩ + δ|11⟩</code>.</p>
+<ul>
+<li><code>|xy⟩</code> represents the joint state of the two qubits, where <code>x</code> is the state of the first qubit, and <code>y</code> is the state of the second qubit.</li>
+<li>The probability amplitudes <code>α</code>, <code>β</code>, <code>γ</code>, and <code>δ</code> are normalised such that <code>|α|² + |β|² + |γ|² + |δ|² = 1</code>.</li>
+</ul>
+<p>Essentially,the qubits are in a superposition of all the possible states, and the expression represents all the possible outcomes of the states of the qubit.</p>
+<h1 id="Quantum-Gates-and-Circuits"><a href="#Quantum-Gates-and-Circuits" class="headerlink" title="Quantum Gates and Circuits"></a>Quantum Gates and Circuits</h1><p>With the foundational concepts out of the way, we can now move on to the quantum gates and circuits.</p>
+<p><strong>Quantum Gates</strong><br>In classical computing, logic gates are used to manipulate bits. You might be familiar with the classical gates like <code>AND</code>, <code>OR</code>, and <code>NOT</code>. Similarly, quantum gates are used to manipulate qubits in quantum computing.</p>
+<p>There are many different quantum gates: <code>Hadamard</code>, <code>Pauli-X, Y, Z</code>, <code>CNOT</code>, <code>Toffoli</code>, <code>SWAP</code> and many more.</p>
+<h2 id="Hadamard-Gate"><a href="#Hadamard-Gate" class="headerlink" title="Hadamard Gate"></a>Hadamard Gate</h2><p>We briefly touched upon the Hadamard gate earlier. At its crux, it is used to create superposition. When applied to a qubit, it transforms the qubit from a classical state <code>|0⟩ or |1⟩</code> into an equal superposition of state, which basis is denoted as <code>|+⟩ or |−⟩</code> respectively.</p>
+<blockquote>
+<p>Basis: A set of states that can be used to represent any state within the vector space. Most commonly, the basis is represented by the states <code>|0⟩</code> and <code>|1⟩</code>. However, there are other bases that are frequently used, such as the <code>|+⟩</code> and <code>|−⟩</code> basis.</p>
+</blockquote>
+<p>So, the states <code>|+⟩</code> and <code>|−⟩</code> are the superposition states of <code>|0⟩</code> and <code>|1⟩</code> respectively. They are represented by the formula:</p>
+<ul>
+<li><p><code>|+⟩</code> &#x3D; <code>1/√2</code> (<code>|0⟩</code> + <code>|1⟩</code>)</p>
+</li>
+<li><p><code>|−⟩</code> &#x3D; <code>1/√2</code> (<code>|0⟩</code> - <code>|1⟩</code>).</p>
+<p>Do note that <code>|+⟩</code> and <code>|−⟩</code> can also be represented by <code>H|0⟩</code> and <code>H|1⟩</code> respectively, where <code>H</code> is the Hadamard gate.</p>
+</li>
+</ul>
+<p>As a result, the qubit is in a superposition, and the probability of it being in the state <code>|0⟩</code> or <code>|1⟩</code> is equal when measured is equal.</p>
+<p>The way a qubit is transformed by the Hadamard gate is through these steps:<br><img src="/../img/quantumphymath/hadamard.png" alt="Hadamard Gate"></p>
+<ol>
+<li>Initialise a qubit in the state <code>|0⟩</code>.</li>
+<li>Apply the Hadamard gate to the qubit.</li>
+<li>The qubit is now in the state <code>|+⟩</code>.</li>
+</ol>
+<p>Thus in all, the Hadamard gate is used to create superposition with equal probability of the qubit being in the state <code>|0⟩</code> or <code>|1⟩</code>.</p>
+<p>But before we move on, lets go even deeper. A Hadamard gate can be represented by a matrix:</p>
+<p>$$<br>H &#x3D; \frac{1}{\sqrt{2}} \begin{bmatrix} 1 &amp; 1 \\ 1 &amp; -1 \end{bmatrix}<br>$$</p>
+<p>Some significant properties of the Hadamard gate are:</p>
+<ul>
+<li><p><strong>Normalisation</strong>: The <code>1/√2</code> is used to normalise the matrix, ensuring that the sum of probabilities of all possible outcomes is equal to 1.</p>
+</li>
+<li><p><strong>Matrix</strong>: The matrix is used to represent the transformation of the qubit. The qubit is transformed by multiplying the matrix with the qubit.</p>
+<p>For example, if we were to apply the Hadamard gate to the state <code>|0⟩</code>, we would multiply the matrix with the state vector:</p>
+<p>$$<br>H|0⟩ &#x3D; \frac{1}{\sqrt{2}} \begin{bmatrix} 1 &amp; 1 \\ 1 &amp; -1 \end{bmatrix} \begin{bmatrix} 1 \\ 0 \end{bmatrix} &#x3D; \frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\ 1 \end{bmatrix} &#x3D; \frac{1}{\sqrt{2}} (|0⟩ + |1⟩) &#x3D; |+⟩<br>$$</p>
+<p>Hence, we can see that the state <code>|0⟩</code> is transformed into the state <code>|+⟩</code>.</p>
+</li>
+<li><p><strong>Equal Superposition</strong>: The gate evenly distributes the probability amplitudes between the states <code>|0⟩</code> and <code>|1⟩</code>, creating equal superposition. The first column corresponds to the state <code>|0⟩</code>, and the second column corresponds to the state <code>|1⟩</code>.</p>
+</li>
+<li><p><strong>Inverse</strong>: The Hadamard gate is its own inverse, meaning that applying the Hadamard gate twice will return the qubit to its original state. This is because the matrix is symmetric, and the inverse of a symmetric matrix is itself.</p>
+<ul>
+<li>This is rather intriguing, since it would seem that putting a qubit through the gate twice would randomise it twice. But it isn’t the case, and the qubit returns to its original state. It seems like the qubit “remembers” its original state, and returns to it after being put through the gate twice.</li>
+</ul>
+</li>
+</ul>
+<p>In a nutshell, the Hadamard gate is used to create superposition with equal probability of the qubit being in the state <code>|0⟩</code> or <code>|1⟩</code>.</p>
+<h2 id="Pauli-X-Y-Z-Gates"><a href="#Pauli-X-Y-Z-Gates" class="headerlink" title="Pauli-X, Y, Z Gates"></a>Pauli-X, Y, Z Gates</h2><p>The Pauli-X, Y and Z gates are different (but similar) gates that are also used to manipulate qubits. Each gate operates on a single qubit and introduces specific rotations in the quantum state space. </p>
+<p>In other words, they change the state of the qubit, but preserve the probability distribution of the qubit. With reference to the Bloch sphere</p>
+<p><strong>Pauli-X Gate</strong></p>
+<p>The Pauli-X gate is used to flip the state of the qubit. It is the quantum equivalent of the classical <code>NOT</code> gate. For example, if the qubit is in the state <code>|0⟩</code>, it will be flipped to the state <code>|1⟩</code>, and vice versa.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Quantum/" rel="tag"># Quantum</a>
+          
+            <a href="/tags/Physics/" rel="tag"># Physics</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/Building-Websites-with-React/" rel="next" title="Building Websites with React">
+                <i class="fa fa-chevron-left"></i> Building Websites with React
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/THM-RootMe/" rel="prev" title="THM: RootMe">
+                THM: RootMe <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">112</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">98</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1012</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Classical-vs-Quantum-Computing"><span class="nav-number">2.</span> <span class="nav-text">Classical vs Quantum Computing</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Properties"><span class="nav-number">2.1.</span> <span class="nav-text">Properties</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Quantum-Mechanics"><span class="nav-number">3.</span> <span class="nav-text">Quantum Mechanics</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Planck%E2%80%99s-Constant-and-Wave-Particle-Duality"><span class="nav-number">3.1.</span> <span class="nav-text">Planck’s Constant and Wave-Particle Duality</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Planck%E2%80%99s-Constant"><span class="nav-number">3.1.1.</span> <span class="nav-text">Planck’s Constant</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Wave-Particle-Duality"><span class="nav-number">3.1.2.</span> <span class="nav-text">Wave-Particle Duality</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Measurement-and-Quantum-States"><span class="nav-number">3.2.</span> <span class="nav-text">Measurement and Quantum States</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Measurement"><span class="nav-number">3.2.1.</span> <span class="nav-text">Measurement</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Quantum-States"><span class="nav-number">3.2.2.</span> <span class="nav-text">Quantum States</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Orthogonality"><span class="nav-number">3.3.</span> <span class="nav-text">Orthogonality</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bloch-Sphere"><span class="nav-number">3.3.1.</span> <span class="nav-text">Bloch Sphere</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Entanglement"><span class="nav-number">3.4.</span> <span class="nav-text">Entanglement</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Quantum-Gates-and-Circuits"><span class="nav-number">4.</span> <span class="nav-text">Quantum Gates and Circuits</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Hadamard-Gate"><span class="nav-number">4.1.</span> <span class="nav-text">Hadamard Gate</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pauli-X-Y-Z-Gates"><span class="nav-number">4.2.</span> <span class="nav-text">Pauli-X, Y, Z Gates</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

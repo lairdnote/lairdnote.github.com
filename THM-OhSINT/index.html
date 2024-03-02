@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="codeva-HZoIBm8yNp" />
+<meta name="bytedance-verification-code" content="xa6iZeY+/XCOJvarHaDY" />
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="TryHackMe,OSINT," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="IntroductionThis is a writeup for the room OhSINT on TryHackMe. OhSINT is a beginner level room that focuses on OSINT. This was one of my first rooms that I have successfully completed on TryHackMe. I">
+<meta property="og:type" content="article">
+<meta property="og:title" content="THM: OhSINT">
+<meta property="og:url" content="https://blog.feedscoin.com/THM-OhSINT/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="IntroductionThis is a writeup for the room OhSINT on TryHackMe. OhSINT is a beginner level room that focuses on OSINT. This was one of my first rooms that I have successfully completed on TryHackMe. I">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/img/ohsint/WindowsXP.jpg">
+<meta property="og:image" content="https://blog.feedscoin.com/img/ohsint/exiftool.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/ohsint/owoodflint.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/ohsint/twitter.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/ohsint/wigle.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/ohsint/ssid.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/ohsint/github.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/ohsint/blog.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/ohsint/blog.png">
+<meta property="article:published_time" content="2023-07-16T17:16:10.000Z">
+<meta property="article:modified_time" content="2024-03-02T04:47:56.775Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="TryHackMe">
+<meta property="article:tag" content="OSINT">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/img/ohsint/WindowsXP.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/THM-OhSINT/"/>
+
+
+
+
+
+  <title>THM: OhSINT | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/THM-OhSINT/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">THM: OhSINT</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-07-16T17:16:10+00:00">
+                2023-07-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/TryHackMe/" itemprop="url" rel="index">
+                    <span itemprop="name">TryHackMe</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>This is a writeup for the room <a target="_blank" rel="noopener" href="https://tryhackme.com/room/ohsint">OhSINT</a> on TryHackMe. OhSINT is a beginner level room that focuses on OSINT.</p>
+<p>This was one of my first rooms that I have successfully completed on TryHackMe. It was a pretty simple room that focused on OSINT.</p>
+<h1 id="Tasks"><a href="#Tasks" class="headerlink" title="Tasks"></a>Tasks</h1><p>Image we got:</p>
+<p><img src="/./img/ohsint/WindowsXP.jpg" alt="Image"></p>
+<h2 id="1-What-is-this-users-avatar-of"><a href="#1-What-is-this-users-avatar-of" class="headerlink" title="1. What is this users avatar of?"></a>1. What is this users avatar of?</h2><p>First, I tried to use exiftool to see what properties this image has.</p>
+<p><img src="/./img/ohsint/exiftool.png" alt="Image"></p>
+<p>This image seems to be attributed to someone named “OWoodflint”, and I had it just sent to Google to check them out.</p>
+<p><img src="/./img/ohsint/owoodflint.png" alt="Image"></p>
+<p>And from the results, I can get their Twitter, GitHub and blog.<br>So to answer the first question, the user’s avatar is of a cat!</p>
+<h2 id="2-What-city-is-this-person-in"><a href="#2-What-city-is-this-person-in" class="headerlink" title="2. What city is this person in?"></a>2. What city is this person in?</h2><p>I went to dig around their Twitter:</p>
+<p><img src="/./img/ohsint/twitter.png" alt="Image"></p>
+<p>From here, I can get the BSSID for a wifi point near their house.<br>Entering it into <a target="_blank" rel="noopener" href="https://wigle.net/">Wigle.net</a>, I could get the city they were in.</p>
+<p><img src="/./img/ohsint/wigle.png" alt="Image"></p>
+<h2 id="3-Whats-the-SSID-of-the-WAP-he-connected-to"><a href="#3-Whats-the-SSID-of-the-WAP-he-connected-to" class="headerlink" title="3. Whats the SSID of the WAP he connected to?"></a>3. Whats the SSID of the WAP he connected to?</h2><p>Still on Wigle.net, zooming in into the WAP could give the SSID.</p>
+<p><img src="/./img/ohsint/ssid.png" alt="Image"></p>
+<h2 id="4-What-is-his-personal-email-address"><a href="#4-What-is-his-personal-email-address" class="headerlink" title="4. What is his personal email address?"></a>4. What is his personal email address?</h2><p>I looked around on his blog but didn’t manage to get his email unfortunately, so I went on to the third link, which was his GitHub account.</p>
+<p><img src="/./img/ohsint/github.png" alt="Image"></p>
+<p>Which on his README.md page, contains his email!</p>
+<h2 id="5-What-site-did-you-find-his-email-address-on"><a href="#5-What-site-did-you-find-his-email-address-on" class="headerlink" title="5. What site did you find his email address on?"></a>5. What site did you find his email address on?</h2><p>Just GitHub!</p>
+<h2 id="6-Where-has-he-gone-on-holiday"><a href="#6-Where-has-he-gone-on-holiday" class="headerlink" title="6. Where has he gone on holiday?"></a>6. Where has he gone on holiday?</h2><p>I went back to his blog and found that he was in New York, which was where he had gone on his holiday. </p>
+<p><img src="/./img/ohsint/blog.png" alt="Image"></p>
+<h2 id="7-What-is-this-persons-password"><a href="#7-What-is-this-persons-password" class="headerlink" title="7. What is this persons password?"></a>7. What is this persons password?</h2><p>I was a little confused about this question because the hint was checking the source… BUT!<br>I have a dark reader chrome extension enabled which made me see the password immediately :”) when it is supposed to blend into the white background.</p>
+<p><img src="/./img/ohsint/blog.png" alt="Image"></p>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>This was quite an interesting room, and I learnt the basic tools to use for OSINT!</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/TryHackMe/" rel="tag"># TryHackMe</a>
+          
+            <a href="/tags/OSINT/" rel="tag"># OSINT</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/THM-Basic-Pentesting/" rel="next" title="THM: Basic Pentesting">
+                <i class="fa fa-chevron-left"></i> THM: Basic Pentesting
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/DiskForensics/" rel="prev" title="Disk Forensics: TISC'23 Disk Archaeology Challenge">
+                Disk Forensics: TISC'23 Disk Archaeology Challenge <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">112</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">98</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1012</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Tasks"><span class="nav-number">2.</span> <span class="nav-text">Tasks</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-What-is-this-users-avatar-of"><span class="nav-number">2.1.</span> <span class="nav-text">1. What is this users avatar of?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-What-city-is-this-person-in"><span class="nav-number">2.2.</span> <span class="nav-text">2. What city is this person in?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Whats-the-SSID-of-the-WAP-he-connected-to"><span class="nav-number">2.3.</span> <span class="nav-text">3. Whats the SSID of the WAP he connected to?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-What-is-his-personal-email-address"><span class="nav-number">2.4.</span> <span class="nav-text">4. What is his personal email address?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-What-site-did-you-find-his-email-address-on"><span class="nav-number">2.5.</span> <span class="nav-text">5. What site did you find his email address on?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-Where-has-he-gone-on-holiday"><span class="nav-number">2.6.</span> <span class="nav-text">6. Where has he gone on holiday?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-What-is-this-persons-password"><span class="nav-number">2.7.</span> <span class="nav-text">7. What is this persons password?</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number">3.</span> <span class="nav-text">Conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

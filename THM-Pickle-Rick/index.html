@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="codeva-HZoIBm8yNp" />
+<meta name="bytedance-verification-code" content="xa6iZeY+/XCOJvarHaDY" />
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux,TryHackMe,Privilege Escalation," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Introduction This is a writeup for the room Pickle Rick on TryHackMe. Pickle Rick is a beginner level room which focuses on basic enumeration, Linux filesystem knowledge and privilege escalation.  I a">
+<meta property="og:type" content="article">
+<meta property="og:title" content="THM: Pickle Rick">
+<meta property="og:url" content="https://blog.feedscoin.com/THM-Pickle-Rick/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="Introduction This is a writeup for the room Pickle Rick on TryHackMe. Pickle Rick is a beginner level room which focuses on basic enumeration, Linux filesystem knowledge and privilege escalation.  I a">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/img/picklerick/Landing.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/picklerick/inspect.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/picklerick/assets.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/picklerick/login.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/picklerick/robots.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/picklerick/command.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/picklerick/denied.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/picklerick/panel.png">
+<meta property="article:published_time" content="2023-12-23T18:33:10.000Z">
+<meta property="article:modified_time" content="2024-03-02T04:47:56.779Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="TryHackMe">
+<meta property="article:tag" content="Privilege Escalation">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/img/picklerick/Landing.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/THM-Pickle-Rick/"/>
+
+
+
+
+
+  <title>THM: Pickle Rick | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/THM-Pickle-Rick/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">THM: Pickle Rick</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-12-23T18:33:10+00:00">
+                2023-12-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/TryHackMe/" itemprop="url" rel="index">
+                    <span itemprop="name">TryHackMe</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p> This is a writeup for the room <a target="_blank" rel="noopener" href="https://tryhackme.com/room/picklerick">Pickle Rick</a> on <a target="_blank" rel="noopener" href="https://tryhackme.com/">TryHackMe</a>. Pickle Rick is a beginner level room which focuses on basic enumeration, Linux filesystem knowledge and privilege escalation. </p>
+<p>I absolutely loved this room, being a Rick and Morty fan myself :D </p>
+<h1 id="Pre-Enumeration"><a href="#Pre-Enumeration" class="headerlink" title="Pre-Enumeration"></a>Pre-Enumeration</h1><p>Firstly, I went to the page itself. The landing page is a pretty simple one:</p>
+<p><img src="/./img/picklerick/Landing.png" alt="Landing Page"></p>
+<p>As usual, I used inspect element to see if there was anything interesting.</p>
+<p><img src="/./img/picklerick/inspect.png" alt="Inspect Element"></p>
+<p>Here, we found a comment that contained a username, <code>R1ckRul3s</code>. I assume that there is some sort of login page or something similar.</p>
+<h1 id="Reconnaissance"><a href="#Reconnaissance" class="headerlink" title="Reconnaissance"></a>Reconnaissance</h1><h2 id="Nmap"><a href="#Nmap" class="headerlink" title="Nmap"></a>Nmap</h2><p>I ran a nmap scan on the machine to see what ports were open with:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kairos@opensus:~&gt; nmap -sV -sC &lt;ip&gt;</span><br></pre></td></tr></table></figure>
+
+<p>The results were:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Starting Nmap 7.93 ( https://nmap.org ) at 2023-12-23 18:31 +08</span><br><span class="line">Nmap scan report for &lt;ip&gt;</span><br><span class="line">Host is up (0.33s latency).</span><br><span class="line">Not shown: 998 closed tcp ports (conn-refused)</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.6 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">| ssh-hostkey:</span><br><span class="line">|   2048 4d7e95ccf243d0dfdfc71dad7f6a598d (RSA)</span><br><span class="line">|   256 5901e677a32361e64b748bc86597aa58 (ECDSA)</span><br><span class="line">|_  256 696d23bcda9ab3996ad2d5afc4a0259b (ED25519)</span><br><span class="line">80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))</span><br><span class="line">|_http-title: Rick is sup4r cool</span><br><span class="line">|_http-server-header: Apache/2.4.18 (Ubuntu)</span><br><span class="line">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br><span class="line"></span><br><span class="line">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span><br><span class="line">Nmap done: 1 IP address (1 host up) scanned in 50.08 seconds</span><br></pre></td></tr></table></figure>
+
+<p>There are two open ports: 22 and 80. Port 22 is running ssh, and port 80 is running http. I skipped over port 22 since it would only be useful if I had credentials.</p>
+<p>Since I already checked out the page, I moved onto the next step.</p>
+<h2 id="Gobuster"><a href="#Gobuster" class="headerlink" title="Gobuster"></a>Gobuster</h2><p>As with the previous rooms, I ran a gobuster scan to see if there were any hidden directories. To make the scan faster, I limited the extensions:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gobuster <span class="built_in">dir</span> -u &lt;ip&gt; -w Documents/Tools/wordlists/directory-list-2.3-medium.txt -x php,sh,txt,cgi,html,css,js,py</span><br></pre></td></tr></table></figure>
+
+<p>The results were:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/index.html           (Status: 200) [Size: 1062]</span><br><span class="line">/login.php            (Status: 200) [Size: 882]</span><br><span class="line">/assets               (Status: 301) [Size: 315] [--&gt; http://&lt;ip&gt;/assets/]</span><br><span class="line">/portal.php           (Status: 302) [Size: 0] [--&gt; /login.php]</span><br></pre></td></tr></table></figure>
+
+<p>The scan took quite a while (and I had to rerun it a few times due to connectivity issues using dirb :| the order is slightly different from the one above), so I looked at each result as it came in. Looking at <code>/assets</code>:</p>
+<p><img src="/./img/picklerick/assets.png" alt="Assets"></p>
+<p>There wasn’t much to see, just a bunch of images, gifs and css&#x2F;js files. I moved on to the next result.</p>
+<p>The next result was <code>/login.php</code>.</p>
+<p><img src="/./img/picklerick/login.png" alt="Login"></p>
+<p>This was the login page that I was looking for! We have the username only though. So let’s pin this and circle back to it later.</p>
+<p>The next result was <code>robots.txt</code>.</p>
+<p>Robots.txt is a file that is used on websites to instruct web crawlers what to avoid when crawling to prevent them from indexing certain pages.</p>
+<p>The contents usually look something like this (with reference to Google Search Central):</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># Example 1: Block only Googlebot</span><br><span class="line">User-agent: Googlebot</span><br><span class="line">Disallow: /</span><br><span class="line"></span><br><span class="line"># Example 2: Block Googlebot and Adsbot</span><br><span class="line">User-agent: Googlebot</span><br><span class="line">User-agent: AdsBot-Google</span><br><span class="line">Disallow: /</span><br><span class="line"></span><br><span class="line"># Example 3: Block all crawlers except AdsBot (AdsBot crawlers must be named explicitly)</span><br><span class="line">User-agent: *</span><br><span class="line">Disallow: /</span><br></pre></td></tr></table></figure>
+
+<p>But what we see here is:</p>
+<p><img src="/./img/picklerick/robots.png" alt="Robots.txt"></p>
+<p>So I tried that as the password. And it worked! It led to a page that looked like this:</p>
+<p><img src="/./img/picklerick/command.png" alt="Command Panel"></p>
+<p>There were other tabs, but all of them were “locked”, bringing me to a <code>denied.php</code> page.</p>
+<p><img src="/./img/picklerick/denied.png" alt="Denied"></p>
+<p>Thus, I could only focus on the command panel for now.</p>
+<h1 id="Getting-the-Flags"><a href="#Getting-the-Flags" class="headerlink" title="Getting the Flags"></a>Getting the Flags</h1><p>Questions:</p>
+<ol>
+<li>What is the first ingredient that Rick needs?</li>
+<li>What is the second ingredient in Rick’s potion?</li>
+<li>What is the last and final ingredient?</li>
+</ol>
+<h2 id="First-Ingredient-Command-Line"><a href="#First-Ingredient-Command-Line" class="headerlink" title="First Ingredient - Command Line"></a>First Ingredient - Command Line</h2><p>Going to the command panel, I tried running some commands.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ls</span></span><br></pre></td></tr></table></figure>
+
+<p>Resulted in it showing a bunch of files:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Sup3rS3cretPickl3Ingred.txt</span><br><span class="line">assets</span><br><span class="line">clue.txt</span><br><span class="line">denied.php</span><br><span class="line">index.html</span><br><span class="line">login.php</span><br><span class="line">portal.php</span><br><span class="line">robots.txt</span><br></pre></td></tr></table></figure>
+
+<p>I tried to retrieved the contents of the text files</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> Sup3rS3cretPickl3Ingred.txt; <span class="built_in">cat</span> clue.txt</span><br></pre></td></tr></table></figure>
+
+<p>But…</p>
+<p><img src="/./img/picklerick/panel.png" alt="Panel"></p>
+<p>:| Another way then.</p>
+<p>I tried to view the file the same way I did with the robots.txt file. Surprisingly, it worked.</p>
+<p><code>Sup3rS3cretPickl3Ingred.txt</code> contained the first flag.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mr. meeseek hair</span><br></pre></td></tr></table></figure>
+
+<p><code>clue.txt</code> contained a hint:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Look around the file system for the other ingredient.</span><br></pre></td></tr></table></figure>
+
+<h2 id="Second-Ingredient-File-System"><a href="#Second-Ingredient-File-System" class="headerlink" title="Second Ingredient - File System"></a>Second Ingredient - File System</h2><p>Hmm… I then tried to use the <code>tree</code> command to see the file structure, but it didn’t give anything in console. I then tried moving to the home directory first and listing the files there.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /home; <span class="built_in">ls</span></span><br></pre></td></tr></table></figure>
+
+<p>We got some useful stuff!</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rick</span><br><span class="line">ubuntu</span><br></pre></td></tr></table></figure>
+
+<p>I then moved into the <code>rick</code> directory and listed the files there.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> rick; <span class="built_in">ls</span></span><br></pre></td></tr></table></figure>
+
+<p>The output was:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">second ingredients</span><br></pre></td></tr></table></figure>
+
+<p>Since we know that the <code>cat</code> command is blacklisted, I tried to use other commands as an alternative. I first tried <code>head</code> and <code>tail</code>, but they were both blacklisted too. Horrible.</p>
+<p>Then I tried the <code>man</code> command which can act as a pager to scroll through files.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">man /home/rick/second\ ingredients</span><br></pre></td></tr></table></figure>
+
+<p>And we got it!</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1 jerry tear</span><br></pre></td></tr></table></figure>
+
+<h2 id="Third-Ingredient-Root"><a href="#Third-Ingredient-Root" class="headerlink" title="Third Ingredient - Root"></a>Third Ingredient - Root</h2><p>I looked around the file system for a bit more, but couldn’t find much. I then tried to go further up the directory tree.</p>
+<p>Doing directory traversal with <code>../</code>s and long listing of the files:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd ../../../../ ; ls -la</span><br></pre></td></tr></table></figure>
+
+<p>I found</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">total 88</span><br><span class="line">drwxr-xr-x  23 root root  4096 Dec 23 10:29 .</span><br><span class="line">drwxr-xr-x  23 root root  4096 Dec 23 10:29 ..</span><br><span class="line">drwxr-xr-x   2 root root  4096 Nov 14  2018 bin</span><br><span class="line">drwxr-xr-x   3 root root  4096 Nov 14  2018 boot</span><br><span class="line">drwxr-xr-x  14 root root  3260 Dec 23 10:29 dev</span><br><span class="line">drwxr-xr-x  94 root root  4096 Dec 23 10:29 etc</span><br><span class="line">drwxr-xr-x   4 root root  4096 Feb 10  2019 home</span><br><span class="line">lrwxrwxrwx   1 root root    30 Nov 14  2018 initrd.img -&gt; boot/initrd.img-4.4.0-1072-aws</span><br><span class="line">drwxr-xr-x  21 root root  4096 Feb 10  2019 lib</span><br><span class="line">drwxr-xr-x   2 root root  4096 Nov 14  2018 lib64</span><br><span class="line">drwx------   2 root root 16384 Nov 14  2018 lost+found</span><br><span class="line">drwxr-xr-x   2 root root  4096 Nov 14  2018 media</span><br><span class="line">drwxr-xr-x   2 root root  4096 Nov 14  2018 mnt</span><br><span class="line">drwxr-xr-x   2 root root  4096 Nov 14  2018 opt</span><br><span class="line">dr-xr-xr-x 134 root root     0 Dec 23 10:29 proc</span><br><span class="line">drwx------   4 root root  4096 Feb 10  2019 root</span><br><span class="line">drwxr-xr-x  25 root root   880 Dec 23 10:29 run</span><br><span class="line">drwxr-xr-x   2 root root  4096 Nov 14  2018 sbin</span><br><span class="line">drwxr-xr-x   5 root root  4096 Feb 10  2019 snap</span><br><span class="line">drwxr-xr-x   2 root root  4096 Nov 14  2018 srv</span><br><span class="line">dr-xr-xr-x  13 root root     0 Dec 23 10:29 sys</span><br><span class="line">drwxrwxrwt   8 root root  4096 Dec 23 11:39 tmp</span><br><span class="line">drwxr-xr-x  10 root root  4096 Nov 14  2018 usr</span><br><span class="line">drwxr-xr-x  14 root root  4096 Feb 10  2019 var</span><br><span class="line">lrwxrwxrwx   1 root root    27 Nov 14  2018 vmlinuz -&gt; boot/vmlinuz-4.4.0-1072-aws</span><br></pre></td></tr></table></figure>
+
+<p>The <code>root</code> directory seems interesting. Only superusers can access it.</p>
+<p>Using <code>sudo -l</code>, I found that I could run <code>sudo</code> with no password!</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Matching Defaults entries for www-data on ip-10-10-177-115.eu-west-1.compute.internal:</span><br><span class="line">    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin</span><br><span class="line"></span><br><span class="line">User www-data may run the following commands on ip-10-10-177-115.eu-west-1.compute.internal:</span><br><span class="line">    (ALL) NOPASSWD: ALL</span><br></pre></td></tr></table></figure>
+
+<p>This means that I would be able to look at the files in the <code>root</code> directory.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo  <span class="built_in">ls</span> /root</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">3rd.txt</span><br><span class="line">snap</span><br></pre></td></tr></table></figure>
+
+<p>Awesome. Using the same method as before, I found the last flag!</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo man /root/3rd.txt</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">3rd ingredients: fleeb juice</span><br></pre></td></tr></table></figure>
+
+<p>And all the flags have been found!</p>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>All in all, this was a really simple yet fun room. It was great to put my Linux skills to the test and learn on the go. </p>
+<p>I remember learning that the <code>man</code> command can be used to page files on accident while studying for my Red Hat Common Test, and it was really cool to see it being used in this room! </p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/TryHackMe/" rel="tag"># TryHackMe</a>
+          
+            <a href="/tags/Privilege-Escalation/" rel="tag"># Privilege Escalation</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/THM-RootMe/" rel="next" title="THM: RootMe">
+                <i class="fa fa-chevron-left"></i> THM: RootMe
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/THM-Anthem/" rel="prev" title="THM: Anthem">
+                THM: Anthem <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">112</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">98</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1012</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Pre-Enumeration"><span class="nav-number">2.</span> <span class="nav-text">Pre-Enumeration</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reconnaissance"><span class="nav-number">3.</span> <span class="nav-text">Reconnaissance</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Nmap"><span class="nav-number">3.1.</span> <span class="nav-text">Nmap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Gobuster"><span class="nav-number">3.2.</span> <span class="nav-text">Gobuster</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Getting-the-Flags"><span class="nav-number">4.</span> <span class="nav-text">Getting the Flags</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#First-Ingredient-Command-Line"><span class="nav-number">4.1.</span> <span class="nav-text">First Ingredient - Command Line</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Second-Ingredient-File-System"><span class="nav-number">4.2.</span> <span class="nav-text">Second Ingredient - File System</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Third-Ingredient-Root"><span class="nav-number">4.3.</span> <span class="nav-text">Third Ingredient - Root</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number">5.</span> <span class="nav-text">Conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

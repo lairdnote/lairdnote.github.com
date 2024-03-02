@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="codeva-HZoIBm8yNp" />
+<meta name="bytedance-verification-code" content="xa6iZeY+/XCOJvarHaDY" />
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Web,React," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="IntroductionOver the past few days, I dived deeper into React and its extensive libraries to create my new and revamped portfolio website. In this entry, I’ll share my experience and insights on how I">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Building Websites with React">
+<meta property="og:url" content="https://blog.feedscoin.com/Building-Websites-with-React/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="IntroductionOver the past few days, I dived deeper into React and its extensive libraries to create my new and revamped portfolio website. In this entry, I’ll share my experience and insights on how I">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/img/react/site.gif">
+<meta property="og:image" content="https://blog.feedscoin.com/img/react/ityped.gif">
+<meta property="og:image" content="https://blog.feedscoin.com/img/react/3d.gif">
+<meta property="article:published_time" content="2023-12-17T11:38:30.000Z">
+<meta property="article:modified_time" content="2024-03-02T04:47:56.775Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="React">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/img/react/site.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/Building-Websites-with-React/"/>
+
+
+
+
+
+  <title>Building Websites with React | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/Building-Websites-with-React/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Building Websites with React</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-12-17T11:38:30+00:00">
+                2023-12-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Web/" itemprop="url" rel="index">
+                    <span itemprop="name">Web</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Over the past few days, I dived deeper into React and its extensive libraries to create my new and revamped <a target="_blank" rel="noopener" href="https://kairostay.com/">portfolio website</a>. In this entry, I’ll share my experience and insights on how I brought my site to life!<br><img src="/../img/react/site.gif" alt="site"></p>
+<h2 id="Understanding-the-Basics"><a href="#Understanding-the-Basics" class="headerlink" title="Understanding the Basics"></a>Understanding the Basics</h2><p>To preface, React is a popular JavaScript library for building user interfaces. It has a component-based architecture, meaning that each “piece” of the UI is broken down into reusable components, such as the navigation bar, sections, footers and more.</p>
+<p>This simplifies the development process and reduce the hardcoded-ness of the code.</p>
+<h2 id="Hardcoded"><a href="#Hardcoded" class="headerlink" title="Hardcoded?"></a>Hardcoded?</h2><p>In my previous iteration of my portfolio website that was built with pure, vanilla HTML, CSS and JS, almost everything was hardcoded. If I had a major change to say, the navigation bar, I would have to go through every single page and change it.</p>
+<p>This is not only tedious, but also inefficient. Additionally, as the content grew, the loading times soared, and the site became slower and slower.</p>
+<p>React offered a solution to this problem. With its component-based architecture, I could create a single component, and reuse it across the entire site.</p>
+<h2 id="Building-the-Site"><a href="#Building-the-Site" class="headerlink" title="Building the Site"></a>Building the Site</h2><p>To build my site, I used the following technologies:</p>
+<ul>
+<li>React</li>
+<li>iTyped</li>
+<li>Three.js</li>
+<li>React Three Fiber</li>
+<li>Framer Motion</li>
+<li>Tailwind CSS</li>
+<li>Bootstrap Icons</li>
+</ul>
+<h3 id="Landing-Page-Hero"><a href="#Landing-Page-Hero" class="headerlink" title="Landing Page (Hero)"></a>Landing Page (Hero)</h3><p>I started off with the landing page, or the hero section. I replicated this blog’s landing page with a few tweaks. The background was set to 100% width and height, so that it would always fill the entire screen. It was a pretty interesting touch, and I really liked how it came out!</p>
+<h3 id="iTyped"><a href="#iTyped" class="headerlink" title="iTyped"></a>iTyped</h3><p>This simple library allowed me to create a typing effect for the site! It was pretty simple to use too. It simply required me to import the library, create the component, and a few lines of code to get it working.<br><img src="/../img/react/ityped.gif" alt="ityped"></p>
+<h3 id="3D-Elements"><a href="#3D-Elements" class="headerlink" title="3D Elements"></a>3D Elements</h3><p>To add flair to the site, I used some 3D elements with reference to others’ code and models. Three.js and React Three Fiber allowed me to integrate the 3D graphics and make them interactive.</p>
+<p><img src="/../img/react/3d.gif" alt="3d"></p>
+<h3 id="Framer-Motion"><a href="#Framer-Motion" class="headerlink" title="Framer Motion"></a>Framer Motion</h3><p>Framer Motion is a library that allows for animations and transitions. I used it to create the smooth transitions between sections.</p>
+<p>If you were to look at the code, you’ll see a bunch of <code>motion.div</code> and <code>motion.section</code> tags. These are the components that Framer Motion provides.</p>
+<p>One small snippet would be as such:</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;motion.<span class="property">div</span></span><br><span class="line">  variants=&#123;<span class="title function_">fadeIn</span>(<span class="string">&quot;&quot;</span>, <span class="string">&quot;spring&quot;</span>, index * <span class="number">0.5</span>, <span class="number">0.75</span>)&#125;</span><br><span class="line">  className=<span class="string">&#x27;Box2 p-5 rounded-3xl xs:w-[320px] w-full&#x27;</span></span><br><span class="line">&gt;</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&#x27;mt-7 flex flex-col justify-between items-center gap-1&#x27;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">img</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">        <span class="attr">src</span>=<span class="string">&#123;image&#125;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">        <span class="attr">alt</span>=<span class="string">&#123;</span>`<span class="attr">feedback_by-</span>$&#123;<span class="attr">name</span>&#125;`&#125;</span></span></span><br><span class="line"><span class="tag"><span class="language-xml">        <span class="attr">width</span>=<span class="string">&quot;80&quot;</span> <span class="attr">height</span>=<span class="string">&quot;80&quot;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">        <span class="attr">className</span>=<span class="string">&#x27;rounded-full object-cover&#x27;</span></span></span></span><br><span class="line"><span class="tag"><span class="language-xml">      /&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&#x27;mt-3 flex-1 flex flex-col&#x27;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;<span class="name">p</span> <span class="attr">className</span>=<span class="string">&#x27;text-center text-white font-medium text-[16px]&#x27;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">          <span class="tag">&lt;<span class="name">span</span> <span class="attr">className</span>=<span class="string">&#x27;text-center blue-text-gradient&#x27;</span>&gt;</span>&#123;name&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">      <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml"></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  &lt;/div&gt;</span><br><span class="line">&lt;/motion.<span class="property">div</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<p>This added a fade in effect to the component, giving it a more polished look, which I’ve always been fond of when visiting other sites.</p>
+<h2 id="Learning-Points"><a href="#Learning-Points" class="headerlink" title="Learning Points"></a>Learning Points</h2><p>This was a really interesting project to work on, and I learnt A LOT about React and its libraries. I gained a deeper understanding of not just React, but CSS too <del>which was a major pain</del>!</p>
+<p>To add on, as I dived in headfirst, I quickly realised that I overestimated my abilities. The initial desire to create a feature-rich site incorporating stuff like the Parallax scrolling effects, 3D elements, Framer motions and more was quickly replaced with a more realistic approach. </p>
+<p>I had to cut down on the features, and focus on the core components of the site. This was a great learning point, realising that I had to be more realistic and pragmatic in my approach to projects.</p>
+<h2 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h2><p>Overall, I enjoyed building this site and I’m genuinely satisfied with the outcome. I’m looking forward to building more sites with React in the future, and hopefully implementing the features I missed out :”)</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Web/" rel="tag"># Web</a>
+          
+            <a href="/tags/React/" rel="tag"># React</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/Hello-World/" rel="next" title="Hello World! Insights into SSGs">
+                <i class="fa fa-chevron-left"></i> Hello World! Insights into SSGs
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/The-Basic-Physics-Concepts-in-Quantum-Computing/" rel="prev" title="The Basic Physics Concepts in Quantum Computing">
+                The Basic Physics Concepts in Quantum Computing <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">112</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">98</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1012</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Understanding-the-Basics"><span class="nav-number">2.</span> <span class="nav-text">Understanding the Basics</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hardcoded"><span class="nav-number">3.</span> <span class="nav-text">Hardcoded?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Building-the-Site"><span class="nav-number">4.</span> <span class="nav-text">Building the Site</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Landing-Page-Hero"><span class="nav-number">4.1.</span> <span class="nav-text">Landing Page (Hero)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#iTyped"><span class="nav-number">4.2.</span> <span class="nav-text">iTyped</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3D-Elements"><span class="nav-number">4.3.</span> <span class="nav-text">3D Elements</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Framer-Motion"><span class="nav-number">4.4.</span> <span class="nav-text">Framer Motion</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Learning-Points"><span class="nav-number">5.</span> <span class="nav-text">Learning Points</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Conclusion"><span class="nav-number">6.</span> <span class="nav-text">Conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="codeva-HZoIBm8yNp" />
+<meta name="bytedance-verification-code" content="xa6iZeY+/XCOJvarHaDY" />
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Windows,Forensics,TryHackMe," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="IntroductionThis is a writeup for the room THM: Investigating Windows on TryHackMe. It relates to Windows forensics. While I am rather interested in digital forensics, I haven’t done much of operating">
+<meta property="og:type" content="article">
+<meta property="og:title" content="THM: Investigating Windows">
+<meta property="og:url" content="https://blog.feedscoin.com/THM-Investigating-Windows/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="IntroductionThis is a writeup for the room THM: Investigating Windows on TryHackMe. It relates to Windows forensics. While I am rather interested in digital forensics, I haven’t done much of operating">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/Q1.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/Q2.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/Q3.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/hf.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/startup.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/Q4.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/Settings.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/Q5.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/Q6.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/Popup.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/Q10.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/Q11.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/Q12a.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/Q12b.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/Q13.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/Q14.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/investigatingwindows/Q15.png">
+<meta property="article:published_time" content="2023-12-25T22:54:39.000Z">
+<meta property="article:modified_time" content="2024-03-02T04:47:56.775Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Windows">
+<meta property="article:tag" content="Forensics">
+<meta property="article:tag" content="TryHackMe">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/img/investigatingwindows/Q1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/THM-Investigating-Windows/"/>
+
+
+
+
+
+  <title>THM: Investigating Windows | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/THM-Investigating-Windows/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">THM: Investigating Windows</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-12-25T22:54:39+00:00">
+                2023-12-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/TryHackMe/" itemprop="url" rel="index">
+                    <span itemprop="name">TryHackMe</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>This is a writeup for the room <a target="_blank" rel="noopener" href="https://tryhackme.com/room/investigatingwindows">THM: Investigating Windows</a> on <a target="_blank" rel="noopener" href="https://tryhackme.com/">TryHackMe</a>. It relates to Windows forensics. While I am rather interested in digital forensics, I haven’t done much of operating system forensics, let alone Windows forensics.</p>
+<blockquote>
+<p>This is a challenge that is exactly what is says on the tin, there are a few challenges around investigating a windows machine that has been previously compromised.</p>
+</blockquote>
+<p>Connect to the machine using RDP. The credentials the machine are as follows:</p>
+<p>Username: Administrator<br>Password: letmein123!</p>
+<p>Please note that this machine does not respond to ping (ICMP) and may take a few minutes to boot up.</p>
+<h1 id="Questions"><a href="#Questions" class="headerlink" title="Questions"></a>Questions</h1><h2 id="1-What-is-the-version-and-year-of-the-windows-machine"><a href="#1-What-is-the-version-and-year-of-the-windows-machine" class="headerlink" title="1. What is the version and year of the windows machine?"></a>1. What is the version and year of the windows machine?</h2><p>This was rather straightforward. I went into the Windows Settings &gt; System &gt; About and found the version and year of the Windows machine.</p>
+<p><img src="/./img/investigatingwindows/Q1.png" alt="Windows Version"></p>
+<p>Ans: Windows Server 2016</p>
+<p>Alternatively, I found that you could use a PowerShell command to find the version of the Windows machine.</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Get-ComputerInfo</span></span><br></pre></td></tr></table></figure>
+
+<p>The answer would be under the <code>OsName</code> field.</p>
+<h2 id="2-Which-user-logged-in-last"><a href="#2-Which-user-logged-in-last" class="headerlink" title="2. Which user logged in last?"></a>2. Which user logged in last?</h2><p>Log ons are recorded in the Windows Event Log. In the search bar, I looked for the Event Viewer and opened it.</p>
+<p>I then went to <code>Windows Logs &gt; Security</code>, which is where the log ons and other security events are recorded. I then looked for the latest log on event.</p>
+<p><img src="/./img/investigatingwindows/Q2.png" alt="Event Viewer"></p>
+<p>Ans: Administrator</p>
+<p>Additionally, one could filter the logs based on the Event ID. The Event ID for log on events is 4624, and the ID for special privileges assigned to a new log on is 4672.</p>
+<h2 id="3-When-did-John-log-onto-the-system-last-Answer-format-MM-DD-YYYY-H-MM-SS-AM-PM"><a href="#3-When-did-John-log-onto-the-system-last-Answer-format-MM-DD-YYYY-H-MM-SS-AM-PM" class="headerlink" title="3. When did John log onto the system last? Answer format: MM&#x2F;DD&#x2F;YYYY H:MM:SS AM&#x2F;PM"></a>3. When did John log onto the system last? Answer format: MM&#x2F;DD&#x2F;YYYY H:MM:SS AM&#x2F;PM</h2><p>I filtered the logs for the user <code>John</code> and looked for the latest log on event.</p>
+<p><img src="/./img/investigatingwindows/Q3.png" alt="Event Viewer"></p>
+<p>Ans: 03&#x2F;02&#x2F;2019 5:48:32 PM</p>
+<p>Similarly, a better way to do this would be to filter the logs based on the Event ID as mentioned above.</p>
+<h2 id="4-What-IP-does-the-system-connect-to-when-it-first-starts"><a href="#4-What-IP-does-the-system-connect-to-when-it-first-starts" class="headerlink" title="4. What IP does the system connect to when it first starts?"></a>4. What IP does the system connect to when it first starts?</h2><p>The first thing I did was to check out the hosts file. I went to <code>C:\Windows\System32\drivers\etc</code> and opened the hosts file in Notepad.</p>
+<p><img src="/./img/investigatingwindows/hf.png" alt="Hosts File"></p>
+<p>Looking at the file, there were many entries pointing to the local host. This was a little weird, but we can come back to it in a bit.</p>
+<p>I remember seeing something when I started the machine up.</p>
+<p><img src="/./img/investigatingwindows/startup.png" alt="Startup"></p>
+<p>It did show what IP it w as connecting to!</p>
+<p>Ans: 10.34.2.3</p>
+<p>Frankly, this was quite easy to miss since it was a popup that disappeared quickly. Another way would be to look at the <code>regedit</code>. In regedit, and at <code>HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run</code>. This is where startup programs are stored.</p>
+<p><img src="/./img/investigatingwindows/Q4.png" alt="Regedit"></p>
+<h2 id="5-What-two-accounts-had-administrative-privileges-other-than-the-Administrator-user-Answer-format-username1-username2"><a href="#5-What-two-accounts-had-administrative-privileges-other-than-the-Administrator-user-Answer-format-username1-username2" class="headerlink" title="5. What two accounts had administrative privileges (other than the Administrator user)? Answer format: username1, username2"></a>5. What two accounts had administrative privileges (other than the Administrator user)? Answer format: username1, username2</h2><p>Initially, when answering the first question, I snooped around the users settings too. I saw two other accounts, John and Jenny.</p>
+<p><img src="/./img/investigatingwindows/Settings.png" alt="Users"></p>
+<p>Sadly, they were not the answers. I searched up commands to find the answer.</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">net</span> localgroup administrators</span><br></pre></td></tr></table></figure>
+
+<p><img src="/./img/investigatingwindows/Q5.png" alt="Admins"></p>
+<p>Ans: Jenny, Guest</p>
+<h2 id="6-Whats-the-name-of-the-scheduled-task-that-is-malicious"><a href="#6-Whats-the-name-of-the-scheduled-task-that-is-malicious" class="headerlink" title="6. Whats the name of the scheduled task that is malicious?"></a>6. Whats the name of the scheduled task that is malicious?</h2><p>For this task, I looked around in the Task Scheduler &gt; Task Scheduler Library. There were a few tasks:</p>
+<p><img src="/./img/investigatingwindows/Q6.png" alt="Tasks"></p>
+<p>Here, the one that stood out and could fit the answer blank was the <code>Clean file system</code>.</p>
+<p>Ans: Clean file system</p>
+<h2 id="7-What-file-was-the-task-trying-to-run-daily"><a href="#7-What-file-was-the-task-trying-to-run-daily" class="headerlink" title="7. What file was the task trying to run daily?"></a>7. What file was the task trying to run daily?</h2><p>Looking at the <code>Actions</code> tab of the task, it was trying to run a file <code>nc.ps1</code>.</p>
+<p>Ans: nc.ps1</p>
+<h2 id="8-What-port-did-this-file-listen-locally-for"><a href="#8-What-port-did-this-file-listen-locally-for" class="headerlink" title="8. What port did this file listen locally for?"></a>8. What port did this file listen locally for?</h2><p>Also in the <code>Actions</code> tab, we can see that the file was listening on port 1348.</p>
+<h2 id="9-When-did-Jenny-last-logon"><a href="#9-When-did-Jenny-last-logon" class="headerlink" title="9. When did Jenny last logon?"></a>9. When did Jenny last logon?</h2><p>In a similar fashion to Q3, I filtered the logs for the user <code>Jenny</code> and looked for the latest log on event. Except… there were no log on events for Jenny.</p>
+<p>Ans: Never</p>
+<h2 id="10-At-what-date-did-the-compromise-take-place-Answer-format-MM-DD-YYYY"><a href="#10-At-what-date-did-the-compromise-take-place-Answer-format-MM-DD-YYYY" class="headerlink" title="10. At what date did the compromise take place? Answer format: MM&#x2F;DD&#x2F;YYYY"></a>10. At what date did the compromise take place? Answer format: MM&#x2F;DD&#x2F;YYYY</h2><p>Throughout the time I was on the machine, there was a program that kept popping  up.</p>
+<p><img src="/./img/investigatingwindows/Popup.png" alt="Program"></p>
+<p>It showed the path of the program, <code>C:\TMP\mim.exe</code>. So, the date of the compromise would probably be when the file&#x2F;folder was created. Navigating to the folder:</p>
+<p><img src="/./img/investigatingwindows/Q10.png" alt="Folder"></p>
+<p>Ans: 03&#x2F;02&#x2F;2019</p>
+<h2 id="11-During-the-compromise-at-what-time-did-Windows-first-assign-special-privileges-to-a-new-logon-MM-DD-YYYY-HH-MM-SS-AM-PM"><a href="#11-During-the-compromise-at-what-time-did-Windows-first-assign-special-privileges-to-a-new-logon-MM-DD-YYYY-HH-MM-SS-AM-PM" class="headerlink" title="11. During the compromise, at what time did Windows first assign special privileges to a new logon? MM&#x2F;DD&#x2F;YYYY HH:MM:SS AM&#x2F;PM"></a>11. During the compromise, at what time did Windows first assign special privileges to a new logon? MM&#x2F;DD&#x2F;YYYY HH:MM:SS AM&#x2F;PM</h2><p>We know that the compromise took place on 03&#x2F;02&#x2F;2019, and around 4.37pm. So, I filtered the logs for event ID 4672 and between around 4.00pm to 5pm.</p>
+<p>After I filtered it, and found the latest event, I got a wrong answer :(</p>
+<p>I tried filtering only for Security events the same way and I got the answer:</p>
+<p><img src="/./img/investigatingwindows/Q11.png" alt="Event"></p>
+<p>After looking back at the question, I realised that the issue was the Task Category rather than the type of event. It should be <code>Security Group Management</code> instead of <code>Special Logon</code>. Security Group Management (Special Logon) is apparently different from Special Logon! </p>
+<p>Special logon: User logon sessions with special privileges<br>Security Group Management (Special Logon): User with special privileges logs on AND performs an action that changes security groups&#x2F;group memberships. </p>
+<p>So, we should be searching for Security Group Management (Special Logon) events instead since we are looking for the time the logon was <strong>assigned</strong> special privileges.</p>
+<p>Ans: 03&#x2F;02&#x2F;2019 4:04:49 PM</p>
+<h2 id="12-What-tool-was-used-to-get-Windows-passwords"><a href="#12-What-tool-was-used-to-get-Windows-passwords" class="headerlink" title="12. What tool was used to get Windows passwords?"></a>12. What tool was used to get Windows passwords?</h2><p>Earlier on, in the task scheduler, I found other tasks. I looked through the <code>Actions</code> tab of each of the tasks and one of them, <code>GameOver</code> had one that seemed to take the passwords. Anyway, I’ve been seeing the same pop up every 5 minutes, but it didn’t last long enough for me to read it.</p>
+<p><img src="/./img/investigatingwindows/Q12a.png" alt="GameOver"></p>
+<p>Since the task was running <code>mim.exe</code> in the same folder earlier, I checked out the files there. I tried running the file again but the pop up disappeared too quickly. Anyway, I found a file <code>mim-out</code> which seemed to be the output of the program.</p>
+<p><img src="/./img/investigatingwindows/Q12b.png" alt="mim-out"></p>
+<p>Ans: mimikatz</p>
+<h2 id="13-What-was-the-attackers-external-control-and-command-servers-IP"><a href="#13-What-was-the-attackers-external-control-and-command-servers-IP" class="headerlink" title="13. What was the attackers external control and command servers IP?"></a>13. What was the attackers external control and command servers IP?</h2><p>While doing task 4, the host file looked weird.</p>
+<p><img src="/./img/investigatingwindows/Q13.png" alt="Hosts File"></p>
+<p>In Command Prompt, I tried pinging google.com.</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\Administrator&gt;ping google.com</span><br><span class="line"></span><br><span class="line">Pinging google.com [<span class="number">76.32</span><span class="type">.97.132</span>] with <span class="number">32</span> bytes of <span class="keyword">data</span>:</span><br><span class="line">Request timed out.</span><br><span class="line"></span><br><span class="line">Ping statistics <span class="keyword">for</span> <span class="number">76.32</span>.<span class="number">97.132</span>:</span><br><span class="line">    Packets: Sent = <span class="number">1</span>, Received = <span class="number">0</span>, Lost = <span class="number">1</span> (<span class="number">100</span>% loss),</span><br><span class="line">Control<span class="literal">-C</span></span><br></pre></td></tr></table></figure>
+<p>It was unreachable! On my host device, when I tried pinging google.com:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kairos@opensus:~&gt; ping google.com</span><br><span class="line">PING google.com (64.233.170.101) 56(84) bytes of data.</span><br><span class="line">64 bytes from sg-in-f101.1e100.net (64.233.170.101): icmp_seq=1 ttl=102 time=7.09 ms</span><br></pre></td></tr></table></figure>
+
+<p>It was a different IP :O Seemed like the C2 server here!</p>
+<p>Ans: 76.32.97.132</p>
+<h2 id="14-What-was-the-extension-name-of-the-shell-uploaded-via-the-servers-website"><a href="#14-What-was-the-extension-name-of-the-shell-uploaded-via-the-servers-website" class="headerlink" title="14. What was the extension name of the shell uploaded via the servers website?"></a>14. What was the extension name of the shell uploaded via the servers website?</h2><p>On Windows, the default webserver is IIS (Internet Information Services). The default directory for it is <code>C:\inetpub\wwwroot</code>. I navigated to the directory.  </p>
+<p><img src="/./img/investigatingwindows/Q14.png" alt="IIS"></p>
+<p>There were two types of files, <code>.JSP</code> and <code>.GIF</code>. Obviously, the shell was not a <code>.GIF</code> file. I had to search up what <code>.JSP</code> was. </p>
+<blockquote>
+<p>JavaServer Pages (JSP) is a technology that helps software developers create dynamically generated web pages. JSP is similar to PHP and ASP, but it uses the Java programming language.</p>
+</blockquote>
+<p>Knowing that PHP reverse shells exist, I searched up more about JSP shells and it seems like they exist too, and is a common web attack vector.</p>
+<p>Ans: .jsp</p>
+<h2 id="15-What-was-the-last-port-the-attacker-opened"><a href="#15-What-was-the-last-port-the-attacker-opened" class="headerlink" title="15. What was the last port the attacker opened?"></a>15. What was the last port the attacker opened?</h2><p>Knowing little about Windows, I had to use the hint. </p>
+<blockquote>
+<p>Firewall</p>
+</blockquote>
+<p>I went to Windows Defender Firewall &gt; Monitoring &gt; Firewall to look for the latest rule. Looking at the <code>Local Port</code> column, I found the latest rule:</p>
+<p><img src="/./img/investigatingwindows/Q15.png" alt="Firewall"></p>
+<p>Ans: 1337</p>
+<h2 id="16-Check-for-DNS-poisoning-what-site-was-targeted"><a href="#16-Check-for-DNS-poisoning-what-site-was-targeted" class="headerlink" title="16. Check for DNS poisoning, what site was targeted?"></a>16. Check for DNS poisoning, what site was targeted?</h2><p>DNS poisoning, or DNS spoofing, is a way to  redirect traffic  to an attacker’s website.</p>
+<blockquote>
+<p>One way to perform a DNS poison is to modify the host file that’s located on each individual device. The host file in the machine takes precedence over any DNS queries, so it doesn’t matter what is configured in a DNS. Your computer is going to follow whatever is listed in that host file.</p>
+</blockquote>
+<p>That seems like what was happening in the host file earlier.</p>
+<p>Ans: google.com</p>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>All in all, this was a great learning experience for me, especially as someone who has very little experience with Windows forensics and cmd&#x2F;Powershell. </p>
+<p>I probably should brush up on my Windows knowledge!</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Windows/" rel="tag"># Windows</a>
+          
+            <a href="/tags/Forensics/" rel="tag"># Forensics</a>
+          
+            <a href="/tags/TryHackMe/" rel="tag"># TryHackMe</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/THM-Ignite/" rel="next" title="THM: Ignite">
+                <i class="fa fa-chevron-left"></i> THM: Ignite
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/THM-LazyAdmin/" rel="prev" title="THM: LazyAdmin">
+                THM: LazyAdmin <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">112</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">98</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1012</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Questions"><span class="nav-number">2.</span> <span class="nav-text">Questions</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-What-is-the-version-and-year-of-the-windows-machine"><span class="nav-number">2.1.</span> <span class="nav-text">1. What is the version and year of the windows machine?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Which-user-logged-in-last"><span class="nav-number">2.2.</span> <span class="nav-text">2. Which user logged in last?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-When-did-John-log-onto-the-system-last-Answer-format-MM-DD-YYYY-H-MM-SS-AM-PM"><span class="nav-number">2.3.</span> <span class="nav-text">3. When did John log onto the system last? Answer format: MM&#x2F;DD&#x2F;YYYY H:MM:SS AM&#x2F;PM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-What-IP-does-the-system-connect-to-when-it-first-starts"><span class="nav-number">2.4.</span> <span class="nav-text">4. What IP does the system connect to when it first starts?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-What-two-accounts-had-administrative-privileges-other-than-the-Administrator-user-Answer-format-username1-username2"><span class="nav-number">2.5.</span> <span class="nav-text">5. What two accounts had administrative privileges (other than the Administrator user)? Answer format: username1, username2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-Whats-the-name-of-the-scheduled-task-that-is-malicious"><span class="nav-number">2.6.</span> <span class="nav-text">6. Whats the name of the scheduled task that is malicious?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-What-file-was-the-task-trying-to-run-daily"><span class="nav-number">2.7.</span> <span class="nav-text">7. What file was the task trying to run daily?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-What-port-did-this-file-listen-locally-for"><span class="nav-number">2.8.</span> <span class="nav-text">8. What port did this file listen locally for?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-When-did-Jenny-last-logon"><span class="nav-number">2.9.</span> <span class="nav-text">9. When did Jenny last logon?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#10-At-what-date-did-the-compromise-take-place-Answer-format-MM-DD-YYYY"><span class="nav-number">2.10.</span> <span class="nav-text">10. At what date did the compromise take place? Answer format: MM&#x2F;DD&#x2F;YYYY</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#11-During-the-compromise-at-what-time-did-Windows-first-assign-special-privileges-to-a-new-logon-MM-DD-YYYY-HH-MM-SS-AM-PM"><span class="nav-number">2.11.</span> <span class="nav-text">11. During the compromise, at what time did Windows first assign special privileges to a new logon? MM&#x2F;DD&#x2F;YYYY HH:MM:SS AM&#x2F;PM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#12-What-tool-was-used-to-get-Windows-passwords"><span class="nav-number">2.12.</span> <span class="nav-text">12. What tool was used to get Windows passwords?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#13-What-was-the-attackers-external-control-and-command-servers-IP"><span class="nav-number">2.13.</span> <span class="nav-text">13. What was the attackers external control and command servers IP?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#14-What-was-the-extension-name-of-the-shell-uploaded-via-the-servers-website"><span class="nav-number">2.14.</span> <span class="nav-text">14. What was the extension name of the shell uploaded via the servers website?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-What-was-the-last-port-the-attacker-opened"><span class="nav-number">2.15.</span> <span class="nav-text">15. What was the last port the attacker opened?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#16-Check-for-DNS-poisoning-what-site-was-targeted"><span class="nav-number">2.16.</span> <span class="nav-text">16. Check for DNS poisoning, what site was targeted?</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number">3.</span> <span class="nav-text">Conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

